@@ -1,1 +1,1 @@
-# trabajo_profesional_algo_trading
+# Trabajo Profesional | Algo Trading
