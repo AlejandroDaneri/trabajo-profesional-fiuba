@@ -1,1 +1,0 @@
-print("Trabajo Profesional | Algo Trading")
