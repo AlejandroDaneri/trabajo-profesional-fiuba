@@ -12,5 +12,14 @@ def RSI(data, rounds):
     data['EMA_win'] = data.win.ewm(alpha=1/rounds).mean()
     data['EMA_loss'] = data.loss.ewm(alpha=1/rounds).mean()
     data['RS'] = data.EMA_win / data.EMA_loss
-    data['RSI'] = 100 - (100 /1+data.RS)
-    data
+    data['RSI'] = 100 - (100 /(1+data.RS))
+    return data
+
+def MACD(data,slow,fast,suavizado):
+    data["ema_fast"]=data.Close.ewm(span=fast).mean()
+    data["ema_slow"]=data.Close.ewm(span=slow).mean()
+    data["macd"]=data.ema_fast - data.ema_slow
+    data['signal']=data.macd.ewm(span=suavizado).mean()
+    data['histogram'] = data.macd- data.signal
+    data = data.dropna().round(2)
+    return data
