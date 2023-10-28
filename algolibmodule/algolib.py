@@ -22,20 +22,37 @@ class AlgoLib:
         data['RSI'] = 100 - (100 /(1 + data.RS))
         return data
 
-    def MACD(self, slow, fast, suavizado):
+    """
+    ### Moving Average Converge Divergence ###
+
+                FAST   - SLOW
+    MACD LINE = EMA 12 - EMA 23
+    
+    SIGNAL = EMA 9 (MACD LINE)
+    MACD = SIGNAL - MACD LINE
+
+    ##########################################
+    """
+    def MACD(self, slow = 23, fast = 12, suavizado = 9):
         data = self.data
         data["ema_fast"] = data.Close.ewm(span=fast).mean()
         data["ema_slow"] = data.Close.ewm(span=slow).mean()
         data["macd"] = data.ema_fast - data.ema_slow
         data['signal'] = data.macd.ewm(span=suavizado).mean()
-        data['histogram'] = data.macd- data.signal
+        data['histogram'] = data.macd - data.signal
         data = data.dropna().round(2)
         return data
     
     def plot_RSI(self):
         data = self.data
-        return plt.plot(data.RSI)
+        fig = plt.figure()
+        fig.set_size_inches(30, 5)
+        plt.plot(data.RSI)
+        plt.show()
     
     def plot_MACD(self):
         data = self.data
-        return plt.plot(data.macd)
+        fig = plt.figure()
+        fig.set_size_inches(30, 5)
+        plt.plot(data.macd)
+        plt.show()
