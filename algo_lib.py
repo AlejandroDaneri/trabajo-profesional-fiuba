@@ -6,9 +6,9 @@ def get_prizes_from_binance():
     return '100k'
 
 def RSI(data, rounds):
-    data['diff']= data.Close.diff()
-    data['win']= np.where(data['diff']>0,data['diff'],0)
-    data['loss']= np.where(data['diff']<0,abs(data['diff']),0)
+    data['diff'] = data.Close.diff()
+    data['win'] = np.where(data['diff']>0,data['diff'],0)
+    data['loss'] = np.where(data['diff']<0,abs(data['diff']),0)
     data['EMA_win'] = data.win.ewm(alpha=1/rounds).mean()
     data['EMA_loss'] = data.loss.ewm(alpha=1/rounds).mean()
     data['RS'] = data.EMA_win / data.EMA_loss
@@ -16,10 +16,10 @@ def RSI(data, rounds):
     return data
 
 def MACD(data,slow,fast,suavizado):
-    data["ema_fast"]=data.Close.ewm(span=fast).mean()
-    data["ema_slow"]=data.Close.ewm(span=slow).mean()
-    data["macd"]=data.ema_fast - data.ema_slow
-    data['signal']=data.macd.ewm(span=suavizado).mean()
+    data["ema_fast"] = data.Close.ewm(span=fast).mean()
+    data["ema_slow"] = data.Close.ewm(span=slow).mean()
+    data["macd"] = data.ema_fast - data.ema_slow
+    data['signal'] = data.macd.ewm(span=suavizado).mean()
     data['histogram'] = data.macd- data.signal
     data = data.dropna().round(2)
     return data
