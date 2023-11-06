@@ -44,6 +44,9 @@ class AlgoLib:
         data['histogram'] = data.macd - data.signal
         data = data.dropna().round(2)
         return data
+
+    def backtesting(self):
+        print('hola backtesting')
     
     def OBV(self, n):
         data['Balance'] = np.where(data.Close > data.Close.shift(), data['Volume'], np.where(data.Close < data.Close.shift(), -data['Volume'], 0))
