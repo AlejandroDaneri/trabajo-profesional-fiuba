@@ -61,8 +61,18 @@ class AlgoLib:
     def OBV(self, n):
         data['Balance'] = np.where(data.Close > data.Close.shift(), data['Volume'], np.where(data.Close < data.Close.shift(), -data['Volume'], 0))
         data['OBV'] = data['Balance'].rolling(n).sum()
-        data['OBV_acotado'] = (data.OBV - data.OBV.rolling(n).min())/(data.OBV.rolling(n).max() - data.OBV.rolling(n).min())
+        data['OBV_acotado'] = self.narror_indicator_by('min_dist',data['OBV'],n)
         return data
+    
+    def narror_indicator_by(self,type_,col,n):
+        narrow_types = {
+        'min_dist': (col - col.rolling(n).min())/(col.rolling(n).max() - col.rolling(n).min()),
+        'z_scores_n_window': (col - col.rolling(n).mean())/(col.rolling(n).std()),
+        'z_scores_all': (col - col.mean() / col.std())
+        }
+        return narrow_types.get(type_)
+    
+
 
     def plot_RSI(self):
         data = self.data
