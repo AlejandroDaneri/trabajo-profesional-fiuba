@@ -46,17 +46,89 @@ class AlgoLib:
         data = data.dropna().round(2)
         return data
 
-    def backtesting(self):
+    def backtesting(self,indicator = 'RSI',trig_buy=65,trig_sell=55):
         # por ahora estrategia unicamente utilizando rsi
         data = self.data
-        gatillos_compra = pd.DataFrame(index = self.data)
-        gatillos_venta= pd.DataFrame(index = self.data)
+        data.dropna(inplace=True) 
+
         # calculo el RSI
         self.RSI(14)
-        gatillos_compra['rsi'] = np.where(data.rsi > 65, True, False)
-        gatillos_venta['rsi'] = np.where(data.rsi < 55, True, False)
-        print("cantidad de gatillo venta: {}".format(gatillos_venta.sum()))
-        print("cantidad de gatillo compra: {}".format(mascara_compra.count()))
+        gatillos_compra = pd.DataFrame(index = data.index)
+        gatillos_venta= pd.DataFrame(index = data.index)
+
+
+        gatillos_compra[indicator] = np.where(data[indicator] > trig_buy, True, False)
+        gatillos_venta[indicator] = np.where(data[indicator]  < trig_sell, True, False)
+
+        mascara_compra = gatillos_compra.all(axis=1)
+        mascara_compra.sum(), mascara_compra.count()
+
+        mascara_venta = gatillos_venta.all(axis=1)
+        mascara_venta.sum(), mascara_venta.count()
+
+        data['gatillo']= np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
+        actions= data.loc[data.gatillo !=''].copy() 
+        actions['gatillo']= np.where(actions.gatillo != actions.gatillo.shift(), actions.gatillo, "")
+
+        actions=actions.loc[actions.gatillo !=''].copy() 
+
+        if actions.iloc[0].loc['gatillo'] == 'venta':
+            actions = actions.iloc[1:]
+        if actions.iloc[-1].loc['gatillo'] == 'compra':
+            actions = actions.iloc[:-1]
+            pares = actions.iloc[::2].loc[:,['Close']].reset_index()
+        impares = actions.iloc[1::2].loc[:,['Close']].reset_index()
+        trades = pd.concat([pares,impares],axis=1)
+        trades
+        CT=0
+
+        trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta','px_venta'] 
+
+        trades['rendimiento'] = trades.px_venta / trades.px_compra - 1
+
+        trades['rendimiento'] -=CT
+
+        trades['dias'] = (trades.fecha_venta - trades.fecha_compra).dt.days
+        if len(trades):
+            trades['resultado']= np.where(trades['rendimiento' ] > 0, 'Ganador', 'Perdedor')
+            trades['rendimientoAcumulado'] = (trades['rendimiento']+1).cumprod()-1
+
+
+        if len(trades):
+            resultado = float(trades.iloc[-1].rendimientoAcumulado-1) 
+            agg_cant= trades.groupby('resultado').size()
+            agg_rend = trades.groupby('resultado').mean()['rendimiento'] 
+            agg_tiempos = trades.groupby('resultado').sum()['dias'] 
+            agg_tiempos_medio = trades.groupby("resultado").mean()['dias']
+
+            r = pd.concat([agg_cant, agg_rend, agg_tiempos, agg_tiempos_medio], axis=1) 
+            r.columns = ['Cantidad', 'Rendimiento x Trade', 'Dias Total', 'Dias x Trade']
+            resumen = r.T
+
+            try:
+                t_win = r['Dias Total']['Ganador']
+            except:
+                t_win = 0
+
+            try:
+                t_loss = r['Dias Total']['Perdedor']
+            except:
+                t_loss = 0
+
+            t = t_win + t_loss
+
+            tea = (resultado +1)*(365/t)-1 if t> 0 else 0
+
+            metricas  ={'rendimiento':round(resultado,4), 'dias in':round(t,4), 'TEA':round(tea,4)}
+
+
+        else:
+            resumen = pd.DataFrame()
+            metricas = {'rendimiento' :0, 'dias_in':0, 'TEA':0}
+        print(actions)
+        print(resumen) 
+        print(metricas)
+
     
     def OBV(self, n):
         data['Balance'] = np.where(data.Close > data.Close.shift(), data['Volume'], np.where(data.Close < data.Close.shift(), -data['Volume'], 0))
@@ -66,9 +138,9 @@ class AlgoLib:
     
     def narror_indicator_by(self,type_,col,n):
         narrow_types = {
-        'min_dist': (col - col.rolling(n).min())/(col.rolling(n).max() - col.rolling(n).min()),
-        'z_scores_n_window': (col - col.rolling(n).mean())/(col.rolling(n).std()),
-        'z_scores_all': (col - col.mean() / col.std())
+            'min_dist': (col - col.rolling(n).min())/(col.rolling(n).max() - col.rolling(n).min()),
+            'z_scores_n_window': (col - col.rolling(n).mean())/(col.rolling(n).std()),
+            'z_scores_all': (col - col.mean() / col.std())
         }
         return narrow_types.get(type_)
     
