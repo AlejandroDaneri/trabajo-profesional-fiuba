@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  my_python_app:
+    image: mi_imagen_python_pandas
+    volumes:
+      - ./:/app
+    working_dir: /app
+    command: ["python", "main.py"]
