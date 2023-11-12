@@ -30,29 +30,15 @@ def get_gatillos_venta(data, features):
     gatillos_venta['all'] = gatillos_venta.all(axis=1)
     return gatillos_venta
 
+def get_acciones(gatillos_compra, gatillos_venta):
+    acciones = pd.DataFrame(index = gatillos_compra.index)
+    return acciones
+
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
         # por ahora estrategia unicamente utilizando rsi
         data = self.data
         data.dropna(inplace=True) 
-        
-
-        ### ###
-
-        ### gatillos ###
-
-        # ahora vamos a hacer la parte de gatillos
-        gatillos_compra = pd.DataFrame(index = data.index)
-        gatillos_venta = pd.DataFrame(index = data.index)
-
-        # creo columna indicando si se el indicador da compra/venta en cada una de las filas
-        gatillos_compra[indicator] = np.where(data[indicator] > trig_buy, True, False)
-        gatillos_venta[indicator] = np.where(data[indicator]  < trig_sell, True, False)
-        
-        ### ###
-
-        mascara_compra = gatillos_compra.all(axis=1)
-        mascara_venta = gatillos_venta.all(axis=1)
-
+   
         data['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
         actions = data.loc[data.gatillo != ''].copy()
         actions['gatillo'] = np.where(actions.gatillo != actions.gatillo.shift(), actions.gatillo, "")
