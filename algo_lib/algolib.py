@@ -17,10 +17,17 @@ def get_gatillos_compra(data, features):
             gatillos_compra['sigma'] = np.where(data['sigma'] > 0.01, True, False)
         elif feature == 'cruce':
             gatillos_compra['cruce'] = np.where(data['cruce'] > 0, True, False)
+    gatillos_compra['all'] = gatillos_compra.all(axis=1)
     return gatillos_compra
 
 def get_gatillos_venta(data, features):
     gatillos_venta = pd.DataFrame(index = data.index)
+    for feature in features:
+        if feature == 'rsi':
+            gatillos_venta['rsi'] = np.where(data['rsi'] < 55, True, False)
+        elif feature == 'cruce':
+            gatillos_venta['cruce'] = np.where(data['cruce'] < -0.01, True, False)
+    gatillos_venta['all'] = gatillos_venta.all(axis=1)
     return gatillos_venta
 
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
