@@ -24,9 +24,9 @@ class AlgoLib:
         data['EMA_win'] = data.win.ewm(alpha = 1/rounds).mean()
         # se calcula una media movil exponencial de las perdidas
         data['EMA_loss'] = data.loss.ewm(alpha = 1/rounds).mean()
-        # cociente entre ellas
+        # cociente entre ellas
         data['RS'] = data.EMA_win / data.EMA_loss
-        # se calcula finalmente el RSI
+        # se calcula finalmente el RSI
         data['RSI'] = 100 - (100 / (1 + data.RS))
         return data
 
@@ -34,7 +34,7 @@ class AlgoLib:
         data = self.data
         # se calcula una media movil exponencial rapida
         data["ema_fast"] = data.Close.ewm(span = fast).mean()
-        # se calcula una media movil exponencial lenta
+        # se calcula una media movil exponencial lenta
         data["ema_slow"] = data.Close.ewm(span = slow).mean()
         # la resta de las medias moviles es otra media movil llamada macd
         data["macd"] = data.ema_fast - data.ema_slow
@@ -46,7 +46,7 @@ class AlgoLib:
         data = data.dropna().round(2)
         return data
 
-    def backtesting(self,indicator = 'RSI',trig_buy=65,trig_sell=55):
+    def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
         # por ahora estrategia unicamente utilizando rsi
         data = self.data
         data.dropna(inplace=True) 
@@ -54,23 +54,19 @@ class AlgoLib:
         # calculo el RSI
         self.RSI(14)
         gatillos_compra = pd.DataFrame(index = data.index)
-        gatillos_venta= pd.DataFrame(index = data.index)
+        gatillos_venta = pd.DataFrame(index = data.index)
 
-
+        # creo columna indicando si se el indicador da compra/venta en cada una de las filas
         gatillos_compra[indicator] = np.where(data[indicator] > trig_buy, True, False)
         gatillos_venta[indicator] = np.where(data[indicator]  < trig_sell, True, False)
 
         mascara_compra = gatillos_compra.all(axis=1)
-        mascara_compra.sum(), mascara_compra.count()
-
         mascara_venta = gatillos_venta.all(axis=1)
-        mascara_venta.sum(), mascara_venta.count()
 
-        data['gatillo']= np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
-        actions= data.loc[data.gatillo !=''].copy() 
-        actions['gatillo']= np.where(actions.gatillo != actions.gatillo.shift(), actions.gatillo, "")
-
-        actions=actions.loc[actions.gatillo !=''].copy() 
+        data['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
+        actions = data.loc[data.gatillo != ''].copy()
+        actions['gatillo'] = np.where(actions.gatillo != actions.gatillo.shift(), actions.gatillo, "")
+        actions = actions.loc[actions.gatillo !=''].copy() 
 
         if actions.iloc[0].loc['gatillo'] == 'venta':
             actions = actions.iloc[1:]
@@ -90,19 +86,18 @@ class AlgoLib:
 
         trades['dias'] = (trades.fecha_venta - trades.fecha_compra).dt.days
         if len(trades):
-            trades['resultado']= np.where(trades['rendimiento' ] > 0, 'Ganador', 'Perdedor')
+            trades['resultado'] = np.where(trades['rendimiento' ] > 0, 'Ganador', 'Perdedor')
             trades['rendimientoAcumulado'] = (trades['rendimiento']+1).cumprod()-1
-
 
         if len(trades):
             resultado = float(trades.iloc[-1].rendimientoAcumulado-1) 
-            agg_cant= trades.groupby('resultado').size()
-            agg_rend = trades.groupby('resultado').mean()['rendimiento'] 
+            #agg_cant = trades.groupby('Nose').size()
+            agg_rend = trades.groupby('resultado').mean()['rendimiento']
             agg_tiempos = trades.groupby('resultado').sum()['dias'] 
             agg_tiempos_medio = trades.groupby("resultado").mean()['dias']
 
-            r = pd.concat([agg_cant, agg_rend, agg_tiempos, agg_tiempos_medio], axis=1) 
-            r.columns = ['Cantidad', 'Rendimiento x Trade', 'Dias Total', 'Dias x Trade']
+            r = pd.concat([agg_rend, agg_tiempos, agg_tiempos_medio], axis=1) 
+            r.columns = ['Rendimiento x Trade', 'Dias Total', 'Dias x Trade']
             resumen = r.T
 
             try:
@@ -119,7 +114,7 @@ class AlgoLib:
 
             tea = (resultado +1)*(365/t)-1 if t> 0 else 0
 
-            metricas  ={'rendimiento':round(resultado,4), 'dias in':round(t,4), 'TEA':round(tea,4)}
+            metricas  = {'rendimiento':round(resultado,4), 'dias in':round(t,4), 'TEA':round(tea,4)}
 
 
         else:
