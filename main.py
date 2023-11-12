@@ -14,9 +14,10 @@ print("Indicators: \n: {}".format(df))
 
 # determinemos los gatillos de compra y de venta
 gatillos_compra = get_gatillos_compra(df, ['rsi', 'sigma', 'cruce'])
-gatillos_venta = get_gatillos_venta(df, ['rsi', 'sigma', 'cruce'])
+gatillos_venta = get_gatillos_venta(df, ['rsi', 'cruce'])
 
 print("Gatillos Compra: \n: {}".format(gatillos_compra))
+print("Gatillos Venta: \n: {}".format(gatillos_venta))
 
 
 
