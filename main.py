@@ -1,12 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov  9 16:26:33 2023
+from algo_lib.algolib import get_data, RSI, MACD
 
-@author: sebastianripari
-"""
+df = get_data('BTC-USD', '2021-01-01')
 
-from algolibmodule.algolib import AlgoLib
+# calculamos las features
+rsi = RSI(df)
+macd = MACD(df)
+df['rsi'] = rsi
+df['macd'] = macd
+print(df.head())
 
-algo_lib2 = AlgoLib('BTC-USD', '2021-01-01')
-algo_lib2.backtesting()
