@@ -10,6 +10,13 @@ def get_data(ticker, start_date):
 
 def get_gatillos_compra(data, features):
     gatillos_compra = pd.DataFrame(index = data.index)
+    for feature in features:
+        if feature == 'rsi':
+            gatillos_compra['rsi'] = np.where(data['rsi'] > 65, True, False)
+        elif feature == 'sigma':
+            gatillos_compra['sigma'] = np.where(data['sigma'] > 0.01, True, False)
+        elif feature == 'cruce':
+            gatillos_compra['cruce'] = np.where(data['cruce'] > 0, True, False)
     return gatillos_compra
 
 def get_gatillos_venta(data, features):

@@ -36,3 +36,15 @@ def MACD(data, slow = 23, fast = 12, suavizado = 9):
     df['histogram'] = df.macd - df.signal
     df = df.dropna().round(2)
     return df['histogram']
+
+def SIGMA(data, n = 40):
+    df = pd.DataFrame(index = data.index)
+    df['Close'] = data['Close']
+    df['sigma'] = df.Close.pct_change().rolling(n).std()
+    return df['sigma']
+
+def CRUCE(data, fast = 20, slow = 60):
+    df = pd.DataFrame(index = data.index)
+    df['Close'] = data['Close']
+    df['cruce'] = df.Close.rolling(fast).mean() / df.Close.rolling(slow).mean() - 1
+    return df['cruce']
