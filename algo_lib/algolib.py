@@ -31,18 +31,23 @@ def get_gatillos_venta(data, features):
     return gatillos_venta
 
 def get_acciones(gatillos_compra, gatillos_venta):
-    acciones = pd.DataFrame(index = gatillos_compra.index)
+    gatillos = pd.DataFrame(index = gatillos_compra.index)
+    mascara_compra = gatillos_compra['all']
+    mascara_venta = gatillos_venta['all']
+    # definimos para cada dia si se dispara un gatillo de compra o de venta, o ninguno de los dos
+    gatillos['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
+    # un nuevo dataframe con las filas filtradas para las cuales no habia ni gatillo de compra ni de venta
+    acciones = gatillos.loc[gatillos['gatillo'] != ''].copy()
+    # detecto si el gatillo se repite entre la fila actual y la anterior, si es asi lo dejo como esta, sino lo pongo en blanco
+    acciones['gatillo'] = np.where(acciones.gatillo != acciones.gatillo.shift(), acciones.gatillo, '')
+    # gracias a la paso anterior puedo detectar gatillos repetidos, procedo a filtrarlos
+    acciones = acciones.loc[acciones.gatillo != ''].copy()
     return acciones
 
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
         # por ahora estrategia unicamente utilizando rsi
         data = self.data
         data.dropna(inplace=True) 
-   
-        data['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
-        actions = data.loc[data.gatillo != ''].copy()
-        actions['gatillo'] = np.where(actions.gatillo != actions.gatillo.shift(), actions.gatillo, "")
-        actions = actions.loc[actions.gatillo !=''].copy() 
 
         if actions.iloc[0].loc['gatillo'] == 'venta':
             actions = actions.iloc[1:]
