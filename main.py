@@ -1,7 +1,7 @@
 from algo_lib.algolib import get_data, get_gatillos_compra, get_gatillos_venta, get_acciones
 from algo_lib.indicators import RSI, SIGMA, CRUCE
 
-df = get_data('BTC-USD', '2021-01-01')
+df = get_data('BTC-USD', '2015-01-01')
 
 # calculamos las features
 rsi = RSI(df)

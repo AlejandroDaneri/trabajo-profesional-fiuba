@@ -42,18 +42,19 @@ def get_acciones(gatillos_compra, gatillos_venta):
     acciones['gatillo'] = np.where(acciones.gatillo != acciones.gatillo.shift(), acciones.gatillo, '')
     # gracias a la paso anterior puedo detectar gatillos repetidos, procedo a filtrarlos
     acciones = acciones.loc[acciones.gatillo != ''].copy()
+    # puede pasar que el primer trade sea venta y el ultimo sea compra para evitar este caso:
+    # si el primer trade es venta lo eliminamos
+    # si el ultimo trade es compra lo eliminamos
+    if acciones.iloc[0].loc['gatillo'] == 'venta':
+        acciones = acciones.iloc[1:]
+    if acciones.iloc[-1].loc['gatillo'] == 'compra':
+        acciones = acciones.iloc[:-1]
     return acciones
 
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
-        # por ahora estrategia unicamente utilizando rsi
-        data = self.data
+      
         data.dropna(inplace=True) 
 
-        if actions.iloc[0].loc['gatillo'] == 'venta':
-            actions = actions.iloc[1:]
-        if actions.iloc[-1].loc['gatillo'] == 'compra':
-            actions = actions.iloc[:-1]
-            pares = actions.iloc[::2].loc[:,['Close']].reset_index()
         impares = actions.iloc[1::2].loc[:,['Close']].reset_index()
         trades = pd.concat([pares,impares],axis=1)
         trades
