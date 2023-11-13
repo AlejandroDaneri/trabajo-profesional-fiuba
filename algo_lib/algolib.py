@@ -10,6 +10,7 @@ def get_data(ticker, start_date):
 
 def get_gatillos_compra(data, features):
     gatillos_compra = pd.DataFrame(index = data.index)
+    gatillos_compra['Close'] = data.Close
     for feature in features:
         if feature == 'rsi':
             gatillos_compra['rsi'] = np.where(data['rsi'] > 65, True, False)
@@ -22,6 +23,7 @@ def get_gatillos_compra(data, features):
 
 def get_gatillos_venta(data, features):
     gatillos_venta = pd.DataFrame(index = data.index)
+    gatillos_venta['Close'] = data.Close
     for feature in features:
         if feature == 'rsi':
             gatillos_venta['rsi'] = np.where(data['rsi'] < 55, True, False)
@@ -30,57 +32,53 @@ def get_gatillos_venta(data, features):
     gatillos_venta['all'] = gatillos_venta.all(axis=1)
     return gatillos_venta
 
+def get_acciones(gatillos_compra, gatillos_venta):
+    gatillos = pd.DataFrame(index = gatillos_compra.index)
+    gatillos['Close'] = gatillos_compra.Close
+    mascara_compra = gatillos_compra['all']
+    mascara_venta = gatillos_venta['all']
+    # definimos para cada dia si se dispara un gatillo de compra o de venta, o ninguno de los dos
+    gatillos['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
+    # un nuevo dataframe con las filas filtradas para las cuales no habia ni gatillo de compra ni de venta
+    acciones = gatillos.loc[gatillos['gatillo'] != ''].copy()
+    # detecto si el gatillo se repite entre la fila actual y la anterior, si es asi lo dejo como esta, sino lo pongo en blanco
+    acciones['gatillo'] = np.where(acciones.gatillo != acciones.gatillo.shift(), acciones.gatillo, '')
+    # gracias a la paso anterior puedo detectar gatillos repetidos, procedo a filtrarlos
+    acciones = acciones.loc[acciones.gatillo != ''].copy()
+    # puede pasar que el primer trade sea venta y el ultimo sea compra para evitar este caso:
+    # si el primer trade es venta lo eliminamos
+    # si el ultimo trade es compra lo eliminamos
+    if acciones.iloc[0].loc['gatillo'] == 'venta':
+        acciones = acciones.iloc[1:]
+    if acciones.iloc[-1].loc['gatillo'] == 'compra':
+        acciones = acciones.iloc[:-1]
+    return acciones
+
+def get_trades(acciones):
+    # los pares son las compras
+    pares = acciones.iloc[::2].loc[:, ['Close']].reset_index()
+    # los impares son las ventas
+    impares = acciones.iloc[1::2].loc[:, ['Close']].reset_index()
+    trades = pd.concat([pares, impares], axis=1)
+
+    # rendimiento acumulado
+    CT = 0
+    trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta', 'px_venta']
+    # calculo rendimiento del trade
+    trades['rendimiento'] = trades.px_venta / trades.px_compra - 1
+    trades['rendimiento'] -= CT
+    # dias que duro el trade
+    trades['dias'] = (trades.fecha_venta - trades.fecha_compra).dt.days
+    if len(trades):
+        trades['resultado'] = np.where(trades['rendimiento'] > 0, 'Ganador', 'Perdedor')
+        trades['rendimientoAcumulado'] = (trades['rendimiento'] + 1).cumprod() - 1
+    return trades
+
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
-        # por ahora estrategia unicamente utilizando rsi
-        data = self.data
+      
         data.dropna(inplace=True) 
-        
-
-        ### ###
-
-        ### gatillos ###
-
-        # ahora vamos a hacer la parte de gatillos
-        gatillos_compra = pd.DataFrame(index = data.index)
-        gatillos_venta = pd.DataFrame(index = data.index)
-
-        # creo columna indicando si se el indicador da compra/venta en cada una de las filas
-        gatillos_compra[indicator] = np.where(data[indicator] > trig_buy, True, False)
-        gatillos_venta[indicator] = np.where(data[indicator]  < trig_sell, True, False)
-        
-        ### ###
-
-        mascara_compra = gatillos_compra.all(axis=1)
-        mascara_venta = gatillos_venta.all(axis=1)
-
-        data['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
-        actions = data.loc[data.gatillo != ''].copy()
-        actions['gatillo'] = np.where(actions.gatillo != actions.gatillo.shift(), actions.gatillo, "")
-        actions = actions.loc[actions.gatillo !=''].copy() 
-
-        if actions.iloc[0].loc['gatillo'] == 'venta':
-            actions = actions.iloc[1:]
-        if actions.iloc[-1].loc['gatillo'] == 'compra':
-            actions = actions.iloc[:-1]
-            pares = actions.iloc[::2].loc[:,['Close']].reset_index()
-        impares = actions.iloc[1::2].loc[:,['Close']].reset_index()
-        trades = pd.concat([pares,impares],axis=1)
-        trades
-        CT=0
-
-        trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta','px_venta'] 
-
-        trades['rendimiento'] = trades.px_venta / trades.px_compra - 1
-
-        trades['rendimiento'] -=CT
-
-        trades['dias'] = (trades.fecha_venta - trades.fecha_compra).dt.days
+          
         if len(trades):
-            trades['resultado'] = np.where(trades['rendimiento' ] > 0, 'Ganador', 'Perdedor')
-            trades['rendimientoAcumulado'] = (trades['rendimiento']+1).cumprod()-1
-
-        if len(trades):
-            resultado = float(trades.iloc[-1].rendimientoAcumulado-1) 
             #agg_cant = trades.groupby('Nose').size()
             agg_rend = trades.groupby('resultado').mean()['rendimiento']
             agg_tiempos = trades.groupby('resultado').sum()['dias'] 
