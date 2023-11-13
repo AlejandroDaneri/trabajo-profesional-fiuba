@@ -10,6 +10,7 @@ def get_data(ticker, start_date):
 
 def get_gatillos_compra(data, features):
     gatillos_compra = pd.DataFrame(index = data.index)
+    gatillos_compra['Close'] = data.Close
     for feature in features:
         if feature == 'rsi':
             gatillos_compra['rsi'] = np.where(data['rsi'] > 65, True, False)
@@ -22,6 +23,7 @@ def get_gatillos_compra(data, features):
 
 def get_gatillos_venta(data, features):
     gatillos_venta = pd.DataFrame(index = data.index)
+    gatillos_venta['Close'] = data.Close
     for feature in features:
         if feature == 'rsi':
             gatillos_venta['rsi'] = np.where(data['rsi'] < 55, True, False)
@@ -32,6 +34,7 @@ def get_gatillos_venta(data, features):
 
 def get_acciones(gatillos_compra, gatillos_venta):
     gatillos = pd.DataFrame(index = gatillos_compra.index)
+    gatillos['Close'] = gatillos_compra.Close
     mascara_compra = gatillos_compra['all']
     mascara_venta = gatillos_venta['all']
     # definimos para cada dia si se dispara un gatillo de compra o de venta, o ninguno de los dos
@@ -51,28 +54,31 @@ def get_acciones(gatillos_compra, gatillos_venta):
         acciones = acciones.iloc[:-1]
     return acciones
 
+def get_trades(acciones):
+    # los pares son las compras
+    pares = acciones.iloc[::2].loc[:, ['Close']].reset_index()
+    # los impares son las ventas
+    impares = acciones.iloc[1::2].loc[:, ['Close']].reset_index()
+    trades = pd.concat([pares, impares], axis=1)
+
+    # rendimiento acumulado
+    CT = 0
+    trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta', 'px_venta']
+    # calculo rendimiento del trade
+    trades['rendimiento'] = trades.px_venta / trades.px_compra - 1
+    trades['rendimiento'] -= CT
+    # dias que duro el trade
+    trades['dias'] = (trades.fecha_venta - trades.fecha_compra).dt.days
+    if len(trades):
+        trades['resultado'] = np.where(trades['rendimiento'] > 0, 'Ganador', 'Perdedor')
+        trades['rendimientoAcumulado'] = (trades['rendimiento'] + 1).cumprod() - 1
+    return trades
+
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
       
         data.dropna(inplace=True) 
-
-        impares = actions.iloc[1::2].loc[:,['Close']].reset_index()
-        trades = pd.concat([pares,impares],axis=1)
-        trades
-        CT=0
-
-        trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta','px_venta'] 
-
-        trades['rendimiento'] = trades.px_venta / trades.px_compra - 1
-
-        trades['rendimiento'] -=CT
-
-        trades['dias'] = (trades.fecha_venta - trades.fecha_compra).dt.days
+          
         if len(trades):
-            trades['resultado'] = np.where(trades['rendimiento' ] > 0, 'Ganador', 'Perdedor')
-            trades['rendimientoAcumulado'] = (trades['rendimiento']+1).cumprod()-1
-
-        if len(trades):
-            resultado = float(trades.iloc[-1].rendimientoAcumulado-1) 
             #agg_cant = trades.groupby('Nose').size()
             agg_rend = trades.groupby('resultado').mean()['rendimiento']
             agg_tiempos = trades.groupby('resultado').sum()['dias'] 
