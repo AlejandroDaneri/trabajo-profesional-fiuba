@@ -1,9 +1,11 @@
-name: Build and Deploy
+name: Build and Deploy Lib
 
 on:
   push:
     branches:
       - master
+    paths:
+      - 'algo_lib/**'
 
 jobs:
   build:
