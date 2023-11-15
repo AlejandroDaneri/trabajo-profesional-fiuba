@@ -8,6 +8,8 @@ import yfinance as yf
 def get_data(ticker, start_date):
     return yf.download(ticker, auto_adjust=True, start = start_date)
 
+
+
 def get_gatillos_compra(data, features):
     gatillos_compra = pd.DataFrame(index = data.index)
     gatillos_compra['Close'] = data.Close
