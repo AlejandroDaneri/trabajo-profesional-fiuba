@@ -1,0 +1,10 @@
+version: "3.5"
+services:
+  algo_frontend:
+    image: adaneri/algo_frontend:latest
+    container_name: frontend
+    build:
+      context: .
+      args:
+        - ENVIRONMENT=$ENVIRONMENT
+    command: sh -c "echo window._env_ = \"'$ENVIRONMENT'\" > /usr/share/nginx/html/config/env.js && nginx -g 'daemon off;'"
