@@ -11,3 +11,7 @@ class Indicator:
 
     def get_output(self):
         return self.output
+    
+    @abstractmethod
+    def calc_buy_signal(self):
+        pass

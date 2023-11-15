@@ -12,3 +12,9 @@ class Crossing(Indicator):
     df[self.name] = df.Close.rolling(fast).mean() / df.Close.rolling(slow).mean() - 1
     self.output = df[self.name]
     return self.output
+  
+  def calc_sell_signal(self):
+    return np.where(self.output < -0.01, True, False)
+
+  def calc_buy_signals(self):
+    return np.where(self.output > 0, True, False)

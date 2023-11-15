@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 class RSI(Indicator):
-  def __init__(self, q):
+  def __init__(self):
     super().__init__("RSI")
 
   def calculate(self, data,rounds = 14):
@@ -30,7 +30,15 @@ class RSI(Indicator):
 
     # Calculate the ratio between the exponential moving averages ('RS' column)
     df['RS'] = df.EMA_win / df.EMA_loss
+    df[self.name] = 100 - (100 /(1+df['RS'])) #TODO: Check vs alphavantage API
 
     # Calculate the final Relative Strength Index (RSI) using the calculated RS
     self.output = df[self.name]
+
     return self.output
+  
+  def calc_buy_signals(self):
+    return np.where(self.output > 65, True, False)
+  
+  def calc_sell_signals(self):
+    return np.where(self.output < 55, True, False)
