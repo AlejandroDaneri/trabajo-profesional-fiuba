@@ -8,72 +8,91 @@ import yfinance as yf
 def get_data(ticker, start_date):
     return yf.download(ticker, auto_adjust=True, start = start_date)
 
+def get_buy_signals(data, indicators):
+    # Create a DataFrame for buy signals with the same index as the input data
+    buy_signals = pd.DataFrame(index=data.index)
+    buy_signals['Close'] = data.Close
+    
+    # Iterate through the specified features to generate buy signals
+    for indicator in indicators:
+        buy_signals[indicator.name]=indicator.calc_buy_signals()
+    
+    # Combine individual features to get an overall buy signal for each day
+    buy_signals['all'] = buy_signals.all(axis=1)
+    
+    return buy_signals
 
+def get_sell_signals(data, indicators):
+    # Create a DataFrame for sell signals with the same index as the input data
+    sell_signals = pd.DataFrame(index=data.index)
+    sell_signals['Close'] = data.Close
+    
+    # Iterate through the specified features to generate sell signals
+    for indicator in indicators:
+        sell_signals[indicator.name]=indicator.calc_sell_signals()
+    
+    # Combine individual features to get an overall sell signal for each day
+    sell_signals['all'] = sell_signals.all(axis=1)
+    
+    return sell_signals
 
-def get_gatillos_compra(data, features):
-    gatillos_compra = pd.DataFrame(index = data.index)
-    gatillos_compra['Close'] = data.Close
-    for feature in features:
-        if feature == 'rsi':
-            gatillos_compra['rsi'] = np.where(data['rsi'] > 65, True, False)
-        elif feature == 'sigma':
-            gatillos_compra['sigma'] = np.where(data['sigma'] > 0.01, True, False)
-        elif feature == 'cruce':
-            gatillos_compra['cruce'] = np.where(data['cruce'] > 0, True, False)
-    gatillos_compra['all'] = gatillos_compra.all(axis=1)
-    return gatillos_compra
+def get_actions(buy_signals, sell_signals):
+    # Create a DataFrame for actions with the same index as buy_signals
+    actions = pd.DataFrame(index=buy_signals.index)
+    actions['Close'] = buy_signals.Close
+    
+    # Define masks for buy and sell signals
+    buy_mask = buy_signals['all']
+    sell_mask = sell_signals['all']
+    
+    # Determine if it's a buy, sell, or no action day
+    actions['signal'] = np.where(buy_mask, 'buy', np.where(sell_mask, 'sell', ''))
+    
+    # Create a new DataFrame with rows filtered for days with buy or sell signals
+    trades = actions.loc[actions['signal'] != ''].copy()
+    
+    # Detect repeated signals between the current and previous rows and remove duplicates
+    trades['signal'] = np.where(trades.signal != trades.signal.shift(), trades.signal, '')
+    
+    # Filter out rows with no signal
+    trades = trades.loc[trades.signal != ''].copy()
+    
+    # Handle cases where the first trade is sell or the last trade is buy
+    if trades.iloc[0].loc['signal'] == 'sell':
+        trades = trades.iloc[1:]
+    if trades.iloc[-1].loc['signal'] == 'buy':
+        trades = trades.iloc[:-1]
+    
+    return trades
 
-def get_gatillos_venta(data, features):
-    gatillos_venta = pd.DataFrame(index = data.index)
-    gatillos_venta['Close'] = data.Close
-    for feature in features:
-        if feature == 'rsi':
-            gatillos_venta['rsi'] = np.where(data['rsi'] < 55, True, False)
-        elif feature == 'cruce':
-            gatillos_venta['cruce'] = np.where(data['cruce'] < -0.01, True, False)
-    gatillos_venta['all'] = gatillos_venta.all(axis=1)
-    return gatillos_venta
+def get_trades(actions):
+    # Extract pairs for buy actions
+    pairs = actions.iloc[::2].loc[:, ['Close']].reset_index()
+    
+    # Extract odd-indexed rows for sell actions
+    odds = actions.iloc[1::2].loc[:, ['Close']].reset_index()
+    
+    # Combine buy and sell dataframes side by side
+    trades = pd.concat([pairs, odds], axis=1)
 
-def get_acciones(gatillos_compra, gatillos_venta):
-    gatillos = pd.DataFrame(index = gatillos_compra.index)
-    gatillos['Close'] = gatillos_compra.Close
-    mascara_compra = gatillos_compra['all']
-    mascara_venta = gatillos_venta['all']
-    # definimos para cada dia si se dispara un gatillo de compra o de venta, o ninguno de los dos
-    gatillos['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
-    # un nuevo dataframe con las filas filtradas para las cuales no habia ni gatillo de compra ni de venta
-    acciones = gatillos.loc[gatillos['gatillo'] != ''].copy()
-    # detecto si el gatillo se repite entre la fila actual y la anterior, si es asi lo dejo como esta, sino lo pongo en blanco
-    acciones['gatillo'] = np.where(acciones.gatillo != acciones.gatillo.shift(), acciones.gatillo, '')
-    # gracias a la paso anterior puedo detectar gatillos repetidos, procedo a filtrarlos
-    acciones = acciones.loc[acciones.gatillo != ''].copy()
-    # puede pasar que el primer trade sea venta y el ultimo sea compra para evitar este caso:
-    # si el primer trade es venta lo eliminamos
-    # si el ultimo trade es compra lo eliminamos
-    if acciones.iloc[0].loc['gatillo'] == 'venta':
-        acciones = acciones.iloc[1:]
-    if acciones.iloc[-1].loc['gatillo'] == 'compra':
-        acciones = acciones.iloc[:-1]
-    return acciones
-
-def get_trades(acciones):
-    # los pares son las compras
-    pares = acciones.iloc[::2].loc[:, ['Close']].reset_index()
-    # los impares son las ventas
-    impares = acciones.iloc[1::2].loc[:, ['Close']].reset_index()
-    trades = pd.concat([pares, impares], axis=1)
-
-    # rendimiento acumulado
-    CT = 0
-    trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta', 'px_venta']
-    # calculo rendimiento del trade
-    trades['rendimiento'] = trades.px_venta / trades.px_compra - 1
-    trades['rendimiento'] -= CT
-    # dias que duro el trade
-    trades['dias'] = (trades.fecha_venta - trades.fecha_compra).dt.days
+    # Cumulative return calculation
+    cumulative_return = 0
+    trades.columns = ['buy_date', 'buy_price', 'sell_date', 'sell_price']
+    
+    # Calculate the trade return
+    trades['return'] = trades.sell_price / trades.buy_price - 1
+    trades['return'] -= cumulative_return
+    
+    # Calculate the duration of the trade in days
+    trades['days'] = (trades.sell_date - trades.buy_date).dt.days
+    
     if len(trades):
-        trades['resultado'] = np.where(trades['rendimiento'] > 0, 'Ganador', 'Perdedor')
-        trades['rendimientoAcumulado'] = (trades['rendimiento'] + 1).cumprod() - 1
+        # Classify the trade result as 'Winner' or 'Loser'
+        trades['result'] = np.where(trades['return'] > 0, 'Winner', 'Loser')
+        
+        # Calculate the cumulative return for all trades
+        trades['cumulative_return'] = (trades['return'] + 1).cumprod() - 1
+    
     return trades
 
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
