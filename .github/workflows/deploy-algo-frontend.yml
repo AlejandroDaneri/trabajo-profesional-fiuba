@@ -37,4 +37,4 @@ jobs:
           script: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker-compose -f docker-compose-deploy.yml pull
-            docker-compose -f docker-compose-deploy.yml up -d --force-recreate trader
+            docker-compose -f docker-compose-deploy.yml up -d --force-recreate frontend
