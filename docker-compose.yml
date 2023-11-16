@@ -2,7 +2,7 @@ version: "3"
 
 services:
   algo_lib:
-    build: .
+    build: ./algo_lib
     volumes:
-      - ./:/app
+      - ./algo_lib:/app
     working_dir: /app

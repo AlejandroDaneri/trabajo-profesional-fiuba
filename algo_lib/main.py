@@ -1,8 +1,8 @@
-from algo_lib.algolib import *
-from algo_lib.indicators import *
-from algo_lib.indicators.rsi import RSI
-from algo_lib.indicators.sigma import Sigma
-from algo_lib.indicators.crossing import Crossing
+from algolib import *
+from indicators import *
+from indicators.rsi import RSI
+from indicators.sigma import Sigma
+from indicators.crossing import Crossing
 
 df = get_data('BTC-USD', '2015-01-01')
 

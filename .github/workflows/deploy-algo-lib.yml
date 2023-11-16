@@ -16,13 +16,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker Image
-        run: docker build -t adaneri/algo_trading:latest .
+        run: docker build --no-cache -t adaneri/algo_lib:latest algo_lib
 
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker Image
-        run: docker push adaneri/algo_trading:latest
+        run: docker push adaneri/algo_lib:latest
 
   deploy:
     needs: build
@@ -34,5 +34,6 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          script: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} && docker-compose -f docker-compose-deploy.yml up -d
-
+          script: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker-compose -f docker-compose-deploy.yml up -d --force-recreate lib_trading

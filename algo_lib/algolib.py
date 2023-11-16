@@ -95,6 +95,7 @@ def get_trades(actions):
     
     return trades
 
+
     def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
       
         data.dropna(inplace=True) 
