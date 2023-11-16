@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'algo_frontend/**'
+      - "algo_frontend/**"
 
 jobs:
   build:
@@ -14,6 +14,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Build Docker Image
+        run: docker build -t adaneri/algo_frontend:latest algo_frontend
+
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push Docker Image
+        run: docker push adaneri/algo_frontend:latest
 
   deploy:
     needs: build
@@ -25,4 +34,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-
+          script: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker-compose -f docker-compose-deploy.yml pull
+            docker-compose -f docker-compose-deploy.yml up -d --force-recreate trader
