@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - 'algo_trader/**'
+      - "algo_trader/**"
 
 jobs:
   build:
@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker Image
-        run: docker build --no-cache -t adaneri/algo_trader:latest algo_trader
+        run: docker build -t adaneri/algo_trader:latest algo_trader
 
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
@@ -36,5 +36,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+            docker-compose -f docker-compose-deploy.yml pull
             docker-compose -f docker-compose-deploy.yml up -d --force-recreate trader
-
