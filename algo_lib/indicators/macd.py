@@ -1,13 +1,15 @@
 from indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class MACD(Indicator):
-  def __init__(self, q):
+  def __init__(self):
     super().__init__("MACD")
 
   def calculate(self, data,slow = 23, fast = 12, suavizado = 9):
     df = pd.DataFrame(index = data.index)
+    self.dates= data.index
     # Copy the 'Close' column from the original data to the DataFrame
     df['Close'] = data['Close']
 
@@ -34,3 +36,11 @@ class MACD(Indicator):
     df[self.name] = df['histogram']
     self.output = df[self.name]
     return self.output
+  
+  def plot(self):
+    #TODO: fix plot
+    data = pd.DataFrame(self.output, index= self.dates)
+    fig = plt.figure()
+    fig.set_size_inches(30, 5)
+    plt.plot(data[self.name])
+    plt.show()

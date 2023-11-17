@@ -96,43 +96,43 @@ def get_trades(actions):
     return trades
 
 
-    def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
-      
-        data.dropna(inplace=True) 
-          
-        if len(trades):
-            #agg_cant = trades.groupby('Nose').size()
-            agg_rend = trades.groupby('resultado').mean()['rendimiento']
-            agg_tiempos = trades.groupby('resultado').sum()['dias'] 
-            agg_tiempos_medio = trades.groupby("resultado").mean()['dias']
+def backtesting(self, indicator = 'RSI', trig_buy=65, trig_sell=55):
 
-            r = pd.concat([agg_rend, agg_tiempos, agg_tiempos_medio], axis=1) 
-            r.columns = ['Rendimiento x Trade', 'Dias Total', 'Dias x Trade']
-            resumen = r.T
+    data.dropna(inplace=True) 
+    
+    if len(trades):
+        #agg_cant = trades.groupby('Nose').size()
+        agg_rend = trades.groupby('resultado').mean()['rendimiento']
+        agg_tiempos = trades.groupby('resultado').sum()['dias'] 
+        agg_tiempos_medio = trades.groupby("resultado").mean()['dias']
 
-            try:
-                t_win = r['Dias Total']['Ganador']
-            except:
-                t_win = 0
+        r = pd.concat([agg_rend, agg_tiempos, agg_tiempos_medio], axis=1) 
+        r.columns = ['Rendimiento x Trade', 'Dias Total', 'Dias x Trade']
+        resumen = r.T
 
-            try:
-                t_loss = r['Dias Total']['Perdedor']
-            except:
-                t_loss = 0
+        try:
+            t_win = r['Dias Total']['Ganador']
+        except:
+            t_win = 0
 
-            t = t_win + t_loss
+        try:
+            t_loss = r['Dias Total']['Perdedor']
+        except:
+            t_loss = 0
 
-            tea = (resultado +1)*(365/t)-1 if t> 0 else 0
+        t = t_win + t_loss
 
-            metricas  = {'rendimiento':round(resultado,4), 'dias in':round(t,4), 'TEA':round(tea,4)}
+        tea = (resultado +1)*(365/t)-1 if t> 0 else 0
+
+        metricas  = {'rendimiento':round(resultado,4), 'dias in':round(t,4), 'TEA':round(tea,4)}
 
 
-        else:
-            resumen = pd.DataFrame()
-            metricas = {'rendimiento' :0, 'dias_in':0, 'TEA':0}
-        print(actions)
-        print(resumen) 
-        print(metricas)
+    else:
+        resumen = pd.DataFrame()
+        metricas = {'rendimiento' :0, 'dias_in':0, 'TEA':0}
+    print(actions)
+    print(resumen) 
+    print(metricas)
 
     
     def OBV(self, n):
@@ -149,16 +149,5 @@ def get_trades(actions):
         }
         return narrow_types.get(type_)
     
-    def plot_RSI(self):
-        data = self.data
-        fig = plt.figure()
-        fig.set_size_inches(30, 5)
-        plt.plot(data.RSI)
-        plt.show()
+
     
-    def plot_MACD(self):
-        data = self.data
-        fig = plt.figure()
-        fig.set_size_inches(30, 5)
-        plt.plot(data.macd)
-        plt.show()

@@ -1,6 +1,7 @@
 from indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 class RSI(Indicator):
   def __init__(self):
@@ -9,6 +10,7 @@ class RSI(Indicator):
   def calculate(self, data,rounds = 14):
     # Create a DataFrame with the same index as the input data
     df = pd.DataFrame(index=data.index)
+    self.dates= data.index
 
     # Copy the 'Close' column from the original data to the new DataFrame
     df['Close'] = data['Close']
@@ -42,3 +44,10 @@ class RSI(Indicator):
   
   def calc_sell_signals(self):
     return np.where(self.output < 55, True, False)
+  
+  def plot(self):
+    data = pd.DataFrame(self.output, index= self.dates)
+    fig = plt.figure()
+    fig.set_size_inches(30, 5)
+    plt.plot(data[self.name])
+    plt.show()
