@@ -6,3 +6,11 @@ services:
     volumes:
       - ./algo_lib:/app
     working_dir: /app
+
+  algo_api:
+    build: ./algo_api
+    volumes:
+      - ./algo_api:/go/src/app
+    working_dir: /go/src/app
+    ports:
+      - 8080:8080
