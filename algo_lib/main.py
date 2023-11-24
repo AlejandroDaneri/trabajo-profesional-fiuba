@@ -16,8 +16,8 @@ df['cruce'] = cruce.calculate(df)
 print("Indicators: \n: {}".format(df))
 
 # determinemos los gatillos de compra y de venta
-gatillos_compra = get_buy_signals(df, [rsi, sigma, cruce])
-gatillos_venta = get_buy_signals(df, [rsi, cruce])
+gatillos_compra = get_buy_signals(df, [rsi])
+gatillos_venta = get_buy_signals(df, [rsi])
 print("Gatillos Compra: \n: {}".format(gatillos_compra))
 print("Gatillos Venta: \n: {}".format(gatillos_venta))
 

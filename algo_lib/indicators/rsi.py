@@ -9,6 +9,7 @@ class RSI(Indicator):
 
   def calculate(self, data,rounds = 14):
     # Create a DataFrame with the same index as the input data
+    self.data= data
     df = pd.DataFrame(index=data.index)
     self.dates= data.index
 
@@ -43,11 +44,26 @@ class RSI(Indicator):
     return np.where(self.output > 65, True, False)
   
   def calc_sell_signals(self):
+    print(self.output)
     return np.where(self.output < 55, True, False)
-  
+ 
   def plot(self):
     data = pd.DataFrame(self.output, index= self.dates)
     fig = plt.figure()
     fig.set_size_inches(30, 5)
     plt.plot(data[self.name])
     plt.show()
+
+  def predict_signal(self, new_record):
+      # Calcular RSI para el DataFrame actualizado
+      new_rsi = self.calculate(pd.concat([self.data, new_record]), rounds=14)
+
+      # Extraer el valor de RSI para el nuevo registro
+      new_signal = new_rsi.iloc[-1]
+      # Tomar decisiones de trading basadas en el valor de RSI
+      if new_signal > 65:
+          return "Sell"
+      elif new_signal < 55:
+          return "Buy"
+      else:
+          return "Hold"
