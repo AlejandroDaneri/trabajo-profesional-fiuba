@@ -4,12 +4,34 @@ on:
   push:
     branches:
       - master
+      - develop
     paths:
       - "algo_api/**"
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "14"
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: e2e
+
+      - name: Run Cypress tests
+        run: npm run test
+
   build:
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
 
     steps:
       - name: Checkout Repository
@@ -27,6 +49,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master')
     steps:
       - name: SSH into Server
         uses: appleboy/ssh-action@master
