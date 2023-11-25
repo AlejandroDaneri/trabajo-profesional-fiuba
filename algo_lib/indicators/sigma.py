@@ -3,13 +3,14 @@ import numpy as np
 import pandas as pd
 
 class Sigma(Indicator):
-  def __init__(self):
+  def __init__(self,rounds = 14):
+    self.rounds =rounds
     super().__init__("Sigma")
 
-  def calculate(self, data,rounds = 14):
+  def calculate(self, data):
     df = pd.DataFrame(index = data.index)
     df['Close'] = data['Close']
-    df[self.name] = df.Close.pct_change().rolling(rounds).std()
+    df[self.name] = df.Close.pct_change().rolling(self.rounds).std()
     self.output = df[self.name]
     return self.output
 

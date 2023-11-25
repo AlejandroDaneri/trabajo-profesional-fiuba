@@ -11,5 +11,5 @@ class Basic(Strategy):
         return
     
     ## return the best action based on the latest data.
-    def predict(latest_data)
+    def predict(latest_data):
         return "BUY"
