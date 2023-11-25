@@ -14,3 +14,11 @@ services:
     working_dir: /go/src/app
     ports:
       - 8080:8080
+
+  couchdb:
+    image: couchdb:3.3.2
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF
+    ports:
+      - 5984:5984
