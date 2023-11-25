@@ -1,15 +1,33 @@
-from algo_lib.indicators.macd import RSI
+from collections import Counter
+from indicators.indicator import Indicator
+from typing import List
+from strategies.strategy import Strategy
 
 class Basic(Strategy):
-    def __init__(self,name):
+    def __init__(self, indicators: List[Indicator]):
         self.name = "BASIC"
-        self.indicators = [new RSI()]
-        return
-   
-    ## consumes all historical data and prepare strategy for predictions
-    def train(historical_data):
+        self.indicators = indicators
+
+
+    def train(self,historical_data):
+        ##TODO: modify this to save trades, actions, etc.
+        for indicator in self.indicators:
+            indicator.calculate(historical_data)
         return
     
-    ## return the best action based on the latest data.
-    def predict(latest_data):
-        return "BUY"
+    def predict(self,new_record):
+        # List to store predicted signals from each indicator
+        signals = []
+
+        # Get predicted signals from each indicator
+        for indicator in self.indicators:
+            signal = indicator.predict_signal(new_record)
+            signals.append(signal)
+
+        # Count the frequency of each signal
+        signal_counter = Counter(signals)
+
+        # Get the most common signal
+        most_common_signal = signal_counter.most_common(1)[0][0]
+
+        return most_common_signal
