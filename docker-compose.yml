@@ -20,5 +20,7 @@ services:
     environment:
       - COUCHDB_USER=admin
       - COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF
+    volumes:
+      - couchdb_data:/opt/couchdb/data
     ports:
       - 5984:5984
