@@ -1,5 +1,7 @@
 from abc import abstractmethod
 
+from algo_lib.actions import Action
+
 
 class Strategy:
     
@@ -10,6 +12,6 @@ class Strategy:
     
     ## return the best action based on the latest data.
     @abstractmethod
-    def predict(self,new_record):
+    def predict(self,new_record)->Action:
         pass
 
