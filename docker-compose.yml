@@ -24,3 +24,6 @@ services:
       - couchdb_data:/opt/couchdb/data
     ports:
       - 5984:5984
+
+volumes:
+  couchdb_data:
