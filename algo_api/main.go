@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -23,10 +24,27 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateTrade(w http.ResponseWriter, r *http.Request) {
-	trade := map[string]interface{}{
-		"pair": "BTC/USDT",
+	var body struct {
+		Pair   string `json:"pair"`
+		Prize  string `json:"prize"`
+		Amount string `json:"amount"`
 	}
-	err := tradeservice.GetInstance().Create(trade)
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.Errorf("Credentials could not be decoded in request body: %v", err)
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	trade := map[string]interface{}{}
+
+	trade["pair"] = body.Pair
+	trade["prize"] = body.Prize
+	trade["amount"] = body.Amount
+	trade["open_timestamp"] = time.Now().Unix()
+
+	err = tradeservice.GetInstance().Create(trade)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":   err,

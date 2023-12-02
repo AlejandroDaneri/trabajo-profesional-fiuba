@@ -39,6 +39,7 @@ func (s *TradeService) Create(trade map[string]interface{}) error {
 	if err != nil {
 		return err
 	}
+	trade["pvt_type"] = "trade"
 	_, _, err = db.Save(trade, nil)
 	if err != nil {
 		return err
