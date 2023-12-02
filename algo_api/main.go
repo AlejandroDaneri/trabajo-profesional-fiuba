@@ -38,12 +38,18 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTrade(w http.ResponseWriter, r *http.Request) {
-	tradeId := "109fe4a580ca17fe7a3c4e53fb000e0c"
-	trade, err := tradeservice.GetInstance().Get(tradeId)
+	vars := mux.Vars(r)
+	tradeID := vars["tradeId"]
+	if tradeID == "" {
+		logrus.Error("Could not get trade id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+	trade, err := tradeservice.GetInstance().Get(tradeID)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
-			"trade id": tradeId,
+			"trade id": tradeID,
 		}).Error("Could not get the trade")
 		http.Error(w, http.StatusText(500), 500)
 		return
@@ -52,7 +58,7 @@ func GetTrade(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
-			"trade id": tradeId,
+			"trade id": tradeID,
 		}).Error("Could not marshall")
 		http.Error(w, http.StatusText(500), 500)
 		return
@@ -61,7 +67,7 @@ func GetTrade(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":      err,
-			"trade id": tradeId,
+			"trade id": tradeID,
 		}).Error("Could not write response")
 		http.Error(w, http.StatusText(500), 500)
 	}
@@ -76,7 +82,7 @@ func main() {
 	router.HandleFunc("/ping", PingPong).Methods("POST")
 
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
-	router.HandleFunc("/trade/{id}", GetTrade).Methods("GET")
+	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trade", ListTrades).Methods("GET")
 
 	router.HandleFunc("/", handler)

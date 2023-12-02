@@ -5,8 +5,6 @@ import (
 	"algo_api/databaseservice"
 	"encoding/json"
 	"sync"
-
-	"github.com/sirupsen/logrus"
 )
 
 var instance IService
@@ -57,7 +55,6 @@ func (s *TradeService) Get(id string) (*database.TradePublicFields, error) {
 	if err != nil {
 		return nil, err
 	}
-	logrus.Info(doc)
 	bytes, err := json.Marshal(doc)
 	if err != nil {
 		return nil, err
