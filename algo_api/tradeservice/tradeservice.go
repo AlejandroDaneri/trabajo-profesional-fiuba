@@ -30,6 +30,7 @@ func NewService() IService {
 type IService interface {
 	Create(trade map[string]interface{}) error
 	Get(id string) (*database.TradePublicFields, error)
+	List() ([]*database.TradePublicFields, error)
 }
 
 func (s *TradeService) Create(trade map[string]interface{}) error {
@@ -65,4 +66,37 @@ func (s *TradeService) Get(id string) (*database.TradePublicFields, error) {
 		return nil, err
 	}
 	return &trade.TradePublicFields, nil
+}
+
+func (s *TradeService) List() ([]*database.TradePublicFields, error) {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return nil, err
+	}
+	q := `
+	{
+		"selector": {
+			"pvt_type": "trade"
+		}
+	}
+	`
+	docs, err := db.QueryJSON(q)
+	if err != nil {
+		return nil, err
+	}
+	trades := []*database.TradePublicFields{}
+	for _, doc := range docs {
+		bytes, err := json.Marshal(doc)
+		if err != nil {
+			continue
+		}
+		trade := database.Trade{}
+		err = json.Unmarshal(bytes, &trade)
+		if err != nil {
+			continue
+		}
+		trades = append(trades, &trade.TradePublicFields)
+	}
+	return trades, nil
 }
