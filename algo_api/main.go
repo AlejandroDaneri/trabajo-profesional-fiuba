@@ -26,7 +26,7 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Pair   string `json:"pair"`
-		Prize  string `json:"prize"`
+		Price  string `json:"price"`
 		Amount string `json:"amount"`
 	}
 
@@ -40,7 +40,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	trade := map[string]interface{}{}
 
 	trade["pair"] = body.Pair
-	trade["prize"] = body.Prize
+	trade["price"] = body.Price
 	trade["amount"] = body.Amount
 	trade["open_timestamp"] = time.Now().Unix()
 
