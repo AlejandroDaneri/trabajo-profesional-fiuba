@@ -1,6 +1,6 @@
 from collections import Counter
 from indicators.indicator import Indicator
-from typing import List
+from typing import List, Tuple
 from strategies.strategy import Strategy
 import pandas as pd
 import numpy as np

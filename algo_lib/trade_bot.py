@@ -1,6 +1,6 @@
 from typing import List
 from algo_lib.actions import Action
-from algo_lib.exchange import Exchange
+from algo_lib.exchanges.exchange import Exchange
 from strategies.strategy import Strategy
 
 from trade import Trade 
@@ -14,7 +14,6 @@ class TradeBot:
     def execute_trade(self, action: Action, symbol, amount):
         if action != Action.HOLD:
             trade = Trade(action, symbol, amount, self.exchange)
-
             try:
                 self.exchange.place_order(trade)
 

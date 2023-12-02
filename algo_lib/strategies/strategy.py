@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from algo_lib.actions import Action
+from actions import Action
 
 
 class Strategy:

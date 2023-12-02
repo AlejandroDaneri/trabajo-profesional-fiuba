@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from algo_lib.exchange import Exchange
+from algo_lib.exchanges.exchange import Exchange
 
 class Trade:
     def __init__(self, action: str, symbol: str, amount: int, exchange: Exchange):

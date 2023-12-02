@@ -40,6 +40,7 @@ class Exchange:
         revenue = amount * price_per_unit
         self.portfolio[symbol] -= amount
         self.balance += revenue
+        
 
     def get_portfolio(self) -> Dict[str, int]:
         return self.portfolio.copy()
