@@ -1,28 +1,34 @@
 from typing import Dict
 
-from algo_lib.actions import Action
+from actions import Action
+from trade import Trade
 
 class Exchange:
     def __init__(self, initial_balance: float = 10000.0):
         self.balance = initial_balance
-        self.portfolio = {}  # Un diccionario para almacenar las tenencias de activos
+        self.portfolio = {}
+        self.trades = []
 
-    def place_order(self, trade):
-        action = trade.action.lower()
+    def place_order(self, trade: Trade):
+        action = trade.action
         symbol = trade.symbol
         amount = trade.amount
         price_per_unit = trade.price_per_unit
 
         if action == Action.BUY:
             self.buy(symbol, amount, price_per_unit)
+            self.trades.append(Trade)
+
         elif action == Action.SELL:
             self.sell(symbol, amount, price_per_unit)
+            self.trades.append(Trade)
+
         else:
             raise ValueError(f"Invalid action: {action}. Only 'buy' and 'sell' actions are supported.")
 
     def buy(self, symbol: str, amount: int, price_per_unit: float):
         cost = amount * price_per_unit
-
+        
         if cost > self.balance:
             raise ValueError("Insufficient funds to execute the buy order.")
 

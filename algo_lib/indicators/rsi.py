@@ -1,3 +1,4 @@
+from actions import Action
 from indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
@@ -63,8 +64,8 @@ class RSI(Indicator):
       new_signal = new_rsi.iloc[-1]
       # Tomar decisiones de trading basadas en el valor de RSI
       if new_signal < self.sell_threshold:
-          return "Sell"
+          return Action.SELL
       elif new_signal > self.buy_threshold:
-          return "Buy"
+          return Action.BUY
       else:
-          return "Hold"
+          return Action.HOLD

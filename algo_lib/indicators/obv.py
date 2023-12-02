@@ -1,3 +1,4 @@
+from actions import Action
 from indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
@@ -44,8 +45,8 @@ class OBV(Indicator):
 
       # Trading decisions based on OBV signals
       if new_signal > self.buy_threshold:
-          return "Buy"
+          return Action.BUY
       elif new_signal < self.sell_threshold:
-          return "Sell"
+          return Action.SELL
       else:
-          return "Hold"
+          return Action.HOLD

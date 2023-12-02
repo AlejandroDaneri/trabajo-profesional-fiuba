@@ -1,3 +1,4 @@
+from actions import Action
 from indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
@@ -31,8 +32,8 @@ class Crossing(Indicator):
     
     # Tomar decisiones de trading basadas en el valor de RSI
     if new_signal < self.sell_threshold:
-        return "Sell"
+        return Action.HOLD
     elif new_signal > self.buy_threshold:
-        return "Buy"
+        return Action.HOLD
     else:
-        return "Hold"
+        return Action.HOLD
