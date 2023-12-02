@@ -38,6 +38,33 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTrade(w http.ResponseWriter, r *http.Request) {
+	tradeId := "109fe4a580ca17fe7a3c4e53fb000e0c"
+	trade, err := tradeservice.GetInstance().Get(tradeId)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":      err,
+			"trade id": tradeId,
+		}).Error("Could not get the trade")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	bytes, err := json.Marshal(trade)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":      err,
+			"trade id": tradeId,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":      err,
+			"trade id": tradeId,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
 }
 
 func ListTrades(w http.ResponseWriter, r *http.Request) {

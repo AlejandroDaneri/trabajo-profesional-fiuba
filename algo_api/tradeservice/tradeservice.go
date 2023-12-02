@@ -1,8 +1,12 @@
 package tradeservice
 
 import (
+	"algo_api/database"
 	"algo_api/databaseservice"
+	"encoding/json"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 var instance IService
@@ -27,6 +31,7 @@ func NewService() IService {
 
 type IService interface {
 	Create(trade map[string]interface{}) error
+	Get(id string) (*database.TradePublicFields, error)
 }
 
 func (s *TradeService) Create(trade map[string]interface{}) error {
@@ -40,4 +45,27 @@ func (s *TradeService) Create(trade map[string]interface{}) error {
 		return err
 	}
 	return nil
+}
+
+func (s *TradeService) Get(id string) (*database.TradePublicFields, error) {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return nil, err
+	}
+	doc, err := db.Get(id, nil)
+	if err != nil {
+		return nil, err
+	}
+	logrus.Info(doc)
+	bytes, err := json.Marshal(doc)
+	if err != nil {
+		return nil, err
+	}
+	var trade *database.Trade
+	err = json.Unmarshal(bytes, &trade)
+	if err != nil {
+		return nil, err
+	}
+	return &trade.TradePublicFields, nil
 }
