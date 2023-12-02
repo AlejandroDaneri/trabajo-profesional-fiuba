@@ -1,7 +1,7 @@
 package main
 
 import (
-	"algo_api/databaseservice"
+	"algo_api/tradeservice"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -23,22 +23,16 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateTrade(w http.ResponseWriter, r *http.Request) {
-	dbName := "trades"
-	db, err := databaseservice.GetInstance().GetDB(dbName)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err":     err,
-			"db name": dbName,
-		}).Error("Could not get DB")
-		http.Error(w, http.StatusText(500), 500)
-		return
-	}
-	doc := map[string]interface{}{
+	trade := map[string]interface{}{
 		"pair": "BTC/USDT",
 	}
-	_, _, err = db.Save(doc, nil)
+	err := tradeservice.GetInstance().Create(trade)
 	if err != nil {
-		logrus.Error("Could not create doc")
+		logrus.WithFields(logrus.Fields{
+			"err":   err,
+			"trade": trade,
+		}).Error("Could not create the trade")
+		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 }
