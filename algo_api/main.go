@@ -1,13 +1,12 @@
 package main
 
 import (
+	"algo_api/databaseservice"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/leesper/couchdb-golang"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,17 +23,14 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateTrade(w http.ResponseWriter, r *http.Request) {
-	couchDBUser := os.Getenv("COUCHDB_USER")
-	couchDBPassword := os.Getenv("COUCHDB_PASSWORD")
-	client, err := couchdb.NewServer(fmt.Sprintf("http://%s:%s@couchdb:5984", couchDBUser, couchDBPassword))
-	if err != nil {
-		fmt.Println("Error al conectar a CouchDB:", err)
-		return
-	}
 	dbName := "trades"
-	db, err := client.Get(dbName)
+	db, err := databaseservice.GetInstance().GetDB(dbName)
 	if err != nil {
-		logrus.Error("Could not get db")
+		logrus.WithFields(logrus.Fields{
+			"err":     err,
+			"db name": dbName,
+		}).Error("Could not get DB")
+		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 	doc := map[string]interface{}{
