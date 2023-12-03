@@ -1,8 +1,8 @@
 package tradeservice
 
 import (
-	"algo_api/database"
-	"algo_api/databaseservice"
+	"algo_api/internal/database"
+	"algo_api/internal/databaseservice"
 	"encoding/json"
 	"sync"
 )

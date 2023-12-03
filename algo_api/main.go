@@ -1,7 +1,7 @@
 package main
 
 import (
-	"algo_api/tradeservice"
+	"algo_api/internal/tradeservice"
 	"encoding/json"
 	"fmt"
 	"net/http"
