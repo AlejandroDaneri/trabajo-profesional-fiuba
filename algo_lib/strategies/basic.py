@@ -8,7 +8,7 @@ import numpy as np
 class Basic(Strategy):
     def __init__(self, indicators: List[Indicator]):
         self.name = "BASIC"
-        self.indicators = indicators
+        super().__init__(indicators)
 
 
     def train(self,historical_data):
