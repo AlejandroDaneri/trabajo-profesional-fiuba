@@ -1,11 +1,14 @@
 from actions import Action
+from trade import Trade
 from exchanges.exchange import Exchange
 
 class Dummy(Exchange):
     def __init__(self):
         super().__init__()
+        self.trades = []
 
-    def place_order(self, trade):
+
+    def place_order(self, trade:Trade):
         action = trade.action
         symbol = trade.symbol
         amount = trade.amount
@@ -13,9 +16,15 @@ class Dummy(Exchange):
 
         if action == Action.BUY:
             self.buy(symbol, amount, price_per_unit)
+            self.trades.append(trade)
+            print(f"Actual portfolio:{self.portfolio}")
+            print(f"Actual balance:{self.balance}")
         elif action == Action.SELL:
             self.sell(symbol, amount, price_per_unit)
+            print(f"Actual portfolio:{self.portfolio}")
+            print(f"Actual balance:{self.balance}")
         else:
+            
             raise ValueError(f"Invalid action: {action}. Only 'buy' and 'sell' actions are supported.")
 
     def buy(self, symbol: str, amount: int, price_per_unit: float):
