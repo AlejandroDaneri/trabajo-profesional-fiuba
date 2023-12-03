@@ -44,12 +44,24 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	trade["amount"] = body.Amount
 	trade["open_timestamp"] = time.Now().Unix()
 
-	err = tradeservice.GetInstance().Create(trade)
+	id, err := tradeservice.GetInstance().Create(trade)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":   err,
 			"trade": trade,
 		}).Error("Could not create the trade")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	bytes, err := json.Marshal(id)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
