@@ -1,4 +1,3 @@
-from typing import List
 from actions import Action
 from exchanges.exchange import Exchange
 from strategies.strategy import Strategy
@@ -12,9 +11,9 @@ class TradeBot:
         self.symbol = symbol
         self.trades = []
 
-    def execute_trade(self, action: Action, symbol, amount):
+    def execute_trade(self, action: Action, symbol, amount: float,price: float):
         if action != Action.HOLD:
-            trade = Trade(action, symbol, amount, 100.0) ## TODO: change this
+            trade = Trade(action, symbol, amount, price) 
             try:
                 self.exchange.place_order(trade)
                 self.trades.append(trade)
@@ -23,10 +22,8 @@ class TradeBot:
 
     def run_strategy(self, new_record):
         action = self.strategy.predict(new_record)
-
-        amount = 10 ##TODO: fix this
-
-        self.execute_trade(action, self.symbol, amount)
+        asset_last_value = new_record['Close'][0]
+        self.execute_trade(action, self.symbol,self.strategy.investment_ratio*self.exchange.balance/ asset_last_value , asset_last_value)
 
     def get_trades(self):
         return self.trades
