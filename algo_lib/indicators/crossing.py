@@ -24,16 +24,13 @@ class Crossing(Indicator):
     return np.where(self.output > self.buy_threshold, True, False)
 
   def predict_signal(self, new_record):
-    # Calcular RSI para el DataFrame actualizado
     new_output = self.calculate(pd.concat([self.data, new_record]))
 
-    # Extraer el valor de RSI para el nuevo registro
     new_signal = new_output.iloc[-1]
     
-    # Tomar decisiones de trading basadas en el valor de RSI
     if new_signal < self.sell_threshold:
-        return Action.HOLD
+        return Action.SELL
     elif new_signal > self.buy_threshold:
-        return Action.HOLD
+        return Action.BUY
     else:
         return Action.HOLD
