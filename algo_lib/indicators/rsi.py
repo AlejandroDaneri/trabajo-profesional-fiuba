@@ -57,12 +57,10 @@ class RSI(Indicator):
     plt.show()
 
   def predict_signal(self, new_record):
-      # Calcular RSI para el DataFrame actualizado
       new_rsi = self.calculate(pd.concat([self.data, new_record]))
 
-      # Extraer el valor de RSI para el nuevo registro
       new_signal = new_rsi.iloc[-1]
-      # Tomar decisiones de trading basadas en el valor de RSI
+
       if new_signal < self.sell_threshold:
           return Action.SELL
       elif new_signal > self.buy_threshold:
