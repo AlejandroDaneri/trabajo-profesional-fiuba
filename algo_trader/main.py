@@ -1,9 +1,11 @@
+print("Trabajo Profesional | Algo Trading | Trader")
+
 from algo_lib.algolib import get_data
 from algo_lib.indicators.crossing import Crossing
 from algo_lib.indicators.rsi import RSI
 from algo_lib.exchanges.dummy import Dummy
 from algo_lib.strategies.basic import Basic
-from .algo_lib.trade_bot import TradeBot
+from algo_lib.trade_bot import TradeBot
 
 token = "SOL"
 data = get_data(f"{token}-USD", "2013-01-01")

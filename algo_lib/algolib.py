@@ -1,4 +1,3 @@
-print("Trabajo Profesional | Algo Trading | Libreria")
 
 import pandas as pd
 import numpy as np
