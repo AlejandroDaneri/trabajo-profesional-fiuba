@@ -2,15 +2,17 @@ version: "3"
 
 services:
   algo_lib:
-    build: ./algo_lib
-    container_name: algo_lib
-    volumes:
-      - ./algo_lib:/app
-    working_dir: /app
+    container_name: lib
+    build:
+      context: ./algo_lib
+    image: algo_lib_local:latest
 
   algo_api:
+    container_name: api
     build: ./algo_api
-    container_name: algo_api
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF
     volumes:
       - ./algo_api:/go/src/app
     working_dir: /go/src/app
@@ -18,6 +20,17 @@ services:
       - 8080:8080
     depends_on:
       - couchdb
+
+  algo_trader:
+    container_name: trader
+    build:
+      context: ./algo_trader
+      args:
+        LIB_IMAGE: algo_lib_local:latest
+
+    image: algo_trader_local:latest
+    depends_on:
+      - algo_lib
 
   couchdb:
     image: couchdb:3.3.2
