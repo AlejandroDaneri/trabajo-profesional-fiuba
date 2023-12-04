@@ -1,8 +1,8 @@
 from abc import abstractmethod
 from typing import Dict
 
-from actions import Action
 from trade import Trade
+
 
 class Exchange:
     def __init__(self, initial_balance: float = 10000.0):
@@ -12,11 +12,10 @@ class Exchange:
     @abstractmethod
     def place_order(self, trade: Trade):
         pass
-       
 
     def buy(self, symbol: str, amount: int, price_per_unit: float):
         cost = amount * price_per_unit
-        
+
         if cost > self.balance:
             raise ValueError("Insufficient funds to execute the buy order.")
 
@@ -34,11 +33,9 @@ class Exchange:
         revenue = amount * price_per_unit
         self.portfolio[symbol] -= amount
         self.balance += revenue
-        
 
     def get_portfolio(self) -> Dict[str, int]:
         return self.portfolio.copy()
 
     def get_balance(self) -> float:
         return self.balance
-

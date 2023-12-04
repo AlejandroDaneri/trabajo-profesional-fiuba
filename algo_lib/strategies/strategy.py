@@ -9,14 +9,12 @@ class Strategy:
         self.indicators = indicators
         self.investment_ratio = 1
 
-    
     ## consumes all historical data and prepare strategy for predictions
     @abstractmethod
-    def train(self,historical_data):
-        pass
-    
-    ## return the best action based on the latest data.
-    @abstractmethod
-    def predict(self,new_record)->Action:
+    def train(self, historical_data):
         pass
 
+    ## return the best action based on the latest data.
+    @abstractmethod
+    def predict(self, new_record) -> Action:
+        pass

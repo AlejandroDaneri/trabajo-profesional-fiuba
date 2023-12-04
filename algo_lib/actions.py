@@ -1,6 +1,7 @@
 from enum import Enum
 
+
 class Action(Enum):
-    BUY = 'buy'
-    SELL = 'sell'
-    HOLD = 'hold'
+    BUY = "buy"
+    SELL = "sell"
+    HOLD = "hold"
