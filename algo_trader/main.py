@@ -10,7 +10,6 @@ from algo_lib.trade_bot import TradeBot
 token = "SOL"
 data = get_data(f"{token}-USD", "2013-01-01")
 
-# Obtener los últimos 20 registros
 last_records = data.iloc[-250:]
 
 exchange = Dummy()
@@ -29,3 +28,5 @@ while index < len(last_records):
     current_record = last_records.iloc[index:index+1]
     trade_bot.run_strategy(current_record)
     index += 1
+
+print("Final profit: ",trade_bot.get_profit())

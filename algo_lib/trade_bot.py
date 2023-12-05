@@ -4,7 +4,6 @@ from strategies.strategy import Strategy
 
 from trade import Trade
 
-
 class TradeBot:
     def __init__(self, strategy: Strategy, exchange: Exchange, symbol: str):
         self.strategy = strategy
@@ -49,3 +48,6 @@ class TradeBot:
 
     def get_trades(self):
         return self.trades
+    
+    def get_profit(self):
+        return self.exchange.get_profit()
