@@ -17,13 +17,19 @@ class Dummy(Exchange):
         if action == Action.BUY:
             self.buy(symbol, amount, price_per_unit)
             self.trades.append(trade)
+            self.total= amount*price_per_unit
             print(f"Actual portfolio: {self.portfolio}")
             print(f"Actual USDT balance: {self.balance}")
+            print(f"Actual total: {self.total}")
             print(f"----------------")
         elif action == Action.SELL:
             self.sell(symbol, amount, price_per_unit)
+            self.total= amount*price_per_unit
+
             print(f"Actual portfolio: {self.portfolio}")
             print(f"Actual USDT balance: {self.balance}")
+            print(f"Actual total: {self.total}")
+
             print(f"----------------")
         else:
             raise ValueError(
@@ -37,3 +43,4 @@ class Dummy(Exchange):
     def sell(self, symbol: str, amount: int, price_per_unit: float):
         super().sell(symbol, amount, price_per_unit)
         print(f"Selling {amount} units of {symbol} at {price_per_unit} on Dummy Exchange.")
+

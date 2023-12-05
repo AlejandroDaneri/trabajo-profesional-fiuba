@@ -7,7 +7,10 @@ from trade import Trade
 class Exchange:
     def __init__(self, initial_balance: float = 10000.0):
         self.balance = initial_balance
+        self.initial_balance = initial_balance
         self.portfolio = {}
+        self.total = self.balance
+
 
     @abstractmethod
     def place_order(self, trade: Trade):
@@ -39,3 +42,6 @@ class Exchange:
 
     def get_balance(self) -> float:
         return self.balance
+    
+    def get_profit(self):
+        return self.total - self.initial_balance 
