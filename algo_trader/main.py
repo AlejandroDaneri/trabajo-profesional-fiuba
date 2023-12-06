@@ -14,7 +14,6 @@ import time
 def main():
     token = "SOL"
     data = get_data(f"{token}-USD", "2022-01-01", "Binance")
-    
     last_records = data.iloc[-250:]
 
     exchange = Dummy()
@@ -34,7 +33,7 @@ def main():
         trade_bot.run_strategy(current_record)
         index += 1
 
-    print("Final profit: ",trade_bot.get_profit())
+    print("Final profit: ", trade_bot.get_profit())
 
     if __name__ == "__main__":
         url = "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
