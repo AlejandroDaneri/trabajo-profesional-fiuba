@@ -2,11 +2,23 @@
 import pandas as pd
 import numpy as np
 import yfinance as yf
+from binance.client import Client as BinanceProvider
+from datetime import datetime
 
-
-def get_data(ticker, start_date):
-    return yf.download(ticker, auto_adjust=True, start=start_date)
-
+def get_data(ticker, start_date, provider):
+    if provider == 'Yahoo':
+        return yf.download(ticker, auto_adjust=True, start=start_date)
+    else:
+        api_key = "OF6SkzXI0EAcvmMWlkeUKl6YyxYIFU4pN0Bj19gaVYZcgaTt7OImXxEyvoPcDhmk"
+        secret_key = "tXay1BDYuSyigxvl27UQIBJbIHADaep8FT7HPO9Mb3vfmcyDkz4keEaHkpm7dcFe"
+        binanceProvider = BinanceProvider(api_key, secret_key)
+        start_date_ = datetime.strptime(start_date, '%Y-%m-%d')
+        start_date__ = int(datetime.timestamp(start_date_)) * 1000
+        klines = binanceProvider.get_historical_klines("BTCUSDT", BinanceProvider.KLINE_INTERVAL_1DAY, start_date__)
+        data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
+        data['Open time'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x/1000).strftime('%Y-%m-%d'))
+        data['Close'] =  data['Close'].apply(lambda x : float(x))
+        return data
 
 def get_buy_signals(data, indicators):
     # Create a DataFrame for buy signals with the same index as the input data

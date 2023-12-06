@@ -1,8 +1,8 @@
-from actions import Action
-from exchanges.exchange import Exchange
-from strategies.strategy import Strategy
+from algo_lib.actions import Action
+from algo_lib.exchanges.exchange import Exchange
+from algo_lib.strategies.strategy import Strategy
 
-from trade import Trade
+from algo_lib.trade import Trade
 
 class TradeBot:
     def __init__(self, strategy: Strategy, exchange: Exchange, symbol: str):

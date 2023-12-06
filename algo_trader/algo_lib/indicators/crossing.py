@@ -1,5 +1,5 @@
-from actions import Action
-from indicators.indicator import Indicator
+from algo_lib.actions import Action
+from algo_lib.indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
 

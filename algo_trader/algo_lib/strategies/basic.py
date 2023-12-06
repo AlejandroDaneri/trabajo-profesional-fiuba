@@ -1,10 +1,10 @@
+from algo_lib.indicators.indicator import Indicator
+from algo_lib.strategies.strategy import Strategy
+
 from collections import Counter
-from indicators.indicator import Indicator
-from typing import List, Tuple
-from strategies.strategy import Strategy
 import pandas as pd
 import numpy as np
-
+from typing import List, Tuple
 
 class Basic(Strategy):
     def __init__(self, indicators: List[Indicator]):
