@@ -6,6 +6,9 @@ from algo_lib.indicators.rsi import RSI
 from algo_lib.exchanges.dummy import Dummy
 from algo_lib.strategies.basic import Basic
 from algo_lib.trade_bot import TradeBot
+import websocket
+import json
+import time
 
 token = "SOL"
 data = get_data(f"{token}-USD", "2013-01-01")
@@ -30,3 +33,14 @@ while index < len(last_records):
     index += 1
 
 print("Final profit: ",trade_bot.get_profit())
+
+if __name__ == "__main__":
+    url = "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
+    ws = websocket.WebSocket()
+    ws.connect(url)
+    while True:
+        message = ws.recv()
+        data = json.loads(message)
+        print(data['s'])
+        print(data['k']['c'])
+        time.sleep(60)
