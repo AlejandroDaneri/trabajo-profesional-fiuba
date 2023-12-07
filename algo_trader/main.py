@@ -15,7 +15,7 @@ import datetime
 def main():
     token = "SOL"
     today = datetime.date.today().strftime("%Y-%m-%d")
-    data = get_data(f"{token}-USD", today, "Binance")
+    data = get_data(token, today, "Binance")
     exchange = Dummy()
     
     rsi_indicator = RSI(65, 55, 14)
@@ -27,6 +27,12 @@ def main():
     strategy.train(last_records)
 
     trade_bot = TradeBot(strategy, exchange, token)
+
+    index = 0
+    while index < len(last_records):
+        current_record = last_records.iloc[index:index+1]
+        trade_bot.run_strategy(current_record)
+        index += 1
 
     print("Final profit: ", trade_bot.get_profit())
 
