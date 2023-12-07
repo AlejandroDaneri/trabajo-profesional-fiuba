@@ -14,9 +14,9 @@ def get_data(ticker, start_date, provider):
         binanceProvider = BinanceProvider(api_key, secret_key)
         start_date_ = datetime.strptime(start_date, '%Y-%m-%d')
         start_date__ = int(datetime.timestamp(start_date_)) * 1000
-        klines = binanceProvider.get_historical_klines("BTCUSDT", BinanceProvider.KLINE_INTERVAL_1DAY, start_date__)
+        klines = binanceProvider.get_historical_klines("BTCUSDT", BinanceProvider.KLINE_INTERVAL_1MINUTE, start_date__)
         data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
-        data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x/1000).strftime('%Y-%m-%d'))
+        data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x/1000).strftime('%Y-%m-%d %H-%M'))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Open") 
         return data

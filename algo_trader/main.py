@@ -10,12 +10,14 @@ from algo_lib.trade_bot import TradeBot
 import websocket
 import json
 import time
+import datetime
 
 def main():
     token = "SOL"
-    data = get_data(f"{token}-USD", "2022-01-01", "Binance")
-    last_records = data.iloc[-250:]
-
+    today = datetime.date.today().strftime("%Y-%m-%d")
+    data = get_data(f"{token}-USD", today, "Binance")
+    print(data)
+    return
     exchange = Dummy()
 
     rsi_indicator = RSI(65, 55, 14)
@@ -23,17 +25,12 @@ def main():
 
     strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
 
+    last_records = data.iloc[-250:]
     strategy.train(last_records)
 
     trade_bot = TradeBot(strategy, exchange, token)
 
-    index = 0
-    while index < len(last_records):
-        current_record = last_records.iloc[index:index+1]
-        trade_bot.run_strategy(current_record)
-        index += 1
-
-    print("Final profit: ", trade_bot.get_profit())
+    #print("Final profit: ", trade_bot.get_profit())
 
     if __name__ == "__main__":
         url = "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
@@ -42,6 +39,7 @@ def main():
         while True:
             message = ws.recv()
             data = json.loads(message)
+            # trade_bot.run_strategy(current_record)
             print(data['s'])
             print(data['k']['c'])
             time.sleep(60)
