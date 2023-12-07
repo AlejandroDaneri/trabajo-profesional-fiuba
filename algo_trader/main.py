@@ -16,10 +16,8 @@ def main():
     token = "SOL"
     today = datetime.date.today().strftime("%Y-%m-%d")
     data = get_data(f"{token}-USD", today, "Binance")
-    print(data)
-    return
     exchange = Dummy()
-
+    
     rsi_indicator = RSI(65, 55, 14)
     crossing_indicator = Crossing(-0.01, 0, 20, 60)
 
@@ -30,7 +28,9 @@ def main():
 
     trade_bot = TradeBot(strategy, exchange, token)
 
-    #print("Final profit: ", trade_bot.get_profit())
+    print("Final profit: ", trade_bot.get_profit())
+
+    return
 
     if __name__ == "__main__":
         url = "wss://stream.binance.com:9443/ws/btcusdt@kline_1m"
