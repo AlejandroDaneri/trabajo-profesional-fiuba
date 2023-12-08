@@ -3,7 +3,7 @@ import "../styles/loginRegisterView.css";
 import React, { useState } from "react";
 import { createUser, login } from "../config/firebaseConfig";
 
-const LoginRegisterView = () => {
+const LoginView = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -55,4 +55,4 @@ const LoginRegisterView = () => {
   );
 };
 
-export default LoginRegisterView;
+export default LoginView;
