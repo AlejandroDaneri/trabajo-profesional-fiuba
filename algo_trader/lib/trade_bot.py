@@ -22,7 +22,25 @@ class TradeBot:
 
     def run_strategy(self, new_record):
         action = self.strategy.predict(new_record)
-        if (self.trades): last_action = self.trades[-1].action
+        if (self.trades): 
+            last_action = self.trades[-1].action
+            last_trade_price = self.trades[-1].price
+            asset_last_value = new_record["Close"][0]
+
+            # Check for stop-loss condition before executing a sell order
+            if (
+                last_action == Action.BUY
+                and asset_last_value < last_trade_price * (1 - self.stop_loss_ratio)
+            ):
+                print("Stop-loss triggered. Selling...")
+                self.execute_trade(
+                    Action.SELL,
+                    self.symbol,
+                    self.exchange.portfolio[self.symbol],
+                    asset_last_value,
+                )
+                return  # Stop further execution after stop-loss triggered
+
         buy_condition = action == Action.BUY and (not self.trades or last_action == Action.SELL)
         sell_condition = self.trades and action == Action.SELL and last_action == Action.BUY
         asset_last_value = new_record["Close"][0]
