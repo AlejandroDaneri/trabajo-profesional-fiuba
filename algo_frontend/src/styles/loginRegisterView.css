@@ -1,0 +1,114 @@
+@import url("../utils/colors.css");
+@import url("../utils/fonts.css");
+
+body {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background: url("../assets/bitcoin.avif") center/cover no-repeat;
+  font-family: var(--primary-font);
+}
+
+.login-container {
+  width: 100%;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 0 20px var(--box-shadow);
+  background-color: var(--background-light);
+}
+
+h2 {
+  text-align: center;
+  color: var(--primary-blue);
+  font-size: 36px;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(var(--primary-blue-rgb), 0.3);
+  animation: titleAnimation 0.8s ease;
+}
+
+@keyframes titleAnimation {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+label {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+input {
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid var(--text-dark);
+  border-radius: 8px;
+}
+
+.login-button,
+.register-button,
+.forgot-password-button {
+  color: var(--primary-white);
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.login-button {
+  background-color: var(--secondary-green);
+}
+
+.login-button:hover {
+  background-color: var(--button-hover-green);
+}
+
+.register-button {
+  background-color: var(--primary-blue);
+}
+
+.register-button:hover {
+  background-color: var(--button-hover-accent);
+}
+
+.forgot-password-button {
+  color: var(--primary-blue);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.forgot-password-button:hover {
+  color: var(--button-hover-accent);
+}
+
+.login-options {
+  display: flex;
+  justify-content: space-between;
+}
+
+.login-options a {
+  text-decoration: none;
+  color: var(--text-dark);
+  transition: color 0.3s ease;
+}
+
+.login-options a:hover {
+  color: var(--primary-blue);
+}
