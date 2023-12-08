@@ -1,32 +1,50 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
-from algo_lib.algolib import get_data
 from algo_lib.indicators.crossing import Crossing
 from algo_lib.indicators.rsi import RSI
 from algo_lib.exchanges.dummy import Dummy
 from algo_lib.strategies.basic import Basic
 from algo_lib.trade_bot import TradeBot
+from algo_lib.providers.binance import Binance
 
-token = "SOL"
-data = get_data(f"{token}-USD", "2013-01-01")
+import websocket
+import json
+import time
+import datetime
 
-last_records = data.iloc[-250:]
+def main():
+    provider = Binance()
+    data = provider.get_from('BTCUSDT', '2023-12-08')
+    exchange = Dummy()
+    
+    rsi_indicator = RSI(65, 55, 14)
+    crossing_indicator = Crossing(-0.01, 0, 20, 60)
 
-exchange = Dummy()
+    strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
 
-rsi_indicator = RSI(65, 55, 14)
-crossing_indicator = Crossing(-0.01, 0, 20, 60)
+    last_records = data.iloc[-250:]
+    strategy.train(last_records)
 
-strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
+    trade_bot = TradeBot(strategy, exchange, 'BTC')
 
-strategy.train(last_records)
+    #index = 0
+    #while index < len(last_records):
+    #    current_record = last_records.iloc[index:index+1]
+    #    trade_bot.run_strategy(current_record)
+    #    index += 1
 
-trade_bot = TradeBot(strategy, exchange, token)
+    #print("Final profit: ", trade_bot.get_profit())
 
-index = 0
-while index < len(last_records):
-    current_record = last_records.iloc[index:index+1]
-    trade_bot.run_strategy(current_record)
-    index += 1
+    #return
 
-print("Final profit: ",trade_bot.get_profit())
+    while True:
+        print("waiting new price")
+        time.sleep(60)
+        print("getting new price")
+        data = provider.get_latest_price('BTCUSDT')
+        print(data)
+        print("adding data to strategy")
+        trade_bot.run_strategy(data)
+        
+
+main()

@@ -1,8 +1,7 @@
 from abc import abstractmethod
 from typing import Dict
 
-from trade import Trade
-
+from algo_lib.trade import Trade
 
 class Exchange:
     def __init__(self, initial_balance: float = 10000.0):
@@ -10,7 +9,6 @@ class Exchange:
         self.initial_balance = initial_balance
         self.portfolio = {}
         self.total = self.balance
-
 
     @abstractmethod
     def place_order(self, trade: Trade):

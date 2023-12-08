@@ -2,11 +2,10 @@
 import pandas as pd
 import numpy as np
 import yfinance as yf
-
+from datetime import datetime
 
 def get_data(ticker, start_date):
-    return yf.download(ticker, auto_adjust=True, start=start_date)
-
+    return yf.download(f"{ticker}-USD", auto_adjust=True, start=start_date)
 
 def get_buy_signals(data, indicators):
     # Create a DataFrame for buy signals with the same index as the input data

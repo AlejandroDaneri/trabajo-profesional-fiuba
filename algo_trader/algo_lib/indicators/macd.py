@@ -1,8 +1,7 @@
-from indicators.indicator import Indicator
+from algo_lib.indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
 
 class MACD(Indicator):
     def __init__(self, slow, fast, suavizado):

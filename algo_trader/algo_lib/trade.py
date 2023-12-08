@@ -1,6 +1,5 @@
 from datetime import datetime
 
-
 class Trade:
     def __init__(self, action: str, symbol: str, amount: int, price_per_unit: float):
         self.timestamp: datetime = datetime.now()
