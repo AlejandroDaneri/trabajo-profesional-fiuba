@@ -12,39 +12,38 @@ import json
 import time
 import datetime
 
-def main():
-    provider = Binance()
-    data = provider.get_from('BTCUSDT', '2023-12-08')
-    exchange = Dummy()
-    
-    rsi_indicator = RSI(65, 55, 14)
-    crossing_indicator = Crossing(-0.01, 0, 20, 60)
+provider = Binance()
+data = provider.get_from('BTCUSDT', '2023-12-08')
+exchange = Dummy()
 
-    strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
+rsi_indicator = RSI(65, 55, 14)
+crossing_indicator = Crossing(-0.01, 0, 20, 60)
 
-    last_records = data.iloc[-250:]
-    strategy.train(last_records)
+strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
 
-    trade_bot = TradeBot(strategy, exchange, 'BTC')
+last_records = data.iloc[-250:]
+strategy.train(last_records)
 
-    #index = 0
-    #while index < len(last_records):
-    #    current_record = last_records.iloc[index:index+1]
-    #    trade_bot.run_strategy(current_record)
-    #    index += 1
+trade_bot = TradeBot(strategy, exchange, 'BTC')
 
-    #print("Final profit: ", trade_bot.get_profit())
+#index = 0
+#while index < len(last_records):
+#    current_record = last_records.iloc[index:index+1]
+#    trade_bot.run_strategy(current_record)
+#    index += 1
 
-    #return
+#print("Final profit: ", trade_bot.get_profit())
 
-    while True:
-        print("waiting new price")
-        time.sleep(60)
-        print("getting new price")
-        data = provider.get_latest_price('BTCUSDT')
-        print(data)
-        print("adding data to strategy")
-        trade_bot.run_strategy(data)
+#return
+
+while True:
+    print("getting new price")
+    data = provider.get_latest_price('BTCUSDT')
+    print(data)
+    print("adding data to strategy")
+    trade_bot.run_strategy(data)
+    print("profit: ", trade_bot.get_profit())
+    print("waiting new price")
+    time.sleep(60)
         
 
-main()

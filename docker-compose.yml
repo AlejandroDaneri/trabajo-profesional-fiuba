@@ -1,12 +1,13 @@
 version: "3"
 
 services:
-
   algo_trader:
     container_name: trader
     build:
       context: ./algo_trader
-    image: algo_trader_local:latest
+    working_dir: /app
+    volumes:
+      - ./algo_trader:/app
 
   algo_api:
     container_name: api

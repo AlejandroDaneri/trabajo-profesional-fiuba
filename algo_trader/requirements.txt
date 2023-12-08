@@ -3,6 +3,4 @@ pandas==1.5.3
 yfinance==0.2.31
 matplotlib==3.6.2
 websocket-client==1.7.0
-pre-commit==3.5.0
-ruff==0.1.6
 python-binance==1.0.19
