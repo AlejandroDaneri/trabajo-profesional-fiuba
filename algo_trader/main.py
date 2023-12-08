@@ -7,10 +7,7 @@ from lib.strategies.basic import Basic
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
 
-import websocket
-import json
 import time
-import datetime
 
 provider = Binance()
 data = provider.get_data_from('BTCUSDT', '2023-12-08')
