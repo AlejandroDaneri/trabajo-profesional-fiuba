@@ -4,32 +4,32 @@
 
 # Algo Compose
 
-Este es un proyecto de Docker Compose que consta de dos servicios: `algo_lib` y `algo_api`. Estos servicios están diseñados para trabajar juntos y proporcionar una plataforma integral para ejecutar algoritmos.
+Este es un proyecto de Docker Compose que consta de dos servicios: `lib` y `algo_api`. Estos servicios están diseñados para trabajar juntos y proporcionar una plataforma integral para ejecutar algoritmos.
 
 ## Servicios
 
-### 1. algo_lib
+### 1. lib
 
-El servicio `algo_lib` se encarga de la lógica del algoritmo. Está construido a partir del código fuente ubicado en el directorio `./algo_lib`. El directorio se monta en el contenedor en el directorio `/app`, y el servicio trabaja en ese directorio.
+El servicio `lib` se encarga de la lógica del algoritmo. Está construido a partir del código fuente ubicado en el directorio `./lib`. El directorio se monta en el contenedor en el directorio `/app`, y el servicio trabaja en ese directorio.
 
 #### Construcción y Ejecución del Servicio
 
 ```bash
-# Construye el servicio algo_lib
-docker-compose build algo_lib
+# Construye el servicio lib
+docker-compose build lib
 
-# Ejecuta solo el servicio algo_lib
-docker-compose run algo_lib
+# Ejecuta solo el servicio lib
+docker-compose run lib
 ```
 
 Volumen
 
-    Host: ./algo_lib
+    Host: ./lib
     Contenedor: /app
 
 ### 2. algo_api
 
-El servicio algo_api proporciona una interfaz de programación de aplicaciones (API) para interactuar con el servicio algo_lib. Se construye utilizando el código fuente ubicado en el directorio ./algo_api. Este directorio se monta en el contenedor en /go/src/app, y el servicio trabaja en ese directorio.
+El servicio algo_api proporciona una interfaz de programación de aplicaciones (API) para interactuar con el servicio lib. Se construye utilizando el código fuente ubicado en el directorio ./algo_api. Este directorio se monta en el contenedor en /go/src/app, y el servicio trabaja en ese directorio.
 
 #### Construcción y Ejecución del Servicio
 
@@ -80,7 +80,7 @@ Ejecuta el contenedor con ambos servicios:
 docker-compose up
 ```
 
-Esto iniciará los servicios algo_lib y algo_api. Puedes acceder a la API a través de la interfaz proporcionada por algo_api para interactuar con los algoritmos proporcionados por algo_lib.
+Esto iniciará los servicios lib y algo_api. Puedes acceder a la API a través de la interfaz proporcionada por algo_api para interactuar con los algoritmos proporcionados por lib.
 
 ## Licencia
 

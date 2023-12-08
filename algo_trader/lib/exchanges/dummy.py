@@ -1,6 +1,6 @@
-from algo_lib.actions import Action
-from algo_lib.trade import Trade
-from algo_lib.exchanges.exchange import Exchange
+from lib.actions import Action
+from lib.trade import Trade
+from lib.exchanges.exchange import Exchange
 
 class Dummy(Exchange):
     def __init__(self):

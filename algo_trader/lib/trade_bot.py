@@ -1,8 +1,8 @@
-from algo_lib.actions import Action
-from algo_lib.exchanges.exchange import Exchange
-from algo_lib.strategies.strategy import Strategy
+from lib.actions import Action
+from lib.exchanges.exchange import Exchange
+from lib.strategies.strategy import Strategy
 
-from algo_lib.trade import Trade
+from lib.trade import Trade
 
 class TradeBot:
     def __init__(self, strategy: Strategy, exchange: Exchange, symbol: str):
@@ -44,6 +44,7 @@ class TradeBot:
                 max_sell_amount,
                 asset_last_value,
             )
+        else: print("Time to HODL")
 
 
     def get_trades(self):

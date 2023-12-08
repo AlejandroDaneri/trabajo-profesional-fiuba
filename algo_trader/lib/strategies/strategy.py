@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import List
-from algo_lib.actions import Action
-from algo_lib.indicators.indicator import Indicator
+from lib.actions import Action
+from lib.indicators.indicator import Indicator
 
 
 class Strategy:

@@ -1,4 +1,4 @@
-from algo_lib.indicators.indicator import Indicator
+from lib.indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
 

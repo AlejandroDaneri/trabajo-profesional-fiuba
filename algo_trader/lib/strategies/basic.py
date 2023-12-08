@@ -1,5 +1,5 @@
-from algo_lib.indicators.indicator import Indicator
-from algo_lib.strategies.strategy import Strategy
+from lib.indicators.indicator import Indicator
+from lib.strategies.strategy import Strategy
 
 from collections import Counter
 import pandas as pd

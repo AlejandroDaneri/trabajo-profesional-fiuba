@@ -20,7 +20,7 @@ class Binance:
 
     # ticker: example BTCUSDT
     # start_date: 2023-12-08
-    def get_from(self, ticker: str, start_date: str):
+    def get_data_from(self, ticker: str, start_date: str):
         start_date_ = datetime.strptime(start_date, '%Y-%m-%d')
         start_date__ = int(datetime.timestamp(start_date_)) * 1000
         klines = self.provider.get_historical_klines(ticker, BinanceProvider.KLINE_INTERVAL_1MINUTE, start_date__)

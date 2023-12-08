@@ -1,11 +1,11 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
-from algo_lib.indicators.crossing import Crossing
-from algo_lib.indicators.rsi import RSI
-from algo_lib.exchanges.dummy import Dummy
-from algo_lib.strategies.basic import Basic
-from algo_lib.trade_bot import TradeBot
-from algo_lib.providers.binance import Binance
+from lib.indicators.crossing import Crossing
+from lib.indicators.rsi import RSI
+from lib.exchanges.dummy import Dummy
+from lib.strategies.basic import Basic
+from lib.trade_bot import TradeBot
+from lib.providers.binance import Binance
 
 import websocket
 import json
@@ -13,7 +13,7 @@ import time
 import datetime
 
 provider = Binance()
-data = provider.get_from('BTCUSDT', '2023-12-08')
+data = provider.get_data_from('BTCUSDT', '2023-12-08')
 exchange = Dummy()
 
 rsi_indicator = RSI(65, 55, 14)

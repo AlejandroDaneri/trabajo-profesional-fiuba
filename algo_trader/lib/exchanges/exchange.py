@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from typing import Dict
 
-from algo_lib.trade import Trade
+from lib.trade import Trade
 
 class Exchange:
     def __init__(self, initial_balance: float = 10000.0):
