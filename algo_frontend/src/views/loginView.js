@@ -1,4 +1,4 @@
-import "../styles/loginRegisterView.css";
+import "../styles/loginView.css";
 
 import React, { useState } from "react";
 import { createUser, login } from "../config/firebaseConfig";
@@ -40,15 +40,15 @@ const LoginView = () => {
       </form>
 
       <div className="login-options">
+        <button type="button" className="forgot-password-button">
+          Forgot your password?
+        </button>
         <button
           type="button"
           className="register-button"
           onClick={handleCreateAccount}
         >
           Create your account
-        </button>
-        <button type="button" className="forgot-password-button">
-          Forgot your password?
         </button>
       </div>
     </div>
