@@ -1,7 +1,7 @@
 @import url("../utils/colors.css");
 @import url("../utils/fonts.css");
 
-body {
+.register-page-container {
   margin: 0;
   display: flex;
   align-items: center;
@@ -12,7 +12,6 @@ body {
 }
 
 .register-container {
-  width: 90%;
   min-height: 80vh;
   min-width: 35vw;
   padding: 20px 40px 20px 40px;
@@ -47,7 +46,7 @@ h2 {
   text-align: center;
   color: var(--primary-blue);
   font-size: 36px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   text-shadow: 2px 2px 4px rgba(var(--primary-blue-rgb), 0.3);
   animation: titleAnimation 0.8s ease;
 }
@@ -112,12 +111,12 @@ input::placeholder {
   margin-top: 20px;
   border-radius: 8px;
   cursor: pointer;
-  background-color: var(--primary-blue);
+  background-color: var(--secondary-green);
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .register-button:hover {
-  background-color: var(--button-hover-accent);
+  background-color: var(--button-hover-green);
 }
 
 .login-options {

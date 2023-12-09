@@ -1,14 +1,20 @@
 import "./styles/App.css";
 
-// import LoginView from "./views/loginView";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+import LoginView from "./views/loginView";
 import React from "react";
 import RegisterView from "./views/registerView";
 
 function App() {
   return (
     <div>
-      {/* <LoginView /> */}
-      <RegisterView />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LoginView />} />
+          <Route path="/register" element={<RegisterView />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }

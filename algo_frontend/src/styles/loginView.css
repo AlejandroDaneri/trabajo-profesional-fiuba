@@ -1,7 +1,7 @@
 @import url("../utils/colors.css");
 @import url("../utils/fonts.css");
 
-body {
+.login-container {
   margin: 0;
   display: flex;
   align-items: center;
@@ -11,8 +11,7 @@ body {
   font-family: var(--primary-font);
 }
 
-.login-container {
-  width: 100%;
+.login-content {
   min-width: 35vw;
   padding: 40px;
   border-radius: 12px;
@@ -20,7 +19,7 @@ body {
   background-color: var(--background-light);
 }
 
-h2 {
+.login-heading {
   text-align: center;
   color: var(--primary-blue);
   font-size: 36px;
@@ -40,13 +39,13 @@ h2 {
   }
 }
 
-form {
+.login-form {
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
 }
 
-label {
+.login-label {
   margin-bottom: 8px;
   font-weight: bold;
   color: var(--text-dark);
@@ -64,9 +63,9 @@ input::placeholder {
   color: var(--text-dark);
 }
 
-.login-button,
-.register-button,
-.forgot-password-button {
+.login-btn,
+.register-btn,
+.forgot-password-btn {
   color: var(--primary-white);
   font-size: 16px;
   font-weight: bold;
@@ -77,44 +76,45 @@ input::placeholder {
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.login-button {
+.login-btn {
   background-color: var(--secondary-green);
+  margin-top: 15px;
 }
 
-.login-button:hover {
+.login-btn:hover {
   background-color: var(--button-hover-green);
 }
 
-.register-button {
+.register-btn {
   background-color: var(--primary-blue);
 }
 
-.register-button:hover {
+.register-btn:hover {
   background-color: var(--button-hover-accent);
 }
 
-.forgot-password-button {
+.forgot-password-btn {
   color: var(--primary-blue);
   background: none;
   border: none;
   cursor: pointer;
 }
 
-.forgot-password-button:hover {
+.forgot-password-btn:hover {
   color: var(--button-hover-accent);
 }
 
-.login-options {
+.login-additional-options {
   display: flex;
   justify-content: space-between;
 }
 
-.login-options a {
+.login-additional-options a {
   text-decoration: none;
   color: var(--text-dark);
   transition: color 0.3s ease;
 }
 
-.login-options a:hover {
+.login-additional-options a:hover {
   color: var(--primary-blue);
 }
