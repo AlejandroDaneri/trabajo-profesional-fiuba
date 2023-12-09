@@ -72,7 +72,7 @@ func (s *TradeService) Get(id string) (*database.TradePublicFields, error) {
 }
 
 func (s *TradeService) List() ([]*database.TradePublicFields, error) {
-	logrus.Info("hola 1")
+	logrus.Info("hola 2")
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
