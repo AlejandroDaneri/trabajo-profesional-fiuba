@@ -5,6 +5,8 @@ import (
 	"algo_api/internal/databaseservice"
 	"encoding/json"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 var instance IService
@@ -70,6 +72,7 @@ func (s *TradeService) Get(id string) (*database.TradePublicFields, error) {
 }
 
 func (s *TradeService) List() ([]*database.TradePublicFields, error) {
+	logrus.Info("hola")
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
