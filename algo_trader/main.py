@@ -1,3 +1,4 @@
+import gym
 import yfinance as yf
 from ta import add_all_ta_features
 from stable_baselines3 import PPO
@@ -42,7 +43,7 @@ def calculate_reward(previous_price, current_price, action):
 
 
 # Crear un entorno de trading simple
-class TradingEnvironment:
+class TradingEnvironment(gym.Env):
     def __init__(self, data):
         self.data = data
         self.current_step = 0
