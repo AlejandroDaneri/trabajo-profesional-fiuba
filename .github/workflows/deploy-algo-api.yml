@@ -6,8 +6,6 @@ on:
       - master
       - develop
       - fix_go_pipeline
-    paths:
-      - "algo_api/**"
 
 jobs:
   test:
@@ -30,6 +28,9 @@ jobs:
 
       - name: Start Go Server
         run: go run main.go &
+
+      - name: CouchDB
+        run: docker run -d --name my-couchdb -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF couchdb:3.3.2
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
