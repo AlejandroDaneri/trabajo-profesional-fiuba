@@ -19,7 +19,7 @@ jobs:
         run: docker compose up -d
 
       - name: init db
-        run: docker exec algo_api go run cmd/setup/main.go
+        run: docker exec api go run cmd/setup/main.go
 
       - name: tests
         run: cd algo_api/e2e && npx cypress open
