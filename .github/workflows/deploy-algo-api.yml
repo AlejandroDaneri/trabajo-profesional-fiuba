@@ -22,7 +22,7 @@ jobs:
         run: docker exec api go run cmd/setup/main.go
 
       - name: tests
-        run: cd algo_api/e2e && npx cypress open
+        run: cd algo_api/e2e && npx cypress run
      
 
   build:
