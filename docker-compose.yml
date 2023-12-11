@@ -15,6 +15,7 @@ services:
     environment:
       - COUCHDB_USER=admin
       - COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF
+      - COUCHDB_HOST=couchdb
     volumes:
       - ./algo_api:/go/src/app
     working_dir: /go/src/app
