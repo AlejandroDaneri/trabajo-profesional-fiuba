@@ -7,7 +7,7 @@ import (
 )
 
 // go run cmd/setup/main.go
-// example how to run commands on go
+// initialize db
 func main() {
 	logrus.Info("Setup DB")
 

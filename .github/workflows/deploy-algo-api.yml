@@ -5,7 +5,8 @@ on:
     branches:
       - master
       - develop
-      - fix_go_pipeline
+    paths:
+      - "algo_api/**"
 
 jobs:
   test:
