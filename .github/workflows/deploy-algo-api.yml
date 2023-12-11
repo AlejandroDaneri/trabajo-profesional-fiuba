@@ -32,6 +32,9 @@ jobs:
       - name: CouchDB
         run: docker run -d --name my-couchdb -e COUCHDB_USER=admin -e COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF -p 5984:5984 couchdb:3.3.2
 
+      - name: Setup
+        run: go run cmd/setup/main.go
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
