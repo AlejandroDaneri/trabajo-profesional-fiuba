@@ -16,7 +16,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: compose
-        run: docker compose up
+        run: docker compose up -d
+
+      - name: init db
+        run: docker exec algo_api go run cmd/setup/main.go
+
+      - name: tests
+        run: cd algo_api/e2e && npx cypress open
      
 
   build:

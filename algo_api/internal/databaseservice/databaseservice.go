@@ -26,8 +26,7 @@ type DatabaseService struct {
 func NewService() IService {
 	couchDBUser := os.Getenv("COUCHDB_USER")
 	couchDBPassword := os.Getenv("COUCHDB_PASSWORD")
-	couchDBHost := os.Getenv("COUCHDB_HOST")
-	client, err := couchdb.NewServer(fmt.Sprintf("http://%s:%s@%s:5984", couchDBUser, couchDBPassword, couchDBHost))
+	client, err := couchdb.NewServer(fmt.Sprintf("http://%s:%s@couchdb:5984", couchDBUser, couchDBPassword))
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
