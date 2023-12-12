@@ -3,6 +3,7 @@ from typing import Dict
 
 from lib.trade import Trade
 
+
 class Exchange:
     def __init__(self, initial_balance: float = 10000.0):
         self.balance = initial_balance
@@ -40,6 +41,6 @@ class Exchange:
 
     def get_balance(self) -> float:
         return self.balance
-    
+
     def get_profit(self):
-        return self.total - self.initial_balance 
+        return self.total - self.initial_balance
