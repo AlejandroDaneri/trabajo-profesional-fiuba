@@ -126,7 +126,7 @@ func ListTrades(w http.ResponseWriter, r *http.Request) {
 func main() {
 	router := mux.NewRouter()
 
-	router.HandleFunc("/ping", PingPong).Methods("POST")
+	router.HandleFunc("/ping", PingPong).Methods("GET")
 
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
