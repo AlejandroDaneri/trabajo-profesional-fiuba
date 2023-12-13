@@ -38,7 +38,10 @@ while True:
     data = provider.get_latest_price("BTCUSDT")
     print(data)
     print("adding data to strategy")
-    trade_bot.run_strategy(data)
+    try:
+        trade_bot.run_strategy(data)
+    except Exception:
+        print("Invalid operation")
     print("profit: ", trade_bot.get_profit())
     print("waiting new price")
     time.sleep(60)

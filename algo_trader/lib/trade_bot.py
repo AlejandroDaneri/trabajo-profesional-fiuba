@@ -24,10 +24,14 @@ class TradeBot:
 
     def run_strategy(self, new_record):
         action = self.strategy.predict(new_record)
+        asset_last_value = new_record["Close"][0]
+        self.trigger_action(action, asset_last_value)
+
+    def trigger_action(self, action, asset_last_value):
+        ##TODO: Same function in QDN, make changes to both until the refactoring is done.
         if self.trades:
             last_action = self.trades[-1].action
-            last_trade_price = self.trades[-1].price
-            asset_last_value = new_record["Close"][0]
+            last_trade_price = self.trades[-1].price_per_unit
 
             # Check for stop-loss condition before executing a sell order
             if last_action == Action.BUY and asset_last_value < last_trade_price * (
@@ -42,15 +46,16 @@ class TradeBot:
                 )
                 return  # Stop further execution after stop-loss triggered
 
-        buy_condition = action == Action.BUY and (
-            not self.trades or last_action == Action.SELL
-        )
-        sell_condition = (
-            self.trades and action == Action.SELL and last_action == Action.BUY
-        )
-        asset_last_value = new_record["Close"][0]
+        buy_condition = not self.trades or last_action == Action.SELL
+        sell_condition = self.trades and last_action == Action.BUY
 
-        if buy_condition:
+        if action == Action.BUY and not buy_condition:
+            raise Exception("Need to sell first")
+
+        if action == Action.SELL and not sell_condition:
+            raise Exception("Need to buy firts")
+
+        if action == Action.BUY and buy_condition:
             max_buy_amount = (
                 self.strategy.investment_ratio
                 * self.exchange.balance
@@ -63,7 +68,7 @@ class TradeBot:
                 asset_last_value,
             )
 
-        elif sell_condition:
+        elif action == Action.SELL and sell_condition:
             max_sell_amount = (
                 self.exchange.portfolio[self.symbol] * self.strategy.investment_ratio
             )
@@ -73,8 +78,6 @@ class TradeBot:
                 max_sell_amount,
                 asset_last_value,
             )
-        else:
-            print("Time to HODL")
 
     def get_trades(self):
         return self.trades

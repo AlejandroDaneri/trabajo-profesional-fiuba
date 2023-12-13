@@ -9,14 +9,13 @@ from stable_baselines3 import DQN
 from lib.actions import Action
 import numpy as np
 
-# Descargar datos históricos de Yahoo Finance
-symbol = "BTC-USD"
+ticker = "BTC-USD"
 start_date = "2020-01-01"
 end_date = "2023-12-01"
 save_dir = "models/QDN/multi"
 filename = "rsi_macd2"
 
-data = yf.download(symbol, start=start_date, end=end_date)
+data = yf.download(ticker, start=start_date, end=end_date)
 
 # Calcular indicadores técnicos con la biblioteca TA-Lib
 data = add_all_ta_features(
@@ -40,7 +39,7 @@ action_enum = Action
 
 
 class TradingEnvironment(gym.Env):
-    def __init__(self, data, indicator_columns):
+    def __init__(self, data, indicator_columns, symbol):
         self.data = data
         self.current_step = 0
         self.total_steps = len(data) - 1
@@ -48,6 +47,8 @@ class TradingEnvironment(gym.Env):
         self.trades = []
         self.indicator_columns = indicator_columns
         self.stop_loss_ratio = 0.2
+        self.strategy.investment_ratio = 1
+        self.symbol = symbol
 
         self.observation_space = gym.spaces.Box(
             low=np.array([0, -np.inf]),
@@ -86,11 +87,12 @@ class TradingEnvironment(gym.Env):
     def get_profit(self):
         return self.exchange.get_profit()
 
-    def _run_step(self, action, actual_data):  # based on run strategy trade bot
+    def trigger_action(self, action, asset_last_value):
+        ##TODO: Same function in trade_bot, make changes to both until the refactoring is done.
         if self.trades:
             last_action = self.trades[-1].action
             last_trade_price = self.trades[-1].price_per_unit
-            asset_last_value = actual_data["Close"]
+
             # Check for stop-loss condition before executing a sell order
             if last_action == Action.BUY and asset_last_value < last_trade_price * (
                 1 - self.stop_loss_ratio
@@ -98,31 +100,38 @@ class TradingEnvironment(gym.Env):
                 print("Stop-loss triggered. Selling...")
                 self._execute_trade(
                     Action.SELL,
-                    symbol,
-                    self.exchange.portfolio[symbol],
+                    self.symbol,
+                    self.exchange.portfolio[self.symbol],
                     asset_last_value,
                 )
                 return  # Stop further execution after stop-loss triggered
 
-        buy_condition = action == Action.BUY and (
-            not self.trades or last_action == Action.SELL
-        )
-        if action == Action.BUY and not (not self.trades or last_action == Action.SELL):
+        buy_condition = not self.trades or last_action == Action.SELL
+        sell_condition = self.trades and last_action == Action.BUY
+
+        if action == Action.BUY and not buy_condition:
             raise Exception("Need to sell first")
-        sell_condition = (
-            self.trades and action == Action.SELL and last_action == Action.BUY
-        )
-        if self.trades and not (action == Action.SELL and last_action == Action.BUY):
+
+        if action == Action.SELL and not sell_condition:
             raise Exception("Need to buy firts")
-        asset_last_value = actual_data["Close"]
 
-        if buy_condition:
-            max_buy_amount = 1 * self.exchange.balance / asset_last_value
-            self._execute_trade(Action.BUY, symbol, max_buy_amount, asset_last_value)
+        if action == Action.BUY and buy_condition:
+            max_buy_amount = (
+                self.strategy.investment_ratio
+                * self.exchange.balance
+                / asset_last_value
+            )
+            self._execute_trade(
+                Action.BUY, self.symbol, max_buy_amount, asset_last_value
+            )
 
-        elif sell_condition:
-            max_sell_amount = self.exchange.portfolio[symbol] * 1
-            self._execute_trade(Action.SELL, symbol, max_sell_amount, asset_last_value)
+        elif action == Action.SELL and sell_condition:
+            max_sell_amount = (
+                self.exchange.portfolio[self.symbol] * self.strategy.investment_ratio
+            )
+            self._execute_trade(
+                Action.SELL, self.symbol, max_sell_amount, asset_last_value
+            )
 
     def step(self, action):
         self.current_step += 1
@@ -136,7 +145,7 @@ class TradingEnvironment(gym.Env):
         obs = self._get_obs()
 
         try:
-            self._run_step(action_str, self.data.iloc[self.current_step])
+            self.trigger_action(action_str, self.data.iloc[self.current_step]["Close"])
             reward = self.exchange.get_profit()
         except Exception:
             reward = -1e-100
@@ -168,7 +177,7 @@ if not os.path.exists(save_dir + "/" + filename):
     model.save(f"{save_dir}/{filename}")
 
 else:
-    env = TradingEnvironment(test_records, ["rsi", "macd"])
+    env = TradingEnvironment(test_records, ticker, ["rsi", "macd"])
     data_l = len(test_records) - 1
     model = DQN.load(f"{save_dir}/{filename}.zip", env)
 
