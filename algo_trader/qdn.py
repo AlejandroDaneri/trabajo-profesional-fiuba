@@ -13,6 +13,9 @@ import numpy as np
 symbol = "BTC-USD"
 start_date = "2020-01-01"
 end_date = "2023-12-01"
+save_dir = "models/QDN/multi"
+filename = "rsi_macd2"
+
 data = yf.download(symbol, start=start_date, end=end_date)
 
 # Calcular indicadores técnicos con la biblioteca TA-Lib
@@ -37,17 +40,19 @@ action_enum = Action
 
 
 class TradingEnvironment(gym.Env):
-    def __init__(self, data):
+    def __init__(self, data, indicator_columns):
         self.data = data
         self.current_step = 0
         self.total_steps = len(data) - 1
         self.exchange = Dummy()
         self.trades = []
-        # Define el espacio de observación que incluye el RSI y MACD
+        self.indicator_columns = indicator_columns
+        self.stop_loss_ratio = 0.2
+
         self.observation_space = gym.spaces.Box(
-            low=np.array([0, -np.inf]),  # Cambia según el rango real de tu MACD
-            high=np.array([100, np.inf]),  # Cambia según el rango real de tu MACD
-            shape=(2,),  # Ajusta según la cantidad de indicadores en tu observación
+            low=np.array([0, -np.inf]),
+            high=np.array([100, np.inf]),
+            shape=(len(self.indicator_columns),),
             dtype=np.float32,
         )
         self.action_space = gym.spaces.Discrete(len(action_enum))
@@ -58,17 +63,17 @@ class TradingEnvironment(gym.Env):
             2: Action.HOLD,
         }
 
+    def _get_obs(self):
+        return np.array(
+            [self.data.iloc[self.current_step][col] for col in self.indicator_columns],
+            dtype=np.float32,
+        )
+
     def reset(self, **kwargs):
         self.current_step = 0
         self.exchange = Dummy()
         self.trades = []
-        obs = np.array(
-            [
-                self.data.iloc[self.current_step]["rsi"],
-                self.data.iloc[self.current_step]["macd"],
-            ],
-            dtype=np.float32,
-        )
+        obs = self._get_obs()
         return obs, {}
 
     def _execute_trade(self, action: Action, symbol, amount: float, price: float):
@@ -88,7 +93,7 @@ class TradingEnvironment(gym.Env):
             asset_last_value = actual_data["Close"]
             # Check for stop-loss condition before executing a sell order
             if last_action == Action.BUY and asset_last_value < last_trade_price * (
-                1 - 0.2
+                1 - self.stop_loss_ratio
             ):
                 print("Stop-loss triggered. Selling...")
                 self._execute_trade(
@@ -103,12 +108,12 @@ class TradingEnvironment(gym.Env):
             not self.trades or last_action == Action.SELL
         )
         if action == Action.BUY and not (not self.trades or last_action == Action.SELL):
-            raise Exception("fail")
+            raise Exception("Need to sell first")
         sell_condition = (
             self.trades and action == Action.SELL and last_action == Action.BUY
         )
         if self.trades and not (action == Action.SELL and last_action == Action.BUY):
-            raise Exception("fail")
+            raise Exception("Need to buy firts")
         asset_last_value = actual_data["Close"]
 
         if buy_condition:
@@ -128,13 +133,7 @@ class TradingEnvironment(gym.Env):
         else:
             terminated = False
 
-        obs = np.array(
-            [
-                self.data.iloc[self.current_step]["rsi"],
-                self.data.iloc[self.current_step]["macd"],
-            ],
-            dtype=np.float32,
-        )
+        obs = self._get_obs()
 
         try:
             self._run_step(action_str, self.data.iloc[self.current_step])
@@ -145,14 +144,15 @@ class TradingEnvironment(gym.Env):
         return obs, reward, terminated, terminated, {}
 
 
-first_records = data.iloc[:-250]
-last_records = data.iloc[-250:]
+train_records = data.iloc[:-250]
+test_records = data.iloc[-250:]
 
-models_dir = "models/QDN"
-if not os.path.exists(models_dir):
-    os.makedirs(models_dir)
-    env = TradingEnvironment(first_records)
-    data_l = len(first_records) - 1
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
+
+if not os.path.exists(save_dir + "/" + filename):
+    env = TradingEnvironment(train_records, ["rsi", "macd"])
+    data_l = len(train_records) - 1
 
     model = DQN(
         "MlpPolicy",
@@ -165,11 +165,12 @@ if not os.path.exists(models_dir):
         exploration_final_eps=0.07,
     )
     model.learn(total_timesteps=1.2e5)
-    model.save(f"{models_dir}/trained")
+    model.save(f"{save_dir}/{filename}")
+
 else:
-    env = TradingEnvironment(last_records)
-    data_l = len(last_records) - 1
-    model = DQN.load(f"{models_dir}/trained.zip", env)
+    env = TradingEnvironment(test_records, ["rsi", "macd"])
+    data_l = len(test_records) - 1
+    model = DQN.load(f"{save_dir}/{filename}.zip", env)
 
 total_rewards = []
 obs, _ = env.reset()
