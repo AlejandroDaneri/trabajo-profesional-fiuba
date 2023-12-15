@@ -11,19 +11,19 @@ class Dummy(Exchange):
         action = trade.action
         symbol = trade.symbol
         amount = trade.amount
-        price_per_unit = trade.price_per_unit
+        price = trade.price
 
         if action == Action.BUY:
-            self.buy(symbol, amount, price_per_unit)
+            self.buy(symbol, amount, price)
             self.trades.append(trade)
-            self.total= amount*price_per_unit
+            self.total= amount*price
             print(f"Actual portfolio: {self.portfolio}")
             print(f"Actual USDT balance: {self.balance}")
             print(f"Actual total: {self.total}")
             print(f"----------------")
         elif action == Action.SELL:
-            self.sell(symbol, amount, price_per_unit)
-            self.total= amount*price_per_unit
+            self.sell(symbol, amount, price)
+            self.total= amount*price
 
             print(f"Actual portfolio: {self.portfolio}")
             print(f"Actual USDT balance: {self.balance}")
@@ -35,11 +35,11 @@ class Dummy(Exchange):
                 f"Invalid action: {action}. Only 'buy' and 'sell' actions are supported."
             )
 
-    def buy(self, symbol: str, amount: int, price_per_unit: float):
-        super().buy(symbol, amount, price_per_unit)
-        print(f"Buying {amount} units of {symbol} at {price_per_unit} on Dummy Exchange.")
+    def buy(self, symbol: str, amount: int, price: float):
+        super().buy(symbol, amount, price)
+        print(f"Buying {amount} units of {symbol} at {price} on Dummy Exchange.")
 
-    def sell(self, symbol: str, amount: int, price_per_unit: float):
-        super().sell(symbol, amount, price_per_unit)
-        print(f"Selling {amount} units of {symbol} at {price_per_unit} on Dummy Exchange.")
+    def sell(self, symbol: str, amount: int, price: float):
+        super().sell(symbol, amount, price)
+        print(f"Selling {amount} units of {symbol} at {price} on Dummy Exchange.")
 

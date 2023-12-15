@@ -8,6 +8,7 @@ from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
 
 import time
+import requests
 
 provider = Binance()
 data = provider.get_data_from('BTCUSDT', '2023-12-08')
@@ -23,24 +24,24 @@ strategy.train(last_records)
 
 trade_bot = TradeBot(strategy, exchange, 'BTC')
 
-#index = 0
-#while index < len(last_records):
-#    current_record = last_records.iloc[index:index+1]
-#    trade_bot.run_strategy(current_record)
-#    index += 1
-
-#print("Final profit: ", trade_bot.get_profit())
-
-#return
-
 while True:
     print("getting new price")
     data = provider.get_latest_price('BTCUSDT')
     print(data)
     print("adding data to strategy")
-    trade_bot.run_strategy(data)
+    trade = trade_bot.run_strategy(data)
+    if trade is not None:
+        print(trade)
+        data = {
+            "pair": trade.symbol,
+            "price": trade.price,
+            "amount": trade.amount
+        }
+        r = requests.post(url='http://api:8080/trade', data=data)
     print("profit: ", trade_bot.get_profit())
     print("waiting new price")
+    
+
     time.sleep(60)
         
 
