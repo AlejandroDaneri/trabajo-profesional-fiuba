@@ -7,7 +7,7 @@ class Binance:
     def __init__(self):
         api_key = "OF6SkzXI0EAcvmMWlkeUKl6YyxYIFU4pN0Bj19gaVYZcgaTt7OImXxEyvoPcDhmk"
         secret_key = "tXay1BDYuSyigxvl27UQIBJbIHADaep8FT7HPO9Mb3vfmcyDkz4keEaHkpm7dcFe"
-        self.provider = BinanceProvider(api_key, secret_key)
+        self.provider = BinanceProvider(api_key, secret_key, tld='com')
 
     # ticker: example BTCUSDT
     def get_latest_price(self, ticker: str):
