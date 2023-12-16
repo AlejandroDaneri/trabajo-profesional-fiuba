@@ -1,9 +1,11 @@
-import logo from "./bitcoin.png"
-
 /* Import Libs */
 import styled from "styled-components"
-import { list } from "./webapi/trade"
+
+/* Import Components */
 import Trades from "./components/trades"
+
+/* Import Images */
+import logo from "./images/bitcoin.png"
 
 const AppStyle = styled.div`
   display: flex;
@@ -35,8 +37,6 @@ const AppStyle = styled.div`
     & p {
       font-weight: 600;
     }
-
-
   }
 `
 

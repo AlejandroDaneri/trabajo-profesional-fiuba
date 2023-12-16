@@ -6,13 +6,20 @@ import { useEffect, useState } from "react"
 import { list } from "../webapi/trade"
 
 /* Import Images */
-import sol from "../images/logos/sol.png"
 import btc from "../images/logos/btc.png"
-import eth from "../images/logos/eth.png"
 
 const TradesStyle = styled.div`
   display: flex;
   flex-direction: column;
+  height: 600px;
+
+  & p {
+    color: white;
+  }
+
+  & .trades {
+    overflow-y: scroll;
+  }
 
   & .trade {
     display: flex;
@@ -48,17 +55,19 @@ const TradesStyle = styled.div`
 `
 const Trades = () => {
   const [state, stateFunc] = useState({
-    loading: false,
+    loading: true,
     data: [],
   })
 
-  useEffect(() => {
+  const getState = () => {
+    console.info("hola")
     stateFunc((prevState) => ({
       ...prevState,
       loading: true,
     }))
     list()
       .then((response) => {
+        console.info("ok")
         stateFunc((prevState) => ({
           ...prevState,
           loading: false,
@@ -66,25 +75,39 @@ const Trades = () => {
         }))
       })
       .catch((err) => {
+        console.info("err")
         stateFunc((prevState) => ({
           ...prevState,
           loading: false,
         }))
       })
+  }
+
+  useEffect(() => {
+    const interval = setInterval(getState, 60000)
+    return () => {
+      clearInterval(interval)
+    }
   }, [])
 
   return (
     <TradesStyle>
-      {state.data.map((trade) => (
-        <div className="trade">
-          <div className="coin">
-            <img src={btc} alt="logo" />
-            <p>{trade.pair}</p>
-          </div>
-          <div className="price">${trade.price}</div>
-          <div className="amount">{trade.amount}</div>
+      {state.loading ? (
+        <p>loading</p>
+      ) : (
+        <div className="trades">
+          {state.data.map((trade) => (
+            <div className="trade">
+              <div className="coin">
+                <img src={btc} alt="logo" />
+                <p>{trade.pair}</p>
+              </div>
+              <div className="price">${trade.price}</div>
+              <div className="amount">{trade.amount}</div>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </TradesStyle>
   )
 }
