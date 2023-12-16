@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react"
 import logo from "./bitcoin.png"
 
 /* Import Libs */
@@ -16,17 +15,38 @@ const AppStyle = styled.div`
   background: #282c34;
   color: white;
 
-  & img {
-    height: 40vmin;
-    pointer-events: none;
+  & .logo {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    border: 1px solid white;
+    border-radius: 10px;
+    width: 260px;
+    height: 120px;
+    margin: 20px;
+    box-shadow: white 0px 2px 8px 0px;
+
+    & img {
+      height: 96px;
+      height: 96px
+      pointer-events: none;
+    }
+
+    & p {
+      font-weight: 600;
+    }
+
+
   }
 `
 
 const App = () => {
   return (
     <AppStyle>
-      <img src={logo} className="App-logo" alt="logo" />
-      <p>SatoshiBOT.tech</p>
+      <div className="logo">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>SatoshiBOT.tech</p>
+      </div>
       <Trades />
     </AppStyle>
   )

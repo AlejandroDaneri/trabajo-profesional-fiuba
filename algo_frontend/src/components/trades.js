@@ -18,27 +18,31 @@ const TradesStyle = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
-    border: 1px solid white;
     justify-content: space-between;
+    border: 1px solid white;
     width: 400px;
     height: 40px;
     margin: 5px;
     border-radius: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
 
     & .coin {
       display: flex;
       align-items: center;
-      width: 80px;
+      width: 60px;
       justify-content: space-around;
 
       & img {
-        width: 32px;
-        height: 32px;
+        width: 24px;
+        height: 24px;
       }
     }
 
     & .price {
-      width: 80px;
+    }
+
+    & .amount {
     }
   }
 `
@@ -77,7 +81,7 @@ const Trades = () => {
             <img src={btc} alt="logo" />
             <p>{trade.pair}</p>
           </div>
-          <div className="price">{trade.price}</div>
+          <div className="price">${trade.price}</div>
           <div className="amount">{trade.amount}</div>
         </div>
       ))}
