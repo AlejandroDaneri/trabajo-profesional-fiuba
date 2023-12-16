@@ -7,10 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Instalar dependencias solo para desarrollo
-RUN npm install --only=development
-
-# Copiar el resto de los archivos (excepto node_modules) al directorio de trabajo
-COPY . .
+RUN npm install
 
 # Construir la aplicación React en modo desarrollo
 CMD ["npm", "start"]
