@@ -42,7 +42,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	trade["pair"] = body.Pair
 	trade["price"] = body.Price
 	trade["amount"] = body.Amount
-	trade["open_timestamp"] = time.Now().Unix()
+	trade["timestamp"] = time.Now().Unix()
 
 	id, err := tradeservice.GetInstance().Create(trade)
 	if err != nil {

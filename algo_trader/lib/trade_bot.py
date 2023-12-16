@@ -67,7 +67,7 @@ class TradeBot:
             )
             return trade
         else:
-            print("Time to HODL")
+            #print("Time to HODL")
             return None
 
 
