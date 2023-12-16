@@ -2,12 +2,16 @@
   --primary-blue: #2196f3;
   --accent-dark-blue: #1e87db;
   --button-hover-accent: #1e87db;
+  --background-dark-blue: #2c3e50;
+  --top-bar-hover: #34495e;
 
   --secondary-green: #4caf50;
   --button-hover-green: #45a049;
 
   --background-light: rgba(255, 255, 255, 0.95);
   --primary-white: #fff;
+
+  --light-grey: #ecf0f1;
 
   --text-dark: #333;
   --box-shadow: rgba(0, 0, 0, 0.1);
