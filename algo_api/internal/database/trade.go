@@ -13,4 +13,5 @@ type TradePublicFields struct {
 	Price     string `json:"price"`
 	Amount    string `json:"amount"`
 	Timestamp int64  `json:"timestamp"`
+	Type      string `json:"type"`
 }

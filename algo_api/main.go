@@ -28,6 +28,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 		Pair   string `json:"pair"`
 		Price  string `json:"price"`
 		Amount string `json:"amount"`
+		Type   string `json:"type"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -43,6 +44,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	trade["price"] = body.Price
 	trade["amount"] = body.Amount
 	trade["timestamp"] = time.Now().Unix()
+	trade["type"] = body.Type
 
 	id, err := tradeservice.GetInstance().Create(trade)
 	if err != nil {

@@ -23,20 +23,16 @@ strategy.train(train_data)
 
 trade_bot = TradeBot(strategy, exchange, 'BTC')
 
-for indice in range(len(simulation_data)):
-    print(indice)
-    row = simulation_data.iloc[[indice]] 
+for index in range(len(simulation_data)):
+    print(index)
+    row = simulation_data.iloc[[index]] 
     trade = trade_bot.run_strategy(row)
     if trade is not None:
         data = {
             "pair": trade.symbol,
             "price": str(trade.price),
-            "amount": str(trade.amount)
+            "amount": str(trade.amount),
+            "type": trade.action.name
         }
         print(data)
         response = requests.post(url='http://algo_api:8080/trade', json=data)
-        print(response)
-    #print("profit: ", trade_bot.get_profit())
-
-
-

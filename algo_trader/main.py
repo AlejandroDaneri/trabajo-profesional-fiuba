@@ -31,17 +31,12 @@ while True:
     print("adding data to strategy")
     trade = trade_bot.run_strategy(data)
     if trade is not None:
-        print(trade)
         data = {
             "pair": trade.symbol,
-            "price": trade.price,
-            "amount": trade.amount
+            "price": str(trade.price),
+            "amount": str(trade.amount),
+            "type": trade.action.name
         }
-        r = requests.post(url='http://algo_api:8080/trade', json=data)
-    print("profit: ", trade_bot.get_profit())
-    print("waiting new price")
-    
-
+        print(data)
+        response = requests.post(url='http://algo_api:8080/trade', json=data)
     time.sleep(60)
-        
-

@@ -9,6 +9,12 @@ import { list } from "../webapi/trade"
 import btc from "../images/logos/btc.png"
 import { unixToDate } from "../utils/date"
 
+const Type = styled.div`
+  color: ${({ type }) => (type === "SELL" ? "red" : "green")};
+  font-weight: 600;
+  width: 40px;
+`
+
 const TradesStyle = styled.div`
   display: flex;
   flex-direction: column;
@@ -41,7 +47,7 @@ const TradesStyle = styled.div`
     align-items: center;
     justify-content: space-between;
     border: 1px solid white;
-    width: 700px;
+    width: 800px;
     height: 40px;
     margin: 5px;
     border-radius: 10px;
@@ -50,6 +56,14 @@ const TradesStyle = styled.div`
 
     & .timestamp {
       width: 160px;
+    }
+
+    & .type {
+      color: green;
+    }
+
+    & .type {
+      color: red;
     }
 
     & .coin {
@@ -88,28 +102,27 @@ const Trades = () => {
     })
   }
 
-  const getState = () => {
-    stateFunc((prevState) => ({
-      ...prevState,
-      loading: true,
-    }))
-    list()
-      .then((response) => {
-        stateFunc((prevState) => ({
-          ...prevState,
-          loading: false,
-          data: transformToView(response?.data || []),
-        }))
-      })
-      .catch((_) => {
-        stateFunc((prevState) => ({
-          ...prevState,
-          loading: false,
-        }))
-      })
-  }
-
   useEffect(() => {
+    const getState = () => {
+      stateFunc((prevState) => ({
+        ...prevState,
+        loading: true,
+      }))
+      list()
+        .then((response) => {
+          stateFunc((prevState) => ({
+            ...prevState,
+            loading: false,
+            data: transformToView(response?.data || []),
+          }))
+        })
+        .catch((_) => {
+          stateFunc((prevState) => ({
+            ...prevState,
+            loading: false,
+          }))
+        })
+    }
     const interval = setInterval(getState, 60000)
     getState()
     return () => {
@@ -128,6 +141,7 @@ const Trades = () => {
             {state.data.map((trade) => (
               <div className="trade">
                 <div className="timestamp">{trade.timestamp_label}</div>
+                <Type type={trade.type}>{trade.type}</Type>
                 <div className="coin">
                   <img src={btc} alt="logo" />
                   <p>{trade.pair}</p>
