@@ -17,6 +17,19 @@ const TradesStyle = styled.div`
     color: white;
   }
 
+  .trades::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .trades::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+
+  .trades::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+  }
+
   & .trades {
     overflow-y: scroll;
   }
@@ -60,22 +73,19 @@ const Trades = () => {
   })
 
   const getState = () => {
-    console.info("hola")
     stateFunc((prevState) => ({
       ...prevState,
       loading: true,
     }))
     list()
       .then((response) => {
-        console.info("ok")
         stateFunc((prevState) => ({
           ...prevState,
           loading: false,
           data: response?.data || [],
         }))
       })
-      .catch((err) => {
-        console.info("err")
+      .catch((_) => {
         stateFunc((prevState) => ({
           ...prevState,
           loading: false,
@@ -85,6 +95,7 @@ const Trades = () => {
 
   useEffect(() => {
     const interval = setInterval(getState, 60000)
+    getState()
     return () => {
       clearInterval(interval)
     }
