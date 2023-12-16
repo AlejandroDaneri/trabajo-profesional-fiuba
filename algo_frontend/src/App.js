@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import logo from "./bitcoin.png"
 
 /* Import Libs */
@@ -22,17 +22,39 @@ const AppStyle = styled.div`
 `
 
 const Trades = () => {
+  const [state, stateFunc] = useState({
+    loading: false,
+    data: [],
+  })
+
   useEffect(() => {
+    stateFunc((prevState) => ({
+      ...prevState,
+      loading: true,
+    }))
     list()
-      .then((_) => {
-        console.info("ok")
+      .then((response) => {
+        stateFunc((prevState) => ({
+          ...prevState,
+          loading: false,
+          data: response?.data || [],
+        }))
       })
       .catch((err) => {
-        console.info("err", err)
+        stateFunc((prevState) => ({
+          ...prevState,
+          loading: false,
+        }))
       })
   }, [])
 
-  return <></>
+  return (
+    <>
+      {state.data.map((trade) => (
+        <>{trade.pair}</>
+      ))}
+    </>
+  )
 }
 
 const App = () => {
