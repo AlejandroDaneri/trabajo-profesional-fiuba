@@ -1,6 +1,6 @@
 import "../styles/topBar.css";
 
-import { FaExchangeAlt, FaUser } from "react-icons/fa";
+import { FaExchangeAlt, FaSignOutAlt, FaUser } from "react-icons/fa";
 
 import React from "react";
 
@@ -20,6 +20,12 @@ const TopBar = () => {
           onClick={() => console.log("Profile clicked")}
         >
           <FaUser className="nav-icon" /> Profile
+        </button>
+        <button
+          className="nav-button"
+          onClick={() => console.log("Logout clicked")}
+        >
+          <FaSignOutAlt className="nav-icon" /> Logout
         </button>
       </div>
     </div>

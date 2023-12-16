@@ -5,6 +5,7 @@
   --background-dark-blue: #2c3e50;
   --top-bar-hover: #34495e;
 
+  --primary-green: #2ecc71;
   --secondary-green: #4caf50;
   --button-hover-green: #45a049;
 
@@ -12,7 +13,10 @@
   --primary-white: #fff;
 
   --light-grey: #ecf0f1;
+  --second-light-grey: #ddd;
 
   --text-dark: #333;
   --box-shadow: rgba(0, 0, 0, 0.1);
+
+  --primary-red: #e74c3c;
 }

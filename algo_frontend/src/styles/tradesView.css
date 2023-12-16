@@ -1,0 +1,28 @@
+.trades-view-container {
+  margin: 20px;
+}
+
+.trades-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.trades-table th,
+.trades-table td {
+  border: 1px solid var(--second-light-grey);
+  padding: 8px;
+  text-align: left;
+}
+
+.trades-table th {
+  background-color: var(--light-grey);
+}
+
+.bought {
+  color: var(--primary-green);
+}
+
+.sold {
+  color: var(--primary-red);
+}
