@@ -10,6 +10,7 @@ class TradeBot:
         self.exchange = exchange
         self.symbol = symbol
         self.trades = []
+        self.stop_loss_ratio = 0.2
 
     def execute_trade(self, action: Action, symbol, amount: float, price: float):
         if action != Action.HOLD:
@@ -17,6 +18,7 @@ class TradeBot:
             try:
                 self.exchange.place_order(trade)
                 self.trades.append(trade)
+                return trade
             except Exception as e:
                 print(f"Error executing trade: {e}")
 
@@ -33,13 +35,13 @@ class TradeBot:
                 and asset_last_value < last_trade_price * (1 - self.stop_loss_ratio)
             ):
                 print("Stop-loss triggered. Selling...")
-                self.execute_trade(
+                trade = self.execute_trade(
                     Action.SELL,
                     self.symbol,
                     self.exchange.portfolio[self.symbol],
                     asset_last_value,
                 )
-                return  # Stop further execution after stop-loss triggered
+                return trade
 
         buy_condition = action == Action.BUY and (not self.trades or last_action == Action.SELL)
         sell_condition = self.trades and action == Action.SELL and last_action == Action.BUY
@@ -47,22 +49,26 @@ class TradeBot:
 
         if buy_condition:
             max_buy_amount = self.strategy.investment_ratio * self.exchange.balance / asset_last_value
-            self.execute_trade(
+            trade = self.execute_trade(
                 Action.BUY,
                 self.symbol,
                 max_buy_amount,
                 asset_last_value,
             )
+            return trade
 
         elif sell_condition:
             max_sell_amount = self.exchange.portfolio[self.symbol] * self.strategy.investment_ratio
-            self.execute_trade(
+            trade = self.execute_trade(
                 Action.SELL,
                 self.symbol,
                 max_sell_amount,
                 asset_last_value,
             )
-        else: print("Time to HODL")
+            return trade
+        else:
+            #print("Time to HODL")
+            return None
 
 
     def get_trades(self):

@@ -1,0 +1,13 @@
+# Etapa de desarrollo
+FROM node:latest as development
+
+WORKDIR /app
+
+# Copiar solo los archivos necesarios para instalar las dependencias
+COPY package.json package-lock.json ./
+
+# Instalar dependencias solo para desarrollo
+RUN npm install
+
+# Construir la aplicación React en modo desarrollo
+CMD ["npm", "start"]

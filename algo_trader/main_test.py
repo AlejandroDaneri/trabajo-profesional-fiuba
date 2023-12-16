@@ -1,5 +1,3 @@
-print("Trabajo Profesional | Algo Trading | Trader")
-
 from lib.indicators.crossing import Crossing
 from lib.indicators.rsi import RSI
 from lib.exchanges.dummy import Dummy
@@ -17,19 +15,18 @@ exchange = Dummy()
 rsi_indicator = RSI(65, 55, 14)
 crossing_indicator = Crossing(-0.01, 0, 20, 60)
 
+print(len(data))
+train_data = data.iloc[0:1000]
+simulation_data = data.iloc[1000:1200]
 strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
-
-last_records = data.iloc[-250:]
-strategy.train(last_records)
+strategy.train(train_data)
 
 trade_bot = TradeBot(strategy, exchange, 'BTC')
 
-while True:
-    print("getting new price")
-    data = provider.get_latest_price('BTCUSDT')
-    print(data)
-    print("adding data to strategy")
-    trade = trade_bot.run_strategy(data)
+for index in range(len(simulation_data)):
+    print(index)
+    row = simulation_data.iloc[[index]] 
+    trade = trade_bot.run_strategy(row)
     if trade is not None:
         data = {
             "pair": trade.symbol,
@@ -39,4 +36,3 @@ while True:
         }
         print(data)
         response = requests.post(url='http://algo_api:8080/trade', json=data)
-    time.sleep(60)
