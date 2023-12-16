@@ -21,6 +21,23 @@ const AppStyle = styled.div`
   }
 `
 
+const TradesStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+
+  & .trade {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid white;
+    justify-content: space-between;
+    width: 400px;
+    height: 40px;
+    margin: 5px;
+    border-radius: 10px;
+  }
+`
+
 const Trades = () => {
   const [state, stateFunc] = useState({
     loading: false,
@@ -49,11 +66,15 @@ const Trades = () => {
   }, [])
 
   return (
-    <>
+    <TradesStyle>
       {state.data.map((trade) => (
-        <>{trade.pair}</>
+        <div className="trade">
+          <p>{trade.pair}</p>
+          <p>{trade.price}</p>
+          <p>{trade.amount}</p>
+        </div>
       ))}
-    </>
+    </TradesStyle>
   )
 }
 
