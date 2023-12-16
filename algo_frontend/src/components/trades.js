@@ -41,12 +41,16 @@ const TradesStyle = styled.div`
     align-items: center;
     justify-content: space-between;
     border: 1px solid white;
-    width: 600px;
+    width: 700px;
     height: 40px;
     margin: 5px;
     border-radius: 10px;
     padding-left: 10px;
     padding-right: 10px;
+
+    & .timestamp {
+      width: 160px;
+    }
 
     & .coin {
       display: flex;
@@ -61,9 +65,11 @@ const TradesStyle = styled.div`
     }
 
     & .price {
+      width: 60px;
     }
 
     & .amount {
+      width: 200px;
     }
   }
 `
