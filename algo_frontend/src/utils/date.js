@@ -4,7 +4,7 @@ export const unixToDate = (unix) => {
   const yyyy = date.getFullYear()
   const MM = date.getMonth()
   const dd = date.getDate()
-  const hh = date.getHours()
+  const hh = padding(date.getHours())
   const mm = padding(date.getMinutes())
   const ss = padding(date.getSeconds())
 
