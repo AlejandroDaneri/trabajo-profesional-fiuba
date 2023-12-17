@@ -90,6 +90,8 @@ class RSI(Indicator):
 
     def predict_signal(self, new_record):
         new_rsi = self.calculate(pd.concat([self.data, new_record]))
+        sell_signal = self.calc_sell_signals()[-1]
+        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_rsi.iloc[-1]
 
@@ -98,9 +100,9 @@ class RSI(Indicator):
         print(f'[RSI] Buy Threshold: {self.buy_threshold}')
 
         signal = Action.HOLD
-        if new_signal < self.sell_threshold:
+        if sell_signal == 1:
             signal = Action.SELL
-        elif new_signal > self.buy_threshold:
+        elif buy_signal == 1:
             signal = Action.BUY
         
         print(f'[RSI] Signal: {signal}')

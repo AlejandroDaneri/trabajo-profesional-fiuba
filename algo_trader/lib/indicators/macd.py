@@ -1,5 +1,5 @@
 from lib.indicators.indicator import Indicator
-import numpy as np
+from lib.actions import Action
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -11,6 +11,7 @@ class MACD(Indicator):
         super().__init__("MACD")
 
     def calculate(self, data):
+        self.data = data
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
         # Copy the 'Close' column from the original data to the DataFrame
@@ -81,3 +82,15 @@ class MACD(Indicator):
         plt.fill_between(data.index, self.output, 0, where=self.output>0, alpha=0.5, color='green')
         plt.fill_between(data.index, self.output, 0, where=self.output<0, alpha=0.5, color='red')
         plt.show()
+
+    def predict_signal(self, new_record):
+        self.calculate(pd.concat([self.data, new_record]))
+        sell_signal = self.calc_sell_signals()[-1]
+        buy_signal = self.calc_buy_signals()[-1]
+
+        if sell_signal == 1:
+            return Action.SELL
+        elif buy_signal == 1:
+            return Action.BUY
+        else:
+            return Action.HOLD

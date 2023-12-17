@@ -9,9 +9,10 @@ class Indicator:
     @abstractmethod
     def calculate(self, *args):
         pass
-
-    def get_output(self):
-        return self.output
+    
+    @abstractmethod
+    def predict_signal(self, new_record):
+        pass
 
     @abstractmethod
     def calc_buy_signal(self):

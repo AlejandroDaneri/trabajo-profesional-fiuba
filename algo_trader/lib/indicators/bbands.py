@@ -1,5 +1,5 @@
+from lib.actions import Action
 from lib.indicators.indicator import Indicator
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -12,6 +12,7 @@ class BBANDS(Indicator):
         super().__init__("BBANDS")
 
   def calculate(self, data):
+    self.data = data
     df = pd.DataFrame(index=data.index)
     self.dates= data.index
 
@@ -62,3 +63,15 @@ class BBANDS(Indicator):
     plt.plot(data.index, data.LowerBand, linewidth = 0.5, color = "#033660")
     plt.grid()
     plt.show()
+
+  def predict_signal(self, new_record):        
+    self.calculate(pd.concat([self.data, new_record]))
+    sell_signal = self.calc_sell_signals()[-1]
+    buy_signal = self.calc_buy_signals()[-1]
+
+    if sell_signal == 1:
+        return Action.SELL
+    elif buy_signal == 1:
+        return Action.BUY
+    else:
+        return Action.HOLD
