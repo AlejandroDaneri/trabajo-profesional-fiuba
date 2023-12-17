@@ -35,6 +35,10 @@ export const login = async (email, password) => {
     await signInWithEmailAndPassword(auth, email, password);
     console.log("User logged in successfully!");
   } catch (error) {
-    console.error("Error logging in:", error.message);
+    if (error.code === "auth/invalid-login-credentials") {
+      throw new Error("Wrong Credentials");
+    } else {
+      throw new Error(`${error.message}`);
+    }
   }
 };

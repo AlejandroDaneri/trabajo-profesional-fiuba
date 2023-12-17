@@ -4,9 +4,12 @@ import React, { useState } from "react";
 
 import { login } from "../config/firebaseConfig";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { userState } from "../atoms/atoms";
 
 const LoginView = () => {
   let navigate = useNavigate();
+  const [user, setUser] = useRecoilState(userState);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,7 +18,20 @@ const LoginView = () => {
   };
 
   const handleLogin = async () => {
-    await login(email, password);
+    try {
+      await login(email, password);
+      setUser({
+        user: {},
+        isLoggedIn: true,
+      });
+      navigate("/trades");
+    } catch (error) {
+      if (error.message === "Wrong Credentials") {
+        console.log("Invalid password. Please try again.");
+      } else {
+        console.log("An error occurred:", error.message);
+      }
+    }
   };
 
   return (
