@@ -2,11 +2,15 @@ import "../styles/registerView.css";
 
 import React, { useState } from "react";
 
+import SuccessModal from "../components/successModal";
 import { createUser } from "../config/firebaseConfig";
 import { useNavigate } from "react-router-dom";
+import { useRecoilState } from "recoil";
+import { userState } from "../atoms/atoms";
 
 const RegisterView = () => {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
+  const [user, setUser] = useRecoilState(userState);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -16,12 +20,29 @@ const RegisterView = () => {
   const [address, setAddress] = useState("");
   const [occupation, setOccupation] = useState("");
 
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+
   const handleCreateAccount = async () => {
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    await createUser(email, password);
+
+    try {
+      await createUser(email, password);
+      setSuccessModalOpen(true);
+    } catch (error) {
+      console.error("Error creating user:", error);
+    }
+  };
+
+  const handleCloseSuccessModal = () => {
+    setSuccessModalOpen(false);
+    setUser({
+      user: {},
+      isLoggedIn: true,
+    });
+    navigate("/trades");
   };
 
   return (
@@ -110,6 +131,11 @@ const RegisterView = () => {
           </p>
         </form>
       </div>
+      <SuccessModal
+        isOpen={successModalOpen}
+        message="User created successfully!"
+        onClose={handleCloseSuccessModal}
+      />
     </div>
   );
 };
