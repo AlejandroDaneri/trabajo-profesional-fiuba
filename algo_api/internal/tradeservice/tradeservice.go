@@ -79,7 +79,8 @@ func (s *TradeService) List() ([]*database.TradePublicFields, error) {
 	{
 		"selector": {
 			"pvt_type": "trade"
-		}
+		},
+		"limit": 10000
 	}
 	`
 	docs, err := db.QueryJSON(q)
