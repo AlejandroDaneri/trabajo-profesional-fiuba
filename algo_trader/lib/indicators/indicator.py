@@ -18,3 +18,7 @@ class Indicator:
     @abstractmethod
     def calc_buy_signal(self):
         pass
+
+    @abstractmethod
+    def calc_sell_signal(self):
+        pass

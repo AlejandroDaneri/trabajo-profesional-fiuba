@@ -41,17 +41,43 @@ class MACD(Indicator):
         return self.output
 
     def calc_buy_signals(self):
-        # Find where the MACD line crosses above the signal line
-        return np.where((self.output > 0) & (self.output.shift(1) <= 0), True, False)
+        data = pd.DataFrame(self.output, index= self.dates)
+        isUnderline = False
+    
+        buy_signals_list = []
 
+        for i in range(0, len(data[self.name])):
+            if (data[self.name].iloc[i] < 0):
+                isUnderline = True
+                buy_signals_list.append(0)
+            else:
+                buy_signals_list.append(1 if isUnderline == True else 0)
+                isUnderline = False
+
+        return buy_signals_list
+    
     def calc_sell_signals(self):
-        # Find where the MACD line crosses below the signal line
-        return np.where((self.output < 0) & (self.output.shift(1) >= 0), True, False)
+        data = pd.DataFrame(self.output, index= self.dates)
+        isOverline = False
+        sell_signals_list = []
 
+        for i in range(0, len(data[self.name])):
+            if (data[self.name].iloc[i] > 0):
+                isOverline = True
+                sell_signals_list.append(0)
+            else:
+                sell_signals_list.append(1 if isOverline == True else 0)
+                isOverline = False
+
+        return sell_signals_list
+    
     def plot(self):
-        # TODO: fix plot
-        data = pd.DataFrame(self.output, index=self.dates)
+        data = pd.DataFrame(self.output, index= self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data[self.name])
+        plt.plot(self.output)
+        plt.grid()
+        plt.axhline(0, linestyle='--', linewidth=1.5, color='black')
+        plt.fill_between(data.index, self.output, 0, where=self.output>0, alpha=0.5, color='green')
+        plt.fill_between(data.index, self.output, 0, where=self.output<0, alpha=0.5, color='red')
         plt.show()

@@ -44,17 +44,46 @@ class RSI(Indicator):
         return self.output
 
     def calc_buy_signals(self):
-        return np.where(self.output > self.buy_threshold, True, False)
+        data = pd.DataFrame(self.output, index= self.dates)
+        isOverbought = False
+    
+        buy_signals_list = []
 
+        for i in range(0, len(data[self.name])):
+            if (data[self.name].iloc[i] < self.buy_threshold):
+                isOverbought = True
+                buy_signals_list.append(0)
+            else:
+                buy_signals_list.append(1 if isOverbought == True else 0)
+                isOverbought = False
+
+        return buy_signals_list
+    
     def calc_sell_signals(self):
-        print(self.output)
-        return np.where(self.output < self.sell_threshold, True, False)
+        data = pd.DataFrame(self.output, index= self.dates)
+        isOversold = False
+        sell_signals_list = []
 
+        for i in range(0, len(data[self.name])):
+            if (data[self.name].iloc[i] > self.sell_threshold):
+                isOversold = True
+                sell_signals_list.append(0)
+            else:
+                sell_signals_list.append(1 if isOversold == True else 0)
+                isOversold = False
+
+        return sell_signals_list
+    
     def plot(self):
-        data = pd.DataFrame(self.output, index=self.dates)
+        data = pd.DataFrame(self.output, index= self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data[self.name])
+        plt.plot(data[self.name], color='orange', linewidth=2)
+        plt.grid()
+        # Oversold
+        plt.axhline(30, linestyle='--', linewidth=1.5, color='green')
+        # Overbought
+        plt.axhline(70, linestyle='--', linewidth=1.5, color='red')
         plt.show()
 
     def predict_signal(self, new_record):
