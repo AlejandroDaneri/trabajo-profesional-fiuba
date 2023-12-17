@@ -25,9 +25,12 @@ export const auth = getAuth(app);
 export const createUser = async (email, password) => {
   try {
     await createUserWithEmailAndPassword(auth, email, password);
-    console.log("User registered successfully!");
   } catch (error) {
-    console.error("Error registering user:", error.message);
+    if (error.code === "auth/invalid-email") {
+      throw new Error(INVALID_EMAIL);
+    } else {
+      throw new Error(`${error.message}`);
+    }
   }
 };
 

@@ -2,6 +2,8 @@ import "../styles/registerView.css";
 
 import React, { useState } from "react";
 
+import ErrorModal from "../components/errorModal";
+import { INVALID_EMAIL } from "../utils/interactiveMessages";
 import SuccessModal from "../components/successModal";
 import { createUser } from "../config/firebaseConfig";
 import { useNavigate } from "react-router-dom";
@@ -21,10 +23,19 @@ const RegisterView = () => {
   const [occupation, setOccupation] = useState("");
 
   const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [errorModalOpen, setErrorModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleCreateAccount = async () => {
+    if (password.length < 6) {
+      setErrorMessage("Password must be at least 6 characters long.");
+      setErrorModalOpen(true);
+      return;
+    }
+
     if (password !== confirmPassword) {
-      alert("Passwords do not match!");
+      setErrorMessage("Passwords do not match.");
+      setErrorModalOpen(true);
       return;
     }
 
@@ -32,7 +43,19 @@ const RegisterView = () => {
       await createUser(email, password);
       setSuccessModalOpen(true);
     } catch (error) {
-      console.error("Error creating user:", error);
+      if (error.message === INVALID_EMAIL) {
+        setErrorMessage(
+          "The email you entered is not valid. Please try again."
+        );
+        setErrorModalOpen(true);
+        return;
+      } else {
+        setErrorMessage(
+          "An error has occurred while registering. Please try again."
+        );
+        setErrorModalOpen(true);
+        return;
+      }
     }
   };
 
@@ -135,6 +158,11 @@ const RegisterView = () => {
         isOpen={successModalOpen}
         message="User created successfully!"
         onClose={handleCloseSuccessModal}
+      />
+      <ErrorModal
+        isOpen={errorModalOpen}
+        message={errorMessage}
+        onClose={() => setErrorModalOpen(false)}
       />
     </div>
   );

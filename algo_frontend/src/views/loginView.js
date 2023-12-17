@@ -45,7 +45,7 @@ const LoginView = () => {
       } else {
         setErrorModal({
           isOpen: true,
-          message: `An error occurred: ${error.message}`,
+          message: "An error has occurred while logging in. Please try again.",
         });
       }
     }
