@@ -8,7 +8,7 @@ class MACD(Indicator):
         self.slow = slow
         self.fast = fast
         self.suavizado = suavizado
-        super().__init__("MACD", 0, 0)
+        super().__init__("MACD")
 
     def calculate(self, data):
         df = pd.DataFrame(index=data.index)

@@ -1,43 +1,37 @@
-from indicators.indicator import Indicator
+from lib.indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 class BBANDS(Indicator):
-  def __init__(self):
-    super().__init__("BBANDS")
+  def __init__(self, rounds, factor):
+        # Moving Average periods 
+        self.rounds = rounds
+        # Factor to shift the bands
+        self.factor = factor
+        super().__init__("BBANDS")
 
-  def calculate(self, data,rounds = 14):
-    # Create a DataFrame with the same index as the input data
+  def calculate(self, data):
     df = pd.DataFrame(index=data.index)
     self.dates= data.index
 
-    # Copy the 'Close' column from the original data to the new DataFrame
-    df['Close'] = data['Close']
+    # Copy the 'Close' column from the original data to the DataFrame
+    df["Close"] = data["Close"]
 
-    # Calculate the difference in closing prices between the current and previous rows
-    df['diff'] = df.Close.diff()
+    # Calculate the average of the last n rounds of Close
+    df["MidBand"] = data["Close"].rolling(self.rounds).mean()
 
-    # If the difference is greater than 0, set the 'win' column to the difference; otherwise, set it to 0
-    df['win'] = np.where(df['diff'] > 0, df['diff'], 0)
+    # Calculate the Standard Deviation of the last n rounds of Close
+    df["Std"] = data["Close"].rolling(self.rounds).std()
 
-    # If the difference is less than 0, set the 'loss' column to the absolute difference; otherwise, set it to 0
-    df['loss'] = np.where(df['diff'] < 0, abs(df['diff']), 0)
+    # Calculate the upper band
+    df["UpperBand"] = df["MidBand"] + df["Std"]*self.factor
 
-    # Calculate the exponential moving average of the 'win' column
-    df['EMA_win'] = df.win.ewm(alpha=1/rounds).mean()
+    # Calculate the lower band
+    df["LowerBand"] = df["MidBand"] - df["Std"]*self.factor
 
-    # Calculate the exponential moving average of the 'loss' column
-    df['EMA_loss'] = df.loss.ewm(alpha=1/rounds).mean()
-
-    # Calculate the ratio between the exponential moving averages ('RS' column)
-    df['RS'] = df.EMA_win / df.EMA_loss
-    df[self.name] = 100 - (100 /(1+df['RS'])) #TODO: Check vs alphavantage API
-
-    # Calculate the final Relative Strength Index (RSI) using the calculated RS
-    self.output = df[self.name]
-
-    return self.output
+    self.df_output = df
+    return self.df_output
   
   def calc_buy_signals(self):
     data = pd.DataFrame(self.output, index= self.dates)
@@ -71,13 +65,13 @@ class BBANDS(Indicator):
     return sell_signals_list
   
   def plot(self):
-    data = pd.DataFrame(self.output, index= self.dates)
+    data = self.df_output
+    
     fig = plt.figure()
-    fig.set_size_inches(30, 5)
-    plt.plot(data[self.name], color='orange', linewidth=2)
+    fig.set_size_inches(16, 8)
+    plt.plot(data.index, data.Close)
+    plt.plot(data.index, data.MidBand, linewidth = 0.5, linestyle = "dashed")
+    plt.plot(data.index, data.UpperBand, linewidth = 0.5, color = "#033660")
+    plt.plot(data.index, data.LowerBand, linewidth = 0.5, color = "#033660")
     plt.grid()
-    # Oversold
-    plt.axhline(30, linestyle='--', linewidth=1.5, color='green')
-    # Overbought
-    plt.axhline(70, linestyle='--', linewidth=1.5, color='red')
     plt.show()

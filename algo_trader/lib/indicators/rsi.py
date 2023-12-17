@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 
 class RSI(Indicator):
     def __init__(self, buy_threshold, sell_threshold, rounds):
+        self.buy_threshold = buy_threshold
+        self.sell_threshold = sell_threshold
         self.rounds = rounds
-        super().__init__("RSI", buy_threshold, sell_threshold)
+        super().__init__("RSI")
 
     def calculate(self, data):
         # Create a DataFrame with the same index as the input data
