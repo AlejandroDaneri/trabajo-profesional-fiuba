@@ -34,33 +34,20 @@ class BBANDS(Indicator):
     return self.df_output
   
   def calc_buy_signals(self):
-    data = pd.DataFrame(self.output, index= self.dates)
-    isOverbought = False
-  
+    data = self.df_output  
     buy_signals_list = []
 
-    for i in range(0, len(data[self.name])):
-      if (data[self.name].iloc[i] < 30):
-        isOverbought = True
-        buy_signals_list.append(0)
-      else:
-        buy_signals_list.append(1 if isOverbought == True else 0)
-        isOverbought = False
+    for i in range(0, len(data.Close)):
+      buy_signals_list.append(1 if (data.Close.iloc[i] <= data.LowerBand.iloc[i]) else 0)
 
     return buy_signals_list
   
   def calc_sell_signals(self):
-    data = pd.DataFrame(self.output, index= self.dates)
-    isOversold = False
+    data = self.df_output
     sell_signals_list = []
 
-    for i in range(0, len(data[self.name])):
-      if (data[self.name].iloc[i] > 70):
-        isOversold = True
-        sell_signals_list.append(0)
-      else:
-        sell_signals_list.append(1 if isOversold == True else 0)
-        isOversold = False
+    for i in range(0, len(data.Close)):
+      sell_signals_list.append(1 if (data.Close.iloc[i] >= data.UpperBand.iloc[i]) else 0)
 
     return sell_signals_list
   
