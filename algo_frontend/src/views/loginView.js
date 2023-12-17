@@ -1,7 +1,9 @@
 import "../styles/loginView.css";
 
+import { INVALID_EMAIL, WRONG_CREDENTIALS } from "../utils/interactiveMessages";
 import React, { useState } from "react";
 
+import ErrorModal from "../components/errorModal";
 import { login } from "../config/firebaseConfig";
 import { useNavigate } from "react-router-dom";
 import { useRecoilState } from "recoil";
@@ -12,6 +14,10 @@ const LoginView = () => {
   const [user, setUser] = useRecoilState(userState);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorModal, setErrorModal] = useState({
+    isOpen: false,
+    message: "",
+  });
 
   const handleCreateAccount = async () => {
     navigate("/register");
@@ -26,12 +32,30 @@ const LoginView = () => {
       });
       navigate("/trades");
     } catch (error) {
-      if (error.message === "Wrong Credentials") {
-        console.log("Invalid password. Please try again.");
+      if (error.message === WRONG_CREDENTIALS) {
+        setErrorModal({
+          isOpen: true,
+          message: "Invalid credentials. Please try again.",
+        });
+      } else if (error.message === INVALID_EMAIL) {
+        setErrorModal({
+          isOpen: true,
+          message: "The email you entered is not valid. Please try again.",
+        });
       } else {
-        console.log("An error occurred:", error.message);
+        setErrorModal({
+          isOpen: true,
+          message: `An error occurred: ${error.message}`,
+        });
       }
     }
+  };
+
+  const closeErrorModal = () => {
+    setErrorModal({
+      isOpen: false,
+      message: "",
+    });
   };
 
   return (
@@ -73,6 +97,11 @@ const LoginView = () => {
           </button>
         </div>
       </div>
+      <ErrorModal
+        isOpen={errorModal.isOpen}
+        message={errorModal.message}
+        onClose={closeErrorModal}
+      />
     </div>
   );
 };

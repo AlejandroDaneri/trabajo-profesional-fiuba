@@ -14,9 +14,12 @@
 
   --light-grey: #ecf0f1;
   --second-light-grey: #ddd;
+  --third-grey: #aaa;
 
   --text-dark: #333;
   --box-shadow: rgba(0, 0, 0, 0.1);
 
   --primary-red: #e74c3c;
+  --secondary-red: rgba(255, 0, 0, 0.5);
+  --third-red: #d9534f;
 }

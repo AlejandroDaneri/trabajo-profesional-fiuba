@@ -1,3 +1,4 @@
+import { INVALID_EMAIL, WRONG_CREDENTIALS } from "../utils/interactiveMessages";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -36,7 +37,9 @@ export const login = async (email, password) => {
     console.log("User logged in successfully!");
   } catch (error) {
     if (error.code === "auth/invalid-login-credentials") {
-      throw new Error("Wrong Credentials");
+      throw new Error(WRONG_CREDENTIALS);
+    } else if (error.code === "auth/invalid-email") {
+      throw new Error(INVALID_EMAIL);
     } else {
       throw new Error(`${error.message}`);
     }
