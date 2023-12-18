@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -25,10 +24,11 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 
 func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Pair   string `json:"pair"`
-		Price  string `json:"price"`
-		Amount string `json:"amount"`
-		Type   string `json:"type"`
+		Pair      string `json:"pair"`
+		Price     string `json:"price"`
+		Amount    string `json:"amount"`
+		Type      string `json:"type"`
+		Timestamp int64  `json:"timestamp"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -43,7 +43,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	trade["pair"] = body.Pair
 	trade["price"] = body.Price
 	trade["amount"] = body.Amount
-	trade["timestamp"] = time.Now().Unix()
+	trade["timestamp"] = body.Timestamp
 	trade["type"] = body.Type
 
 	id, err := tradeservice.GetInstance().Create(trade)
@@ -125,16 +125,30 @@ func ListTrades(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-func main() {
-	router := mux.NewRouter()
+func RemoveTrades(w http.ResponseWriter, r *http.Request) {
+	err := tradeservice.GetInstance().Remove()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not remove trades")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
 
-	router.HandleFunc("/ping", PingPong).Methods("GET")
-
+func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trade", ListTrades).Methods("GET")
+	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
+}
 
-	router.HandleFunc("/", handler)
+func main() {
+	router := mux.NewRouter()
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	MakeRoutes(apiRouter)
+
+	router.HandleFunc("/ping", PingPong).Methods("GET")
 
 	fmt.Println("Servidor escuchando en el puerto 8080")
 	err := http.ListenAndServe(":8080", router)

@@ -6,10 +6,6 @@ module.exports = function (app) {
     createProxyMiddleware({
       target: "http://algo_api:8080",
       changeOrigin: true,
-      pathRewrite: {
-        "^/api": "",
-      },
-      logLevel: "debug",
     })
   )
 }

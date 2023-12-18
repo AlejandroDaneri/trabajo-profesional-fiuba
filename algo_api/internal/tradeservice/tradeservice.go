@@ -29,8 +29,9 @@ func NewService() IService {
 
 type IService interface {
 	Create(trade map[string]interface{}) (string, error)
-	Get(id string) (*database.TradePublicFields, error)
-	List() ([]*database.TradePublicFields, error)
+	Get(id string) (*database.TradeResponseFields, error)
+	List() ([]*database.TradeResponseFields, error)
+	Remove() error
 }
 
 func (s *TradeService) Create(trade map[string]interface{}) (string, error) {
@@ -47,7 +48,7 @@ func (s *TradeService) Create(trade map[string]interface{}) (string, error) {
 	return id, nil
 }
 
-func (s *TradeService) Get(id string) (*database.TradePublicFields, error) {
+func (s *TradeService) Get(id string) (*database.TradeResponseFields, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
@@ -66,10 +67,13 @@ func (s *TradeService) Get(id string) (*database.TradePublicFields, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &trade.TradePublicFields, nil
+	return &database.TradeResponseFields{
+		TradePublicFields: trade.TradePublicFields,
+		ID:                trade.ID,
+	}, nil
 }
 
-func (s *TradeService) List() ([]*database.TradePublicFields, error) {
+func (s *TradeService) List() ([]*database.TradeResponseFields, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
@@ -79,14 +83,15 @@ func (s *TradeService) List() ([]*database.TradePublicFields, error) {
 	{
 		"selector": {
 			"pvt_type": "trade"
-		}
+		},
+		"limit": 10000
 	}
 	`
 	docs, err := db.QueryJSON(q)
 	if err != nil {
 		return nil, err
 	}
-	trades := []*database.TradePublicFields{}
+	trades := []*database.TradeResponseFields{}
 	for _, doc := range docs {
 		bytes, err := json.Marshal(doc)
 		if err != nil {
@@ -97,7 +102,32 @@ func (s *TradeService) List() ([]*database.TradePublicFields, error) {
 		if err != nil {
 			continue
 		}
-		trades = append(trades, &trade.TradePublicFields)
+		trades = append(trades, &database.TradeResponseFields{
+			TradePublicFields: trade.TradePublicFields,
+			ID:                trade.ID,
+		})
 	}
 	return trades, nil
+}
+
+func (s *TradeService) Remove() error {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return err
+	}
+
+	trades, err := s.List()
+	if err != nil {
+		return err
+	}
+
+	for _, trade := range trades {
+		err = db.Delete(trade.ID)
+		if err != nil {
+			continue
+		}
+	}
+
+	return nil
 }
