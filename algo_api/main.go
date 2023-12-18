@@ -136,17 +136,19 @@ func RemoveTrades(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func main() {
-	router := mux.NewRouter()
-
-	router.HandleFunc("/ping", PingPong).Methods("GET")
-
+func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trade", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
+}
 
-	router.HandleFunc("/", handler)
+func main() {
+	router := mux.NewRouter()
+	apiRouter := router.PathPrefix("/api").Subrouter()
+	MakeRoutes(apiRouter)
+
+	router.HandleFunc("/ping", PingPong).Methods("GET")
 
 	fmt.Println("Servidor escuchando en el puerto 8080")
 	err := http.ListenAndServe(":8080", router)

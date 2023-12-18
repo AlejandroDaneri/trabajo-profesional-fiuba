@@ -3,7 +3,7 @@ import axios from "axios"
 export const getBackend = () => {
   return process.env.NODE_ENV === "development"
     ? ""
-    : "http://satoshibot.tech:8080"
+    : "http://api.satoshibot.tech"
 }
 
 export const list = () => {
