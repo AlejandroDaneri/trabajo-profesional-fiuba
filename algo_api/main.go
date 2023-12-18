@@ -46,13 +46,15 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	trade := map[string]interface{}{
 		"pair":   body.Pair,
 		"amount": body.Amount,
-		"buy": map[string]interface{}{
-			"price":     body.BuyOrder.Price,
-			"timestamp": body.BuyOrder.Timestamp,
-		},
-		"sell": map[string]interface{}{
-			"price":     body.SellOrder.Price,
-			"timestamp": body.SellOrder.Timestamp,
+		"orders": map[string]interface{}{
+			"buy": map[string]interface{}{
+				"price":     body.BuyOrder.Price,
+				"timestamp": body.BuyOrder.Timestamp,
+			},
+			"sell": map[string]interface{}{
+				"price":     body.SellOrder.Price,
+				"timestamp": body.SellOrder.Timestamp,
+			},
 		},
 	}
 
