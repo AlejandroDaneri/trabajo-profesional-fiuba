@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -25,10 +24,11 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 
 func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Pair   string `json:"pair"`
-		Price  string `json:"price"`
-		Amount string `json:"amount"`
-		Type   string `json:"type"`
+		Pair      string `json:"pair"`
+		Price     string `json:"price"`
+		Amount    string `json:"amount"`
+		Type      string `json:"type"`
+		Timestamp int64  `json:"timestamp"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -43,7 +43,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	trade["pair"] = body.Pair
 	trade["price"] = body.Price
 	trade["amount"] = body.Amount
-	trade["timestamp"] = time.Now().Unix()
+	trade["timestamp"] = body.Timestamp
 	trade["type"] = body.Type
 
 	id, err := tradeservice.GetInstance().Create(trade)

@@ -27,14 +27,16 @@ response = requests.delete(url='http://algo_api:8080/trade')
 
 for index in range(len(simulation_data)):
     print(index)
-    row = simulation_data.iloc[[index]] 
+    row = simulation_data.iloc[[index]]
     trade = trade_bot.run_strategy(row)
     if trade is not None:
+        timestamp = row['Open time'].iloc[0]
         data = {
             "pair": trade.symbol,
             "price": str(trade.price),
             "amount": str(trade.amount),
-            "type": trade.action.name
+            "type": trade.action.name,
+            "timestamp": int(timestamp)
         }
         print(data)
         response = requests.post(url='http://algo_api:8080/trade', json=data)

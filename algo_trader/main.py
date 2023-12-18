@@ -31,11 +31,13 @@ while True:
     print("adding data to strategy")
     trade = trade_bot.run_strategy(data)
     if trade is not None:
+        timestamp = data['Open time'].iloc[0]
         data = {
             "pair": trade.symbol,
             "price": str(trade.price),
             "amount": str(trade.amount),
-            "type": trade.action.name
+            "type": trade.action.name,
+            "timestamp": timestamp
         }
         print(data)
         response = requests.post(url='http://algo_api:8080/trade', json=data)
