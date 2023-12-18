@@ -125,6 +125,17 @@ func ListTrades(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
+func RemoveTrades(w http.ResponseWriter, r *http.Request) {
+	err := tradeservice.GetInstance().Remove()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not remove trades")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func main() {
 	router := mux.NewRouter()
 
@@ -133,6 +144,7 @@ func main() {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trade", ListTrades).Methods("GET")
+	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
 	router.HandleFunc("/", handler)
 

@@ -15,3 +15,8 @@ type TradePublicFields struct {
 	Timestamp int64  `json:"timestamp"`
 	Type      string `json:"type"`
 }
+
+type TradeResponseFields struct {
+	TradePublicFields
+	ID string `json:"id"`
+}
