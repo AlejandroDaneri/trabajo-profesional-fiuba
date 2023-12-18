@@ -1,6 +1,16 @@
 version: "3"
 
 services:
+  algo_frontend:
+    container_name: frontend
+    build:
+      context: ./algo_frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./algo_frontend:/app
+    ports:
+      - 3000:3000
+
   algo_trader:
     container_name: trader
     build:
@@ -8,6 +18,8 @@ services:
     working_dir: /app
     volumes:
       - ./algo_trader:/app
+    depends_on:
+      - algo_api
 
   algo_api:
     container_name: api

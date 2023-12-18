@@ -9,8 +9,14 @@ type Trade struct {
 }
 
 type TradePublicFields struct {
-	Pair          string `json:"pair"`
-	Prize         string `json:"price"`
-	Amount        string `json:"amount"`
-	OpenTimestamp int64  `json:"open_timestamp"`
+	Pair      string `json:"pair"`
+	Price     string `json:"price"`
+	Amount    string `json:"amount"`
+	Timestamp int64  `json:"timestamp"`
+	Type      string `json:"type"`
+}
+
+type TradeResponseFields struct {
+	TradePublicFields
+	ID string `json:"id"`
 }

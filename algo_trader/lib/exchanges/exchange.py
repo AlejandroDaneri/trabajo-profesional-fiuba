@@ -14,8 +14,8 @@ class Exchange:
     def place_order(self, trade: Trade):
         pass
 
-    def buy(self, symbol: str, amount: int, price_per_unit: float):
-        cost = amount * price_per_unit
+    def buy(self, symbol: str, amount: int, price: float):
+        cost = amount * price
 
         if cost > self.balance:
             raise ValueError("Insufficient funds to execute the buy order.")
@@ -27,11 +27,11 @@ class Exchange:
 
         self.balance -= cost
 
-    def sell(self, symbol: str, amount: int, price_per_unit: float):
+    def sell(self, symbol: str, amount: int, price: float):
         if symbol not in self.portfolio or self.portfolio[symbol] < amount:
             raise ValueError("Not enough asset to execute the sell order.")
 
-        revenue = amount * price_per_unit
+        revenue = amount * price
         self.portfolio[symbol] -= amount
         self.balance += revenue
 

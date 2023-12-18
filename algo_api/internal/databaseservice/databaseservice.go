@@ -39,6 +39,7 @@ func NewService() IService {
 
 type IService interface {
 	GetDB(dbName string) (*couchdb.Database, error)
+	CreateDB(dbName string) error
 }
 
 func (s *DatabaseService) GetDB(dbName string) (*couchdb.Database, error) {
@@ -51,4 +52,16 @@ func (s *DatabaseService) GetDB(dbName string) (*couchdb.Database, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func (s *DatabaseService) CreateDB(dbName string) error {
+	_, err := s.couchdbClient.Create(dbName)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":     err,
+			"db name": dbName,
+		}).Error("Could not create db")
+		return err
+	}
+	return nil
 }
