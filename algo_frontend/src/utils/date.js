@@ -6,9 +6,8 @@ export const unixToDate = (unix) => {
   const dd = padding(date.getDate())
   const hh = padding(date.getHours())
   const mm = padding(date.getMinutes())
-  const ss = padding(date.getSeconds())
 
-  return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`
+  return `${yyyy}-${MM}-${dd} ${hh}:${mm}`
 }
 
 export const padding = (n) => {
