@@ -17,7 +17,7 @@ crossing_indicator = Crossing(-0.01, 0, 20, 60)
 
 print(len(data))
 train_data = data.iloc[0:1000]
-simulation_data = data.iloc[1000:1100]
+simulation_data = data.iloc[1000:3000]
 strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
 strategy.train(train_data)
 

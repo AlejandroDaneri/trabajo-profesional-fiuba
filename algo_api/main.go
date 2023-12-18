@@ -24,11 +24,16 @@ func PingPong(w http.ResponseWriter, r *http.Request) {
 
 func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		Pair      string `json:"pair"`
-		Price     string `json:"price"`
-		Amount    string `json:"amount"`
-		Type      string `json:"type"`
-		Timestamp int64  `json:"timestamp"`
+		Pair     string `json:"pair"`
+		Amount   string `json:"amount"`
+		BuyOrder struct {
+			Price     string `json:"price"`
+			Timestamp int64  `json:"timestamp"`
+		} `json:"buy"`
+		SellOrder struct {
+			Price     string `json:"price"`
+			Timestamp int64  `json:"timestamp"`
+		} `json:"sell"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -38,13 +43,18 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	trade := map[string]interface{}{}
-
-	trade["pair"] = body.Pair
-	trade["price"] = body.Price
-	trade["amount"] = body.Amount
-	trade["timestamp"] = body.Timestamp
-	trade["type"] = body.Type
+	trade := map[string]interface{}{
+		"pair":   body.Pair,
+		"amount": body.Amount,
+		"buy": map[string]interface{}{
+			"price":     body.BuyOrder.Price,
+			"timestamp": body.BuyOrder.Timestamp,
+		},
+		"sell": map[string]interface{}{
+			"price":     body.SellOrder.Price,
+			"timestamp": body.SellOrder.Timestamp,
+		},
+	}
 
 	id, err := tradeservice.GetInstance().Create(trade)
 	if err != nil {
