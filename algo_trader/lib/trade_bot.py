@@ -12,27 +12,31 @@ class TradeBot:
         self.trades = []
         self.stop_loss_ratio = 0.2
 
-    def execute_trade(self, action: Action, symbol, amount: float, price: float):
+        self.current_trade = None
+
+    def execute_trade(self, action: Action, symbol, amount: float, price: float, timestamp: int):
         if action != Action.HOLD:
-            trade = Trade(action, symbol, amount, price)
-            try:
-                self.exchange.place_order(trade)
-                self.trades.append(trade)
-                return trade
-            except Exception as e:
-                print(f"Error executing trade: {e}")
+            if action == Action.BUY:
+                self.current_trade = Trade(symbol, amount, price, timestamp)
+                self.exchange.place_order(self.current_trade, Action.BUY)
+            if action == Action.SELL:
+                self.current_trade.sell(price, timestamp)
+                self.trades.append(self.current_trade)
+                self.exchange.place_order(self.current_trade, Action.SELL)
+                return_trade = self.current_trade
+                self.current_trade = None
+                return return_trade
 
     def run_strategy(self, new_record):
         action = self.strategy.predict(new_record)
+        timestamp = new_record['Open time'].iloc[0]
         if (self.trades): 
-            last_action = self.trades[-1].action
-            last_trade_price = self.trades[-1].price
             asset_last_value = new_record["Close"][0]
 
             # Check for stop-loss condition before executing a sell order
             if (
-                last_action == Action.BUY
-                and asset_last_value < last_trade_price * (1 - self.stop_loss_ratio)
+                self.current_trade is not None
+                and asset_last_value < self.current_trade.buy_order.price * (1 - self.stop_loss_ratio)
             ):
                 print("Stop-loss triggered. Selling...")
                 trade = self.execute_trade(
@@ -40,11 +44,14 @@ class TradeBot:
                     self.symbol,
                     self.exchange.portfolio[self.symbol],
                     asset_last_value,
+                    timestamp
                 )
                 return trade
 
-        buy_condition = action == Action.BUY and (not self.trades or last_action == Action.SELL)
-        sell_condition = self.trades and action == Action.SELL and last_action == Action.BUY
+        print(action)
+        buy_condition = action == Action.BUY and (self.current_trade is None)
+        sell_condition = action == Action.SELL and (self.current_trade is not None)
+        print(sell_condition)
         asset_last_value = new_record["Close"][0]
 
         if buy_condition:
@@ -54,8 +61,9 @@ class TradeBot:
                 self.symbol,
                 max_buy_amount,
                 asset_last_value,
+                timestamp
             )
-            return trade
+            return None
 
         elif sell_condition:
             max_sell_amount = self.exchange.portfolio[self.symbol] * self.strategy.investment_ratio
@@ -64,6 +72,7 @@ class TradeBot:
                 self.symbol,
                 max_sell_amount,
                 asset_last_value,
+                timestamp
             )
             return trade
         else:

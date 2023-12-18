@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from typing import Dict
-
+from lib.actions import Action
 from lib.trade import Trade
 
 class Exchange:
@@ -11,7 +11,7 @@ class Exchange:
         self.total = self.balance
 
     @abstractmethod
-    def place_order(self, trade: Trade):
+    def place_order(self, trade: Trade, type: Action):
         pass
 
     def buy(self, symbol: str, amount: int, price: float):

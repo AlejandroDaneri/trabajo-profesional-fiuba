@@ -7,23 +7,23 @@ class Dummy(Exchange):
         super().__init__()
         self.trades = []
 
-    def place_order(self, trade: Trade):
-        action = trade.action
+    def place_order(self, trade: Trade, action: Action):
         symbol = trade.symbol
         amount = trade.amount
-        price = trade.price
 
         if action == Action.BUY:
+            price = trade.buy_order.price
             self.buy(symbol, amount, price)
             self.trades.append(trade)
-            self.total= amount*price
+            self.total = amount*price
             print(f"Actual portfolio: {self.portfolio}")
             print(f"Actual USDT balance: {self.balance}")
             print(f"Actual total: {self.total}")
             print(f"----------------")
         elif action == Action.SELL:
+            price = trade.sell_order.price
             self.sell(symbol, amount, price)
-            self.total= amount*price
+            self.total = amount*price
 
             print(f"Actual portfolio: {self.portfolio}")
             print(f"Actual USDT balance: {self.balance}")
