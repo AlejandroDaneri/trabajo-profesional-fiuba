@@ -17,7 +17,7 @@ class Exchange:
     def buy(self, symbol: str, amount: int, price: float):
         cost = amount * price
 
-        if cost > self.balance:
+        if int(cost) > int(self.balance):
             raise ValueError("Insufficient funds to execute the buy order.")
 
         if symbol in self.portfolio:
