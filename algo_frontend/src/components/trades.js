@@ -11,7 +11,7 @@ import eth from "../images/logos/eth.png"
 import { unixToDate } from "../utils/date"
 
 /* Import Styles */
-import { TradesStyle, TypeStyle } from "../styles/trades"
+import { ResultStyle, TradesStyle } from "../styles/trades"
 
 const Trades = () => {
   const [state, stateFunc] = useState({
@@ -24,7 +24,25 @@ const Trades = () => {
       .map((row) => {
         return {
           ...row,
-          timestamp_label: unixToDate(row.timestamp),
+          amount: parseFloat(row.amount).toFixed(4),
+          orders: {
+            buy: {
+              ...row.orders.buy,
+              timestamp_label: unixToDate(row.orders.buy.timestamp),
+            },
+            sell: {
+              ...row.orders.sell,
+              timestamp_label: unixToDate(row.orders.sell.timestamp),
+            },
+          },
+          duration:
+            (row.orders.sell.timestamp / 1000 -
+              row.orders.buy.timestamp / 1000) /
+            60,
+          pl: (
+            (row.orders.sell.price / row.orders.buy.price - 1) *
+            100
+          ).toFixed(3),
         }
       })
       .sort((a, b) => {
@@ -74,27 +92,46 @@ const Trades = () => {
         <>
           <div className="summary">Trades executed: {state.data.length}</div>
           <div className="trades">
+            <div className="row">
+              <div className="column">Coin</div>
+              <div className="column">Amount</div>
+              <div className="column">Date Buy</div>
+              <div className="column">Date Sell</div>
+              <div className="column">Duration (min)</div>
+              <div className="column">Price Buy ($)</div>
+              <div className="column">Price Sell ($)</div>
+              <div className="column">Profit/Loss (%)</div>
+            </div>
             {state.data.map((trade) => (
-              <div className="trade">
-                <div className="timestamp">{trade.timestamp_label}</div>
-                <TypeStyle type={trade.type}>{trade.type}</TypeStyle>
-                <div className="coin">
-                  {(() => {
-                    switch (trade.pair) {
-                      case "BTC":
-                        return <img src={btc} alt="logo" />
-                      case "SOL":
-                        return <img src={sol} alt="logo" />
-                      case "ETH":
-                        return <img src={eth} alt="logo" />
-                      default:
-                        return <></>
-                    }
-                  })()}
+              <div className="row">
+                <div className="column">
+                  <div className="coin">
+                    {(() => {
+                      switch (trade.pair) {
+                        case "BTC":
+                          return <img src={btc} alt="logo" />
+                        case "SOL":
+                          return <img src={sol} alt="logo" />
+                        case "ETH":
+                          return <img src={eth} alt="logo" />
+                        default:
+                          return <></>
+                      }
+                    })()}
+                  </div>
                   <p>{trade.pair}</p>
                 </div>
-                <div className="price">${trade.price}</div>
-                <div className="amount">{trade.amount}</div>
+                <div className="column">{trade.amount}</div>
+                <div className="column">{trade.orders.buy.timestamp_label}</div>
+                <div className="column">
+                  {trade.orders.sell.timestamp_label}
+                </div>
+                <div className="column">{trade.duration}</div>
+                <div className="column">{trade.orders.buy.price}</div>
+                <div className="column">{trade.orders.sell.price}</div>
+                <div className="column">
+                  <ResultStyle win={trade.pl > 0}>{trade.pl} </ResultStyle>
+                </div>
               </div>
             ))}
           </div>
