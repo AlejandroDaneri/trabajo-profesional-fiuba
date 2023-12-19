@@ -23,7 +23,7 @@ strategy.train(train_data)
 
 trade_bot = TradeBot(strategy, exchange, 'SOL')
 
-response = requests.delete(url='http://algo_api:8080/trade')
+response = requests.delete(url='http://algo_api:8080/api/trade')
 
 for index in range(len(simulation_data)):
     print(index)
@@ -39,4 +39,4 @@ for index in range(len(simulation_data)):
             "timestamp": int(timestamp)
         }
         print(data)
-        response = requests.post(url='http://algo_api:8080/trade', json=data)
+        response = requests.post(url='http://algo_api:8080/api/trade', json=data)
