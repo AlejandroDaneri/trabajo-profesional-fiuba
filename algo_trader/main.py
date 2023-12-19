@@ -40,5 +40,5 @@ while True:
             "timestamp": int(timestamp)
         }
         print(data)
-        response = requests.post(url='http://algo_api:8080/trade', json=data)
+        response = requests.post(url='http://algo_api:8080/api/trade', json=data)
     time.sleep(60)
