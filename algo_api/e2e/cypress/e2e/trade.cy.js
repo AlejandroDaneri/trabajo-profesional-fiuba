@@ -2,8 +2,18 @@ describe("Get ", () => {
   it("Should get trade after create it", () => {
     const trade = {
       pair: "BTC/USDT",
-      price: "39000",
+
       amount: "0.5343",
+      orders: {
+        buy: {
+          price: "39000",
+          timestamp: 1702831239,
+        },
+        sell: {
+          price: "40000",
+          timestamp: 1702831339,
+        },
+      },
     }
 
     cy.request({
@@ -22,8 +32,11 @@ describe("Get ", () => {
         expect(response.status).to.eq(200)
         const trade = JSON.parse(response.body)
         expect(trade.pair).eq("BTC/USDT")
-        expect(trade.price).eq("39000")
         expect(trade.amount).eq("0.5343")
+        expect(trade.orders.buy.price).eq("39000")
+        expect(trade.orders.buy.timestamp).eq(1702831239)
+        expect(trade.orders.sell.price).eq("40000")
+        expect(trade.orders.sell.timestamp).eq(1702831339)
       })
     })
   })
