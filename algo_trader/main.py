@@ -37,7 +37,7 @@ while True:
             "price": str(trade.price),
             "amount": str(trade.amount),
             "type": trade.action.name,
-            "timestamp": timestamp
+            "timestamp": int(timestamp)
         }
         print(data)
         response = requests.post(url='http://algo_api:8080/trade', json=data)
