@@ -18,8 +18,11 @@ services:
     working_dir: /app
     volumes:
       - ./algo_trader:/app
-    depends_on:
-      - algo_api
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   algo_api:
     container_name: api
