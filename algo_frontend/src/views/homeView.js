@@ -1,4 +1,4 @@
-import Topbar from "../components/topbar"
+import Topbar from "../components/topbar_"
 import TradesView from "./tradesView"
 
 const HomeView = () => {

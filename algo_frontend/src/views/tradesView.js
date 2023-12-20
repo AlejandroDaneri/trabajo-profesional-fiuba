@@ -12,7 +12,7 @@ import { unixToDate } from "../utils/date"
 
 /* Import Styles */
 import { ResultStyle, TradesStyle } from "../styles/trades"
-import Topbar from "../components/topbar"
+import Topbar from "../components/topbar_"
 import styled from "styled-components"
 
 const ContentStyle = styled.div`
