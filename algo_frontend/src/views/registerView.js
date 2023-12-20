@@ -1,72 +1,70 @@
-import "../styles/registerView.css";
+import "../styles/registerView.css"
 
-import React, { useState } from "react";
+import React, { useState } from "react"
 
-import ErrorModal from "../components/errorModal";
-import { INVALID_EMAIL } from "../utils/interactiveMessages";
-import SuccessModal from "../components/successModal";
-import { createUser } from "../config/firebaseConfig";
-import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { userState } from "../atoms/atoms";
+import ErrorModal from "../components/errorModal"
+import { INVALID_EMAIL } from "../utils/interactiveMessages"
+import SuccessModal from "../components/successModal"
+import { createUser } from "../config/firebaseConfig"
+import { useNavigate } from "react-router-dom"
+import { useRecoilState } from "recoil"
+import { userState } from "../atoms/atoms"
 
 const RegisterView = () => {
-  const navigate = useNavigate();
-  const [user, setUser] = useRecoilState(userState);
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [investmentExperience, setInvestmentExperience] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [address, setAddress] = useState("");
-  const [occupation, setOccupation] = useState("");
+  const navigate = useNavigate()
+  const [user, setUser] = useRecoilState(userState)
+  const [fullName, setFullName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [investmentExperience, setInvestmentExperience] = useState("")
+  const [dateOfBirth, setDateOfBirth] = useState("")
+  const [address, setAddress] = useState("")
+  const [occupation, setOccupation] = useState("")
 
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [errorModalOpen, setErrorModalOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const handleCreateAccount = async () => {
     if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters long.");
-      setErrorModalOpen(true);
-      return;
+      setErrorMessage("Password must be at least 6 characters long.")
+      setErrorModalOpen(true)
+      return
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
-      setErrorModalOpen(true);
-      return;
+      setErrorMessage("Passwords do not match.")
+      setErrorModalOpen(true)
+      return
     }
 
     try {
-      await createUser(email, password);
-      setSuccessModalOpen(true);
+      await createUser(email, password)
+      setSuccessModalOpen(true)
     } catch (error) {
       if (error.message === INVALID_EMAIL) {
-        setErrorMessage(
-          "The email you entered is not valid. Please try again."
-        );
-        setErrorModalOpen(true);
-        return;
+        setErrorMessage("The email you entered is not valid. Please try again.")
+        setErrorModalOpen(true)
+        return
       } else {
         setErrorMessage(
           "An error has occurred while registering. Please try again."
-        );
-        setErrorModalOpen(true);
-        return;
+        )
+        setErrorModalOpen(true)
+        return
       }
     }
-  };
+  }
 
   const handleCloseSuccessModal = () => {
-    setSuccessModalOpen(false);
+    setSuccessModalOpen(false)
     setUser({
       user: {},
       isLoggedIn: true,
-    });
-    navigate("/trades");
-  };
+    })
+    navigate("/home")
+  }
 
   return (
     <div className="register-page-container">
@@ -165,7 +163,7 @@ const RegisterView = () => {
         onClose={() => setErrorModalOpen(false)}
       />
     </div>
-  );
-};
+  )
+}
 
-export default RegisterView;
+export default RegisterView
