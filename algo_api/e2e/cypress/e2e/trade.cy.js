@@ -2,17 +2,14 @@ describe("Get ", () => {
   it("Should get trade after create it", () => {
     const trade = {
       pair: "BTC/USDT",
-
       amount: "0.5343",
-      orders: {
-        buy: {
-          price: "39000",
-          timestamp: 1702831239,
-        },
-        sell: {
-          price: "40000",
-          timestamp: 1702831339,
-        },
+      buy: {
+        price: "39000",
+        timestamp: 1702831239,
+      },
+      sell: {
+        price: "40000",
+        timestamp: 1702831339,
       },
     }
 
