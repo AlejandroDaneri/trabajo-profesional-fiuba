@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from typing import Dict
-
+from lib.actions import Action
 from lib.trade import Trade
 
 class Exchange:
@@ -11,13 +11,13 @@ class Exchange:
         self.total = self.balance
 
     @abstractmethod
-    def place_order(self, trade: Trade):
+    def place_order(self, trade: Trade, type: Action):
         pass
 
     def buy(self, symbol: str, amount: int, price: float):
         cost = amount * price
 
-        if cost > self.balance:
+        if int(cost) > int(self.balance):
             raise ValueError("Insufficient funds to execute the buy order.")
 
         if symbol in self.portfolio:
