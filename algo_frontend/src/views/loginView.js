@@ -1,62 +1,62 @@
-import "../styles/loginView.css";
+import "../styles/loginView.css"
 
-import { INVALID_EMAIL, WRONG_CREDENTIALS } from "../utils/interactiveMessages";
-import React, { useState } from "react";
+import { INVALID_EMAIL, WRONG_CREDENTIALS } from "../utils/interactiveMessages"
+import React, { useState } from "react"
 
-import ErrorModal from "../components/errorModal";
-import { login } from "../config/firebaseConfig";
-import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { userState } from "../atoms/atoms";
+import ErrorModal from "../components/errorModal"
+import { login } from "../config/firebaseConfig"
+import { useNavigate } from "react-router-dom"
+import { useRecoilState } from "recoil"
+import { userState } from "../atoms/atoms"
 
 const LoginView = () => {
-  let navigate = useNavigate();
-  const [user, setUser] = useRecoilState(userState);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  let navigate = useNavigate()
+  const [user, setUser] = useRecoilState(userState)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [errorModal, setErrorModal] = useState({
     isOpen: false,
     message: "",
-  });
+  })
 
   const handleCreateAccount = async () => {
-    navigate("/register");
-  };
+    navigate("/register")
+  }
 
   const handleLogin = async () => {
     try {
-      await login(email, password);
+      await login(email, password)
       setUser({
         user: {},
         isLoggedIn: true,
-      });
-      navigate("/trades");
+      })
+      navigate("/home")
     } catch (error) {
       if (error.message === WRONG_CREDENTIALS) {
         setErrorModal({
           isOpen: true,
           message: "Invalid credentials. Please try again.",
-        });
+        })
       } else if (error.message === INVALID_EMAIL) {
         setErrorModal({
           isOpen: true,
           message: "The email you entered is not valid. Please try again.",
-        });
+        })
       } else {
         setErrorModal({
           isOpen: true,
           message: "An error has occurred while logging in. Please try again.",
-        });
+        })
       }
     }
-  };
+  }
 
   const closeErrorModal = () => {
     setErrorModal({
       isOpen: false,
       message: "",
-    });
-  };
+    })
+  }
 
   return (
     <div className="login-container">
@@ -103,7 +103,7 @@ const LoginView = () => {
         onClose={closeErrorModal}
       />
     </div>
-  );
-};
+  )
+}
 
-export default LoginView;
+export default LoginView

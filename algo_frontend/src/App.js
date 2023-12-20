@@ -1,31 +1,33 @@
-import "./styles/App.css";
+/* Import Libs */
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import React from "react"
+import { RecoilRoot } from "recoil"
 
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+//import GraphsView from "./views/graphsView";
+//<Route path="/graphs" element={<GraphsView />} />
 
-import GraphsView from "./views/graphsView";
-import LoginView from "./views/loginView";
-import React from "react";
-import { RecoilRoot } from "recoil";
-import RegisterView from "./views/registerView";
-import TopBar from "./components/topBar";
-import TradesView from "./views/tradesView";
+/* Import Views */
+import LoginView from "./views/loginView"
+import RegisterView from "./views/registerView"
+
+/* Import Styles */
+import AppStyle from "./styles/app"
+import HomeView from "./views/homeView"
 
 const App = () => {
   return (
-    <div>
-      <RecoilRoot>
-        <BrowserRouter>
-          <TopBar></TopBar>
+    <RecoilRoot>
+      <BrowserRouter>
+        <AppStyle>
           <Routes>
-            <Route path="/" element={<LoginView />} />
-            <Route path="/register" element={<RegisterView />} />
-            <Route path="/trades" element={<TradesView />} />
-            <Route path="/graphs" element={<GraphsView />} />
+            <Route exact path="/" element={<LoginView />} />
+            <Route exact path="/register" element={<RegisterView />} />
+            <Route path="/home" element={<HomeView />} />
           </Routes>
-        </BrowserRouter>
-      </RecoilRoot>
-    </div>
-  );
-};
+        </AppStyle>
+      </BrowserRouter>
+    </RecoilRoot>
+  )
+}
 
-export default App;
+export default App

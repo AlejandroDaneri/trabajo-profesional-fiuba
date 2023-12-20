@@ -1,42 +1,38 @@
-import "../styles/topBar.css";
-
+/* Import Libs */
+import { useNavigate } from "react-router-dom"
 import {
   FaChartLine,
   FaExchangeAlt,
   FaSignOutAlt,
   FaUser,
-} from "react-icons/fa";
+} from "react-icons/fa"
+import TopbarStyle from "../styles/topbar"
+import { useRecoilState } from "recoil"
+import { userState } from "../atoms/atoms"
 
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { useRecoilState } from "recoil";
-import { userState } from "../atoms/atoms";
+const Topbar = () => {
+  const navigate = useNavigate()
+  const [user, setUser] = useRecoilState(userState)
 
-const TopBar = () => {
-  let navigate = useNavigate();
-  const [user, setUser] = useRecoilState(userState);
-
-  if (!user.isLoggedIn) {
-    return null;
-  }
-
-  const handleLogOut = () => {
+  const onLogout = () => {
     setUser({
       user: {},
       isLoggedIn: false,
-    });
-    navigate("/");
-  };
+    })
+    navigate("/")
+  }
 
   return (
-    <div className="top-bar">
-      <div className="logo">SatoshiBot</div>
+    <TopbarStyle>
+      <div className="logo_">SatoshiBot</div>
       <div className="nav-links">
         <button className="nav-button" onClick={() => navigate("/trades")}>
-          <FaExchangeAlt className="nav-icon" /> Trades
+          <FaExchangeAlt className="nav-icon" />
+          Trades
         </button>
         <button className="nav-button" onClick={() => navigate("/graphs")}>
-          <FaChartLine className="nav-icon" /> Graphs
+          <FaChartLine className="nav-icon" />
+          Graphs
         </button>
         <button
           className="nav-button"
@@ -44,12 +40,12 @@ const TopBar = () => {
         >
           <FaUser className="nav-icon" /> Profile
         </button>
-        <button className="nav-button" onClick={() => handleLogOut()}>
+        <button className="nav-button" onClick={onLogout}>
           <FaSignOutAlt className="nav-icon" /> Logout
         </button>
       </div>
-    </div>
-  );
-};
+    </TopbarStyle>
+  )
+}
 
-export default TopBar;
+export default Topbar
