@@ -1,6 +1,11 @@
 import "../styles/topBar.css";
 
-import { FaExchangeAlt, FaSignOutAlt, FaUser } from "react-icons/fa";
+import {
+  FaChartLine,
+  FaExchangeAlt,
+  FaSignOutAlt,
+  FaUser,
+} from "react-icons/fa";
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
@@ -27,11 +32,11 @@ const TopBar = () => {
     <div className="top-bar">
       <div className="logo">SatoshiBot</div>
       <div className="nav-links">
-        <button
-          className="nav-button"
-          onClick={() => console.log("Trades clicked")}
-        >
+        <button className="nav-button" onClick={() => navigate("/trades")}>
           <FaExchangeAlt className="nav-icon" /> Trades
+        </button>
+        <button className="nav-button" onClick={() => navigate("/graphs")}>
+          <FaChartLine className="nav-icon" /> Graphs
         </button>
         <button
           className="nav-button"
