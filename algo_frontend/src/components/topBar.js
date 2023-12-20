@@ -9,6 +9,7 @@ import {
 import TopbarStyle from "../styles/topbar"
 import { useRecoilState } from "recoil"
 import { userState } from "../atoms/atoms"
+import logo from "../images/bitcoin.png"
 
 const Topbar = () => {
   const navigate = useNavigate()
@@ -24,9 +25,12 @@ const Topbar = () => {
 
   return (
     <TopbarStyle>
-      <div className="logo_">SatoshiBot</div>
+      <div className="logo">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p>SatoshiBOT.tech</p>
+      </div>
       <div className="nav-links">
-        <button className="nav-button" onClick={() => navigate("/trades")}>
+        <button className="nav-button" onClick={() => navigate("/home")}>
           <FaExchangeAlt className="nav-icon" />
           Trades
         </button>
