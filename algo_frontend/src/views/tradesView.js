@@ -12,8 +12,17 @@ import { unixToDate } from "../utils/date"
 
 /* Import Styles */
 import { ResultStyle, TradesStyle } from "../styles/trades"
+import Topbar from "../components/topbar"
+import styled from "styled-components"
 
-const Trades = () => {
+const ContentStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+`
+
+const TradesView = () => {
   const [state, stateFunc] = useState({
     loading: true,
     data: [],
@@ -141,4 +150,4 @@ const Trades = () => {
   )
 }
 
-export default Trades
+export default TradesView
