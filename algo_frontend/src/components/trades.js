@@ -46,9 +46,9 @@ const Trades = () => {
         }
       })
       .sort((a, b) => {
-        if (a.timestamp < b.timestamp) {
+        if (a.orders.buy.timestamp < b.orders.buy.timestamp) {
           return 1
-        } else if (a.timestamp > b.timestamp) {
+        } else if (a.orders.buy.timestamp > b.orders.buy.timestamp) {
           return -1
         } else {
           return 0
