@@ -8,9 +8,10 @@ export const ResultStyle = styled.div`
 
 export const TradesStyle = styled.div`
   display: flex;
+  align-items: center;
   flex-direction: column;
   height: 600px;
-  align-items: center;
+
   width: 100%;
 
   & img {

@@ -1,54 +1,32 @@
 /* Import Libs */
-import styled from "styled-components"
+import { BrowserRouter, Route, Routes } from "react-router-dom"
+import React from "react"
+import { RecoilRoot } from "recoil"
 
-/* Import Components */
-import Trades from "./components/trades"
+//import GraphsView from "./views/graphsView";
+//<Route path="/graphs" element={<GraphsView />} />
 
-/* Import Images */
-import logo from "./images/bitcoin.png"
+/* Import Views */
+import LoginView from "./views/loginView"
+import RegisterView from "./views/registerView"
 
-const AppStyle = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  width: 100%;
-  min-height: 100vh;
-  background: #282c34;
-  color: white;
-
-  & .logo {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    border: 1px solid white;
-    border-radius: 10px;
-    width: 260px;
-    height: 120px;
-    margin: 20px;
-    box-shadow: white 0px 2px 8px 0px;
-
-    & img {
-      height: 96px;
-      height: 96px
-      pointer-events: none;
-    }
-
-    & p {
-      font-weight: 600;
-    }
-  }
-`
+/* Import Styles */
+import AppStyle from "./styles/app"
+import HomeView from "./views/homeView"
 
 const App = () => {
   return (
-    <AppStyle>
-      <div className="logo">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>SatoshiBOT.tech</p>
-      </div>
-      <Trades />
-    </AppStyle>
+    <RecoilRoot>
+      <BrowserRouter>
+        <AppStyle>
+          <Routes>
+            <Route exact path="/" element={<LoginView />} />
+            <Route exact path="/register" element={<RegisterView />} />
+            <Route path="/home" element={<HomeView />} />
+          </Routes>
+        </AppStyle>
+      </BrowserRouter>
+    </RecoilRoot>
   )
 }
 

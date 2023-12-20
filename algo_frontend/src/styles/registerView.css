@@ -1,0 +1,137 @@
+@import url("../utils/colors.css");
+@import url("../utils/fonts.css");
+
+.register-page-container {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  background: url("../assets/bitcoin.avif") center/cover no-repeat;
+  font-family: var(--primary-font);
+}
+
+.register-container {
+  min-height: 80vh;
+  min-width: 35vw;
+  padding: 20px 40px 20px 40px;
+  margin-top: 5vh;
+  margin-bottom: 5vh;
+  border-radius: 12px;
+  box-shadow: 0 0 20px var(--box-shadow);
+  background-color: var(--background-light);
+  text-align: center;
+}
+
+select {
+  padding: 12px;
+  margin-bottom: 15px;
+  margin-top: 5px;
+  border: 1px solid var(--text-dark);
+  border-radius: 8px;
+  appearance: none;
+  background-position: right center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  color: var(--text-dark);
+}
+
+select option {
+  padding: 12px;
+  background-color: var(--background-light);
+  color: var(--text-dark);
+}
+
+h2 {
+  text-align: center;
+  color: var(--primary-blue);
+  font-size: 36px;
+  margin-bottom: 30px;
+  text-shadow: 2px 2px 4px rgba(var(--primary-blue-rgb), 0.3);
+  animation: titleAnimation 0.8s ease;
+}
+
+@keyframes titleAnimation {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.login-button {
+  color: var(--primary-blue);
+  font-size: 14px;
+  padding-left: 4px;
+  cursor: pointer;
+}
+
+span {
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
+label {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--text-dark);
+}
+
+input {
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid var(--text-dark);
+  border-radius: 8px;
+}
+
+input::placeholder {
+  color: var(--text-dark);
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.register-button {
+  color: var(--primary-white);
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px;
+  border: none;
+  margin-top: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: var(--secondary-green);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.register-button:hover {
+  background-color: var(--button-hover-green);
+}
+
+.login-options {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.login-options a {
+  text-decoration: none;
+  color: var(--text-dark);
+  transition: color 0.3s ease;
+}
+
+.login-options a:hover {
+  color: var(--primary-blue);
+}
