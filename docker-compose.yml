@@ -18,11 +18,9 @@ services:
     working_dir: /app
     volumes:
       - ./algo_trader:/app
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    depends_on:
+      algo_api:
+        condition: service_healthy
 
   algo_api:
     container_name: api
@@ -35,8 +33,14 @@ services:
     working_dir: /go/src/app
     ports:
       - 8080:8080
+    healthcheck:
+      test: ["CMD", "curl -s http://algo_api:8080/ping"]
+      interval: 1s
+      timeout: 1s
+      retries: 100
     depends_on:
-      - couchdb
+      couchdb:
+        condition: service_healthy
 
   couchdb:
     image: couchdb:3.3.2
@@ -48,6 +52,11 @@ services:
       - couchdb_data:/opt/couchdb/data
     ports:
       - 5984:5984
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://couchdb:5984"]
+      interval: 1s
+      timeout: 1s
+      retries: 20
 
 volumes:
   couchdb_data:
