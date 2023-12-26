@@ -8,19 +8,12 @@ import { list } from "../webapi/trade"
 import btc from "../images/logos/btc.png"
 import sol from "../images/logos/sol.png"
 import eth from "../images/logos/eth.png"
+
+/* Import Utils */
 import { unixToDate } from "../utils/date"
 
 /* Import Styles */
 import { ResultStyle, TradesStyle } from "../styles/trades"
-import Topbar from "../components/topbar"
-import styled from "styled-components"
-
-const ContentStyle = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100vh;
-`
 
 const TradesView = () => {
   const [state, stateFunc] = useState({
