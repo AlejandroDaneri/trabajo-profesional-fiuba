@@ -9,14 +9,18 @@ import time
 import requests
 
 def main():
+    response = requests.get(url='http://algo_api:8080/api/strategy')
+    print(response)
+    strategy = response.json()
+    print(strategy)
+    return
+
     provider = Binance()
     data = provider.get_data_from('SOLUSDT', '2023-12-08')
     exchange = Dummy()
 
     rsi_indicator = RSI(65, 55, 14)
     crossing_indicator = Crossing(-0.01, 0, 20, 60)
-
-    print(len(data))
     
     train_data = data.iloc[0:1000]
     simulation_data = data.iloc[1000:1100]
