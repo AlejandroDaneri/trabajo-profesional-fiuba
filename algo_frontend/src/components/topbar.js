@@ -6,10 +6,15 @@ import {
   FaSignOutAlt,
   FaUser,
 } from "react-icons/fa"
-import TopbarStyle from "../styles/topbar"
 import { useRecoilState } from "recoil"
-import { userState } from "../atoms/atoms"
+
+/* Import Styles */
+import TopbarStyle from "../styles/topbar"
+
+/* Import Images */
 import logo from "../images/bitcoin.png"
+
+import { userState } from "../atoms/atoms"
 
 const Topbar = () => {
   const history = useHistory()
