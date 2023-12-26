@@ -10,24 +10,53 @@ import requests
 
 def main():
     response = requests.get(url='http://algo_api:8080/api/strategy')
-    print(response)
     strategy = response.json()
-    print(strategy)
-    return
+
+    # for now only one currency at the same time
+    currency = strategy["currencies"][0]
 
     provider = Binance()
-    data = provider.get_data_from('SOLUSDT', '2023-12-08')
+    data = provider.get_data_from(f'{currency}USDT', '2023-12-08')
     exchange = Dummy()
 
-    rsi_indicator = RSI(65, 55, 14)
-    crossing_indicator = Crossing(-0.01, 0, 20, 60)
+    indicators = []
+    for indicator in strategy["indicators"]:
+
+        if indicator["name"] == "rsi":
+            parameters = indicator["parameters"]
+            if parameters is None:
+                print("indicator rsi not have parameters")
+                continue
+            buy_threshold = parameters["buy_threshold"]
+            sell_threshold = parameters["sell_threshold"]
+            rounds = parameters["rounds"]
+            if buy_threshold is None or sell_threshold is None or rounds is None:
+                print("indicator rsi not have all the parameters")
+                continue
+            indicators.append(RSI(buy_threshold, sell_threshold, rounds))
+
+        elif indicator["name"] == "crossing":
+            parameters = indicator["parameters"]
+            if parameters is None:
+                print("indicator crossing not have parameters")
+                continue
+            buy_threshold = parameters["buy_threshold"]
+            sell_threshold = parameters["sell_threshold"]
+            fast = parameters["fast"]
+            slow = parameters["slow"]
+            if buy_threshold is None or sell_threshold is None or fast is None or slow is None:
+                print("indicator crossing not have all the parameters")
+                continue
+            indicators.append(Crossing(buy_threshold, sell_threshold, slow, slow))
+
+    strategy = Basic(indicators)
     
     train_data = data.iloc[0:1000]
     simulation_data = data.iloc[1000:1100]
-    strategy = Basic(indicators=[rsi_indicator, crossing_indicator])
+    
     strategy.train(train_data)
 
-    trade_bot = TradeBot(strategy, exchange, 'SOL')
+    trade_bot = TradeBot(strategy, exchange, currency)
 
     response = requests.delete(url='http://algo_api:8080/api/trade')
 
