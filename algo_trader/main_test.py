@@ -5,7 +5,6 @@ from lib.strategies.basic import Basic
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
 
-import time
 import requests
 
 def main():

@@ -6,12 +6,12 @@ import ErrorModal from "../components/errorModal"
 import { INVALID_EMAIL } from "../utils/interactiveMessages"
 import SuccessModal from "../components/successModal"
 import { createUser } from "../config/firebaseConfig"
-import { useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import { useRecoilState } from "recoil"
 import { userState } from "../atoms/atoms"
 
 const RegisterView = () => {
-  const navigate = useNavigate()
+  const location = useLocation()
   const [user, setUser] = useRecoilState(userState)
   const [fullName, setFullName] = useState("")
   const [email, setEmail] = useState("")
@@ -63,7 +63,7 @@ const RegisterView = () => {
       user: {},
       isLoggedIn: true,
     })
-    navigate("/home")
+    location.push("/home")
   }
 
   return (
@@ -146,7 +146,7 @@ const RegisterView = () => {
           </button>
           <p className="login-options">
             <span>Already have an account?</span>
-            <span className="login-button" onClick={() => navigate("/")}>
+            <span className="login-button" onClick={() => location.push("/")}>
               Log In
             </span>
           </p>
