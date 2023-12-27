@@ -46,7 +46,7 @@ def main():
             if buy_threshold is None or sell_threshold is None or fast is None or slow is None:
                 print("indicator crossing not have all the parameters")
                 continue
-            indicators.append(Crossing(buy_threshold, sell_threshold, slow, slow))
+            indicators.append(Crossing(buy_threshold, sell_threshold, fast, slow))
 
     strategy = Basic(indicators)
     
