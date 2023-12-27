@@ -36,6 +36,13 @@ const StrategyView = () => {
               return capitalize(indicator.name)
           }
         })(),
+        parameters: Object.keys(indicator.parameters).map((key) => ({
+          key: key
+            .split("_")
+            .map((word) => capitalize(word))
+            .join(" "),
+          value: indicator.parameters[key],
+        })),
       })),
     }
   }
@@ -82,10 +89,10 @@ const StrategyView = () => {
           <div className="indicator">
             <div className="name">{capitalize(indicator.name)}</div>
             <div className="parameters">
-              {Object.keys(indicator.parameters).map((parameter) => (
+              {indicator.parameters.map((parameter) => (
                 <div className="parameter">
-                  <>{parameter}: </>
-                  <>{indicator.parameters[parameter]}</>
+                  <>{parameter.key}: </>
+                  <>{parameter.value}</>
                 </div>
               ))}
             </div>

@@ -10,6 +10,7 @@ const StrategyStyle = styled.div`
     border: 1px solid white;
     border-radius: 10px;
     padding: 10px;
+    margin-right: 10px;
 
     & .coin {
       display: flex;
@@ -21,6 +22,7 @@ const StrategyStyle = styled.div`
         width: 24px;
         height: 24px;
         margin-right: 5px;
+        border-radius: 30px;
       }
     }
   }
