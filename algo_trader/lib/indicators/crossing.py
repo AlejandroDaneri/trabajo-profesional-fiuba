@@ -31,9 +31,16 @@ class Crossing(Indicator):
 
         new_signal = new_output.iloc[-1]
 
+        print(f'[Crossing] Current value: {new_signal}')
+        print(f'[Crossing] Sell Threshold: {self.sell_threshold}')
+        print(f'[Crossing] Buy Threshold: {self.buy_threshold}')
+
+        signal = Action.HOLD
         if new_signal < self.sell_threshold:
-            return Action.SELL
+            signal = Action.SELL
         elif new_signal > self.buy_threshold:
-            return Action.BUY
-        else:
-            return Action.HOLD
+            signal = Action.BUY
+        
+        print(f'[Crossing] Signal: {signal}')
+
+        return signal

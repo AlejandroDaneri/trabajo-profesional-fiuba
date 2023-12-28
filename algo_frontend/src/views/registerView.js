@@ -1,26 +1,25 @@
+/* Import Libs */
+import React, { useState } from "react"
+import { useHistory } from "react-router-dom"
+
+/* Import Components */
+import ErrorModal from "../components/errorModal"
+import SuccessModal from "../components/successModal"
+
+/* Import Utils */
+import { INVALID_EMAIL } from "../utils/interactiveMessages"
+
+/* Import Style */
 import "../styles/registerView.css"
 
-import React, { useState } from "react"
-
-import ErrorModal from "../components/errorModal"
-import { INVALID_EMAIL } from "../utils/interactiveMessages"
-import SuccessModal from "../components/successModal"
 import { createUser } from "../config/firebaseConfig"
-import { useNavigate } from "react-router-dom"
-import { useRecoilState } from "recoil"
-import { userState } from "../atoms/atoms"
 
 const RegisterView = () => {
-  const navigate = useNavigate()
-  const [user, setUser] = useRecoilState(userState)
-  const [fullName, setFullName] = useState("")
+  const history = useHistory()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
-  const [investmentExperience, setInvestmentExperience] = useState("")
-  const [dateOfBirth, setDateOfBirth] = useState("")
-  const [address, setAddress] = useState("")
-  const [occupation, setOccupation] = useState("")
 
   const [successModalOpen, setSuccessModalOpen] = useState(false)
   const [errorModalOpen, setErrorModalOpen] = useState(false)
@@ -59,11 +58,7 @@ const RegisterView = () => {
 
   const handleCloseSuccessModal = () => {
     setSuccessModalOpen(false)
-    setUser({
-      user: {},
-      isLoggedIn: true,
-    })
-    navigate("/home")
+    history.push("/home/trades")
   }
 
   return (
@@ -71,14 +66,6 @@ const RegisterView = () => {
       <div className="register-container">
         <h2>Create Your Account</h2>
         <form>
-          <label>Full Name</label>
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Enter your full name"
-            onChange={(e) => setFullName(e.target.value)}
-          />
-
           <label>Email</label>
           <input
             type="email"
@@ -103,40 +90,6 @@ const RegisterView = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <label>Investment Experience</label>
-          <select
-            name="investmentExperience"
-            onChange={(e) => setInvestmentExperience(e.target.value)}
-          >
-            <option value="">Select your experience level</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-
-          <label>Date of Birth</label>
-          <input
-            type="date"
-            name="dateOfBirth"
-            onChange={(e) => setDateOfBirth(e.target.value)}
-          />
-
-          <label>Address</label>
-          <input
-            type="text"
-            name="address"
-            placeholder="Enter your address"
-            onChange={(e) => setAddress(e.target.value)}
-          />
-
-          <label>Occupation</label>
-          <input
-            type="text"
-            name="occupation"
-            placeholder="Enter your occupation"
-            onChange={(e) => setOccupation(e.target.value)}
-          />
-
           <button
             onClick={handleCreateAccount}
             type="button"
@@ -146,7 +99,7 @@ const RegisterView = () => {
           </button>
           <p className="login-options">
             <span>Already have an account?</span>
-            <span className="login-button" onClick={() => navigate("/")}>
+            <span className="login-button" onClick={() => history.push("/")}>
               Log In
             </span>
           </p>

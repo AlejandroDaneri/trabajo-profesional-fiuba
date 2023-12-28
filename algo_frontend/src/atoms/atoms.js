@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom } from "recoil"
 
 export const userState = atom({
   key: "userState",
@@ -6,4 +6,4 @@ export const userState = atom({
     user: null,
     isLoggedIn: false,
   },
-});
+})

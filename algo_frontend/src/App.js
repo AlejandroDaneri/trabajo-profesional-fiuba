@@ -1,10 +1,7 @@
 /* Import Libs */
-import { BrowserRouter, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Route, Switch } from "react-router-dom"
 import React from "react"
 import { RecoilRoot } from "recoil"
-
-//import GraphsView from "./views/graphsView";
-//<Route path="/graphs" element={<GraphsView />} />
 
 /* Import Views */
 import LoginView from "./views/loginView"
@@ -19,11 +16,11 @@ const App = () => {
     <RecoilRoot>
       <BrowserRouter>
         <AppStyle>
-          <Routes>
-            <Route exact path="/" element={<LoginView />} />
-            <Route exact path="/register" element={<RegisterView />} />
-            <Route path="/home" element={<HomeView />} />
-          </Routes>
+          <Switch>
+            <Route exact path="/" component={LoginView} />
+            <Route path="/register" component={RegisterView} />
+            <Route path="/home" component={HomeView} />
+          </Switch>
         </AppStyle>
       </BrowserRouter>
     </RecoilRoot>

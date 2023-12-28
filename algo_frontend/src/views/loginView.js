@@ -5,12 +5,13 @@ import React, { useState } from "react"
 
 import ErrorModal from "../components/errorModal"
 import { login } from "../config/firebaseConfig"
-import { useNavigate } from "react-router-dom"
+import { useHistory } from "react-router-dom"
 import { useRecoilState } from "recoil"
 import { userState } from "../atoms/atoms"
 
 const LoginView = () => {
-  let navigate = useNavigate()
+  const history = useHistory()
+
   const [user, setUser] = useRecoilState(userState)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -20,7 +21,7 @@ const LoginView = () => {
   })
 
   const handleCreateAccount = async () => {
-    navigate("/register")
+    history.push("/register")
   }
 
   const handleLogin = async () => {
@@ -30,7 +31,7 @@ const LoginView = () => {
         user: {},
         isLoggedIn: true,
       })
-      navigate("/home")
+      history.push("/home/trades")
     } catch (error) {
       if (error.message === WRONG_CREDENTIALS) {
         setErrorModal({
