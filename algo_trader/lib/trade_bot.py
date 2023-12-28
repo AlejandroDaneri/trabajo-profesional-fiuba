@@ -29,6 +29,7 @@ class TradeBot:
 
     def run_strategy(self, new_record):
         action = self.strategy.predict(new_record)
+        print(f'[Strategy] Signal: {action}')
         timestamp = new_record['Open time'].iloc[0]
         if (self.trades): 
             asset_last_value = new_record["Close"][0]
@@ -48,10 +49,10 @@ class TradeBot:
                 )
                 return trade
 
-        print(action)
+
         buy_condition = action == Action.BUY and (self.current_trade is None)
         sell_condition = action == Action.SELL and (self.current_trade is not None)
-        print(sell_condition)
+
         asset_last_value = new_record["Close"][0]
 
         if buy_condition:

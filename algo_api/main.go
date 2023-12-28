@@ -1,6 +1,7 @@
 package main
 
 import (
+	"algo_api/internal/strategyservice"
 	"algo_api/internal/tradeservice"
 	"encoding/json"
 	"fmt"
@@ -148,11 +149,39 @@ func RemoveTrades(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetStrategy(w http.ResponseWriter, r *http.Request) {
+	strategy, err := strategyservice.GetInstance().Get()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	bytes, err := json.Marshal(strategy)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trade", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
+
+	router.HandleFunc("/strategy", GetStrategy).Methods("GET")
 }
 
 func main() {

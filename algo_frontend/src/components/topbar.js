@@ -1,18 +1,24 @@
 /* Import Libs */
-import { useNavigate } from "react-router-dom"
+import { useHistory } from "react-router-dom"
 import {
   FaChartLine,
   FaExchangeAlt,
   FaSignOutAlt,
   FaUser,
 } from "react-icons/fa"
-import TopbarStyle from "../styles/topbar"
 import { useRecoilState } from "recoil"
-import { userState } from "../atoms/atoms"
+
+/* Import Styles */
+import TopbarStyle from "../styles/topbar"
+
+/* Import Images */
 import logo from "../images/bitcoin.png"
 
+import { userState } from "../atoms/atoms"
+
 const Topbar = () => {
-  const navigate = useNavigate()
+  const history = useHistory()
+
   const [user, setUser] = useRecoilState(userState)
 
   const onLogout = () => {
@@ -20,7 +26,7 @@ const Topbar = () => {
       user: {},
       isLoggedIn: false,
     })
-    navigate("/")
+    history.push("/")
   }
 
   return (
@@ -30,11 +36,21 @@ const Topbar = () => {
         <p>SatoshiBOT.tech</p>
       </div>
       <div className="nav-links">
-        <button className="nav-button" onClick={() => navigate("/home")}>
+        <button
+          className="nav-button"
+          onClick={() => history.push("/home/trades")}
+        >
           <FaExchangeAlt className="nav-icon" />
           Trades
         </button>
-        <button className="nav-button" onClick={() => navigate("/graphs")}>
+        <button
+          className="nav-button"
+          onClick={() => history.push("/home/strategy")}
+        >
+          <FaExchangeAlt className="nav-icon" />
+          Strategy
+        </button>
+        <button className="nav-button" onClick={() => history.push("/graphs")}>
           <FaChartLine className="nav-icon" />
           Graphs
         </button>

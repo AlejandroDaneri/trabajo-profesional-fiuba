@@ -62,9 +62,16 @@ class RSI(Indicator):
 
         new_signal = new_rsi.iloc[-1]
 
+        print(f'[RSI] Current value: {new_signal}')
+        print(f'[RSI] Sell Threshold: {self.sell_threshold}')
+        print(f'[RSI] Buy Threshold: {self.buy_threshold}')
+
+        signal = Action.HOLD
         if new_signal < self.sell_threshold:
-            return Action.SELL
+            signal = Action.SELL
         elif new_signal > self.buy_threshold:
-            return Action.BUY
-        else:
-            return Action.HOLD
+            signal = Action.BUY
+        
+        print(f'[RSI] Signal: {signal}')
+        
+        return signal
