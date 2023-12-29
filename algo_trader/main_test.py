@@ -14,9 +14,10 @@ def main():
     strategy = response.json()
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
+    initial_balance = 10000
 
     provider = Binance()
-    exchange = Dummy()
+    exchange = Dummy(initial_balance)
 
     strategies = {}
     for currency in currencies:
@@ -60,19 +61,19 @@ def main():
     simulation_data = {}
     
     n_train = 100
-    n_simulate = 1200
+    n_simulate = 6000
 
     for currency in currencies:
-        data[currency] = provider.get_data_from(f'{currency}USDT', '2023-11-01')
+        data[currency] = provider.get_data_from(f'{currency}USDT', '2023-12-25')
         train_data[currency] = data[currency].iloc[0:n_train]
         simulation_data[currency] = data[currency].iloc[n_train:(n_train + n_simulate)]
         strategies[currency].train(train_data[currency])
 
     for index in range(n_simulate):
-        print(index)
+        
         for currency in currencies:
-            print(currency)
             row = simulation_data[currency].iloc[[index]]
+            print(f'Simulating: {currency} {row.index[0]}')
             trade = trade_bot.run_strategy(currency, row)
             if trade is not None:
                 data = {
@@ -87,8 +88,11 @@ def main():
                         "timestamp": int(trade.sell_order.timestamp)
                     }
                 }
-                print(data)
                 response = requests.post(url='http://localhost:8080/api/trade', json=data)
+        
+        print("\n")
+    
+    print("Balance: {}".format(trade_bot.get_balance()))
 
 if __name__ == "__main__":
     main()

@@ -3,8 +3,8 @@ from lib.trade import Trade
 from lib.exchanges.exchange import Exchange
 
 class Dummy(Exchange):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, initial_balance):
+        super().__init__(initial_balance)
         self.trades = []
 
     def place_order(self, trade: Trade, action: Action):
