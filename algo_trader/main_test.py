@@ -18,39 +18,41 @@ def main():
     provider = Binance()
     exchange = Dummy()
 
-    indicators_builded = []
-    for indicator in indicators:
-
-        if indicator["name"] == "rsi":
-            parameters = indicator["parameters"]
-            if parameters is None:
-                print("indicator rsi not have parameters")
-                continue
-            buy_threshold = parameters["buy_threshold"]
-            sell_threshold = parameters["sell_threshold"]
-            rounds = parameters["rounds"]
-            if buy_threshold is None or sell_threshold is None or rounds is None:
-                print("indicator rsi not have all the parameters")
-                continue
-            indicators_builded.append(RSI(buy_threshold, sell_threshold, rounds))
-
-        elif indicator["name"] == "crossing":
-            parameters = indicator["parameters"]
-            if parameters is None:
-                print("indicator crossing not have parameters")
-                continue
-            buy_threshold = parameters["buy_threshold"]
-            sell_threshold = parameters["sell_threshold"]
-            fast = parameters["fast"]
-            slow = parameters["slow"]
-            if buy_threshold is None or sell_threshold is None or fast is None or slow is None:
-                print("indicator crossing not have all the parameters")
-                continue
-            indicators_builded.append(Crossing(buy_threshold, sell_threshold, fast, slow))
-
     strategies = {}
     for currency in currencies:
+        indicators_builded = []
+
+        for indicator in indicators:
+
+            if indicator["name"] == "rsi":
+                parameters = indicator["parameters"]
+                if parameters is None:
+                    print("indicator rsi not have parameters")
+                    continue
+                buy_threshold = parameters["buy_threshold"]
+                sell_threshold = parameters["sell_threshold"]
+                rounds = parameters["rounds"]
+                if buy_threshold is None or sell_threshold is None or rounds is None:
+                    print("indicator rsi not have all the parameters")
+                    continue
+                indicators_builded.append(RSI(buy_threshold, sell_threshold, rounds))
+
+            elif indicator["name"] == "crossing":
+                parameters = indicator["parameters"]
+                if parameters is None:
+                    print("indicator crossing not have parameters")
+                    continue
+                buy_threshold = parameters["buy_threshold"]
+                sell_threshold = parameters["sell_threshold"]
+                fast = parameters["fast"]
+                slow = parameters["slow"]
+                if buy_threshold is None or sell_threshold is None or fast is None or slow is None:
+                    print("indicator crossing not have all the parameters")
+                    continue
+                indicators_builded.append(Crossing(buy_threshold, sell_threshold, fast, slow))
+        
         strategies[currency] = Basic(indicators_builded)
+    
     trade_bot = TradeBot(strategies, exchange)
 
     data = {}
@@ -58,10 +60,10 @@ def main():
     simulation_data = {}
     
     n_train = 100
-    n_simulate = 500
+    n_simulate = 1200
 
     for currency in currencies:
-        data[currency] = provider.get_data_from(f'{currency}USDT', '2023-12-01')
+        data[currency] = provider.get_data_from(f'{currency}USDT', '2023-11-01')
         train_data[currency] = data[currency].iloc[0:n_train]
         simulation_data[currency] = data[currency].iloc[n_train:(n_train + n_simulate)]
         strategies[currency].train(train_data[currency])

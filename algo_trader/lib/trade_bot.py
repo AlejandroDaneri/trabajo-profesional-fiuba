@@ -36,6 +36,7 @@ class TradeBot:
             # Check for stop-loss condition before executing a sell order
             if (
                 self.current_trade is not None
+                and self.current_trade.symbol == currency
                 and asset_last_value < self.current_trade.buy_order.price * (1 - self.stop_loss_ratio)
             ):
                 print("Stop-loss triggered. Selling...")
