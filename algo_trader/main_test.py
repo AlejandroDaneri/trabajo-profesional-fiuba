@@ -73,9 +73,6 @@ def main():
             row = simulation_data[currency].iloc[[index]]
             trade = trade_bot.run_strategy(currency, row)
             if trade is not None:
-                print("=================== new trade ===================")
-                print(trade)
-                print("=================== ===================")
                 data = {
                     "pair": trade.symbol,
                     "amount": str(trade.amount),
