@@ -23,7 +23,7 @@ class Binance:
     def get_data_from(self, ticker: str, start_date: str):
         start_date_ = datetime.strptime(start_date, '%Y-%m-%d')
         start_date__ = int(datetime.timestamp(start_date_)) * 1000
-        klines = self.provider.get_historical_klines(ticker, BinanceProvider.KLINE_INTERVAL_1MINUTE, start_date__)
+        klines = self.provider.get_historical_klines(ticker, BinanceProvider.KLINE_INTERVAL_1HOUR, start_date__)
         data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
         data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
