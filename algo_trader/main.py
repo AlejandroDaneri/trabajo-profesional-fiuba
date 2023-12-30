@@ -18,7 +18,7 @@ def main():
     provider = Binance()
     exchange = Dummy(initial_balance)
 
-    strategies = hydrate_strategy(currencies, indicators)
+    strategy = hydrate_strategy(currencies, indicators)
 
     n_train = 250
 
@@ -27,9 +27,9 @@ def main():
     for currency in currencies:
         data[currency] = provider.get_data_from(f'{currency}USDT', '2023-12-20')
         train_data[currency] = data[currency].iloc[0:n_train]
-        strategies[currency].train(train_data[currency])
+        strategy[currency].train(train_data[currency])
 
-    trade_bot = TradeBot(strategies, exchange)
+    trade_bot = TradeBot(strategy, exchange)
     print("trade bot created")
 
     while True:

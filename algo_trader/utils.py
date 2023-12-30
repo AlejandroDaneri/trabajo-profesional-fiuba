@@ -28,7 +28,7 @@ def hydrate_indicator_crossing(parameters):
     return Crossing(buy_threshold, sell_threshold, fast, slow)
 
 def hydrate_strategy(currencies, indicators):
-    strategies = {}
+    strategy = {}
     for currency in currencies:
         indicators_builded = []
 
@@ -43,5 +43,5 @@ def hydrate_strategy(currencies, indicators):
                 if crossing is not None:
                     indicators_builded.append(crossing)
         
-        strategies[currency] = Basic(indicators_builded)
-    return strategies
+        strategy[currency] = Basic(indicators_builded)
+    return strategy

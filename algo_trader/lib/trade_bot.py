@@ -5,8 +5,8 @@ from lib.strategies.strategy import Strategy
 from lib.trade import Trade
 
 class TradeBot:
-    def __init__(self, strategies: dict[Strategy], exchange: Exchange):
-        self.strategies = strategies
+    def __init__(self, strategy: dict[Strategy], exchange: Exchange):
+        self.strategy = strategy
         self.exchange = exchange
         self.trades = []
         self.stop_loss_ratio = 0.2
@@ -27,7 +27,7 @@ class TradeBot:
                 return return_trade
 
     def run_strategy(self, currency, new_record):
-        action = self.strategies[currency].predict(new_record)
+        action = self.strategy[currency].predict(new_record)
         print(f'[Strategy] Signal: {action}')
         timestamp = new_record['Open time'].iloc[0]
         if (self.trades): 
@@ -56,7 +56,7 @@ class TradeBot:
         asset_last_value = new_record["Close"][0]
 
         if buy_condition:
-            max_buy_amount = self.strategies[currency].investment_ratio * self.exchange.balance / asset_last_value
+            max_buy_amount = self.strategy[currency].investment_ratio * self.exchange.balance / asset_last_value
             trade = self.execute_trade(
                 Action.BUY,
                 currency,
@@ -67,7 +67,7 @@ class TradeBot:
             return trade
 
         elif sell_condition:
-            max_sell_amount = self.exchange.portfolio[currency] * self.strategies[currency].investment_ratio
+            max_sell_amount = self.exchange.portfolio[currency] * self.strategy[currency].investment_ratio
             trade = self.execute_trade(
                 Action.SELL,
                 currency,
