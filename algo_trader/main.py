@@ -1,9 +1,6 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
-from lib.indicators.crossing import Crossing
-from lib.indicators.rsi import RSI
 from lib.exchanges.dummy import Dummy
-from lib.strategies.basic import Basic
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
 from utils import hydrate_strategy
