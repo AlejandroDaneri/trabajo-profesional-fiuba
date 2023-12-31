@@ -10,8 +10,13 @@ class Binance:
         self.provider = BinanceProvider(api_key, secret_key, tld='us')
 
     # ticker: example BTCUSDT
-    def get_latest_price(self, ticker: str):
-        klines = self.provider.get_historical_klines(ticker, BinanceProvider.KLINE_INTERVAL_1MINUTE, limit=1)
+    def get_latest_n(self, ticker: str, timeframe: str, n: int):
+        timeframes = {
+            "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
+            "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
+            "1D": BinanceProvider.KLINE_INTERVAL_1DAY
+        }
+        klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], limit=n)
         data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
         data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
