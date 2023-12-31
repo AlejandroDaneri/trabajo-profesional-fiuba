@@ -3,6 +3,7 @@ import { useEffect, useState } from "react"
 
 /* Import WebApi */
 import { list } from "../webapi/trade"
+import { get } from "../webapi/strategy"
 
 /* Import Images */
 import btc from "../images/logos/btc.png"
@@ -11,76 +12,128 @@ import eth from "../images/logos/eth.png"
 
 /* Import Utils */
 import { unixToDate } from "../utils/date"
+import { capitalize } from "../utils/string"
 
 /* Import Styles */
 import { ResultStyle, TradesStyle } from "../styles/trades"
 
 const TradesView = () => {
-  const [state, stateFunc] = useState({
+  const [trades, tradesFunc] = useState({
     loading: true,
-    data: [],
+    data: {
+      list: [],
+      summary: {},
+    },
   })
 
-  const transformToView = (data) => {
-    return data
-      .map((row) => {
-        return {
-          ...row,
-          amount: parseFloat(row.amount).toFixed(4),
-          orders: {
-            buy: {
-              ...row.orders.buy,
-              timestamp_label: unixToDate(row.orders.buy.timestamp),
-            },
-            sell: {
-              ...row.orders.sell,
-              timestamp_label: unixToDate(row.orders.sell.timestamp),
-            },
-          },
-          duration:
-            (row.orders.sell.timestamp / 1000 -
-              row.orders.buy.timestamp / 1000) /
-            60,
-          pl: (
-            (row.orders.sell.price / row.orders.buy.price - 1) *
-            100
-          ).toFixed(3),
-        }
-      })
-      .sort((a, b) => {
-        if (a.orders.buy.timestamp < b.orders.buy.timestamp) {
-          return 1
-        } else if (a.orders.buy.timestamp > b.orders.buy.timestamp) {
-          return -1
-        } else {
-          return 0
-        }
-      })
-  }
+  const [strategy, strategyFunc] = useState({
+    loading: true,
+    data: {},
+  })
 
   useEffect(() => {
-    const getState = () => {
-      stateFunc((prevState) => ({
+    const getTrades = () => {
+      const transformToView = (data) => {
+        let data_ = {
+          summary: {},
+          list: data
+            .map((row) => {
+              return {
+                ...row,
+                amount: parseFloat(row.amount).toFixed(4),
+                orders: {
+                  buy: {
+                    ...row.orders.buy,
+                    timestamp_label: unixToDate(row.orders.buy.timestamp),
+                  },
+                  sell: {
+                    ...row.orders.sell,
+                    timestamp_label: unixToDate(row.orders.sell.timestamp),
+                  },
+                },
+                duration:
+                  (row.orders.sell.timestamp / 1000 -
+                    row.orders.buy.timestamp / 1000) /
+                  60,
+                pl: (
+                  (row.orders.sell.price / row.orders.buy.price - 1) *
+                  100
+                ).toFixed(3),
+              }
+            })
+            .sort((a, b) => {
+              if (a.orders.buy.timestamp < b.orders.buy.timestamp) {
+                return 1
+              } else if (a.orders.buy.timestamp > b.orders.buy.timestamp) {
+                return -1
+              } else {
+                return 0
+              }
+            }),
+        }
+
+        data_.summary.n = data_.list.length
+        data_.summary.n_profit = data_.list.filter((row) => row.pl > 0).length
+        data_.summary.n_loss = data_.list.filter((row) => row.pl < 0).length
+
+        return data_
+      }
+      tradesFunc((prevState) => ({
         ...prevState,
         loading: true,
       }))
       list()
         .then((response) => {
-          stateFunc((prevState) => ({
+          tradesFunc((prevState) => ({
             ...prevState,
             loading: false,
             data: transformToView(response?.data || []),
           }))
         })
         .catch((_) => {
-          stateFunc((prevState) => ({
+          tradesFunc((prevState) => ({
             ...prevState,
             loading: false,
           }))
         })
     }
-    const interval = setInterval(getState, 60000)
-    getState()
+    const getStrategy = () => {
+      const transformToView = (data) => {
+        return {
+          ...data,
+          indicators: data.indicators.map((indicator) => ({
+            ...indicator,
+            name: (() => {
+              switch (indicator.name) {
+                case "rsi":
+                  return "RSI"
+                default:
+                  return capitalize(indicator.name)
+              }
+            })(),
+            parameters: Object.keys(indicator.parameters).map((key) => ({
+              key: key
+                .split("_")
+                .map((word) => capitalize(word))
+                .join(" "),
+              value: indicator.parameters[key],
+            })),
+          })),
+        }
+      }
+      get()
+        .then((response) => {
+          strategyFunc((prevState) => ({
+            ...prevState,
+            loading: false,
+            data: transformToView(response.data),
+          }))
+        })
+        .catch((_) => {})
+    }
+    const interval = setInterval(getTrades, 60000)
+    getTrades()
+    getStrategy()
     return () => {
       clearInterval(interval)
     }
@@ -88,11 +141,36 @@ const TradesView = () => {
 
   return (
     <TradesStyle>
-      {state.loading ? (
+      {trades.loading ? (
         <p>loading</p>
       ) : (
         <>
-          <div className="summary">Trades executed: {state.data.length}</div>
+          <div className="summary">
+            <div className="box">
+              <div className="label">Initial Balance</div>
+              <div className="value">{strategy.data.initial_balance}</div>
+            </div>
+            <div className="box">
+              <div className="label">Current Balance</div>
+              <div className="value">TO-DO</div>
+            </div>
+            <div className="box">
+              <div className="label">Profit/Loss %</div>
+              <div className="value">TO-DO</div>
+            </div>
+            <div className="box">
+              <div className="label">Trades executed</div>
+              <div className="value">{trades.data.summary.n}</div>
+            </div>
+            <div className="box">
+              <div className="label">Trades profit</div>
+              <div className="value">{trades.data.summary.n_profit}</div>
+            </div>
+            <div className="box">
+              <div className="label">Trades loss</div>
+              <div className="value">{trades.data.summary.n_loss}</div>
+            </div>
+          </div>
           <div className="trades">
             <div className="row">
               <div className="column">Coin</div>
@@ -104,7 +182,7 @@ const TradesView = () => {
               <div className="column">Price Sell ($)</div>
               <div className="column">Profit/Loss (%)</div>
             </div>
-            {state.data.map((trade) => (
+            {trades.data.list.map((trade) => (
               <div className="row">
                 <div className="column">
                   <div className="coin">
