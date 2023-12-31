@@ -14,18 +14,19 @@ def main():
     currencies = strategy["currencies"]
     indicators = strategy["indicators"]
     initial_balance = 10000
+    timeframe = strategy["timeframe"]
 
     provider = Binance()
     exchange = Dummy(initial_balance)
 
     strategy = hydrate_strategy(currencies, indicators)
 
-    n_train = 250
+    n_train = 200
 
     data = {}
     train_data = {}
     for currency in currencies:
-        data[currency] = provider.get_data_from(f'{currency}USDT', '2023-12-20')
+        data[currency] = provider.get_latest_n(f'{currency}USDT', timeframe, n_train)
         train_data[currency] = data[currency].iloc[0:n_train]
         strategy[currency].train(train_data[currency])
 

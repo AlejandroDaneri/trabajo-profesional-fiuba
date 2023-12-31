@@ -10,9 +10,11 @@ def main():
 
     response = requests.get(url='http://localhost:8080/api/strategy')
     strategy = response.json()
+    print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
     initial_balance = 10000
+    timeframe = strategy["timeframe"]
 
     provider = Binance()
     exchange = Dummy(initial_balance)
@@ -23,13 +25,14 @@ def main():
     train_data = {}
     simulation_data = {}
     
-    n_train = 100
+    n_train = 200
     n_simulate = 6000
+    n_total = n_train + n_simulate
 
     for currency in currencies:
-        data[currency] = provider.get_data_from(f'{currency}USDT', '2023-12-25')
+        data[currency] = provider.get_latest_n(f'{currency}USDT', timeframe, n_total)
         train_data[currency] = data[currency].iloc[0:n_train]
-        simulation_data[currency] = data[currency].iloc[n_train:(n_train + n_simulate)]
+        simulation_data[currency] = data[currency].iloc[n_train:n_total]
         strategy[currency].train(train_data[currency])
 
     trade_bot = TradeBot(strategy, exchange)
