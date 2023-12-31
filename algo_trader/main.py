@@ -9,7 +9,7 @@ import time
 import requests
 
 def main():
-    response = requests.get(url='http://localhost:8080/api/strategy')
+    response = requests.get(url='http://algo_api:8080/api/strategy')
     strategy = response.json()
     currencies = strategy["currencies"]
     indicators = strategy["indicators"]
@@ -52,7 +52,7 @@ def main():
                     }
                 }
                 print(data)
-                response = requests.post(url='http://localhost:8080/api/trade', json=data)
+                response = requests.post(url='http://algo_api:8080/api/trade', json=data)
         print("\n")
         time.sleep(60)
 
