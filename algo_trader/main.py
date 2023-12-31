@@ -35,7 +35,7 @@ def main():
 
     while True:
         for currency in currencies:
-            data = provider.get_latest_price(f'{currency}USDT')
+            data = provider.get_latest_n(f'{currency}USDT', timeframe, 1)
             print(f'Get: {currency} {data.index[0]}')
             trade = trade_bot.run_strategy(currency, data)
             if trade is not None:
