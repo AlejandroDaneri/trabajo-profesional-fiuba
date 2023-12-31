@@ -18,4 +18,5 @@ type StrategyPublicFields struct {
 	StartTimestamp int64       `json:"start_timestamp"`
 	Currencies     []string    `json:"currencies"`
 	Indicators     []Indicator `json:"indicators"`
+	Timeframe      string      `json:"timeframe"`
 }
