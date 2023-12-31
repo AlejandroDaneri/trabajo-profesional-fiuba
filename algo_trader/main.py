@@ -1,84 +1,58 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
-from lib.indicators.crossing import Crossing
-from lib.indicators.rsi import RSI
 from lib.exchanges.dummy import Dummy
-from lib.strategies.basic import Basic
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
+from utils import hydrate_strategy
 
 import time
 import requests
 
 def main():
-    response = requests.get(url='http://algo_api:8080/api/strategy')
+    response = requests.get(url='http://localhost:8080/api/strategy')
     strategy = response.json()
-
-    # for now only one currency at the same time
-    currency = strategy["currencies"][0]
+    currencies = strategy["currencies"]
+    indicators = strategy["indicators"]
+    initial_balance = 10000
 
     provider = Binance()
-    data = provider.get_data_from(f'{currency}USDT', '2023-12-08')
-    exchange = Dummy()
+    exchange = Dummy(initial_balance)
 
-    indicators = []
-    for indicator in strategy["indicators"]:
+    strategy = hydrate_strategy(currencies, indicators)
 
-        if indicator["name"] == "rsi":
-            parameters = indicator["parameters"]
-            if parameters is None:
-                print("indicator rsi not have parameters")
-                continue
-            buy_threshold = parameters["buy_threshold"]
-            sell_threshold = parameters["sell_threshold"]
-            rounds = parameters["rounds"]
-            if buy_threshold is None or sell_threshold is None or rounds is None:
-                print("indicator rsi not have all the parameters")
-                continue
-            indicators.append(RSI(buy_threshold, sell_threshold, rounds))
+    n_train = 250
 
-        elif indicator["name"] == "crossing":
-            parameters = indicator["parameters"]
-            if parameters is None:
-                print("indicator crossing not have parameters")
-                continue
-            buy_threshold = parameters["buy_threshold"]
-            sell_threshold = parameters["sell_threshold"]
-            fast = parameters["fast"]
-            slow = parameters["slow"]
-            if buy_threshold is None or sell_threshold is None or fast is None or slow is None:
-                print("indicator crossing not have all the parameters")
-                continue
-            indicators.append(Crossing(buy_threshold, sell_threshold, fast, slow))
+    data = {}
+    train_data = {}
+    for currency in currencies:
+        data[currency] = provider.get_data_from(f'{currency}USDT', '2023-12-20')
+        train_data[currency] = data[currency].iloc[0:n_train]
+        strategy[currency].train(train_data[currency])
 
-    strategy = Basic(indicators)
-
-    last_records = data.iloc[-250:]
-    strategy.train(last_records)
-
-    trade_bot = TradeBot(strategy, exchange, currency)
+    trade_bot = TradeBot(strategy, exchange)
+    print("trade bot created")
 
     while True:
-        print("getting new price")
-        data = provider.get_latest_price(f'{currency}USDT')
-        print(data)
-        print("adding data to strategy")
-        trade = trade_bot.run_strategy(data)
-        if trade is not None:
-            data = {
-                "pair": trade.symbol,
-                "amount": str(trade.amount),
-                "buy": {
-                    "price": str(trade.buy_order.price),
-                    "timestamp": int(trade.buy_order.timestamp)
-                },
-                "sell": {
-                    "price": str(trade.sell_order.price),
-                    "timestamp": int(trade.sell_order.timestamp)
+        for currency in currencies:
+            data = provider.get_latest_price(f'{currency}USDT')
+            print(f'Get: {currency} {data.index[0]}')
+            trade = trade_bot.run_strategy(currency, data)
+            if trade is not None:
+                data = {
+                    "pair": trade.symbol,
+                    "amount": str(trade.amount),
+                    "buy": {
+                        "price": str(trade.buy_order.price),
+                        "timestamp": int(trade.buy_order.timestamp)
+                    },
+                    "sell": {
+                        "price": str(trade.sell_order.price),
+                        "timestamp": int(trade.sell_order.timestamp)
+                    }
                 }
-            }
-            print(data)
-            response = requests.post(url='http://algo_api:8080/api/trade', json=data)
+                print(data)
+                response = requests.post(url='http://localhost:8080/api/trade', json=data)
+        print("\n")
         time.sleep(60)
 
 if __name__ == "__main__":
