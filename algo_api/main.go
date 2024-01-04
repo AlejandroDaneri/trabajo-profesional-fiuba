@@ -175,6 +175,16 @@ func GetStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
+	balance := 40
+	err := strategyservice.GetInstance().SetBalance(balance)
+	if err != nil {
+		logrus.Error("Could not set balance to the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
@@ -182,6 +192,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
 	router.HandleFunc("/strategy", GetStrategy).Methods("GET")
+	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 }
 
 func main() {

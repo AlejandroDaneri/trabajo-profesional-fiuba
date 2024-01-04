@@ -20,4 +20,5 @@ type StrategyPublicFields struct {
 	Indicators     []Indicator `json:"indicators"`
 	Timeframe      string      `json:"timeframe"`
 	InitialBalance int         `json:"initial_balance"`
+	CurrentBalance int         `json:"current_balance"`
 }
