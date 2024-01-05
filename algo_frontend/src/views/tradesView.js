@@ -152,7 +152,7 @@ const TradesView = () => {
             </div>
             <div className="box">
               <div className="label">Current Balance</div>
-              <div className="value">TO-DO</div>
+              <div className="value">{strategy.data.current_balance}</div>
             </div>
             <div className="box">
               <div className="label">Profit/Loss %</div>
