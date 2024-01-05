@@ -46,35 +46,10 @@ class RSI(Indicator):
         return self.output
 
     def calc_buy_signals(self):
-        data = pd.DataFrame(self.output, index= self.dates)
-        isOverbought = False
-    
-        buy_signals_list = []
-
-        for i in range(0, len(data[self.name])):
-            if (data[self.name].iloc[i] < self.buy_threshold):
-                isOverbought = True
-                buy_signals_list.append(0)
-            else:
-                buy_signals_list.append(1 if isOverbought == True else 0)
-                isOverbought = False
-
-        return buy_signals_list
+        return np.where((self.output.shift(1) < self.buy_threshold) & (self.buy_threshold <= self.output), True, False)
     
     def calc_sell_signals(self):
-        data = pd.DataFrame(self.output, index= self.dates)
-        isOversold = False
-        sell_signals_list = []
-
-        for i in range(0, len(data[self.name])):
-            if (data[self.name].iloc[i] > self.sell_threshold):
-                isOversold = True
-                sell_signals_list.append(0)
-            else:
-                sell_signals_list.append(1 if isOversold == True else 0)
-                isOversold = False
-
-        return sell_signals_list
+        return np.where((self.output.shift(1) > self.sell_threshold) & (self.sell_threshold >= self.output), True, False)
     
     def plot(self):
         data = pd.DataFrame(self.output, index= self.dates)
@@ -100,10 +75,12 @@ class RSI(Indicator):
         print(f'[RSI] Buy Threshold: {self.buy_threshold}')
 
         signal = Action.HOLD
-        if sell_signal == 1:
+        if sell_signal == True:
             signal = Action.SELL
-        elif buy_signal == 1:
+        elif buy_signal == True:
             signal = Action.BUY
+        else:
+            signal = Action.HOLD
         
         print(f'[RSI] Signal: {signal}')
         
