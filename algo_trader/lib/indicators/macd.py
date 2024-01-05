@@ -1,5 +1,6 @@
 from lib.indicators.indicator import Indicator
 from lib.actions import Action
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
@@ -42,35 +43,10 @@ class MACD(Indicator):
         return self.output
 
     def calc_buy_signals(self):
-        data = pd.DataFrame(self.output, index= self.dates)
-        isUnderline = False
-    
-        buy_signals_list = []
-
-        for i in range(0, len(data[self.name])):
-            if (data[self.name].iloc[i] < 0):
-                isUnderline = True
-                buy_signals_list.append(0)
-            else:
-                buy_signals_list.append(1 if isUnderline == True else 0)
-                isUnderline = False
-
-        return buy_signals_list
+        return np.where((self.output.shift(1) < 0) & (0 < self.output), True, False)
     
     def calc_sell_signals(self):
-        data = pd.DataFrame(self.output, index= self.dates)
-        isOverline = False
-        sell_signals_list = []
-
-        for i in range(0, len(data[self.name])):
-            if (data[self.name].iloc[i] > 0):
-                isOverline = True
-                sell_signals_list.append(0)
-            else:
-                sell_signals_list.append(1 if isOverline == True else 0)
-                isOverline = False
-
-        return sell_signals_list
+        return np.where((self.output.shift(1) > 0) & (0 >= self.output), True, False)
     
     def plot(self):
         data = pd.DataFrame(self.output, index= self.dates)
@@ -84,13 +60,21 @@ class MACD(Indicator):
         plt.show()
 
     def predict_signal(self, new_record):
-        self.calculate(pd.concat([self.data, new_record]))
+        new_macd_value = self.calculate(pd.concat([self.data, new_record]))
         sell_signal = self.calc_sell_signals()[-1]
         buy_signal = self.calc_buy_signals()[-1]
 
-        if sell_signal == 1:
-            return Action.SELL
-        elif buy_signal == 1:
-            return Action.BUY
+        new_signal = new_macd_value.iloc[-1]
+
+        print(f'[MACD] Current value: {new_signal}')
+
+        if sell_signal == True:
+            signal = Action.SELL
+        elif buy_signal == True:
+            signal = Action.BUY
         else:
-            return Action.HOLD
+            signal = Action.HOLD
+
+        print(f'[MACD] Signal: {signal}')
+        
+        return signal

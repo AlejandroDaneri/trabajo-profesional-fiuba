@@ -74,7 +74,6 @@ class RSI(Indicator):
         print(f'[RSI] Sell Threshold: {self.sell_threshold}')
         print(f'[RSI] Buy Threshold: {self.buy_threshold}')
 
-        signal = Action.HOLD
         if sell_signal == True:
             signal = Action.SELL
         elif buy_signal == True:
