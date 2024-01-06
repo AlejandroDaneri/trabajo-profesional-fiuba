@@ -7,13 +7,17 @@ import requests
 
 def main():
     requests.delete(url='http://algo_api:8080/api/trade')
+    
 
     response = requests.get(url='http://algo_api:8080/api/strategy')
     strategy = response.json()
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
-    initial_balance = 10000
+    initial_balance = strategy["initial_balance"]
+    requests.put(url='http://algo_api:8080/api/strategy/balance', json={
+        "current_balance": str(initial_balance)
+    })
     timeframe = strategy["timeframe"]
 
     provider = Binance()
@@ -26,7 +30,7 @@ def main():
     simulation_data = {}
     
     n_train = 200
-    n_simulate = 400
+    n_simulate = 1000
     n_total = n_train + n_simulate
 
     for currency in currencies:
