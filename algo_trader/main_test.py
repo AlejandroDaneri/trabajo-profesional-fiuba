@@ -7,7 +7,6 @@ import requests
 
 def main():
     requests.delete(url='http://algo_api:8080/api/trade')
-    
 
     response = requests.get(url='http://algo_api:8080/api/strategy')
     strategy = response.json()
@@ -66,7 +65,7 @@ def main():
                 requests.put(url='http://algo_api:8080/api/strategy/balance', json={
                     "current_balance": str(current_balance)
                 })
-        
+
         print("\n")
     
     print("Balance: {}".format(trade_bot.get_balance()))

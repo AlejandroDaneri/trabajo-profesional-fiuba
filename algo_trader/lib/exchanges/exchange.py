@@ -41,5 +41,5 @@ class Exchange:
     def get_balance(self) -> float:
         return self.balance
     
-    def get_profit(self):
+    def get_profit_and_loss(self):
         return self.total - self.initial_balance 

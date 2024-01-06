@@ -99,9 +99,18 @@ const TradesView = () => {
     }
     const getStrategy = () => {
       const transformToView = (data) => {
+        const initialBalance = data.initial_balance
+        const currentBalance = parseFloat(data.current_balance).toFixed(2)
+        const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
+        const profitAndLossPercentaje = (
+          (currentBalance / initialBalance - 1) *
+          100
+        ).toFixed(2)
+
         return {
           ...data,
           current_balance: parseFloat(data.current_balance).toFixed(2),
+          profit_and_loss_label: `${profitAndLoss} (${profitAndLossPercentaje}%)`,
           indicators: data.indicators.map((indicator) => ({
             ...indicator,
             name: (() => {
@@ -156,8 +165,8 @@ const TradesView = () => {
               <div className="value">{strategy.data.current_balance}</div>
             </div>
             <div className="box">
-              <div className="label">Profit/Loss %</div>
-              <div className="value">TO-DO</div>
+              <div className="label">Profit/Loss</div>
+              <div className="value">{strategy.data.profit_and_loss_label}</div>
             </div>
             <div className="box">
               <div className="label">Trades executed</div>
