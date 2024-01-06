@@ -6,9 +6,9 @@ from utils import hydrate_strategy
 import requests
 
 def main():
-    requests.delete(url='http://localhost:8080/api/trade')
+    requests.delete(url='http://algo_api:8080/api/trade')
 
-    response = requests.get(url='http://localhost:8080/api/strategy')
+    response = requests.get(url='http://algo_api:8080/api/strategy')
     strategy = response.json()
     print(strategy)
     indicators = strategy["indicators"]
@@ -56,11 +56,11 @@ def main():
                         "timestamp": int(trade.sell_order.timestamp)
                     }
                 }
-                response = requests.post(url='http://localhost:8080/api/trade', json=data)
+                response = requests.post(url='http://algo_api:8080/api/trade', json=data)
 
                 current_balance = trade_bot.get_balance()
                 requests.put(url='http://algo_api:8080/api/strategy/balance', json={
-                    "balance": current_balance
+                    "current_balance": str(current_balance)
                 })
         
         print("\n")

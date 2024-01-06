@@ -177,7 +177,7 @@ func GetStrategy(w http.ResponseWriter, r *http.Request) {
 
 func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		CurrentBalance int `json:"current_balance"`
+		CurrentBalance string `json:"current_balance"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)

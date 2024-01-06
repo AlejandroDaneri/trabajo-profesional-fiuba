@@ -56,7 +56,7 @@ def main():
 
                 current_balance = trade_bot.get_balance()
                 requests.put(url='http://algo_api:8080/api/strategy/balance', json={
-                    "balance": current_balance
+                    "current_balance": str(current_balance)
                 })
         print("\n")
         time.sleep(60)
