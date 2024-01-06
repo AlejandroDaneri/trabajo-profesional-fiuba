@@ -101,6 +101,7 @@ const TradesView = () => {
       const transformToView = (data) => {
         return {
           ...data,
+          current_balance: parseFloat(data.current_balance).toFixed(2),
           indicators: data.indicators.map((indicator) => ({
             ...indicator,
             name: (() => {
