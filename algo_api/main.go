@@ -176,8 +176,18 @@ func GetStrategy(w http.ResponseWriter, r *http.Request) {
 }
 
 func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
-	balance := 40
-	err := strategyservice.GetInstance().SetBalance(balance)
+	var body struct {
+		CurrentBalance int `json:"current_balance"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.Errorf("Credentials could not be decoded in request body: %v", err)
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = strategyservice.GetInstance().SetCurrentBalance(body.CurrentBalance)
 	if err != nil {
 		logrus.Error("Could not set balance to the strategy")
 		http.Error(w, http.StatusText(500), 500)
