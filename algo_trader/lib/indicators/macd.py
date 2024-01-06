@@ -1,4 +1,5 @@
 from lib.indicators.indicator import Indicator
+from lib.actions import Action
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,9 +9,10 @@ class MACD(Indicator):
         self.slow = slow
         self.fast = fast
         self.suavizado = suavizado
-        super().__init__("MACD", 0, 0)
+        super().__init__("MACD")
 
     def calculate(self, data):
+        self.data = data
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
         # Copy the 'Close' column from the original data to the DataFrame
@@ -41,17 +43,38 @@ class MACD(Indicator):
         return self.output
 
     def calc_buy_signals(self):
-        # Find where the MACD line crosses above the signal line
-        return np.where((self.output > 0) & (self.output.shift(1) <= 0), True, False)
-
+        return np.where((self.output.shift(1) < 0) & (0 < self.output), True, False)
+    
     def calc_sell_signals(self):
-        # Find where the MACD line crosses below the signal line
-        return np.where((self.output < 0) & (self.output.shift(1) >= 0), True, False)
-
+        return np.where((self.output.shift(1) > 0) & (0 >= self.output), True, False)
+    
     def plot(self):
-        # TODO: fix plot
-        data = pd.DataFrame(self.output, index=self.dates)
+        data = pd.DataFrame(self.output, index= self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data[self.name])
+        plt.plot(self.output)
+        plt.grid()
+        plt.axhline(0, linestyle='--', linewidth=1.5, color='black')
+        plt.fill_between(data.index, self.output, 0, where=self.output>0, alpha=0.5, color='green')
+        plt.fill_between(data.index, self.output, 0, where=self.output<0, alpha=0.5, color='red')
         plt.show()
+
+    def predict_signal(self, new_record):
+        new_macd_value = self.calculate(pd.concat([self.data, new_record]))
+        sell_signal = self.calc_sell_signals()[-1]
+        buy_signal = self.calc_buy_signals()[-1]
+
+        new_signal = new_macd_value.iloc[-1]
+
+        print(f'[MACD] Current value: {new_signal}')
+
+        if sell_signal == True:
+            signal = Action.SELL
+        elif buy_signal == True:
+            signal = Action.BUY
+        else:
+            signal = Action.HOLD
+
+        print(f'[MACD] Signal: {signal}')
+        
+        return signal
