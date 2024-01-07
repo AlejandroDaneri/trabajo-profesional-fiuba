@@ -39,7 +39,9 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		logrus.Errorf("Credentials could not be decoded in request body: %v", err)
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}
@@ -182,7 +184,9 @@ func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		logrus.Errorf("Credentials could not be decoded in request body: %v", err)
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
 		http.Error(w, http.StatusText(400), 400)
 		return
 	}

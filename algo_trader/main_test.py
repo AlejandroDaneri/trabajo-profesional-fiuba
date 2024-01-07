@@ -7,15 +7,15 @@ from api_client import ApiClient
 api = ApiClient()
 
 def main():
-    api.delete('/api/trade')
+    api.delete('api/trade')
 
-    response = api.get('/api/strategy')
+    response = api.get('api/strategy')
     strategy = response.json()
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
     initial_balance = strategy["initial_balance"]
-    api.put('/api/strategy/balance', json={
+    api.put('api/strategy/balance', json={
         "current_balance": str(initial_balance)
     })
     timeframe = strategy["timeframe"]
@@ -60,10 +60,10 @@ def main():
                         "timestamp": int(trade.sell_order.timestamp)
                     }
                 }
-                response = api.post('/api/trade', json=data)
+                response = api.post('api/trade', json=data)
 
                 current_balance = trade_bot.get_balance()
-                api.put('/api/strategy/balance', json={
+                api.put('api/strategy/balance', json={
                     "current_balance": str(current_balance)
                 })
 
