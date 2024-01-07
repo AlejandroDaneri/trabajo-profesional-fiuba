@@ -5,16 +5,18 @@ from utils import hydrate_strategy
 
 import requests
 
-def main():
-    requests.delete(url='http://algo_api:8080/api/trade')
+API_BASE_PATH = "http://algo_api:8080"
 
-    response = requests.get(url='http://algo_api:8080/api/strategy')
+def main():
+    requests.delete(url=f'{API_BASE_PATH}/api/trade')
+
+    response = requests.get(url=f'{API_BASE_PATH}/api/strategy')
     strategy = response.json()
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
     initial_balance = strategy["initial_balance"]
-    requests.put(url='http://algo_api:8080/api/strategy/balance', json={
+    requests.put(url=f'{API_BASE_PATH}/api/strategy/balance', json={
         "current_balance": str(initial_balance)
     })
     timeframe = strategy["timeframe"]
@@ -59,10 +61,10 @@ def main():
                         "timestamp": int(trade.sell_order.timestamp)
                     }
                 }
-                response = requests.post(url='http://algo_api:8080/api/trade', json=data)
+                response = requests.post(url=f'{API_BASE_PATH}/api/trade', json=data)
 
                 current_balance = trade_bot.get_balance()
-                requests.put(url='http://algo_api:8080/api/strategy/balance', json={
+                requests.put(url=f'{API_BASE_PATH}/api/strategy/balance', json={
                     "current_balance": str(current_balance)
                 })
 
