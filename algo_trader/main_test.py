@@ -5,18 +5,37 @@ from utils import hydrate_strategy
 
 import requests
 
-API_BASE_PATH = "http://algo_api:8080"
+class ApiClient:
+    def __init__(self):
+        self.base_url = "http://algo_api:8080"
+
+    def get_full_url(self, path):
+        return f"{self.base_url}/{path}"
+
+    def get(self, path, **kwargs):
+        return requests.get(self.get_full_url(path), **kwargs)
+
+    def post(self, path, **kwargs):
+        return requests.post(self.get_full_url(path), **kwargs)
+
+    def put(self, path, **kwargs):
+        return requests.put(self.get_full_url(path), **kwargs)
+
+    def delete(self, path, **kwargs):
+        return requests.delete(self.get_full_url(path), **kwargs)
+    
+api = ApiClient()
 
 def main():
-    requests.delete(url=f'{API_BASE_PATH}/api/trade')
+    api.delete('/api/trade')
 
-    response = requests.get(url=f'{API_BASE_PATH}/api/strategy')
+    response = api.get('/api/strategy')
     strategy = response.json()
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
     initial_balance = strategy["initial_balance"]
-    requests.put(url=f'{API_BASE_PATH}/api/strategy/balance', json={
+    api.put('/api/strategy/balance', json={
         "current_balance": str(initial_balance)
     })
     timeframe = strategy["timeframe"]
@@ -61,10 +80,10 @@ def main():
                         "timestamp": int(trade.sell_order.timestamp)
                     }
                 }
-                response = requests.post(url=f'{API_BASE_PATH}/api/trade', json=data)
+                response = api.post('/api/trade', json=data)
 
                 current_balance = trade_bot.get_balance()
-                requests.put(url=f'{API_BASE_PATH}/api/strategy/balance', json={
+                api.put('/api/strategy/balance', json={
                     "current_balance": str(current_balance)
                 })
 
