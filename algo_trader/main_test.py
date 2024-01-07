@@ -2,28 +2,8 @@ from lib.exchanges.dummy import Dummy
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
 from utils import hydrate_strategy
+from api_client import ApiClient
 
-import requests
-
-class ApiClient:
-    def __init__(self):
-        self.base_url = "http://algo_api:8080"
-
-    def get_full_url(self, path):
-        return f"{self.base_url}/{path}"
-
-    def get(self, path, **kwargs):
-        return requests.get(self.get_full_url(path), **kwargs)
-
-    def post(self, path, **kwargs):
-        return requests.post(self.get_full_url(path), **kwargs)
-
-    def put(self, path, **kwargs):
-        return requests.put(self.get_full_url(path), **kwargs)
-
-    def delete(self, path, **kwargs):
-        return requests.delete(self.get_full_url(path), **kwargs)
-    
 api = ApiClient()
 
 def main():
