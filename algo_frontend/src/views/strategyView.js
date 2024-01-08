@@ -6,7 +6,7 @@ import { useEffect } from "react"
 import StrategyStyle from "../styles/strategy"
 
 /* Import WebApi */
-import { getStrategy } from "../webapi/strategy"
+import { get } from "../webapi/strategy"
 
 /* Import Images */
 import btc from "../images/logos/btc.png"
@@ -52,7 +52,7 @@ const StrategyView = () => {
       ...prevState,
       loading: true,
     }))
-    getStrategy()
+    get()
       .then((response) => {
         stateFunc((prevState) => ({
           ...prevState,

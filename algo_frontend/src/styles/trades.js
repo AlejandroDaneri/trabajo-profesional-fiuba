@@ -11,7 +11,7 @@ export const TradesStyle = styled.div`
   align-items: center;
   flex-direction: column;
   height: 600px;
-
+  justify-content: space-around;
   width: 100%;
 
   & img {
@@ -20,6 +20,29 @@ export const TradesStyle = styled.div`
 
   & p {
     color: white;
+  }
+
+  & .summary {
+    display: flex;
+    flex-direction: row;
+    width: 50%;
+    justify-content: space-around;
+
+    & .box {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid white;
+      border-radius: 10px;
+      padding: 10px;
+
+      & .label {
+        color: #a5a8b6;
+      }
+
+      & .value {
+        font-weight: 800;
+      }
+    }
   }
 
   & .trades {

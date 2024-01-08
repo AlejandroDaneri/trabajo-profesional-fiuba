@@ -19,4 +19,6 @@ type StrategyPublicFields struct {
 	Currencies     []string    `json:"currencies"`
 	Indicators     []Indicator `json:"indicators"`
 	Timeframe      string      `json:"timeframe"`
+	InitialBalance int         `json:"initial_balance"`
+	CurrentBalance string      `json:"current_balance"`
 }

@@ -7,8 +7,10 @@ import matplotlib.pyplot as plt
 
 class RSI(Indicator):
     def __init__(self, buy_threshold, sell_threshold, rounds):
+        self.buy_threshold = buy_threshold
+        self.sell_threshold = sell_threshold
         self.rounds = rounds
-        super().__init__("RSI", buy_threshold, sell_threshold)
+        super().__init__("RSI")
 
     def calculate(self, data):
         # Create a DataFrame with the same index as the input data
@@ -44,21 +46,27 @@ class RSI(Indicator):
         return self.output
 
     def calc_buy_signals(self):
-        return np.where(self.output > self.buy_threshold, True, False)
-
+        return np.where((self.output.shift(1) < self.buy_threshold) & (self.buy_threshold <= self.output), True, False)
+    
     def calc_sell_signals(self):
-        print(self.output)
-        return np.where(self.output < self.sell_threshold, True, False)
-
+        return np.where((self.output.shift(1) > self.sell_threshold) & (self.sell_threshold >= self.output), True, False)
+    
     def plot(self):
-        data = pd.DataFrame(self.output, index=self.dates)
+        data = pd.DataFrame(self.output, index= self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data[self.name])
+        plt.plot(data[self.name], color='orange', linewidth=2)
+        plt.grid()
+        # Oversold
+        plt.axhline(30, linestyle='--', linewidth=1.5, color='green')
+        # Overbought
+        plt.axhline(70, linestyle='--', linewidth=1.5, color='red')
         plt.show()
 
     def predict_signal(self, new_record):
         new_rsi = self.calculate(pd.concat([self.data, new_record]))
+        sell_signal = self.calc_sell_signals()[-1]
+        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_rsi.iloc[-1]
 
@@ -66,11 +74,12 @@ class RSI(Indicator):
         print(f'[RSI] Sell Threshold: {self.sell_threshold}')
         print(f'[RSI] Buy Threshold: {self.buy_threshold}')
 
-        signal = Action.HOLD
-        if new_signal < self.sell_threshold:
+        if sell_signal == True:
             signal = Action.SELL
-        elif new_signal > self.buy_threshold:
+        elif buy_signal == True:
             signal = Action.BUY
+        else:
+            signal = Action.HOLD
         
         print(f'[RSI] Signal: {signal}')
         
