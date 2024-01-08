@@ -87,5 +87,5 @@ class TradeBot:
     def get_balance(self):
         return self.exchange.get_balance()
     
-    def get_profit(self):
-        return self.exchange.get_profit()
+    def get_profit_and_loss(self):
+        return self.exchange.get_profit_and_loss()

@@ -2,18 +2,22 @@ from lib.exchanges.dummy import Dummy
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
 from utils import hydrate_strategy
+from api_client import ApiClient
 
-import requests
+api = ApiClient()
 
 def main():
-    requests.delete(url='http://localhost:8080/api/trade')
+    api.delete('api/trade')
 
-    response = requests.get(url='http://localhost:8080/api/strategy')
+    response = api.get('api/strategy')
     strategy = response.json()
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
-    initial_balance = 10000
+    initial_balance = strategy["initial_balance"]
+    api.put('api/strategy/balance', json={
+        "current_balance": str(initial_balance)
+    })
     timeframe = strategy["timeframe"]
 
     provider = Binance()
@@ -26,7 +30,7 @@ def main():
     simulation_data = {}
     
     n_train = 200
-    n_simulate = 400
+    n_simulate = 800
     n_total = n_train + n_simulate
 
     for currency in currencies:
@@ -56,8 +60,13 @@ def main():
                         "timestamp": int(trade.sell_order.timestamp)
                     }
                 }
-                response = requests.post(url='http://localhost:8080/api/trade', json=data)
-        
+                response = api.post('api/trade', json=data)
+
+                current_balance = trade_bot.get_balance()
+                api.put('api/strategy/balance', json={
+                    "current_balance": str(current_balance)
+                })
+
         print("\n")
     
     print("Balance: {}".format(trade_bot.get_balance()))
