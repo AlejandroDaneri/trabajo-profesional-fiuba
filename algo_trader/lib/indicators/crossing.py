@@ -6,9 +6,11 @@ import pandas as pd
 
 class Crossing(Indicator):
     def __init__(self, buy_threshold, sell_threshold, fast, slow):
+        self.buy_threshold = buy_threshold
+        self.sell_threshold = sell_threshold
         self.fast = fast
         self.slow = slow
-        super().__init__("Cruce", buy_threshold, sell_threshold)
+        super().__init__("Cruce")
 
     def calculate(self, data):
         df = pd.DataFrame(index=data.index)
