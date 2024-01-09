@@ -35,7 +35,7 @@ trade_bot = TradeBot(strategy, exchange, "BTC")
 
 while True:
     print("getting new price")
-    data = provider.get_latest_price("BTCUSDT")
+    data = provider.get_latest_data("BTCUSDT")
     print(data)
     print("adding data to strategy")
     try:

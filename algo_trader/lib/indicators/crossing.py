@@ -30,6 +30,7 @@ class Crossing(Indicator):
         new_output = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_output.iloc[-1]
+        print(new_signal)
 
         if new_signal < self.sell_threshold:
             return Action.SELL

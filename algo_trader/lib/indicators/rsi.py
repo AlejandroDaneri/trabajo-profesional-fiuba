@@ -58,10 +58,11 @@ class RSI(Indicator):
         plt.show()
 
     def predict_signal(self, new_record):
-        new_rsi = self.calculate(pd.concat([self.data, new_record]))
-
+        new_rsi = self.calculate(
+            # pd.concat([self.data, new_record.to_frame().T]).tail(self.rounds + 2)
+            pd.concat([self.data, new_record]).tail(self.rounds + 2)
+        )  ## 2 to test, remove
         new_signal = new_rsi.iloc[-1]
-
         if new_signal < self.sell_threshold:
             return Action.SELL
         elif new_signal > self.buy_threshold:
