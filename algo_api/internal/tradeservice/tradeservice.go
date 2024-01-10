@@ -28,18 +28,19 @@ func NewService() IService {
 }
 
 type IService interface {
-	Create(trade map[string]interface{}) (string, error)
+	Create(trade map[string]interface{}, strategyID string) (string, error)
 	Get(id string) (*database.TradeResponseFields, error)
 	List() ([]*database.TradeResponseFields, error)
 	Remove() error
 }
 
-func (s *TradeService) Create(trade map[string]interface{}) (string, error) {
+func (s *TradeService) Create(trade map[string]interface{}, strategyID string) (string, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
 		return "", err
 	}
+	trade["strategy_id"] = strategyID
 	trade["pvt_type"] = "trade"
 	id, _, err := db.Save(trade, nil)
 	if err != nil {
