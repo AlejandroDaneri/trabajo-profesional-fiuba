@@ -33,6 +33,7 @@ type IService interface {
 	GetID() (string, error)
 	Get() (*database.StrategyPublicFields, error)
 	SetCurrentBalance(balance string) error
+	Start(strategy map[string]interface{}) (string, error)
 	Stop(id string) error
 }
 
@@ -107,6 +108,22 @@ func (s *StrategyService) SetCurrentBalance(balance string) error {
 	}
 
 	return nil
+}
+
+func (s *StrategyService) Start(strategy map[string]interface{}) (string, error) {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return "", err
+	}
+	strategy["pvt_type"] = "strategy"
+	strategy["state"] = database.StrategyStateRunning
+	strategy["start_timestamp"] = time.Now().Unix()
+	id, _, err := db.Save(strategy, nil)
+	if err != nil {
+		return "", err
+	}
+	return id, nil
 }
 
 func (s *StrategyService) Stop(id string) error {
