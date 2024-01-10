@@ -6,6 +6,7 @@ import (
 	"algo_api/internal/utils"
 	"encoding/json"
 	"sync"
+	"time"
 )
 
 var instance IService
@@ -32,6 +33,7 @@ type IService interface {
 	GetID() (string, error)
 	Get() (*database.StrategyPublicFields, error)
 	SetCurrentBalance(balance string) error
+	Stop(id string) error
 }
 
 func (s *StrategyService) get() (*database.Strategy, error) {
@@ -104,5 +106,30 @@ func (s *StrategyService) SetCurrentBalance(balance string) error {
 		return err
 	}
 
+	return nil
+}
+
+func (s *StrategyService) Stop(id string) error {
+	strategy, err := s.get()
+	if err != nil {
+		return err
+	}
+	strategy.State = database.StrategyStateFinished
+	strategy.EndTimestamp = time.Now().Unix()
+
+	m, err := utils.StructToMap(*strategy)
+	if err != nil {
+		return err
+	}
+
+	db, err := s.databaseservice.GetDB("trades")
+	if err != nil {
+		return err
+	}
+
+	_, _, err = db.Save(m, nil)
+	if err != nil {
+		return err
+	}
 	return nil
 }
