@@ -61,7 +61,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	strategy, err := strategyservice.GetInstance().Get()
+	strategy, err := strategyservice.GetInstance().GetRunning()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -159,8 +159,8 @@ func RemoveTrades(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetStrategy(w http.ResponseWriter, r *http.Request) {
-	strategy, err := strategyservice.GetInstance().Get()
+func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
+	strategy, err := strategyservice.GetInstance().GetRunning()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -266,13 +266,34 @@ func StartStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func ListStrategy(w http.ResponseWriter, r *http.Request) {
+	strategies, err := strategyservice.GetInstance().List()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get strategies")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	bytes, err := json.Marshal(strategies)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	w.Write(bytes)
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trade", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
-	router.HandleFunc("/strategy", GetStrategy).Methods("GET")
+	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
+	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy/start", StartStrategy).Methods("POST")

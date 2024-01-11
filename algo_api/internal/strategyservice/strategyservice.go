@@ -5,6 +5,7 @@ import (
 	"algo_api/internal/databaseservice"
 	"algo_api/internal/utils"
 	"encoding/json"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -30,27 +31,42 @@ func NewService() IService {
 }
 
 type IService interface {
-	Get() (*database.StrategyResponseFields, error)
+	GetRunning() (*database.StrategyResponseFields, error)
 	List() ([]*database.StrategyResponseFields, error)
 	SetCurrentBalance(balance string) error
 	Start(strategy map[string]interface{}) (string, error)
 	Stop(id string) error
 }
 
-func (s *StrategyService) get() (*database.Strategy, error) {
+func (s *StrategyService) get(id string) (*database.Strategy, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
 		return nil, err
 	}
-	q := `
-	{
-		"selector": {
-			"pvt_type": "strategy"
-		},
-		"limit": 1
+	var q string
+	if id == "" {
+		q = fmt.Sprintf(`
+		{
+			"selector": {
+				"state": %s
+				"pvt_type": "strategy"
+			},
+			"limit": 1
+		}
+		`, database.StrategyStateRunning)
+	} else {
+		q = fmt.Sprintf(`
+		{
+			"selector": {
+				"_id": %s
+				"pvt_type": "strategy"
+			},
+			"limit": 1
+		}
+		`, id)
 	}
-	`
+
 	docs, err := db.QueryJSON(q)
 	if err != nil {
 		return nil, err
@@ -67,8 +83,8 @@ func (s *StrategyService) get() (*database.Strategy, error) {
 	return strategy, nil
 }
 
-func (s *StrategyService) Get() (*database.StrategyResponseFields, error) {
-	strategy, err := s.get()
+func (s *StrategyService) GetRunning() (*database.StrategyResponseFields, error) {
+	strategy, err := s.get("")
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +133,7 @@ func (s *StrategyService) List() ([]*database.StrategyResponseFields, error) {
 }
 
 func (s *StrategyService) SetCurrentBalance(balance string) error {
-	strategy, err := s.get()
+	strategy, err := s.get("")
 	if err != nil {
 		return err
 	}
@@ -159,7 +175,7 @@ func (s *StrategyService) Start(strategy map[string]interface{}) (string, error)
 }
 
 func (s *StrategyService) Stop(id string) error {
-	strategy, err := s.get()
+	strategy, err := s.get("")
 	if err != nil {
 		return err
 	}
