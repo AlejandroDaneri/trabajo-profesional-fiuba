@@ -29,6 +29,7 @@ func NewService() IService {
 }
 
 type IService interface {
+	GetID() (string, error)
 	Get() (*database.StrategyPublicFields, error)
 	SetCurrentBalance(balance string) error
 }
@@ -70,6 +71,14 @@ func (s *StrategyService) Get() (*database.StrategyPublicFields, error) {
 	}
 
 	return &strategy.StrategyPublicFields, nil
+}
+
+func (s *StrategyService) GetID() (string, error) {
+	strategy, err := s.get()
+	if err != nil {
+		return "", err
+	}
+	return strategy.ID, nil
 }
 
 func (s *StrategyService) SetCurrentBalance(balance string) error {

@@ -21,6 +21,7 @@ type TradePublicFields struct {
 			Timestamp int64  `json:"timestamp"`
 		} `json:"sell"`
 	} `json:"orders"`
+	StrategyID string `json:"strategy_id"`
 }
 
 type TradeResponseFields struct {

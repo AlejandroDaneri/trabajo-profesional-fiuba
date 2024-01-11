@@ -61,7 +61,15 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	id, err := tradeservice.GetInstance().Create(trade)
+	strategyID, err := strategyservice.GetInstance().GetID()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get the strategy")
+		return
+	}
+
+	id, err := tradeservice.GetInstance().Create(trade, strategyID)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":   err,
