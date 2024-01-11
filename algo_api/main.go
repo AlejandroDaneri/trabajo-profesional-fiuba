@@ -207,6 +207,61 @@ func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func StopStrategy(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err := strategyservice.GetInstance().Stop(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not stop the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
+func StartStrategy(w http.ResponseWriter, r *http.Request) {
+
+	indicator_rsi := map[string]interface{}{
+		"name": "rsi",
+		"parameters": map[string]interface{}{
+			"buy_threshold":  65,
+			"sell_threshold": 55,
+			"rounds":         14,
+		},
+	}
+
+	indicator_crossing := map[string]interface{}{
+		"name": "crossing",
+		"parameters": map[string]interface{}{
+			"buy_threshold":  -0.01,
+			"sell_threshold": 0,
+			"fast":           20,
+			"slow":           60,
+		},
+	}
+
+	indicators := []map[string]interface{}{}
+	indicators = append(indicators, indicator_rsi)
+	indicators = append(indicators, indicator_crossing)
+
+	strategy := map[string]interface{}{
+		"indicators":      indicators,
+		"initial_balance": 1000,
+		"current_balance": "1000",
+	}
+	id, err := strategyservice.GetInstance().Start(strategy)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not create the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
@@ -215,6 +270,8 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/strategy", GetStrategy).Methods("GET")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
+	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
+	router.HandleFunc("/strategy/start", StartStrategy).Methods("POST")
 }
 
 func main() {
