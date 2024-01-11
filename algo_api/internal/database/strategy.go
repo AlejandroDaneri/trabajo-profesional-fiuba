@@ -28,3 +28,8 @@ type StrategyPublicFields struct {
 	InitialBalance int         `json:"initial_balance"`
 	CurrentBalance string      `json:"current_balance"`
 }
+
+type StrategyResponseFields struct {
+	StrategyPublicFields
+	ID string `json:"id"`
+}

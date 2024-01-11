@@ -30,8 +30,8 @@ func NewService() IService {
 }
 
 type IService interface {
-	GetID() (string, error)
-	Get() (*database.StrategyPublicFields, error)
+	Get() (*database.StrategyResponseFields, error)
+	List() ([]*database.StrategyResponseFields, error)
 	SetCurrentBalance(balance string) error
 	Start(strategy map[string]interface{}) (string, error)
 	Stop(id string) error
@@ -67,21 +67,53 @@ func (s *StrategyService) get() (*database.Strategy, error) {
 	return strategy, nil
 }
 
-func (s *StrategyService) Get() (*database.StrategyPublicFields, error) {
+func (s *StrategyService) Get() (*database.StrategyResponseFields, error) {
 	strategy, err := s.get()
 	if err != nil {
 		return nil, err
 	}
 
-	return &strategy.StrategyPublicFields, nil
+	return &database.StrategyResponseFields{
+		StrategyPublicFields: strategy.StrategyPublicFields,
+		ID:                   strategy.ID,
+	}, nil
 }
 
-func (s *StrategyService) GetID() (string, error) {
-	strategy, err := s.get()
+func (s *StrategyService) List() ([]*database.StrategyResponseFields, error) {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return strategy.ID, nil
+	q := `
+	{
+		"selector": {
+			"pvt_type": "strategy"
+		},
+		"limit": 10000
+	}
+	`
+	docs, err := db.QueryJSON(q)
+	if err != nil {
+		return nil, err
+	}
+	strategies := []*database.StrategyResponseFields{}
+	for _, doc := range docs {
+		bytes, err := json.Marshal(doc)
+		if err != nil {
+			continue
+		}
+		strategy := database.Strategy{}
+		err = json.Unmarshal(bytes, &strategy)
+		if err != nil {
+			continue
+		}
+		strategies = append(strategies, &database.StrategyResponseFields{
+			StrategyPublicFields: strategy.StrategyPublicFields,
+			ID:                   strategy.ID,
+		})
+	}
+	return strategies, nil
 }
 
 func (s *StrategyService) SetCurrentBalance(balance string) error {

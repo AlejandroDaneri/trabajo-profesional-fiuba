@@ -61,7 +61,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	strategyID, err := strategyservice.GetInstance().GetID()
+	strategy, err := strategyservice.GetInstance().Get()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -69,7 +69,7 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := tradeservice.GetInstance().Create(trade, strategyID)
+	id, err := tradeservice.GetInstance().Create(trade, strategy.ID)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":   err,
@@ -246,11 +246,15 @@ func StartStrategy(w http.ResponseWriter, r *http.Request) {
 	indicators = append(indicators, indicator_rsi)
 	indicators = append(indicators, indicator_crossing)
 
+	currencies := []string{"BTC", "ETH", "SOL"}
+
 	strategy := map[string]interface{}{
 		"indicators":      indicators,
+		"currencies":      currencies,
 		"initial_balance": 1000,
 		"current_balance": "1000",
 	}
+
 	id, err := strategyservice.GetInstance().Start(strategy)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
