@@ -3,6 +3,7 @@ from lib.indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from algo_trader.lib.indicators.atr import ATR
 
 
 class DMI(Indicator):
@@ -12,7 +13,6 @@ class DMI(Indicator):
         super().__init__("DMI")
 
     def calculate(self, data):
-        # Calculate ATR (Average True Range)
         self.data = data
         df = pd.DataFrame(index=data.index)
         self.dates= data.index
@@ -20,15 +20,9 @@ class DMI(Indicator):
         # Copy the 'Close' column from the original data to the new DataFrame
         df["Close"] = data["Close"]
 
-        df["HighLow"] = data["High"] - data["Low"]
-        df["HighClose"] = abs(data["High"] - data["Close"].shift(1))
-        df["LowClose"] = abs(data["Low"] - data["Close"].shift(1))
-
-        df["TrueRange"] = df[["HighLow", "HighClose", "LowClose"]].max(axis=1, skipna=False)
-        df["ATR"] = df["TrueRange"].ewm(span=self.rounds, min_periods=self.rounds).mean()
-
-        # Drop innecesary columns
-        df.drop(["HighLow", "HighClose", "LowClose", "TrueRange"], axis=1, inplace=True)
+        # Calculate ATR (Average True Range)
+        atr = ATR(self.rounds)
+        df["ATR"] = atr.calculate(data)
 
         # Calculate DMI and ADX
         df["UpMove"] = data["High"] - data["High"].shift(1)
