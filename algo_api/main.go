@@ -3,6 +3,7 @@ package main
 import (
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/tradeservice"
+	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -221,38 +222,29 @@ func StopStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func StartStrategy(w http.ResponseWriter, r *http.Request) {
-
-	indicator_rsi := map[string]interface{}{
-		"name": "rsi",
-		"parameters": map[string]interface{}{
-			"buy_threshold":  65,
-			"sell_threshold": 55,
-			"rounds":         14,
-		},
+func CreateStrategy(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		InitialBalance string `json:"initial_balance"`
+		Indicators     []struct {
+			Name       string      `json:"name"`
+			Parameters interface{} `json:"parameters"`
+		} `json:"indicators"`
+		Currencies []string `json:"currencies"`
 	}
 
-	indicator_crossing := map[string]interface{}{
-		"name": "crossing",
-		"parameters": map[string]interface{}{
-			"buy_threshold":  -0.01,
-			"sell_threshold": 0,
-			"fast":           20,
-			"slow":           60,
-		},
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
 	}
 
-	indicators := []map[string]interface{}{}
-	indicators = append(indicators, indicator_rsi)
-	indicators = append(indicators, indicator_crossing)
-
-	currencies := []string{"BTC", "ETH", "SOL"}
-
-	strategy := map[string]interface{}{
-		"indicators":      indicators,
-		"currencies":      currencies,
-		"initial_balance": 1000,
-		"current_balance": "1000",
+	strategy, err := utils.StructToMap(body)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 
 	id, err := strategyservice.GetInstance().Start(strategy)
@@ -296,7 +288,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
-	router.HandleFunc("/strategy/start", StartStrategy).Methods("POST")
+	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")
 }
 
 func main() {
