@@ -111,7 +111,7 @@ const TradesView = () => {
           ...data,
           current_balance: parseFloat(data.current_balance).toFixed(2),
           profit_and_loss_label: `${profitAndLoss} (${profitAndLossPercentaje}%)`,
-          indicators: data.indicators.map((indicator) => ({
+          indicators: (data.indicators || []).map((indicator) => ({
             ...indicator,
             name: (() => {
               switch (indicator.name) {

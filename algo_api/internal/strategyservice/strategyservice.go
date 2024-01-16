@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 var instance IService
@@ -46,29 +48,29 @@ func (s *StrategyService) get(id string) (*database.Strategy, error) {
 	}
 	var q string
 	if id == "" {
-		q = fmt.Sprintf(`
-		{
+		q = fmt.Sprintf(`{
 			"selector": {
-				"state": %s
+				"state": "%s",
 				"pvt_type": "strategy"
 			},
 			"limit": 1
-		}
-		`, database.StrategyStateRunning)
+		}`, database.StrategyStateRunning)
 	} else {
 		q = fmt.Sprintf(`
 		{
 			"selector": {
-				"_id": %s
+				"_id": "%s",
 				"pvt_type": "strategy"
 			},
 			"limit": 1
-		}
-		`, id)
+		}`, id)
 	}
-
 	docs, err := db.QueryJSON(q)
 	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"q":   utils.ToPrettyPrint(q),
+		}).Error("Could not run the Mango Query")
 		return nil, err
 	}
 	bytes, err := json.Marshal(docs[0])

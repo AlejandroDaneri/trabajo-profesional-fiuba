@@ -292,8 +292,8 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
-	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
+	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy/start", StartStrategy).Methods("POST")
