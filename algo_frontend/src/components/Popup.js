@@ -40,6 +40,7 @@ const Popup = () => {
       <SnackbarContent
         message={message?.message}
         style={{
+          color: "black",
           backgroundColor:
             message?.type === POPUP_TYPE_SUCCESS ? "#00FF00" : "#FF0000",
           fontSize: POPUP_TEXT_SIZE,
