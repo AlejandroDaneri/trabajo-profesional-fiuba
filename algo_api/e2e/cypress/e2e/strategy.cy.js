@@ -48,15 +48,15 @@ describe("Strategy ", () => {
     }
 
     const trade = {
-      pair: "BTC/USDT",
+      pair: "BTC",
       amount: "0.5343",
       buy: {
         price: "39000",
-        timestamp: 1702831239,
+        timestamp: 1704844260000,
       },
       sell: {
         price: "40000",
-        timestamp: 1702831339,
+        timestamp: 1704844260000 + 10 * 60 * 1000,
       },
     }
 
