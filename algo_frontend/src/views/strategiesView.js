@@ -6,7 +6,12 @@ import { list } from "../webapi/strategy"
 
 /* Import Styles */
 import StrategiesStyle from "../styles/strategies"
+
+/* Import Utils */
 import { capitalize } from "../utils/string"
+
+/* Import Components */
+import CurrencyLogo from "../components/CurrencyLogo"
 
 const StrategiesView = () => {
   const [state, stateFunc] = useState({
@@ -53,7 +58,9 @@ const StrategiesView = () => {
               </div>
               <div className="currencies">
                 {strategy.currencies.map((currency) => (
-                  <div className="currency">{currency}</div>
+                  <div className="currency">
+                    <CurrencyLogo currency={currency} />
+                  </div>
                 ))}
               </div>
             </div>

@@ -43,6 +43,10 @@ const StrategiesStyle = styled.div`
           padding: 3px;
         }
       }
+
+      & .currencies {
+        display: flex;
+      }
     }
   }
 `
