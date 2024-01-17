@@ -5,17 +5,18 @@ import { useEffect, useState } from "react"
 import { list } from "../webapi/trade"
 import { get } from "../webapi/strategy"
 
-/* Import Images */
-import btc from "../images/logos/btc.png"
-import sol from "../images/logos/sol.png"
-import eth from "../images/logos/eth.png"
-
 /* Import Utils */
 import { unixToDate } from "../utils/date"
 import { capitalize } from "../utils/string"
 
 /* Import Styles */
 import { ResultStyle, TradesStyle } from "../styles/trades"
+
+/* Import Reusable Components */
+import Table from "../components/Table"
+
+/* Import Components */
+import CurrencyLogo from "../components/CurrencyLogo"
 
 const TradesView = () => {
   const [trades, tradesFunc] = useState({
@@ -149,6 +150,48 @@ const TradesView = () => {
     }
   }, [])
 
+  const headers = [
+    {
+      value: "coin",
+      label: "Coin",
+    },
+    {
+      value: "amount",
+      label: "Amount",
+    },
+    {
+      label: "Date Buy",
+    },
+    {
+      label: "Date Sell",
+    },
+    {
+      label: "Duration (min)",
+    },
+    {
+      label: "Price Buy ($)",
+    },
+    {
+      label: "Price Sell ($)",
+    },
+    {
+      label: "Profit/Loss (%)",
+    },
+  ]
+
+  const buildRow = (row) => {
+    return [
+      <CurrencyLogo currency={row.pair} />,
+      row.amount,
+      row.orders.buy.timestamp_label,
+      row.orders.sell.timestamp_label,
+      row.duration,
+      row.orders.buy.price,
+      row.orders.sell.price,
+      <ResultStyle win={row.pl > 0}>{row.pl} </ResultStyle>,
+    ]
+  }
+
   return (
     <TradesStyle>
       {trades.loading ? (
@@ -181,50 +224,11 @@ const TradesView = () => {
               <div className="value">{trades.data.summary.n_loss}</div>
             </div>
           </div>
-          <div className="trades">
-            <div className="row">
-              <div className="column">Coin</div>
-              <div className="column">Amount</div>
-              <div className="column">Date Buy</div>
-              <div className="column">Date Sell</div>
-              <div className="column">Duration (min)</div>
-              <div className="column">Price Buy ($)</div>
-              <div className="column">Price Sell ($)</div>
-              <div className="column">Profit/Loss (%)</div>
-            </div>
-            {trades.data.list.map((trade) => (
-              <div className="row">
-                <div className="column">
-                  <div className="coin">
-                    {(() => {
-                      switch (trade.pair) {
-                        case "BTC":
-                          return <img src={btc} alt="logo" />
-                        case "SOL":
-                          return <img src={sol} alt="logo" />
-                        case "ETH":
-                          return <img src={eth} alt="logo" />
-                        default:
-                          return <></>
-                      }
-                    })()}
-                  </div>
-                  <p>{trade.pair}</p>
-                </div>
-                <div className="column">{trade.amount}</div>
-                <div className="column">{trade.orders.buy.timestamp_label}</div>
-                <div className="column">
-                  {trade.orders.sell.timestamp_label}
-                </div>
-                <div className="column">{trade.duration}</div>
-                <div className="column">{trade.orders.buy.price}</div>
-                <div className="column">{trade.orders.sell.price}</div>
-                <div className="column">
-                  <ResultStyle win={trade.pl > 0}>{trade.pl} </ResultStyle>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Table
+            headers={headers}
+            data={trades.data.list}
+            buildRow={buildRow}
+          />
         </>
       )}
     </TradesStyle>

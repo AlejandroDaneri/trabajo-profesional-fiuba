@@ -14,14 +14,6 @@ export const TradesStyle = styled.div`
   justify-content: space-around;
   width: 100%;
 
-  & img {
-    border-radius: 30px;
-  }
-
-  & p {
-    color: white;
-  }
-
   & .summary {
     display: flex;
     flex-direction: row;
@@ -63,17 +55,6 @@ export const TradesStyle = styled.div`
     }
 
     & .row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid white;
-      height: 40px;
-      margin: 5px;
-      border-radius: 10px;
-      padding-left: 10px;
-      padding-right: 10px;
-
       & .column {
         display: flex;
         width: calc(100% / 7);
