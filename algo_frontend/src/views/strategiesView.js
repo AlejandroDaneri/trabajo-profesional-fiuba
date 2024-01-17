@@ -15,7 +15,11 @@ import { capitalize } from "../utils/string"
 import CurrencyLogo from "../components/CurrencyLogo"
 import Table from "../components/Table"
 import Button from "../components/Button"
-import { POPUP_ACTION_OPEN, POPUP_TYPE_SUCCESS } from "../components/Popup"
+import {
+  POPUP_ACTION_OPEN,
+  POPUP_TYPE_ERROR,
+  POPUP_TYPE_SUCCESS,
+} from "../components/Popup"
 
 const StrategiesView = () => {
   const dispatch = useDispatch()
@@ -86,7 +90,15 @@ const StrategiesView = () => {
         })
         list_()
       })
-      .catch((_) => {})
+      .catch((_) => {
+        dispatch({
+          type: POPUP_ACTION_OPEN,
+          payload: {
+            type: POPUP_TYPE_ERROR,
+            message: "Could not stop Strategy",
+          },
+        })
+      })
   }
 
   const onShowTrades = () => {}

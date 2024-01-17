@@ -11,6 +11,7 @@ const POPUP_DURATION = 2000
 export const POPUP_ACTION_OPEN = "POPUP_ACTION_OPEN"
 export const POPUP_ACTION_CLOSE = "POPUP_ACTION_CLOSE"
 export const POPUP_TYPE_SUCCESS = "POPUP_TYPE_SUCCESS"
+export const POPUP_TYPE_ERROR = "POPUP_TYPE_ERROR"
 
 const Popup = () => {
   const popup = useSelector((state) => state.popup)
