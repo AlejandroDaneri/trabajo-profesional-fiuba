@@ -45,6 +45,13 @@ const Topbar = () => {
         </button>
         <button
           className="nav-button"
+          onClick={() => history.push("/home/strategies")}
+        >
+          <FaExchangeAlt className="nav-icon" />
+          Strategies
+        </button>
+        <button
+          className="nav-button"
           onClick={() => history.push("/home/strategy")}
         >
           <FaExchangeAlt className="nav-icon" />

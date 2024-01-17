@@ -278,6 +278,17 @@ func ListStrategy(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
+func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
+	err := strategyservice.GetInstance().Delete()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete strategies")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
@@ -286,6 +297,7 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
+	router.HandleFunc("/strategy", DeleteStrategy).Methods("DELETE")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")

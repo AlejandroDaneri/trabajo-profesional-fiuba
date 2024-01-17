@@ -38,6 +38,7 @@ type IService interface {
 	SetCurrentBalance(balance string) error
 	Start(strategy map[string]interface{}) (string, error)
 	Stop(id string) error
+	Delete() error
 }
 
 func (s *StrategyService) get(id string) (*database.Strategy, error) {
@@ -198,5 +199,27 @@ func (s *StrategyService) Stop(id string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func (s *StrategyService) Delete() error {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return err
+	}
+
+	strategies, err := s.List()
+	if err != nil {
+		return err
+	}
+
+	for _, strategy := range strategies {
+		err = db.Delete(strategy.ID)
+		if err != nil {
+			continue
+		}
+	}
+
 	return nil
 }
