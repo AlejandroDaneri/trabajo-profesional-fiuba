@@ -60,45 +60,48 @@ describe("Strategy ", () => {
       },
     }
 
-    // creo strategy 1
+    // creates strategy 1
     cy.request({
       method: "POST",
       url: "/api/strategy",
       body: strategy_1,
     }).then((response) => {
       expect(response.status).to.eq(200)
-      // creo trade 1
+      // creates trade 1
       cy.request({
         method: "POST",
         url: "/api/trade",
         body: trade,
-      }).then((response) => {
-        // creo trade 2
+      }).then((_) => {
+        // creates trade 2
         cy.request({
           method: "POST",
           url: "/api/trade",
           body: trade,
         }).then((response) => {
-          // cierro la estrategia
-          // creo la estrategia 2
+          const strategyID = response.data
           cy.request({
-            method: "POST",
-            url: "/api/strategy",
-            body: strategy_2,
-          }).then((response) => {
-            // creo trade 1
+            method: "PUT",
+            url: `/api/strategy/stop/${strategyID}`,
+          }).then((_) => {
+            // creates estrategia 2
             cy.request({
               method: "POST",
-              url: "/api/trade",
-              body: trade,
-            }).then((response) => {
-              // creo trade 2
+              url: "/api/strategy",
+              body: strategy_2,
+            }).then((_) => {
+              // creates trade 1
               cy.request({
                 method: "POST",
                 url: "/api/trade",
                 body: trade,
-              }).then((response) => {
-                // cierro la estrategia
+              }).then((_) => {
+                // creates trade 2
+                cy.request({
+                  method: "POST",
+                  url: "/api/trade",
+                  body: trade,
+                })
               })
             })
           })
