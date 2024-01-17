@@ -50,7 +50,7 @@ const StrategiesStyle = styled.div`
 
     & .actions {
       display: flex;
-      justify-content: space-center;
+      justify-content: center;
     }
   }
 `
