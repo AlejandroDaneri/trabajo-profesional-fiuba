@@ -12,6 +12,7 @@ import { capitalize } from "../utils/string"
 
 /* Import Components */
 import CurrencyLogo from "../components/CurrencyLogo"
+import Table from "../components/Table"
 
 const StrategiesView = () => {
   const [state, stateFunc] = useState({
@@ -41,6 +42,44 @@ const StrategiesView = () => {
       })
   }, [])
 
+  const headers = [
+    {
+      value: "state",
+      label: "State",
+    },
+    {
+      value: "initial_balance",
+      label: "Initial Balance",
+    },
+    {
+      value: "indicators",
+      label: "Indicators",
+    },
+    {
+      value: "currencies",
+      label: "Currencies",
+    },
+  ]
+
+  const buildRow = (row) => {
+    return [
+      row.state,
+      row.initial_balance,
+      <div className="indicators">
+        {row.indicators.map((indicator) => (
+          <div className="indicator">{indicator.name}</div>
+        ))}
+      </div>,
+      <div className="currencies">
+        {row.currencies.map((currency) => (
+          <div className="currency">
+            <CurrencyLogo currency={currency} />
+          </div>
+        ))}
+      </div>,
+    ]
+  }
+
   return (
     <StrategiesStyle>
       <div className="header">
@@ -48,23 +87,7 @@ const StrategiesView = () => {
       </div>
       <div className="content">
         <div className="strategies">
-          {state.data.map((strategy) => (
-            <div className="strategy">
-              {strategy.state_label}
-              <div className="indicators">
-                {strategy.indicators.map((indicator) => (
-                  <div className="indicator">{indicator.name}</div>
-                ))}
-              </div>
-              <div className="currencies">
-                {strategy.currencies.map((currency) => (
-                  <div className="currency">
-                    <CurrencyLogo currency={currency} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+          <Table headers={headers} data={state.data} buildRow={buildRow} />
         </div>
       </div>
     </StrategiesStyle>

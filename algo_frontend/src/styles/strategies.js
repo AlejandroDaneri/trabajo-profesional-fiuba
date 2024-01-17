@@ -28,25 +28,24 @@ const StrategiesStyle = styled.div`
   & .strategies {
     display: flex;
     flex-direction: column;
+    width: 80%;
 
-    & .strategy {
+    & .indicators {
       display: flex;
-      border: 1px solid white;
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 10px;
+      flex-direction: row;
+      justify-content: center;
 
-      & .indicators {
-        & .indicator {
-          background: white;
-          color: black;
-          padding: 3px;
-        }
+      & .indicator {
+        background: white;
+        color: black;
+        padding: 3px;
       }
+    }
 
-      & .currencies {
-        display: flex;
-      }
+    & .currencies {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
     }
   }
 `
