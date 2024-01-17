@@ -16,13 +16,13 @@ const Table = ({ headers, data, buildRow }) => {
     <TableStyle>
       <thead>
         <tr>
-          {headers.map((header) => (
+          {(headers || []).map((header) => (
             <th>{header.label}</th>
           ))}
         </tr>
       </thead>
       <tbody>
-        {data.map((row) => (
+        {(data || []).map((row) => (
           <tr>
             {buildRow(row).map((field, index) => (
               <td key={index}>{field}</td>
