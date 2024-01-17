@@ -8,3 +8,7 @@ export const get = () => {
 export const list = () => {
   return axios.get(`${getBackend()}/api/strategy`)
 }
+
+export const stop = (id) => {
+  return axios.put(`${getBackend()}/api/strategy/stop/${id}`)
+}

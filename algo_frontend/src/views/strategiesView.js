@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 
 /* Import WebApi */
-import { list } from "../webapi/strategy"
+import { list, stop } from "../webapi/strategy"
 
 /* Import Styles */
 import StrategiesStyle from "../styles/strategies"
@@ -13,6 +13,7 @@ import { capitalize } from "../utils/string"
 /* Import Components */
 import CurrencyLogo from "../components/CurrencyLogo"
 import Table from "../components/Table"
+import Button from "../components/Button"
 
 const StrategiesView = () => {
   const [state, stateFunc] = useState({
@@ -27,7 +28,7 @@ const StrategiesView = () => {
     }))
   }
 
-  useEffect(() => {
+  const list_ = () => {
     list()
       .then((response) => {
         stateFunc({
@@ -40,7 +41,11 @@ const StrategiesView = () => {
           loading: false,
         })
       })
-  }, [])
+  }
+
+  useEffect(() => {
+    list_()
+  }, []) // eslint-disable-line
 
   const headers = [
     {
@@ -65,6 +70,16 @@ const StrategiesView = () => {
     },
   ]
 
+  const onStopStrategy = (strategyId) => {
+    stop(strategyId)
+      .then((_) => {
+        list_()
+      })
+      .catch((_) => {})
+  }
+
+  const onShowTrades = () => {}
+
   const buildRow = (row) => {
     return [
       capitalize(row.state),
@@ -81,7 +96,12 @@ const StrategiesView = () => {
           </div>
         ))}
       </div>,
-      "",
+      <div className="actions">
+        {row.state === "running" && (
+          <Button text="Stop" onClick={() => onStopStrategy(row.id)} />
+        )}
+        <Button text="Trades" onClick={() => onShowTrades(row.id)} />
+      </div>,
     ]
   }
 

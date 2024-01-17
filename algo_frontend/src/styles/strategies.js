@@ -47,6 +47,11 @@ const StrategiesStyle = styled.div`
       flex-direction: row;
       justify-content: center;
     }
+
+    & .actions {
+      display: flex;
+      justify-content: space-center;
+    }
   }
 `
 
