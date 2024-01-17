@@ -1,5 +1,6 @@
 /* Import Libs */
 import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
 
 /* Import WebApi */
 import { list, stop } from "../webapi/strategy"
@@ -14,8 +15,11 @@ import { capitalize } from "../utils/string"
 import CurrencyLogo from "../components/CurrencyLogo"
 import Table from "../components/Table"
 import Button from "../components/Button"
+import { POPUP_ACTION_OPEN, POPUP_TYPE_SUCCESS } from "../components/Popup"
 
 const StrategiesView = () => {
+  const dispatch = useDispatch()
+
   const [state, stateFunc] = useState({
     loading: false,
     data: [],
@@ -73,6 +77,13 @@ const StrategiesView = () => {
   const onStopStrategy = (strategyId) => {
     stop(strategyId)
       .then((_) => {
+        dispatch({
+          type: POPUP_ACTION_OPEN,
+          payload: {
+            type: POPUP_TYPE_SUCCESS,
+            message: "Strategy Stop Success",
+          },
+        })
         list_()
       })
       .catch((_) => {})
