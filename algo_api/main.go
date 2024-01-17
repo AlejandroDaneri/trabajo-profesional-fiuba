@@ -256,6 +256,18 @@ func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
+
+	bytes, err := json.Marshal(id)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
 }
 
 func ListStrategy(w http.ResponseWriter, r *http.Request) {
