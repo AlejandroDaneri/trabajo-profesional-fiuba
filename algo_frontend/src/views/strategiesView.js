@@ -59,11 +59,15 @@ const StrategiesView = () => {
       value: "currencies",
       label: "Currencies",
     },
+    {
+      value: "actions",
+      label: "Actions",
+    },
   ]
 
   const buildRow = (row) => {
     return [
-      row.state,
+      capitalize(row.state),
       row.initial_balance,
       <div className="indicators">
         {row.indicators.map((indicator) => (
@@ -77,6 +81,7 @@ const StrategiesView = () => {
           </div>
         ))}
       </div>,
+      "",
     ]
   }
 

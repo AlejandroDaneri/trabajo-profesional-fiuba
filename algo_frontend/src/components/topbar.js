@@ -57,16 +57,6 @@ const Topbar = () => {
           <FaExchangeAlt className="nav-icon" />
           Strategy
         </button>
-        <button className="nav-button" onClick={() => history.push("/graphs")}>
-          <FaChartLine className="nav-icon" />
-          Graphs
-        </button>
-        <button
-          className="nav-button"
-          onClick={() => console.log("Profile clicked")}
-        >
-          <FaUser className="nav-icon" /> Profile
-        </button>
         <button className="nav-button" onClick={onLogout}>
           <FaSignOutAlt className="nav-icon" /> Logout
         </button>
