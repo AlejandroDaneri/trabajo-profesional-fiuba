@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import Modal from "react-awesome-modal"
+import styled from "styled-components"
 
 /* Import WebApi */
 import { list, stop } from "../webapi/strategy"
@@ -22,6 +23,13 @@ import {
   POPUP_TYPE_ERROR,
   POPUP_TYPE_SUCCESS,
 } from "../components/Popup"
+
+const ModalStyle = styled.div`
+  display: flex;
+  justify-content: center;
+  border: 1px solid white;
+  background: #282c34;
+`
 
 const StrategiesView = () => {
   const dispatch = useDispatch()
@@ -153,7 +161,9 @@ const StrategiesView = () => {
         height="auto"
         effect="fadeInUp"
       >
-        <Trades strategyID={tradesModal.data?.strategyID} />
+        <ModalStyle>
+          <Trades strategyID={tradesModal.data?.strategyID} />
+        </ModalStyle>
       </Modal>
       <StrategiesStyle>
         <div className="header">
