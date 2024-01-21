@@ -3,7 +3,6 @@ import styled from "styled-components"
 export const ResultStyle = styled.div`
   color: ${({ win }) => (win ? "green" : "red")};
   font-weight: 600;
-  width: 40px;
 `
 
 export const TradesStyle = styled.div`

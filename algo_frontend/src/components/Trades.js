@@ -12,6 +12,9 @@ import Table from "./Table"
 /* Import Styles */
 import { ResultStyle } from "../styles/trades"
 
+/* Import Utils */
+import { unixToDate } from "../utils/date"
+
 const TradesStyle = styled.div`
   display: flex;
 `
@@ -22,12 +25,37 @@ const Trades = ({ strategyID }) => {
     data: [],
   })
 
+  const transformToView = (trades) => {
+    return trades.map((trade) => ({
+      ...trade,
+      amount: parseFloat(trade.amount).toFixed(4),
+      orders: {
+        buy: {
+          ...trade.orders.buy,
+          timestamp_label: unixToDate(trade.orders.buy.timestamp),
+        },
+        sell: {
+          ...trade.orders.sell,
+          timestamp_label: unixToDate(trade.orders.sell.timestamp),
+        },
+      },
+      duration:
+        (trade.orders.sell.timestamp / 1000 -
+          trade.orders.buy.timestamp / 1000) /
+        60,
+      pl: (
+        (trade.orders.sell.price / trade.orders.buy.price - 1) *
+        100
+      ).toFixed(3),
+    }))
+  }
+
   useEffect(() => {
     if (strategyID) {
       list(strategyID).then((response) => {
         stateFunc((prevState) => ({
           ...prevState,
-          data: response.data,
+          data: transformToView(response.data),
         }))
       })
     }
