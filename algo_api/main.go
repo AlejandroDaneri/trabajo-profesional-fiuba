@@ -130,7 +130,15 @@ func GetTrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func ListTrades(w http.ResponseWriter, r *http.Request) {
-	trades, err := tradeservice.GetInstance().List()
+	vars := mux.Vars(r)
+	strategyId := vars["strategyId"]
+	logrus.Info(strategyId)
+	if strategyId == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+	trades, err := tradeservice.GetInstance().ListByStrategy(strategyId)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -304,7 +312,7 @@ func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
-	router.HandleFunc("/trade", ListTrades).Methods("GET")
+	router.HandleFunc("/trades/strategy/{strategyId}", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")

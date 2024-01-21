@@ -1,6 +1,7 @@
 /* Import Libs */
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
+import Modal from "react-awesome-modal"
 
 /* Import WebApi */
 import { list, stop } from "../webapi/strategy"
@@ -15,6 +16,7 @@ import { capitalize } from "../utils/string"
 import CurrencyLogo from "../components/CurrencyLogo"
 import Table from "../components/Table"
 import Button from "../components/Button"
+import Trades from "../components/Trades"
 import {
   POPUP_ACTION_OPEN,
   POPUP_TYPE_ERROR,
@@ -27,6 +29,13 @@ const StrategiesView = () => {
   const [state, stateFunc] = useState({
     loading: false,
     data: [],
+  })
+
+  const [tradesModal, tradesModalFunc] = useState({
+    show: false,
+    data: {
+      strategyID: "",
+    },
   })
 
   const transformToView = (data) => {
@@ -101,7 +110,14 @@ const StrategiesView = () => {
       })
   }
 
-  const onShowTrades = () => {}
+  const onShowTrades = (strategyID) => {
+    tradesModalFunc({
+      show: true,
+      data: {
+        strategyID,
+      },
+    })
+  }
 
   const buildRow = (row) => {
     return [
@@ -129,16 +145,27 @@ const StrategiesView = () => {
   }
 
   return (
-    <StrategiesStyle>
-      <div className="header">
-        <h1>Strategies</h1>
-      </div>
-      <div className="content">
-        <div className="strategies">
-          <Table headers={headers} data={state.data} buildRow={buildRow} />
+    <>
+      <Modal
+        visible={tradesModal}
+        onClickAway={() => tradesModalFunc(false)}
+        width="1000"
+        height="auto"
+        effect="fadeInUp"
+      >
+        <Trades strategyID={tradesModal.data?.strategyID} />
+      </Modal>
+      <StrategiesStyle>
+        <div className="header">
+          <h1>Strategies</h1>
         </div>
-      </div>
-    </StrategiesStyle>
+        <div className="content">
+          <div className="strategies">
+            <Table headers={headers} data={state.data} buildRow={buildRow} />
+          </div>
+        </div>
+      </StrategiesStyle>
+    </>
   )
 }
 

@@ -4,6 +4,7 @@ import (
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
 	"encoding/json"
+	"fmt"
 	"sync"
 )
 
@@ -30,7 +31,8 @@ func NewService() IService {
 type IService interface {
 	Create(trade map[string]interface{}, strategyID string) (string, error)
 	Get(id string) (*database.TradeResponseFields, error)
-	List() ([]*database.TradeResponseFields, error)
+	ListAll() ([]*database.TradeResponseFields, error)
+	ListByStrategy(strategyID string) ([]*database.TradeResponseFields, error)
 	Remove() error
 }
 
@@ -74,7 +76,7 @@ func (s *TradeService) Get(id string) (*database.TradeResponseFields, error) {
 	}, nil
 }
 
-func (s *TradeService) List() ([]*database.TradeResponseFields, error) {
+func (s *TradeService) ListAll() ([]*database.TradeResponseFields, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
@@ -111,6 +113,44 @@ func (s *TradeService) List() ([]*database.TradeResponseFields, error) {
 	return trades, nil
 }
 
+func (s *TradeService) ListByStrategy(strategyID string) ([]*database.TradeResponseFields, error) {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return nil, err
+	}
+	q := fmt.Sprintf(`
+	{
+		"selector": {
+			"pvt_type": "trade",
+			"strategy_id": "%s"
+		},
+		"limit": 10000
+	}
+	`, strategyID)
+	docs, err := db.QueryJSON(q)
+	if err != nil {
+		return nil, err
+	}
+	trades := []*database.TradeResponseFields{}
+	for _, doc := range docs {
+		bytes, err := json.Marshal(doc)
+		if err != nil {
+			continue
+		}
+		trade := database.Trade{}
+		err = json.Unmarshal(bytes, &trade)
+		if err != nil {
+			continue
+		}
+		trades = append(trades, &database.TradeResponseFields{
+			TradePublicFields: trade.TradePublicFields,
+			ID:                trade.ID,
+		})
+	}
+	return trades, nil
+}
+
 func (s *TradeService) Remove() error {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
@@ -118,7 +158,7 @@ func (s *TradeService) Remove() error {
 		return err
 	}
 
-	trades, err := s.List()
+	trades, err := s.ListAll()
 	if err != nil {
 		return err
 	}
