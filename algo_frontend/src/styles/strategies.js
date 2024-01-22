@@ -46,6 +46,10 @@ const StrategiesStyle = styled.div`
       display: flex;
       flex-direction: row;
       justify-content: center;
+
+      & .currency {
+        margin-right: 5px;
+      }
     }
 
     & .actions {
