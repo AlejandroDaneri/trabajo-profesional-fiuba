@@ -1,7 +1,7 @@
 /* Import Libs */
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
-import Modal from "react-awesome-modal"
+
 import styled from "styled-components"
 
 /* Import WebApi */
@@ -23,6 +23,7 @@ import {
   POPUP_TYPE_ERROR,
   POPUP_TYPE_SUCCESS,
 } from "../components/Popup"
+import Modal from "../components/reusables/Modal"
 
 const ModalStyle = styled.div`
   display: flex;
@@ -119,12 +120,12 @@ const StrategiesView = () => {
   }
 
   const onShowTrades = (strategyID) => {
-    tradesModalFunc({
-      show: true,
+    tradesModalFunc((prevState) => ({
+      show: !prevState.show,
       data: {
         strategyID,
       },
-    })
+    }))
   }
 
   const buildRow = (row) => {
@@ -155,16 +156,11 @@ const StrategiesView = () => {
   return (
     <>
       <Modal
-        visible={tradesModal}
-        onClickAway={() => tradesModalFunc(false)}
-        width="1000"
-        height="auto"
-        effect="fadeInUp"
-      >
-        <ModalStyle>
-          <Trades strategyID={tradesModal.data?.strategyID} />
-        </ModalStyle>
-      </Modal>
+        title="Trades"
+        content={<Trades strategyID={tradesModal.data?.strategyID} />}
+        open={tradesModal.show}
+        onToggleOpen={onShowTrades}
+      />
       <StrategiesStyle>
         <div className="header">
           <h1>Strategies</h1>
