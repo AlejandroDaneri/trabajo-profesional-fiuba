@@ -24,11 +24,11 @@ const CurrencyLogo = ({ currency }) => {
       {(() => {
         switch (currency) {
           case "BTC":
-            return <img src={btc} alt="logo" />
+            return <img src={btc} title={currency} alt="logo" />
           case "SOL":
-            return <img src={sol} alt="logo" />
+            return <img src={sol} title={currency} alt="logo" />
           case "ETH":
-            return <img src={eth} alt="logo" />
+            return <img src={eth} title={currency} alt="logo" />
           default:
             return <></>
         }
