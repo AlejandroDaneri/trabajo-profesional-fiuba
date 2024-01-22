@@ -1,11 +1,6 @@
 /* Import Libs */
 import { useHistory } from "react-router-dom"
-import {
-  FaChartLine,
-  FaExchangeAlt,
-  FaSignOutAlt,
-  FaUser,
-} from "react-icons/fa"
+import { FaExchangeAlt, FaSignOutAlt } from "react-icons/fa"
 import { useRecoilState } from "recoil"
 
 /* Import Styles */
@@ -19,6 +14,7 @@ import { userState } from "../atoms/atoms"
 const Topbar = () => {
   const history = useHistory()
 
+  // eslint-disable-next-line
   const [user, setUser] = useRecoilState(userState)
 
   const onLogout = () => {
