@@ -4,10 +4,14 @@ const TableStyle = styled.table`
   & th {
     border: 1px solid white;
     text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   & td {
     border: 1px solid white;
     text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
   }
 `
 
