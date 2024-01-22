@@ -2,60 +2,35 @@ import styled from "styled-components"
 
 const StrategiesStyle = styled.div`
   display: flex;
+  align-items: center;
   flex-direction: column;
-  justify-content: space-between;
-  width: 100%;
-  height: 100%;
+  width: 80%;
 
-  & .header {
+  & .indicators {
     display: flex;
-    align-items: center;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 80px;
-    border-top: 2px solid white;
-    border-bottom: 2px solid white;
+    flex-direction: row;
+    justify-content: center;
 
-    & h1 {
-      margin: 0;
-      padding: 0;
-      font-weight: 600;
-      margin-left: 20px;
+    & .indicator {
+      background: white;
+      color: black;
+      padding: 3px;
     }
   }
 
-  & .strategies {
+  & .currencies {
     display: flex;
-    flex-direction: column;
-    width: 80%;
+    flex-direction: row;
+    justify-content: center;
 
-    & .indicators {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-
-      & .indicator {
-        background: white;
-        color: black;
-        padding: 3px;
-      }
+    & .currency {
+      margin-right: 5px;
     }
+  }
 
-    & .currencies {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-
-      & .currency {
-        margin-right: 5px;
-      }
-    }
-
-    & .actions {
-      display: flex;
-      justify-content: center;
-    }
+  & .actions {
+    display: flex;
+    justify-content: center;
   }
 `
 

@@ -5,8 +5,8 @@ import { Route } from "react-router-dom"
 import Topbar from "../components/topbar"
 
 /* Import Views */
-import TradesView from "./tradesView"
-import StrategiesView from "./strategiesView"
+import CurrentStrategy from "./CurrentStrategy"
+import Strategies from "./Strategies"
 import StrategyView from "./strategyView"
 
 const HomeView = () => {
@@ -14,8 +14,8 @@ const HomeView = () => {
     <>
       <Topbar />
       <div className="content">
-        <Route exact path="/home/trades" component={TradesView} />
-        <Route exact path="/home/strategies" component={StrategiesView} />
+        <Route exact path="/home/trades" component={CurrentStrategy} />
+        <Route exact path="/home/strategies" component={Strategies} />
         <Route exact path="/home/strategy" component={StrategyView} />
       </div>
     </>

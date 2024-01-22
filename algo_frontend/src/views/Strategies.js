@@ -2,13 +2,11 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
-import styled from "styled-components"
-
 /* Import WebApi */
 import { list, stop } from "../webapi/strategy"
 
 /* Import Styles */
-import StrategiesStyle from "../styles/strategies"
+import StrategiesStyle from "../styles/Strategies"
 
 /* Import Utils */
 import { capitalize } from "../utils/string"
@@ -24,15 +22,9 @@ import {
   POPUP_TYPE_SUCCESS,
 } from "../components/Popup"
 import Modal from "../components/reusables/Modal"
+import View from "../components/reusables/View"
 
-const ModalStyle = styled.div`
-  display: flex;
-  justify-content: center;
-  border: 1px solid white;
-  background: #282c34;
-`
-
-const StrategiesView = () => {
+const Strategies = () => {
   const dispatch = useDispatch()
 
   const [state, stateFunc] = useState({
@@ -81,6 +73,10 @@ const StrategiesView = () => {
     {
       value: "initial_balance",
       label: "Initial Balance",
+    },
+    {
+      value: "balance",
+      label: "Balance",
     },
     {
       value: "indicators",
@@ -132,6 +128,7 @@ const StrategiesView = () => {
     return [
       capitalize(row.state),
       row.initial_balance,
+      row.current_balance,
       <div className="indicators">
         {row.indicators.map((indicator) => (
           <div className="indicator">{indicator.name}</div>
@@ -161,18 +158,16 @@ const StrategiesView = () => {
         open={tradesModal.show}
         onToggleOpen={onShowTrades}
       />
-      <StrategiesStyle>
-        <div className="header">
-          <h1>Strategies</h1>
-        </div>
-        <div className="content">
-          <div className="strategies">
+      <View
+        title="Strategies"
+        content={
+          <StrategiesStyle>
             <Table headers={headers} data={state.data} buildRow={buildRow} />
-          </div>
-        </div>
-      </StrategiesStyle>
+          </StrategiesStyle>
+        }
+      />
     </>
   )
 }
 
-export default StrategiesView
+export default Strategies

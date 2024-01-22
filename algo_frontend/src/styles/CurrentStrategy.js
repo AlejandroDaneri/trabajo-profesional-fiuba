@@ -5,14 +5,7 @@ export const ResultStyle = styled.div`
   font-weight: 600;
 `
 
-export const TradesStyle = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  height: 600px;
-  justify-content: space-around;
-  width: 100%;
-
+export const CurrentStrategyStyle = styled.div`
   & .summary {
     display: flex;
     flex-direction: row;

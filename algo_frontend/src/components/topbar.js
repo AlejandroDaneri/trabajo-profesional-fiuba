@@ -41,7 +41,7 @@ const Topbar = () => {
           onClick={() => history.push("/home/trades")}
         >
           <FaExchangeAlt className="nav-icon" />
-          Trades
+          Current Strategy
         </button>
         <button
           className="nav-button"

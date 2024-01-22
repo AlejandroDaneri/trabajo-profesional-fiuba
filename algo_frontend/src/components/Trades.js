@@ -10,7 +10,7 @@ import CurrencyLogo from "./CurrencyLogo"
 import Table from "./Table"
 
 /* Import Styles */
-import { ResultStyle } from "../styles/trades"
+import { ResultStyle } from "../styles/CurrentStrategy"
 
 /* Import Utils */
 import { unixToDate } from "../utils/date"
