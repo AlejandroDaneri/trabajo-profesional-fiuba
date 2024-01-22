@@ -13,13 +13,14 @@ const ModalStyle = styled.div`
     border-bottom: 1px solid white;
     font-size: 18px;
     font-weight: 600;
-    padding-left: 20px;
+    padding-left: 10px;
   }
 
   & .modal-body {
+    display: flex;
+    justify-content: center;
     background: #282c34;
     width: 100%;
-    height: 360px;
   }
 `
 
@@ -29,7 +30,6 @@ const Modal = ({ open, onToggleOpen, title, content }) => {
       visible={open}
       onClickAway={onToggleOpen}
       width="1000"
-      height="400"
       effect="fadeInUp"
     >
       <ModalStyle>

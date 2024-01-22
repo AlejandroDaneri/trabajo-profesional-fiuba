@@ -7,6 +7,10 @@ import sol from "../images/logos/sol.png"
 import eth from "../images/logos/eth.png"
 
 const CurrencyLogoStyle = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   & img {
     width: 24px;
     height: 24px;
