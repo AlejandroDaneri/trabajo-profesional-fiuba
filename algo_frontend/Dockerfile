@@ -7,7 +7,7 @@ COPY package.json ./
 COPY package-lock.json ./
 RUN npm install react-scripts@3.4.1 -g --silent
 COPY . ./
-RUN npm install
+RUN yarn
 RUN npm run build
 
 # Stage 2. Based on Nginx, to have only the compiled app, ready for production with Nginx

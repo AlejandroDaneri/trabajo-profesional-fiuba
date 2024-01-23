@@ -7,7 +7,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Instalar dependencias solo para desarrollo
-RUN npm install
+RUN yarn
 
 # Construir la aplicación React en modo desarrollo
 CMD ["npm", "start"]
