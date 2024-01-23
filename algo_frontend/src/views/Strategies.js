@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux"
 import { list, stop } from "../webapi/strategy"
 
 /* Import Styles */
-import StrategiesStyle from "../styles/Strategies"
+import StrategiesStyle from "../styles/strategies"
 
 /* Import Utils */
 import { capitalize } from "../utils/string"
