@@ -16,7 +16,10 @@ def main():
 
     currencies = strategy["currencies"]
     indicators = strategy["indicators"]
-    initial_balance = strategy["initial_balance"]
+    initial_balance = float(strategy["initial_balance"])
+    current_balance = initial_balance
+    if strategy["current_balance"] is not None:
+        current_balance = float(strategy["current_balance"])
     timeframe = strategy["timeframe"]
 
     provider = Binance()
