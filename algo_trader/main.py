@@ -6,12 +6,11 @@ from lib.providers.binance import Binance
 from utils import hydrate_strategy
 from api_client import ApiClient
 import time
-import requests
 
 api = ApiClient()
 
 def main():
-    response = api.get('api/strategy')
+    response = api.get('api/strategy/running')
     strategy = response.json()
     print(strategy)
 
