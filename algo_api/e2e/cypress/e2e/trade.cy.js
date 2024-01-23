@@ -1,4 +1,4 @@
-describe("Get ", () => {
+describe("Trade ", () => {
   it("Should get trade after create it", () => {
     const trade = {
       pair: "BTC/USDT",
