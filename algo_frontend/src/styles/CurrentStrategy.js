@@ -3,25 +3,9 @@ import styled from "styled-components"
 export const ResultStyle = styled.div`
   color: ${({ win }) => (win ? "green" : "red")};
   font-weight: 600;
-  width: 40px;
 `
 
-export const TradesStyle = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  height: 600px;
-  justify-content: space-around;
-  width: 100%;
-
-  & img {
-    border-radius: 30px;
-  }
-
-  & p {
-    color: white;
-  }
-
+export const CurrentStrategyStyle = styled.div`
   & .summary {
     display: flex;
     flex-direction: row;
@@ -32,7 +16,6 @@ export const TradesStyle = styled.div`
       display: flex;
       flex-direction: column;
       border: 1px solid white;
-      border-radius: 10px;
       padding: 10px;
 
       & .label {
@@ -63,17 +46,6 @@ export const TradesStyle = styled.div`
     }
 
     & .row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: space-between;
-      border: 1px solid white;
-      height: 40px;
-      margin: 5px;
-      border-radius: 10px;
-      padding-left: 10px;
-      padding-right: 10px;
-
       & .column {
         display: flex;
         width: calc(100% / 7);

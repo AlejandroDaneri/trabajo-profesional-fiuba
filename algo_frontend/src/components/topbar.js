@@ -1,12 +1,8 @@
 /* Import Libs */
 import { useHistory } from "react-router-dom"
-import {
-  FaChartLine,
-  FaExchangeAlt,
-  FaSignOutAlt,
-  FaUser,
-} from "react-icons/fa"
 import { useRecoilState } from "recoil"
+import styled from "styled-components"
+import { useLocation } from "react-router-dom"
 
 /* Import Styles */
 import TopbarStyle from "../styles/topbar"
@@ -16,9 +12,41 @@ import logo from "../images/bitcoin.png"
 
 import { userState } from "../atoms/atoms"
 
+const ButtonMenuStyle = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${({ selected }) => (selected ? "#F7931A" : "black")};
+  cursor: pointer;
+  transition: color 0.3s;
+  height: 100%;
+  width: 200px;
+  border: none;
+
+  & p {
+    font-size: 16px;
+    font-weight: 600;
+    color: ${({ selected }) => (selected ? "#000000" : "#ffffff")};
+  }
+`
+
+const ButtonMenu = ({ route, title }) => {
+  const history = useHistory()
+  const location = useLocation()
+  return (
+    <ButtonMenuStyle
+      onClick={() => history.push(route)}
+      selected={location.pathname === route}
+    >
+      <p>{title}</p>
+    </ButtonMenuStyle>
+  )
+}
+
 const Topbar = () => {
   const history = useHistory()
 
+  // eslint-disable-next-line
   const [user, setUser] = useRecoilState(userState)
 
   const onLogout = () => {
@@ -36,33 +64,8 @@ const Topbar = () => {
         <p>SatoshiBOT.tech</p>
       </div>
       <div className="nav-links">
-        <button
-          className="nav-button"
-          onClick={() => history.push("/home/trades")}
-        >
-          <FaExchangeAlt className="nav-icon" />
-          Trades
-        </button>
-        <button
-          className="nav-button"
-          onClick={() => history.push("/home/strategy")}
-        >
-          <FaExchangeAlt className="nav-icon" />
-          Strategy
-        </button>
-        <button className="nav-button" onClick={() => history.push("/graphs")}>
-          <FaChartLine className="nav-icon" />
-          Graphs
-        </button>
-        <button
-          className="nav-button"
-          onClick={() => console.log("Profile clicked")}
-        >
-          <FaUser className="nav-icon" /> Profile
-        </button>
-        <button className="nav-button" onClick={onLogout}>
-          <FaSignOutAlt className="nav-icon" /> Logout
-        </button>
+        <ButtonMenu route="/home/trades" title="Current Strategy" />
+        <ButtonMenu route="/home/strategies" title="Strategies" />
       </div>
     </TopbarStyle>
   )

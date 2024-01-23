@@ -6,6 +6,6 @@ export const getBackend = () => {
     : "https://api.satoshibot.tech"
 }
 
-export const list = () => {
-  return axios.get(`${getBackend()}/api/trade`)
+export const list = (strategyID) => {
+  return axios.get(`${getBackend()}/api/trades/strategy/${strategyID}`)
 }

@@ -1,15 +1,20 @@
+/* Import Libs */
 import { Route } from "react-router-dom"
+
+/* Import Components */
 import Topbar from "../components/topbar"
-import TradesView from "./tradesView"
-import StrategyView from "./strategyView"
+
+/* Import Views */
+import CurrentStrategy from "./CurrentStrategy"
+import Strategies from "./Strategies"
 
 const HomeView = () => {
   return (
     <>
       <Topbar />
       <div className="content">
-        <Route exact path="/home/trades" component={TradesView} />
-        <Route exact path="/home/strategy" component={StrategyView} />
+        <Route exact path="/home/trades" component={CurrentStrategy} />
+        <Route exact path="/home/strategies" component={Strategies} />
       </div>
     </>
   )

@@ -43,25 +43,7 @@ const TopbarStyle = styled.div`
 
   & .nav-links {
     display: flex;
-  }
-
-  & .nav-button {
-    background-color: transparent;
-    border: none;
-    cursor: pointer;
-    margin-right: 20px;
-    transition: color 0.3s;
-    font-size: 1rem;
-  }
-
-  & .nav-button:hover {
-  }
-
-  & .nav-button svg {
-    margin-right: 8px;
-  }
-
-  & .nav-button svg:hover {
+    height: 100%;
   }
 `
 
