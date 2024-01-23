@@ -23,6 +23,9 @@ import {
 } from "../components/Popup"
 import Modal from "../components/reusables/Modal"
 import View from "../components/reusables/View"
+import FlotantBox, {
+  FlotantBoxProvider,
+} from "../components/reusables/FlotantBox"
 
 const Strategies = () => {
   const dispatch = useDispatch()
@@ -130,9 +133,31 @@ const Strategies = () => {
       row.initial_balance,
       row.current_balance,
       <div className="indicators">
-        {row.indicators.map((indicator) => (
-          <div className="indicator">{indicator.name}</div>
-        ))}
+        <FlotantBoxProvider>
+          {row.indicators.map((indicator) => (
+            <>
+              <FlotantBox
+                button={
+                  <div className="indicator-button">{indicator.name}</div>
+                }
+                content={
+                  <div className="indicator-content">
+                    <div className="indicator">
+                      <div className="parameters">
+                        {Object.keys(indicator.parameters).map((parameter) => (
+                          <div className="parameter">
+                            <>{parameter}: </>
+                            <>{indicator.parameters[parameter]}</>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                }
+              />
+            </>
+          ))}
+        </FlotantBoxProvider>
       </div>,
       <div className="currencies">
         {row.currencies.map((currency) => (

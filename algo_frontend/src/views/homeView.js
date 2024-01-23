@@ -7,7 +7,6 @@ import Topbar from "../components/topbar"
 /* Import Views */
 import CurrentStrategy from "./CurrentStrategy"
 import Strategies from "./Strategies"
-import StrategyView from "./strategyView"
 
 const HomeView = () => {
   return (
@@ -16,7 +15,6 @@ const HomeView = () => {
       <div className="content">
         <Route exact path="/home/trades" component={CurrentStrategy} />
         <Route exact path="/home/strategies" component={Strategies} />
-        <Route exact path="/home/strategy" component={StrategyView} />
       </div>
     </>
   )

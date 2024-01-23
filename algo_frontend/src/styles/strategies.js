@@ -6,15 +6,26 @@ const StrategiesStyle = styled.div`
   flex-direction: column;
   width: 80%;
 
+  & .indicator-content {
+    width: 200px;
+    background: #282c34;
+
+    & .parameter {
+      display: flex;
+      border-bottom: 1px solid white;
+    }
+  }
+
   & .indicators {
     display: flex;
     flex-direction: row;
     justify-content: center;
 
-    & .indicator {
+    & .indicator-button {
       background: white;
-      color: black;
+      color: #282c34;
       padding: 3px;
+      cursor: pointer;
     }
   }
 
