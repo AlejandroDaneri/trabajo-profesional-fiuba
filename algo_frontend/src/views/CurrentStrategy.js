@@ -74,6 +74,7 @@ const CurrentStrategy = () => {
       title="Current Strategy"
       content={
         <CurrentStrategyStyle>
+          <h2>Summary</h2>
           <div className="summary">
             <div className="box">
               <div className="label">Initial Balance</div>
@@ -88,6 +89,7 @@ const CurrentStrategy = () => {
               <div className="value">{strategy.data.profit_and_loss_label}</div>
             </div>
           </div>
+          <h2>Trades</h2>
           <Trades strategyID={strategy.data.id} />
         </CurrentStrategyStyle>
       }

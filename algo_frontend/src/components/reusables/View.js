@@ -16,6 +16,7 @@ const ViewStyle = styled.div`
     height: 80px;
     border-top: 2px solid white;
     border-bottom: 2px solid white;
+    background: #2d2d2d;
 
     & h1 {
       margin: 0;

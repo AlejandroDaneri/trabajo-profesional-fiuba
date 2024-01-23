@@ -16,7 +16,6 @@ export const CurrentStrategyStyle = styled.div`
       display: flex;
       flex-direction: column;
       border: 1px solid white;
-      border-radius: 10px;
       padding: 10px;
 
       & .label {
