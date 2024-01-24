@@ -29,7 +29,7 @@ const Modal = ({ open, onToggleOpen, title, content }) => {
     <ReactAwesomeModal
       visible={open}
       onClickAway={onToggleOpen}
-      width="1000"
+      width="90%"
       effect="fadeInUp"
     >
       <ModalStyle>

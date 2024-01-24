@@ -6,62 +6,38 @@ export const ResultStyle = styled.div`
 `
 
 export const CurrentStrategyStyle = styled.div`
+  height: 100%;
+  width: 90%;
+
   & .summary {
-    display: flex;
-    flex-direction: row;
-    width: 50%;
-    justify-content: space-around;
+    height: 120px;
+    width: 100%;
 
-    & .box {
+    & .summary-content {
       display: flex;
-      flex-direction: column;
-      border: 1px solid white;
-      padding: 10px;
-
-      & .label {
-        color: #a5a8b6;
-      }
-
-      & .value {
-        font-weight: 800;
+      flex-direction: row;
+      width: 50%;
+      justify-content: space-around;
+  
+      & .box {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid white;
+        padding: 10px;
+  
+        & .label {
+          color: #a5a8b6;
+        }
+  
+        & .value {
+          font-weight: 800;
+        }
       }
     }
   }
 
   & .trades {
-    overflow-y: scroll;
-    width: 80%;
-
-    &::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    &::-webkit-scrollbar-track {
-      box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background-color: darkgrey;
-      outline: 1px solid slategrey;
-    }
-
-    & .row {
-      & .column {
-        display: flex;
-        width: calc(100% / 7);
-
-        & .coin {
-          display: flex;
-          align-items: center;
-          justify-content: space-around;
-
-          & img {
-            width: 24px;
-            height: 24px;
-            margin-right: 5px;
-          }
-        }
-      }
-    }
+    height: calc(100% - 120px - 80px);
+    width: 100%;
   }
 `
