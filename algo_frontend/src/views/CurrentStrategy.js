@@ -74,23 +74,27 @@ const CurrentStrategy = () => {
       title="Current Strategy"
       content={
         <CurrentStrategyStyle>
-          <h2>Summary</h2>
           <div className="summary">
-            <div className="box">
-              <div className="label">Initial Balance</div>
-              <div className="value">{strategy.data.initial_balance}</div>
-            </div>
-            <div className="box">
-              <div className="label">Current Balance</div>
-              <div className="value">{strategy.data.current_balance}</div>
-            </div>
-            <div className="box">
-              <div className="label">Profit/Loss</div>
-              <div className="value">{strategy.data.profit_and_loss_label}</div>
+            <h2>Summary</h2>
+            <div className="summary-content">
+              <div className="box">
+                <div className="label">Initial Balance</div>
+                <div className="value">{strategy.data.initial_balance}</div>
+              </div>
+              <div className="box">
+                <div className="label">Current Balance</div>
+                <div className="value">{strategy.data.current_balance}</div>
+              </div>
+              <div className="box">
+                <div className="label">Profit/Loss</div>
+                <div className="value">{strategy.data.profit_and_loss_label}</div>
+              </div>
             </div>
           </div>
-          <h2>Trades</h2>
-          <Trades strategyID={strategy.data.id} />
+          <div className="trades">
+            <h2>Trades</h2>
+            <Trades strategyID={strategy.data.id} />
+          </div>
         </CurrentStrategyStyle>
       }
     />

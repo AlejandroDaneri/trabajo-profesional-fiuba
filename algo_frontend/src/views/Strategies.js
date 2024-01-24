@@ -179,7 +179,9 @@ const Strategies = () => {
     <>
       <Modal
         title="Trades"
-        content={<Trades strategyID={tradesModal.data?.strategyID} />}
+        content={
+          <Trades strategyID={tradesModal.data?.strategyID} />
+        }
         open={tradesModal.show}
         onToggleOpen={onShowTrades}
       />
