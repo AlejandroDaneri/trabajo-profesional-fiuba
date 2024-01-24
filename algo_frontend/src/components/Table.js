@@ -1,8 +1,23 @@
+import { useState } from "react";
 import styled from "styled-components"
 
 const TableWrapper = styled.div`
-  height: 300px;
+  height: calc(100vh - ${({top}) => top}px);
   overflow-y: scroll;
+  width: 100%;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+  }
 `;
 
 const TableStyle = styled.table`
@@ -24,8 +39,10 @@ const TableStyle = styled.table`
 `;
 
 const Table = ({ headers, data, buildRow }) => {
+  const [ref, refState] = useState()
+
   return (
-    <TableWrapper>
+    <TableWrapper ref={ref => refState(ref)} top={ref?.getBoundingClientRect()?.top}>
       <TableStyle>
         <thead>
           <tr>
