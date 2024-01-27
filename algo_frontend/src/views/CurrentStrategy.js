@@ -13,6 +13,7 @@ import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
 /* Import Components */
 import Trades from "../components/Trades"
 import View from "../components/reusables/View"
+import CurrencyLogo from "../components/CurrencyLogo"
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
@@ -87,7 +88,19 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Profit/Loss</div>
-                <div className="value">{strategy.data.profit_and_loss_label}</div>
+                <div className="value">
+                  {strategy.data.profit_and_loss_label}
+                </div>
+              </div>
+              <div className="box">
+                <div className="label">Currencies</div>
+                <div className="value">
+                  {strategy.data.currencies.map((currency) => (
+                    <div className="currency-wrapper">
+                      <CurrencyLogo currency={currency} />
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
