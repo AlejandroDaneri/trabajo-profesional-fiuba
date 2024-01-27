@@ -18,7 +18,9 @@ import CurrencyLogo from "../components/CurrencyLogo"
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
     loading: true,
-    data: {},
+    data: {
+      currencies: [],
+    },
   })
 
   const getStrategy = () => {
