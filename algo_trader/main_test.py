@@ -9,15 +9,14 @@ api = ApiClient()
 def main():
     api.delete('api/trade')
 
-    response = api.get('api/strategy')
+    response = api.get('api/strategy/running')
     strategy = response.json()
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
-    initial_balance = strategy["initial_balance"]
-    api.put('api/strategy/balance', json={
-        "current_balance": str(initial_balance)
-    })
+    initial_balance = float(strategy["initial_balance"])
+    if strategy["current_balance"] is not None:
+        current_balance = float(strategy["current_balance"])
     timeframe = strategy["timeframe"]
 
     provider = Binance()
