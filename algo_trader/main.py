@@ -13,9 +13,8 @@ def main():
     response = api.get('api/strategy/running')
     strategy = response.json()
     print(strategy)
-
-    currencies = strategy["currencies"]
     indicators = strategy["indicators"]
+    currencies = strategy["currencies"]
     initial_balance = float(strategy["initial_balance"])
     current_balance = initial_balance
     if strategy["current_balance"] is not None:

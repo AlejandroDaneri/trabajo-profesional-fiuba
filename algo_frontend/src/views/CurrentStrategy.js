@@ -25,6 +25,17 @@ const CurrentStrategy = () => {
 
   const getStrategy = () => {
     const transformToView = (data) => {
+      const getDuration = (start) => {
+        const currentTime = Math.floor(Date.now() / 1000)
+
+        const durationInSeconds = currentTime - start
+
+        const days = Math.floor(durationInSeconds / (3600 * 24))
+        const hours = Math.floor((durationInSeconds % (3600 * 24)) / 3600)
+
+        return `${days} days, ${hours} hours`
+      }
+
       const initialBalance = data.initial_balance
       const currentBalance = parseFloat(data.current_balance).toFixed(2)
       const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
@@ -32,6 +43,7 @@ const CurrentStrategy = () => {
         (currentBalance / initialBalance - 1) *
         100
       ).toFixed(2)
+      const duration = getDuration(data.start_timestamp)
 
       return {
         ...data,
@@ -55,6 +67,7 @@ const CurrentStrategy = () => {
             value: indicator.parameters[key],
           })),
         })),
+        duration,
       }
     }
     get()
@@ -103,6 +116,10 @@ const CurrentStrategy = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+              <div className="box">
+                <div className="label">Duration</div>
+                <div>{strategy.data.duration}</div>
               </div>
             </div>
           </div>
