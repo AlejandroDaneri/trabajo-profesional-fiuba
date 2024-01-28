@@ -16,7 +16,7 @@ export const CurrentStrategyStyle = styled.div`
     & .summary-content {
       display: flex;
       flex-direction: row;
-      width: 50%;
+      width: 60%;
       justify-content: space-around;
 
       & .box {
