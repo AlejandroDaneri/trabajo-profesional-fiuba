@@ -43,15 +43,6 @@ select option {
   color: var(--text-dark);
 }
 
-h2 {
-  text-align: center;
-  color: var(--primary-blue);
-  font-size: 36px;
-  margin-bottom: 30px;
-  text-shadow: 2px 2px 4px rgba(var(--primary-blue-rgb), 0.3);
-  animation: titleAnimation 0.8s ease;
-}
-
 @keyframes titleAnimation {
   from {
     opacity: 0;

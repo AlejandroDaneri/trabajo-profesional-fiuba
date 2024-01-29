@@ -1,4 +1,31 @@
-describe("Get ", () => {
+describe("Trade ", () => {
+
+  before(() => {
+    // we need create a strategy before crate trades
+    // since trades created are associated with running strategy
+    const strategy = {
+      indicators: [
+        {
+          name: "rsi",
+          parameters: {
+            buy_threshold: 65,
+            sell_threshold: 55,
+            rounds: 14,
+          },
+        },
+      ],
+      currencies: ["SOL", "BTC"],
+      initial_balance: "1000",
+    }
+      cy.request({
+        method: "POST",
+        url: "/api/strategy",
+        body: strategy,
+      }).then((response) => {
+        expect(response.status).to.eq(200)
+      })
+  })
+
   it("Should get trade after create it", () => {
     const trade = {
       pair: "BTC/USDT",

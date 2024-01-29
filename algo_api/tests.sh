@@ -1,0 +1,1 @@
+cd e2e && npx cypress open
