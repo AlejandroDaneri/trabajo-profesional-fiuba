@@ -6,50 +6,66 @@ import matplotlib.pyplot as plt
 
 
 class OBV(Indicator):
-    def __init__(self, n, buy_threshold, sell_threshold):
-        self.n = n
-        super().__init__("OBV", buy_threshold, sell_threshold)
+    def __init__(self, rounds):
+        self.rounds = rounds
+        super().__init__("OBV")
 
     def calculate(self, data):
+        self.data = data
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
 
-        df["Balance"] = np.where(
-            data.Close > data.Close.shift(),
-            data["Volume"],
-            np.where(data.Close < data.Close.shift(), -data["Volume"], 0),
-        )
-        df[self.name] = df["Balance"].rolling(self.n).sum()
-        self.output = df[self.name]
+        # Copy the 'Close' column from the original data to the new DataFrame
+        df["Close"] = data["Close"]
 
-        return self.output
+        # Calculate the balance volume
+        change = data.Close.diff()
+        df["OBV"] = np.cumsum(np.where(change > 0, data.Volume, np.where(change < 0, -data.Volume, 0)))
+
+        # Calculate the EMA from balance volume
+        df["OBV_EMA"] = df["OBV"].ewm(span=self.rounds, adjust=False).mean()
+
+        self.df_output = df
+        return self.df_output
 
     def calc_buy_signals(self):
-        # Generate buy signals when OBV crosses above the buy threshold
-        return np.where(self.output > self.buy_threshold, True, False)
+        return np.where(
+            (self.df_output.OBV.shift(1) < self.df_output.OBV_EMA.shift(1)) & 
+            (self.df_output.OBV_EMA <= self.df_output.OBV), True, False)
 
     def calc_sell_signals(self):
-        # Generate sell signals when OBV crosses below the sell threshold
-        return np.where(self.output < self.sell_threshold, True, False)
+        return np.where(
+            (self.df_output.OBV_EMA.shift(1) < self.df_output.OBV.shift(1)) & 
+            (self.df_output.OBV <= self.df_output.OBV_EMA), True, False)
 
     def plot(self):
-        data = pd.DataFrame(self.output, index=self.dates)
+        data = pd.DataFrame(self.df_output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data[self.name])
+        plt.plot(data.OBV, color='blue', linewidth=1)
+        plt.plot(data.OBV_EMA, color='green', linewidth=0.5)
         plt.show()
 
     def predict_signal(self, new_record):
         # Calculate OBV for the updated DataFrame
         new_obv = self.calculate(pd.concat([self.data, new_record]))
+        sell_signal = self.calc_sell_signals()[-1]
+        buy_signal = self.calc_buy_signals()[-1]
 
         # Extract the value of OBV for the new record
         new_signal = new_obv.iloc[-1]
 
+        print(f'[OBV] Current OBV value: {new_signal.OBV}')
+        print(f'[OBV] Current OBV_EMA value: {new_signal.OBV_EMA}')
+
         # Trading decisions based on OBV signals
-        if new_signal > self.buy_threshold:
-            return Action.BUY
-        elif new_signal < self.sell_threshold:
-            return Action.SELL
+        if sell_signal == True:
+            signal = Action.SELL
+        elif buy_signal == True:
+            signal = Action.BUY
         else:
-            return Action.HOLD
+            signal = Action.HOLD
+        
+        print(f'[OBV] Signal: {signal}')
+        
+        return signal
