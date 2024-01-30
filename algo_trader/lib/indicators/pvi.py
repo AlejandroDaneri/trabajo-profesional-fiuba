@@ -5,10 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-class NVI(Indicator):
+class PVI(Indicator):
     def __init__(self, rounds):
         self.rounds = rounds
-        super().__init__("NVI")
+        super().__init__("PVI")
 
     def calculate(self, data):
         # Disable SettingWithCopyWarning
@@ -25,40 +25,37 @@ class NVI(Indicator):
         # Copy the 'Volume' column from the original data to the new DataFrame
         df["Volume"] = data["Volume"]
 
-        # Calculate the difference in volume between the current and previous rows
-        df["vol_diff"] = data["Volume"].diff()
+        # Initialize PVI column in zero
+        df["PVI"] = 0.0
 
-        # Initialize NVI column in zero
-        df["NVI"] = 0.0
-
-        # Calculate each NVI value based on its previous NVI value
+        # Calculate each PVI value based on its previous PVI value
         for index in range(len(df)):
             if index > 0:
-                prev_nvi = df.NVI.iloc[index-1]
+                prev_pvi = df.PVI.iloc[index-1]
                 prev_close = df.Close.iloc[index-1]
-                if df.vol_diff.iloc[index] < 0:
-                    nvi = prev_nvi + ( (df.Close.iloc[index] - prev_close) / (prev_close * prev_nvi) )
+                if df.Volume.iloc[index] < df.Volume.iloc[index-1]:
+                    pvi = prev_pvi + (df.Close.iloc[index] - prev_close / prev_close * prev_pvi)
                 else: 
-                    nvi = prev_nvi
+                    pvi = prev_pvi
             else:
-                # Base NVI value is established (1000 is recommended)
-                nvi = 1000
-            df.NVI.iloc[index] = nvi
-        df["NVI_EMA"] = df.NVI.ewm(ignore_na=False, com=self.rounds, adjust=True).mean()
+                # Base PVI value is established (1000 is recommended)
+                pvi = 1000
+            df.PVI.iloc[index] = pvi
+        df["PVI_EMA"] = df.PVI.ewm(ignore_na=False, com=self.rounds, adjust=True).mean()
 
         # Drop innecesary columns
-        df.drop(["Volume"], axis=1, inplace=True)
+        df.drop(["vol_diff"], axis=1, inplace=True)
         
         self.output = df
         return self.output
 
     def calc_buy_signals(self):
-        return np.where((self.output["NVI_EMA"].shift(1) > self.output["NVI"].shift(1)) & 
-                        (self.output["NVI_EMA"] <= self.output["NVI"]), True, False)
+        return np.where((self.output["PVI_EMA"].shift(1) > self.output["PVI"].shift(1)) & 
+                        (self.output["PVI_EMA"] <= self.output["PVI"]), True, False)
     
     def calc_sell_signals(self):
-        return np.where((self.output["NVI_EMA"].shift(1) < self.output["NVI"].shift(1)) & 
-                        (self.output["NVI_EMA"] >= self.output["NVI"]), True, False)
+        return np.where((self.output["PVI_EMA"].shift(1) < self.output["PVI"].shift(1)) & 
+                        (self.output["PVI_EMA"] >= self.output["PVI"]), True, False)
     
     def plot(self):
         data = pd.DataFrame(self.output, index=self.dates)
