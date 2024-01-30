@@ -22,9 +22,6 @@ class NVI(Indicator):
         # Copy the 'Close' column from the original data to the new DataFrame
         df["Close"] = data["Close"]
 
-        # Copy the 'Volume' column from the original data to the new DataFrame
-        df["Volume"] = data["Volume"]
-
         # Calculate the difference in volume between the current and previous rows
         df["vol_diff"] = data["Volume"].diff()
 
@@ -47,7 +44,7 @@ class NVI(Indicator):
         df["NVI_EMA"] = df.NVI.ewm(ignore_na=False, com=self.rounds, adjust=True).mean()
 
         # Drop innecesary columns
-        df.drop(["Volume"], axis=1, inplace=True)
+        df.drop(["vol_diff"], axis=1, inplace=True)
         
         self.output = df
         return self.output
@@ -64,8 +61,9 @@ class NVI(Indicator):
         data = pd.DataFrame(self.output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data["NVI"], color='green', linewidth=2)
-        plt.plot(data["NVI_EMA"], color='red', linewidth=1)
+        plt.plot(data["NVI_EMA"], color='gray', linewidth=1)
+        plt.fill_between(data.index, data["NVI"], data["NVI_EMA"], where=data["NVI"] > data["NVI_EMA"], alpha=0.5, color='green')
+        plt.fill_between(data.index, data["NVI"], data["NVI_EMA"], where=data["NVI"] < data["NVI_EMA"], alpha=0.5, color='red')
         plt.grid()
         plt.show()
 

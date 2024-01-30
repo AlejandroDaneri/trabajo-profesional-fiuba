@@ -22,8 +22,8 @@ class PVI(Indicator):
         # Copy the 'Close' column from the original data to the new DataFrame
         df["Close"] = data["Close"]
 
-        # Copy the 'Volume' column from the original data to the new DataFrame
-        df["Volume"] = data["Volume"]
+        # Calculate the difference in volume between the current and previous rows
+        df["vol_diff"] = data["Volume"].diff()
 
         # Initialize PVI column in zero
         df["PVI"] = 0.0
@@ -33,8 +33,8 @@ class PVI(Indicator):
             if index > 0:
                 prev_pvi = df.PVI.iloc[index-1]
                 prev_close = df.Close.iloc[index-1]
-                if df.Volume.iloc[index] < df.Volume.iloc[index-1]:
-                    pvi = prev_pvi + (df.Close.iloc[index] - prev_close / prev_close * prev_pvi)
+                if df.vol_diff.iloc[index] > 0:
+                    pvi = prev_pvi + ( (df.Close.iloc[index] - prev_close) / (prev_close * prev_pvi) )
                 else: 
                     pvi = prev_pvi
             else:
@@ -61,20 +61,21 @@ class PVI(Indicator):
         data = pd.DataFrame(self.output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data["NVI"], color='green', linewidth=2)
-        plt.plot(data["NVI_EMA"], color='red', linewidth=1)
+        plt.plot(data["PVI_EMA"], color='gray', linewidth=1)
+        plt.fill_between(data.index, data["PVI"], data["PVI_EMA"], where=data["PVI"] > data["PVI_EMA"], alpha=0.5, color='green')
+        plt.fill_between(data.index, data["PVI"], data["PVI_EMA"], where=data["PVI"] < data["PVI_EMA"], alpha=0.5, color='red')
         plt.grid()
         plt.show()
 
     def predict_signal(self, new_record):
-        new_nvi = self.calculate(pd.concat([self.data, new_record]))
+        new_pvi = self.calculate(pd.concat([self.data, new_record]))
         sell_signal = self.calc_sell_signals()[-1]
         buy_signal = self.calc_buy_signals()[-1]
 
-        new_signal = new_nvi.iloc[-1]
+        new_signal = new_pvi.iloc[-1]
 
-        print(f'[NVI] Current nvi value: {new_signal.NVI}')
-        print(f'[NVI] Current nvi_ema value: {new_signal.NVI_EMA}')
+        print(f'[PVI] Current pvi value: {new_signal.PVI}')
+        print(f'[PVI] Current pvi_ema value: {new_signal.PVI_EMA}')
 
         if sell_signal == True:
             signal = Action.SELL
@@ -83,6 +84,6 @@ class PVI(Indicator):
         else:
             signal = Action.HOLD
         
-        print(f'[NVI] Signal: {signal}')
+        print(f'[PVI] Signal: {signal}')
         
         return signal
