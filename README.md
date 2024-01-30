@@ -50,6 +50,10 @@ Volumen
 
 El servicio couchdb proporciona una base de datos NoSQL para almacenar datos necesarios para los algoritmos. Se construye utilizando el servicio CouchDB.
 
+### Telegram
+
+Para conectarse al servicio de alertas de telegram, se debe ingresar al siguiente link [SatoshiFiubaBot](https://t.me/SatoshiFiubaBot) y escribir `/start`. Para renovar las alertas, diariamente, se deberá iniciar la conversación con el bot.
+
 #### Construcción y Ejecución del Servicio
 
 ```bash

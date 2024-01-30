@@ -5,6 +5,7 @@ from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance
 from utils import hydrate_strategy
 from api_client import ApiClient
+from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
 import time
 
 api = ApiClient()
@@ -58,6 +59,27 @@ def main():
                 }
                 print(data)
                 response = api.post('api/trade', json=data)
+
+                trade_details_message = (
+                "Trade Details:\n"
+                "Pair: {}\n"
+                "Amount: {}\n"
+                "Buy Order:\n"
+                "  Price: {}\n"
+                "  Timestamp: {}\n"
+                "Sell Order:\n"
+                "  Price: {}\n"
+                "  Timestamp: {}"
+                ).format(
+                    data['pair'],
+                    data['amount'],
+                    data['buy']['price'],
+                    data['buy']['timestamp'],
+                    data['sell']['price'],
+                    data['sell']['timestamp']
+                )
+
+                notify_telegram_users(trade_details_message)
 
                 current_balance = trade_bot.get_balance()
                 api.put('api/strategy/balance', json={
