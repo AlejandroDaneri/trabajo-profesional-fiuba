@@ -5,6 +5,30 @@ from binance.client import Client as BinanceProvider
 from datetime import date, timedelta
 import os
 
+def cache_get(ticker: str, timeframe: str, day: date):
+    # verify if pair folder exists
+    pair_folder_path = f"lib/providers/data/{ticker}"
+    if os.path.isdir(pair_folder_path) is False:
+        # create pair folder
+        os.makedirs(pair_folder_path)
+
+    if day == date.today():
+        return None
+
+    # try to get from cache
+    try:
+        data = pd.read_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
+        data = data.set_index("Open")
+        return data
+    except:
+        return None
+
+def cache_set(ticker: str, timeframe: str, day: date, data):
+    pair_folder_path = f"lib/providers/data/{ticker}"
+    # store to cache
+    if day != date.today():
+        data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
+
 class Binance:
     def __init__(self):
         api_key = "OF6SkzXI0EAcvmMWlkeUKl6YyxYIFU4pN0Bj19gaVYZcgaTt7OImXxEyvoPcDhmk"
@@ -13,7 +37,6 @@ class Binance:
 
     # ticker: example BTCUSDT
     def get_latest_n(self, ticker: str, timeframe: str, n: int):
-
         if timeframe == "1H":
             # build days list required to get n rows
             days = []
@@ -55,11 +78,16 @@ class Binance:
     # timeframe: example 1H
     # day: example 2023-12-08
     def get_by_day(self, ticker: str, timeframe: str, day: date):
+        data = cache_get(ticker, timeframe, day)
+        if data is not None:
+            return data
+
         timeframes = {
             "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
             "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
             "1D": BinanceProvider.KLINE_INTERVAL_1DAY
         }
+
         start = str(day)
         end = str(day + timedelta(days=1))
         start_ = datetime.strptime(start, '%Y-%m-%d')
@@ -73,15 +101,7 @@ class Binance:
         data = data.set_index("Open")
         data = data[:-1]
 
-        # verify if pair folder exists
-        pair_folder_path = f"lib/providers/data/{ticker}"
-        if os.path.isdir(pair_folder_path) is False:
-            # create pair folder
-            os.makedirs(pair_folder_path)
-
-        # store to cache
-        if day != date.today():
-            data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv', index=False)
+        cache_set(ticker, timeframe, day, data)
 
         return data
 
