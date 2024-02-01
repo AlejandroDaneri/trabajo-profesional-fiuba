@@ -14,12 +14,6 @@ class Binance:
     # ticker: example BTCUSDT
     def get_latest_n(self, ticker: str, timeframe: str, n: int):
 
-        # verify if pair folder exists
-        pair_folder_path = f"lib/providers/data/{ticker}"
-        if os.path.isdir(pair_folder_path) is False:
-            # create pair folder
-            os.makedirs(pair_folder_path)
-
         if timeframe == "1H":
             # build days list required to get n rows
             days = []
@@ -29,16 +23,12 @@ class Binance:
 
             data = None
             for day in days:
-                # voy a buscar al archivo, sino esta voy a binance
-                filepath = f"{pair_folder_path}/{ticker}__{day}__{timeframe}"
-                if os.path.isfile(filepath):
-                    print("El archivo existe.")
+                data_day = self.get_by_day(ticker, timeframe, day)
+
+                if data is None:
+                    data = data_day
                 else:
-                    data_day = self.get_by_day(ticker, timeframe, day)
-                    if data is None:
-                        data = data_day
-                    else:
-                        data = pd.concat([data, data_day])
+                    data = pd.concat([data, data_day])
 
         to_delete = len(data) - n
         return data.iloc[:-to_delete, :]
@@ -82,5 +72,16 @@ class Binance:
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Open")
         data = data[:-1]
+
+        # verify if pair folder exists
+        pair_folder_path = f"lib/providers/data/{ticker}"
+        if os.path.isdir(pair_folder_path) is False:
+            # create pair folder
+            os.makedirs(pair_folder_path)
+
+        # store to cache
+        if day is not date.today():
+            data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv', index=False)
+
         return data
 
