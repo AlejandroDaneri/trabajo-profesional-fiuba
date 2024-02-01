@@ -33,16 +33,16 @@ class KONCORDE(Indicator):
         mfi_values = mfi.calculate(data)
 
         # Calculate Bollinger Bands oscilator
-        boll_osc = self.calc_bbands_osc(typical_price, 25)
+        boll_osc = self.calc_bbands_osc(typical_price, 25, 2.0)
 
         # Calculate the rsi based in TP value
         rsi_values = self.calc_rsi(typical_price, 14)
 
         # Calculate values
-        df["BIG_HANDS"] = self.calc_nvi(data, 15)
-        df["BROWN_INDEX"] = (rsi_values + mfi_values + boll_osc + (storch / 3)) / 2
-        df["SMALL_HANDS"] = (df["BROWN_INDEX"] + self.calc_pvi(data, 15))
-        df["AVG_INDEX"] = df["BROWN_INDEX"].ewm(span=15, adjust=False).mean()
+        df["BIG_HANDS"] = self.calc_nvi(data, self.rounds)
+        df["TREND"] = (rsi_values + mfi_values + boll_osc + (storch / 3)) / 2
+        df["SMALL_HANDS"] = (df["TREND"] + self.calc_pvi(data, self.rounds))
+        df["TREND_AVG"] = df["TREND"].ewm(span=self.rounds, adjust=False).mean()
 
         self.output = df
         return self.output
@@ -59,11 +59,11 @@ class KONCORDE(Indicator):
         pvi_values = pvi.calculate(data).PVI
         return self.calc_volume_index(pvi_values, rounds, 90)
 
-    def calc_volume_index(self, vi, mean_rounds, length):
-        vi_mean = vi.ewm(span=mean_rounds, adjust=False).mean()
-        vi_max = vi_mean.rolling(window=length).max()
-        vi_min = vi_mean.rolling(window=length).min()
-        return (vi - vi_mean) * 100 / (vi_max - vi_min)
+    def calc_volume_index(self, vi, avg_rounds, length):
+        vi_avg = vi.ewm(span=avg_rounds, adjust=False).mean()
+        vi_max = vi_avg.rolling(window=length).max()
+        vi_min = vi_avg.rolling(window=length).min()
+        return (vi - vi_avg) * 100 / (vi_max - vi_min)
     
     # Calculate Stochastic indicator
     def calc_stoch(self, src, data, length, smoothFastD):
@@ -79,21 +79,21 @@ class KONCORDE(Indicator):
         return rsi.calculate(df)
     
     # Calculate Bollinger Bands oscilator
-    def calc_bbands_osc(self, src, rounds):
-        bbands = BBANDS(rounds, 2.0)
+    def calc_bbands_osc(self, src, rounds, factor):
+        bbands = BBANDS(rounds, factor)
         df = pd.DataFrame(src, columns = ['Close'])
         df_bbands = bbands.calculate(df)
-        ob1 = (df_bbands["UpperBand"] + df_bbands["LowerBand"]) / 2.0
+        ob1 = (df_bbands["UpperBand"] + df_bbands["LowerBand"]) / factor
         ob2 = df_bbands["UpperBand"] - df_bbands["LowerBand"]
         return ((src - ob1) / ob2) * 100
 
     def calc_buy_signals(self):
-        return np.where((self.output.BROWN_INDEX.shift(1) < self.output.AVG_INDEX.shift(1)) 
-                        & (self.output.AVG_INDEX <= self.output.BROWN_INDEX), True, False)
+        return np.where((self.output.TREND.shift(1) < self.output.TREND_AVG.shift(1)) 
+                        & (self.output.TREND_AVG <= self.output.TREND), True, False)
     
     def calc_sell_signals(self):
-        return np.where((self.output.BROWN_INDEX.shift(1) > self.output.AVG_INDEX.shift(1)) 
-                        & (self.output.AVG_INDEX >= self.output.BROWN_INDEX), True, False)
+        return np.where((self.output.TREND.shift(1) > self.output.TREND_AVG.shift(1)) 
+                        & (self.output.TREND_AVG >= self.output.TREND), True, False)
     
     def plot(self):
         data = pd.DataFrame(self.output, index= self.dates)
@@ -101,9 +101,9 @@ class KONCORDE(Indicator):
         fig.set_size_inches(30, 5)
         plt.axhline(0, linestyle='--', linewidth=1.5, color='black')
         plt.fill_between(data.index, data["SMALL_HANDS"], 0, where=data["SMALL_HANDS"], alpha=0.5, color='green')
-        plt.fill_between(data.index, data["BROWN_INDEX"], 0, where=data["BROWN_INDEX"], alpha=0.5, color='yellow')
+        plt.fill_between(data.index, data["TREND"], 0, where=data["TREND"], alpha=0.5, color='yellow')
         plt.fill_between(data.index, data["BIG_HANDS"], 0, where=data["BIG_HANDS"], alpha=0.5, color='blue')
-        plt.plot(data.index, data["AVG_INDEX"], color='red', linewidth=1)
+        plt.plot(data.index, data["TREND_AVG"], color='red', linewidth=1)
         plt.grid()
         plt.show()
 
@@ -111,6 +111,13 @@ class KONCORDE(Indicator):
         new_koncorde_value = self.calculate(pd.concat([self.data, new_record]))
         sell_signal = self.calc_sell_signals()[-1]
         buy_signal = self.calc_buy_signals()[-1]
+
+        new_signal = new_koncorde_value.iloc[-1]
+
+        print(f'[KONCORDE] Small hands value: {new_signal.SMALL_HANDS}')
+        print(f'[KONCORDE] Big hands value: {new_signal.BIG_HANDS}')
+        print(f'[KONCORDE] Trend value: {new_signal.TREND}')
+        print(f'[KONCORDE] Trend avg value: {new_signal.TREND_AVG}')
 
         if sell_signal == True:
             signal = Action.SELL
