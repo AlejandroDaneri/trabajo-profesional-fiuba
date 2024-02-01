@@ -21,10 +21,7 @@ class Binance:
             os.makedirs(pair_folder_path)
 
         if timeframe == "1H":
-            # 1H
-            # 24 + 24 + 3 => son 3 dias distintos, vamos a armar los filenames
-            # tengo que obtener todas las que pueda del dia de hoy
-
+            # build days list required to get n rows
             days = []
             for i in reversed(range((n % 24))):
                 date_i = date.today() - timedelta(days=i)
