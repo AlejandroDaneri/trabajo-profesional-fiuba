@@ -14,11 +14,13 @@ class KONCORDE(Indicator):
                  rounds, 
                  rsi_mfi_length = 14, 
                  bbands_length = 25, 
-                 bbands_factor = 2.0):
+                 bbands_factor = 2.0,
+                 storch_length = 21):
         self.rounds = rounds
         self.rsi_mfi_length = rsi_mfi_length
         self.bbands_length = bbands_length
         self.bbands_factor = bbands_factor
+        self.storch_length = storch_length
         super().__init__("KONCORDE")
 
     def calculate(self, data):
@@ -33,7 +35,7 @@ class KONCORDE(Indicator):
         typical_price = (data['Open'] + data['High'] + data['Low'] + data['Close']) / 4
 
         # Calculate Stochastic indicator of typical price
-        storch = self.calc_stoch(typical_price, data, 21, 3)
+        storch = self.calc_stoch(typical_price, data, self.storch_length, 3)
 
         # Calculate the mfi
         mfi = MFI(0, 0, self.rsi_mfi_length) # buy_threshold and sell_threshold parameters is not used here
