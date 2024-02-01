@@ -7,12 +7,6 @@ from api_client import ApiClient
 api = ApiClient()
 
 def main():
-    provider = Binance()
-    data = provider.get_latest_n('SOLUSDT', '1H', 100)
-    print(data)
-
-    return
-
     api.delete('api/trade')
 
     response = api.get('api/strategy/running')

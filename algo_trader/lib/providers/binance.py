@@ -6,7 +6,6 @@ from datetime import date, timedelta
 import os
 
 def cache_get(ticker: str, timeframe: str, day: date):
-    print(f"cache get: {ticker}")
     # verify if pair folder exists
     pair_folder_path = f"/data/cache_binance/{ticker}"
 
@@ -42,7 +41,7 @@ class Binance:
         if timeframe == "1H":
             # build days list required to get n rows
             days = []
-            for i in reversed(range((n % 24))):
+            for i in reversed(range(int(n / 24) + 1)):
                 date_i = date.today() - timedelta(days=i)
                 days.append(date_i)
 
