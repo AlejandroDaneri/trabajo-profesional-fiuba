@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from algo_trader.lib.indicators.nvi import NVI
 from algo_trader.lib.indicators.pvi import PVI
 from algo_trader.lib.indicators.mfi import MFI
+from algo_trader.lib.indicators.rsi import RSI
 
 class KONCORDE(Indicator):
     def __init__(self, rounds):
@@ -21,39 +22,30 @@ class KONCORDE(Indicator):
         df["Close"] = data["Close"]
 
         # Calculate the typical price, its is the average of the maximum, minimum, open and close price
-        df["TP"] = (data['Open'] + data['High'] + data['Low'] + data['Close']) / 4
+        typical_price = (data['Open'] + data['High'] + data['Low'] + data['Close']) / 4
+
+        # Calculate Stochastic indicator of typical price
+        storch = self.calc_stoch(typical_price, data, 21, 3) / 3
 
         # Calculate the mfi
         mfi = MFI(20, 80, 14)
-        df["MFI"] = mfi.calculate(data)
+        mfi_values = mfi.calculate(data)
 
         # Calculate the bollinger bands
-        df["BOLL_BASIS"] = df["TP"].rolling(25).mean()
-        df["Std"] = 2.0 * df["TP"].rolling(25).std()
+        df["BOLL_BASIS"] = typical_price.rolling(25).mean()
+        df["Std"] = 2.0 * typical_price.rolling(25).std()
         df["UpperBand"] = df["BOLL_BASIS"] + df["Std"]
         df["LowerBand"] = df["BOLL_BASIS"] - df["Std"]
         df["OB1"] = (df["UpperBand"] + df["LowerBand"]) / 2.0
         df["OB2"] = df["UpperBand"] - df["LowerBand"]
-        df["BOLL_OSC"] = ((df["TP"] - df["OB1"]) / df["OB2"]) * 100
+        df["BOLL_OSC"] = ((typical_price - df["OB1"]) / df["OB2"]) * 100
 
         # Calculate the rsi based in TP value
-        df["TP_diff"] = df["TP"].diff()
-        df["TP_win"] = np.where(df["TP_diff"] > 0, df["TP_diff"], 0)
-        df["TP_loss"] = np.where(df["TP_diff"] < 0, abs(df["TP_diff"]), 0)
-        df["TP_EMA_win"] = df["TP_win"].ewm(alpha=1 / 14).mean()
-        df["TP_EMA_loss"] = df["TP_loss"].ewm(alpha=1 / 14).mean()
-        df["TP_RS"] = df["TP_EMA_win"] / df["TP_EMA_loss"]
-        df["RSI"] = 100 - (100 / (1 + df["TP_RS"]))
-
-        # Calculate the Stochastic
-        df["LL"] = data["Low"].rolling(window=21).min()
-        df["HH"] = data["High"].rolling(window=21).max()
-        df["K"] = 100 * (df["TP"] - df["LL"]) / (df["HH"] - df["LL"])
-        df["STOCH"] = df["K"].rolling(3).mean()
+        rsi_values = self.calc_rsi(typical_price, 14)
 
         # Calculate values
         df["BIG_HANDS"] = self.calc_nvi(data, 15)
-        df["BROWN_INDEX"] = (df["RSI"] + df["MFI"] + df["BOLL_OSC"] + (df["STOCH"] / 3)) / 2
+        df["BROWN_INDEX"] = (rsi_values + mfi_values + df["BOLL_OSC"] + (storch / 3)) / 2
         df["SMALL_HANDS"] = (df["BROWN_INDEX"] + self.calc_pvi(data, 15))
         df["AVG_INDEX"] = df["BROWN_INDEX"].ewm(span=15, adjust=False).mean()
 
@@ -72,11 +64,24 @@ class KONCORDE(Indicator):
         pvi_values = pvi.calculate(data).PVI
         return self.calc_volume_index(pvi_values, rounds, 90)
 
-    def calc_volume_index(self, vi, rounds, window_val):
-        vi_mean = vi.ewm(span=rounds, adjust=False).mean()
-        vi_max = vi_mean.rolling(window=window_val).max()
-        vi_min = vi_mean.rolling(window=window_val).min()
+    def calc_volume_index(self, vi, mean_rounds, length):
+        vi_mean = vi.ewm(span=mean_rounds, adjust=False).mean()
+        vi_max = vi_mean.rolling(window=length).max()
+        vi_min = vi_mean.rolling(window=length).min()
         return (vi - vi_mean) * 100 / (vi_max - vi_min)
+    
+    # Calculate Stochastic indicator
+    def calc_stoch(self, src, data, length, smoothFastD):
+        lowestLow = data['Low'].rolling(window=length).min()
+        highestHigh = data['High'].rolling(window=length).max()
+        currentValue = 100 * (src - lowestLow) / (highestHigh - lowestLow)
+        return currentValue.rolling(smoothFastD).mean()
+    
+    # Calculate RSI indicator
+    def calc_rsi(self, src, rounds):
+        rsi = RSI(30, 70, rounds)
+        df = pd.DataFrame(src, columns = ['Close'])
+        return rsi.calculate(df)
 
     def calc_buy_signals(self):
         return np.where((self.output.BROWN_INDEX.shift(1) < self.output.AVG_INDEX.shift(1)) 
