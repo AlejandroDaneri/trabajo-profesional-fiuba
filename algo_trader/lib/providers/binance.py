@@ -6,8 +6,10 @@ from datetime import date, timedelta
 import os
 
 def cache_get(ticker: str, timeframe: str, day: date):
+    print(f"cache get: {ticker}")
     # verify if pair folder exists
-    pair_folder_path = f"lib/providers/data/{ticker}"
+    pair_folder_path = f"/data/cache_binance/{ticker}"
+
     if os.path.isdir(pair_folder_path) is False:
         # create pair folder
         os.makedirs(pair_folder_path)
@@ -24,7 +26,7 @@ def cache_get(ticker: str, timeframe: str, day: date):
         return None
 
 def cache_set(ticker: str, timeframe: str, day: date, data):
-    pair_folder_path = f"lib/providers/data/{ticker}"
+    pair_folder_path = f"/data/cache_binance/{ticker}"
     # store to cache
     if day != date.today():
         data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')

@@ -7,6 +7,12 @@ from api_client import ApiClient
 api = ApiClient()
 
 def main():
+    provider = Binance()
+    data = provider.get_latest_n('SOLUSDT', '1H', 100)
+    print(data)
+
+    return
+
     api.delete('api/trade')
 
     response = api.get('api/strategy/running')
@@ -41,7 +47,6 @@ def main():
     trade_bot = TradeBot(strategy, exchange)
 
     for index in range(n_simulate):
-        
         for currency in currencies:
             row = simulation_data[currency].iloc[[index]]
             print(f'Simulating: {currency} {row.index[0]}')
