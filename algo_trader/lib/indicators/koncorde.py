@@ -23,21 +23,6 @@ class KONCORDE(Indicator):
         # Calculate the typical price, its is the average of the maximum, minimum, open and close price
         df["TP"] = (data['Open'] + data['High'] + data['Low'] + data['Close']) / 4
 
-        # Calculate the pvi
-        nvi = PVI(255)
-        df["PVI"] = nvi.calculate(data).PVI
-        df["PVI_M"] = df["PVI"].ewm(span=15, adjust=False).mean()
-        df["PVI_MAX"] = df["PVI_M"].rolling(window=90).max()
-        df["PVI_MIN"] = df["PVI_M"].rolling(window=90).min()
-        df["OSCP"] = (df["PVI"] - df["PVI_M"]) * 100 / (df["PVI_MAX"] - df["PVI_MIN"])
-
-        # Calculate the nvi
-        nvi = NVI(255)
-        df["NVI"] = nvi.calculate(data).NVI
-        df["NVI_M"] = df["NVI"].ewm(span=15, adjust=False).mean()
-        df["NVI_MAX"] = df["NVI_M"].rolling(window=90).max()
-        df["NVI_MIN"] = df["NVI_M"].rolling(window=90).min()
-
         # Calculate the mfi
         mfi = MFI(20, 80, 14)
         df["MFI"] = mfi.calculate(data)
@@ -67,13 +52,31 @@ class KONCORDE(Indicator):
         df["STOCH"] = df["K"].rolling(3).mean()
 
         # Calculate values
-        df["BLUE_INDEX"] = (df["NVI"] - df["NVI_M"]) * 100 / (df["NVI_MAX"] - df["NVI_MIN"])
+        df["BIG_HANDS"] = self.calc_nvi(data, 15)
         df["BROWN_INDEX"] = (df["RSI"] + df["MFI"] + df["BOLL_OSC"] + (df["STOCH"] / 3)) / 2
-        df["GREEN_INDEX"] = (df["BROWN_INDEX"] + df["OSCP"])
+        df["SMALL_HANDS"] = (df["BROWN_INDEX"] + self.calc_pvi(data, 15))
         df["AVG_INDEX"] = df["BROWN_INDEX"].ewm(span=15, adjust=False).mean()
 
         self.output = df
         return self.output
+
+    # Calculate the NVI to detect large investments (blue graphic)
+    def calc_nvi(self, data, rounds):
+        nvi = NVI(255)
+        nvi_values = nvi.calculate(data).NVI
+        return self.calc_volume_index(nvi_values, rounds, 90)
+    
+    # Calculate the PVI to detect small investments (green graphic)
+    def calc_pvi(self, data, rounds):
+        pvi = PVI(255)
+        pvi_values = pvi.calculate(data).PVI
+        return self.calc_volume_index(pvi_values, rounds, 90)
+
+    def calc_volume_index(self, vi, rounds, window_val):
+        vi_mean = vi.ewm(span=rounds, adjust=False).mean()
+        vi_max = vi_mean.rolling(window=window_val).max()
+        vi_min = vi_mean.rolling(window=window_val).min()
+        return (vi - vi_mean) * 100 / (vi_max - vi_min)
 
     def calc_buy_signals(self):
         return np.where((self.output.BROWN_INDEX.shift(1) < self.output.AVG_INDEX.shift(1)) 
@@ -88,9 +91,9 @@ class KONCORDE(Indicator):
         fig = plt.figure()
         fig.set_size_inches(30, 5)
         plt.axhline(0, linestyle='--', linewidth=1.5, color='black')
-        plt.fill_between(data.index, data["GREEN_INDEX"], 0, where=data["GREEN_INDEX"], alpha=0.5, color='green')
+        plt.fill_between(data.index, data["SMALL_HANDS"], 0, where=data["SMALL_HANDS"], alpha=0.5, color='green')
         plt.fill_between(data.index, data["BROWN_INDEX"], 0, where=data["BROWN_INDEX"], alpha=0.5, color='yellow')
-        plt.fill_between(data.index, data["BLUE_INDEX"], 0, where=data["BLUE_INDEX"], alpha=0.5, color='blue')
+        plt.fill_between(data.index, data["BIG_HANDS"], 0, where=data["BIG_HANDS"], alpha=0.5, color='blue')
         plt.plot(data.index, data["AVG_INDEX"], color='red', linewidth=1)
         plt.grid()
         plt.show()
