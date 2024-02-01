@@ -80,7 +80,7 @@ class Binance:
             os.makedirs(pair_folder_path)
 
         # store to cache
-        if day is not date.today():
+        if day != date.today():
             data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv', index=False)
 
         return data
