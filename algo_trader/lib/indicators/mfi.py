@@ -18,7 +18,7 @@ class MFI(Indicator):
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
 
-        # Calculate the typical price, its is the average of the maximum, minimum and closing price
+        # Calculate the typical price, its is the average of the maximum, minimum and close price
         df["TP"] = (data["High"] + data["Low"] + data["Close"]) / 3
 
         # Calculate the money flow , its value is the result of TP * Volume
