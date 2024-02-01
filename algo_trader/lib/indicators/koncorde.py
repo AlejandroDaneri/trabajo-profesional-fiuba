@@ -7,6 +7,7 @@ from algo_trader.lib.indicators.nvi import NVI
 from algo_trader.lib.indicators.pvi import PVI
 from algo_trader.lib.indicators.mfi import MFI
 from algo_trader.lib.indicators.rsi import RSI
+from algo_trader.lib.indicators.bbands import BBANDS
 
 class KONCORDE(Indicator):
     def __init__(self, rounds):
@@ -31,21 +32,15 @@ class KONCORDE(Indicator):
         mfi = MFI(20, 80, 14)
         mfi_values = mfi.calculate(data)
 
-        # Calculate the bollinger bands
-        df["BOLL_BASIS"] = typical_price.rolling(25).mean()
-        df["Std"] = 2.0 * typical_price.rolling(25).std()
-        df["UpperBand"] = df["BOLL_BASIS"] + df["Std"]
-        df["LowerBand"] = df["BOLL_BASIS"] - df["Std"]
-        df["OB1"] = (df["UpperBand"] + df["LowerBand"]) / 2.0
-        df["OB2"] = df["UpperBand"] - df["LowerBand"]
-        df["BOLL_OSC"] = ((typical_price - df["OB1"]) / df["OB2"]) * 100
+        # Calculate Bollinger Bands oscilator
+        boll_osc = self.calc_bbands_osc(typical_price, 25)
 
         # Calculate the rsi based in TP value
         rsi_values = self.calc_rsi(typical_price, 14)
 
         # Calculate values
         df["BIG_HANDS"] = self.calc_nvi(data, 15)
-        df["BROWN_INDEX"] = (rsi_values + mfi_values + df["BOLL_OSC"] + (storch / 3)) / 2
+        df["BROWN_INDEX"] = (rsi_values + mfi_values + boll_osc + (storch / 3)) / 2
         df["SMALL_HANDS"] = (df["BROWN_INDEX"] + self.calc_pvi(data, 15))
         df["AVG_INDEX"] = df["BROWN_INDEX"].ewm(span=15, adjust=False).mean()
 
@@ -82,6 +77,15 @@ class KONCORDE(Indicator):
         rsi = RSI(30, 70, rounds)
         df = pd.DataFrame(src, columns = ['Close'])
         return rsi.calculate(df)
+    
+    # Calculate Bollinger Bands oscilator
+    def calc_bbands_osc(self, src, rounds):
+        bbands = BBANDS(rounds, 2.0)
+        df = pd.DataFrame(src, columns = ['Close'])
+        df_bbands = bbands.calculate(df)
+        ob1 = (df_bbands["UpperBand"] + df_bbands["LowerBand"]) / 2.0
+        ob2 = df_bbands["UpperBand"] - df_bbands["LowerBand"]
+        return ((src - ob1) / ob2) * 100
 
     def calc_buy_signals(self):
         return np.where((self.output.BROWN_INDEX.shift(1) < self.output.AVG_INDEX.shift(1)) 
