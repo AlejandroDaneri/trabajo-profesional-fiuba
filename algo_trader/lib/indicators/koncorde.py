@@ -10,8 +10,15 @@ from algo_trader.lib.indicators.rsi import RSI
 from algo_trader.lib.indicators.bbands import BBANDS
 
 class KONCORDE(Indicator):
-    def __init__(self, rounds):
+    def __init__(self, 
+                 rounds, 
+                 rsi_mfi_length = 14, 
+                 bbands_length = 25, 
+                 bbands_factor = 2.0):
         self.rounds = rounds
+        self.rsi_mfi_length = rsi_mfi_length
+        self.bbands_length = bbands_length
+        self.bbands_factor = bbands_factor
         super().__init__("KONCORDE")
 
     def calculate(self, data):
@@ -26,17 +33,17 @@ class KONCORDE(Indicator):
         typical_price = (data['Open'] + data['High'] + data['Low'] + data['Close']) / 4
 
         # Calculate Stochastic indicator of typical price
-        storch = self.calc_stoch(typical_price, data, 21, 3) / 3
+        storch = self.calc_stoch(typical_price, data, 21, 3)
 
         # Calculate the mfi
-        mfi = MFI(20, 80, 14)
+        mfi = MFI(0, 0, self.rsi_mfi_length) # buy_threshold and sell_threshold parameters is not used here
         mfi_values = mfi.calculate(data)
 
-        # Calculate Bollinger Bands oscilator
-        boll_osc = self.calc_bbands_osc(typical_price, 25, 2.0)
-
         # Calculate the rsi based in TP value
-        rsi_values = self.calc_rsi(typical_price, 14)
+        rsi_values = self.calc_rsi(typical_price, self.rsi_mfi_length)
+
+        # Calculate Bollinger Bands oscilator
+        boll_osc = self.calc_bbands_osc(typical_price, self.bbands_length, self.bbands_factor)
 
         # Calculate values
         df["BIG_HANDS"] = self.calc_nvi(data, self.rounds)
@@ -49,13 +56,13 @@ class KONCORDE(Indicator):
 
     # Calculate the NVI to detect large investments (blue graphic)
     def calc_nvi(self, data, rounds):
-        nvi = NVI(255)
+        nvi = NVI(0) # rounds parameter is not used here
         nvi_values = nvi.calculate(data).NVI
         return self.calc_volume_index(nvi_values, rounds, 90)
     
     # Calculate the PVI to detect small investments (green graphic)
     def calc_pvi(self, data, rounds):
-        pvi = PVI(255)
+        pvi = PVI(0) # rounds parameter is not used here
         pvi_values = pvi.calculate(data).PVI
         return self.calc_volume_index(pvi_values, rounds, 90)
 
@@ -74,7 +81,7 @@ class KONCORDE(Indicator):
     
     # Calculate RSI indicator
     def calc_rsi(self, src, rounds):
-        rsi = RSI(30, 70, rounds)
+        rsi = RSI(0, 0, rounds) # buy_threshold and sell_threshold parameters is not used here
         df = pd.DataFrame(src, columns = ['Close'])
         return rsi.calculate(df)
     
