@@ -38,10 +38,21 @@ class Binance:
 
     # ticker: example BTCUSDT
     def get_latest_n(self, ticker: str, timeframe: str, n: int):
-        if timeframe == "1H":
+
+        # asi como anda para 1H tengo que lograr que ande para
+        # 1M
+        # 5M
+        # 15M
+
+        N_DAYS = {
+            "1H": int(n / 24 * 1) + 1,
+            "4H": int(n / 24 * 4) + 1
+        }
+
+        if timeframe == "1H" or timeframe == '4H':
             # build days list required to get n rows
             days = []
-            for i in reversed(range(int(n / 24) + 1)):
+            for i in reversed(range(N_DAYS[timeframe])):
                 date_i = date.today() - timedelta(days=i)
                 days.append(date_i)
 
@@ -64,6 +75,7 @@ class Binance:
         timeframes = {
             "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
             "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
+            "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
             "1D": BinanceProvider.KLINE_INTERVAL_1DAY
         }
         start_date_ = datetime.strptime(start_date, '%Y-%m-%d')
@@ -86,6 +98,7 @@ class Binance:
         timeframes = {
             "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
             "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
+            "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
             "1D": BinanceProvider.KLINE_INTERVAL_1DAY
         }
 
