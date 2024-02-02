@@ -39,7 +39,7 @@ class Exchange:
         return self.portfolio.copy()
 
     def get_balance(self) -> float:
-        return self.balance
+        return self.total
     
     def get_profit_and_loss(self):
         return self.total - self.initial_balance 

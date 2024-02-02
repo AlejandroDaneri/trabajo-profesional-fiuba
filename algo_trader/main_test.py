@@ -29,7 +29,7 @@ def main():
     simulation_data = {}
     
     n_train = 200
-    n_simulate = 800
+    n_simulate = 10000
     n_total = n_train + n_simulate
 
     for currency in currencies:
