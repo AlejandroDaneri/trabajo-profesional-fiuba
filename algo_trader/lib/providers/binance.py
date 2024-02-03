@@ -41,7 +41,6 @@ class Binance:
 
         # asi como anda para 1H tengo que lograr que ande para
         # 1M
-        # 5M
 
         N_DAYS = {
             "5M": int(n / (24 * 1 * (5 / 60))) + 1,
