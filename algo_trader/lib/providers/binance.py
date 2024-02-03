@@ -45,7 +45,8 @@ class Binance:
             "30M": BinanceProvider.KLINE_INTERVAL_30MINUTE,
             "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
             "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
-            "1D": BinanceProvider.KLINE_INTERVAL_1DAY
+            "1D": BinanceProvider.KLINE_INTERVAL_1DAY,
+            "1W": BinanceProvider.KLINE_INTERVAL_1WEEK
         }
         klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end, limit=n)
         data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
@@ -59,21 +60,22 @@ class Binance:
     # n: example 10000
     def get_latest_n(self, ticker: str, timeframe: str, n: int):
 
-        N_DAYS = {
-            "1M": math.ceil(n / (24 * 1 * (60 / 1))) + 1,
-            "5M": math.ceil(n / (24 * 1 * (60 / 5))) + 1,
-            "15M": math.ceil(n / (24 * 1 * (60 / 15))) + 1,
-            "30M": math.ceil(n / (24 * 1 * (60 / 30))) + 1,
-            "1H": math.ceil(n / (24 * 1 * (60 / 60))) + 1,
-            "4H": math.ceil(n / (24 * 4 * (60 / 60))) + 1
-        }
-
-        if timeframe == "1D":
-            print("timeframe 1D")
+        # this timeframes do not use cache
+        if timeframe == "1D" or timeframe == "1W":
             return self.binance_get(ticker, timeframe, None, None, n)
 
         # this timeframes uses cache
         if timeframe == "1H" or timeframe == '4H' or timeframe == '1M' or timeframe == '5M' or timeframe == '30M' or timeframe == '15M':
+
+            N_DAYS = {
+                "1M": math.ceil(n / (24 * 1 * (60 / 1))) + 1,
+                "5M": math.ceil(n / (24 * 1 * (60 / 5))) + 1,
+                "15M": math.ceil(n / (24 * 1 * (60 / 15))) + 1,
+                "30M": math.ceil(n / (24 * 1 * (60 / 30))) + 1,
+                "1H": math.ceil(n / (24 * 1 * (60 / 60))) + 1,
+                "4H": math.ceil(n / (24 * 4 * (60 / 60))) + 1
+            }
+
             # build days list required to get n rows
             days = []
             for i in reversed(range(N_DAYS[timeframe])):
