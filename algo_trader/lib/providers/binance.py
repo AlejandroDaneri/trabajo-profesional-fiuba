@@ -36,8 +36,28 @@ class Binance:
         api_key = "OF6SkzXI0EAcvmMWlkeUKl6YyxYIFU4pN0Bj19gaVYZcgaTt7OImXxEyvoPcDhmk"
         secret_key = "tXay1BDYuSyigxvl27UQIBJbIHADaep8FT7HPO9Mb3vfmcyDkz4keEaHkpm7dcFe"
         self.provider = BinanceProvider(api_key, secret_key, tld='us')
+    
+    def binance_get(self, ticker: str, timeframe: str, start=None, end=None, n=1000):
+        timeframes = {
+            "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
+            "5M": BinanceProvider.KLINE_INTERVAL_5MINUTE,
+            "15M": BinanceProvider.KLINE_INTERVAL_15MINUTE,
+            "30M": BinanceProvider.KLINE_INTERVAL_30MINUTE,
+            "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
+            "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
+            "1D": BinanceProvider.KLINE_INTERVAL_1DAY
+        }
+        klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end, limit=n)
+        data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
+        data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
+        data['Close'] =  data['Close'].apply(lambda x : float(x))
+        data = data.set_index("Open")
+        data = data[:-1]
+        return data
 
     # ticker: example BTCUSDT
+    # timeframe: example 1H
+    # n: example 10000
     def get_latest_n(self, ticker: str, timeframe: str, n: int):
 
         N_DAYS = {
@@ -49,6 +69,11 @@ class Binance:
             "4H": math.ceil(n / (24 * 4 * (60 / 60))) + 1
         }
 
+        if timeframe == "1D":
+            print("timeframe 1D")
+            return self.binance_get(ticker, timeframe, None, None, n)
+
+        # this timeframes uses cache
         if timeframe == "1H" or timeframe == '4H' or timeframe == '1M' or timeframe == '5M' or timeframe == '30M' or timeframe == '15M':
             # build days list required to get n rows
             days = []
@@ -67,32 +92,12 @@ class Binance:
 
         to_delete = len(data) - n
         return data.iloc[:-to_delete, :]
-
-    
-    
-    def binance_get(self, ticker: str, timeframe: str, start: int, end: int):
-        timeframes = {
-            "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
-            "5M": BinanceProvider.KLINE_INTERVAL_5MINUTE,
-            "15M": BinanceProvider.KLINE_INTERVAL_15MINUTE,
-            "30M": BinanceProvider.KLINE_INTERVAL_30MINUTE,
-            "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
-            "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
-            "1D": BinanceProvider.KLINE_INTERVAL_1DAY
-        }
-        klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end)
-        data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
-        data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
-        data['Close'] =  data['Close'].apply(lambda x : float(x))
-        data = data.set_index("Open")
-        data = data[:-1]
-        return data
     
     # ticker: example BTCUSDT
     # timeframe: example 1H
     # start_date: example 2023-12-08
     def get_from(self, ticker: str, timeframe: str, start_date: str):
-        return self.binance_get(ticker, timeframe, start_date, None)
+        return self.binance_get(ticker, timeframe, start_date)
     
     # ticker: example BTCUSDT
     # timeframe: example 1H
@@ -121,4 +126,3 @@ class Binance:
         cache_set(ticker, timeframe, day, data)
 
         return data
-
