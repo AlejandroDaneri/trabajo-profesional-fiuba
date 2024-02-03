@@ -18,6 +18,7 @@ services:
     working_dir: /app
     volumes:
       - ./algo_trader:/app
+      - ~/satoshibot/cache_binance:/data/cache_binance
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s
