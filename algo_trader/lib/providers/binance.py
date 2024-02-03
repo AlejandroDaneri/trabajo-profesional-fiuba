@@ -52,7 +52,6 @@ class Binance:
         data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Open")
-        data = data[:-1]
         return data
 
     # ticker: example BTCUSDT
