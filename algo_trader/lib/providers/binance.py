@@ -44,12 +44,13 @@ class Binance:
         # 5M
 
         N_DAYS = {
+            "5M": int(n / (24 * 1 * (5 / 60))) + 1,
             "15M": int(n / (24 * 1 * (15 / 60))) + 1,
             "1H": int(n / (24 * 1 * (60 / 60))) + 1,
             "4H": int(n / (24 * 4 * (60 / 60))) + 1
         }
 
-        if timeframe == "1H" or timeframe == '4H' or timeframe == '15M':
+        if timeframe == "1H" or timeframe == '4H' or timeframe == '5M' or timeframe == '15M':
             # build days list required to get n rows
             days = []
             for i in reversed(range(N_DAYS[timeframe])):
@@ -74,6 +75,7 @@ class Binance:
     def get_from(self, ticker: str, timeframe: str, start_date: str):
         timeframes = {
             "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
+            "5M": BinanceProvider.KLINE_INTERVAL_5MINUTE,
             "15M": BinanceProvider.KLINE_INTERVAL_15MINUTE,
             "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
             "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
@@ -98,6 +100,7 @@ class Binance:
 
         timeframes = {
             "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
+            "5M": BinanceProvider.KLINE_INTERVAL_5MINUTE,
             "15M": BinanceProvider.KLINE_INTERVAL_15MINUTE,
             "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
             "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
