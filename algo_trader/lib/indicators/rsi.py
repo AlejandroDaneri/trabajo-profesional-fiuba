@@ -58,9 +58,9 @@ class RSI(Indicator):
         plt.plot(data[self.name], color='orange', linewidth=2)
         plt.grid()
         # Oversold
-        plt.axhline(30, linestyle='--', linewidth=1.5, color='green')
+        plt.axhline(self.buy_threshold, linestyle='--', linewidth=1.5, color='green')
         # Overbought
-        plt.axhline(70, linestyle='--', linewidth=1.5, color='red')
+        plt.axhline(self.sell_threshold, linestyle='--', linewidth=1.5, color='red')
         plt.show()
 
     def predict_signal(self, new_record):

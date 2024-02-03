@@ -16,21 +16,28 @@ export const CurrentStrategyStyle = styled.div`
     & .summary-content {
       display: flex;
       flex-direction: row;
-      width: 50%;
+      width: 60%;
       justify-content: space-around;
-  
+
       & .box {
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
+        height: 50px;
         border: 1px solid white;
         padding: 10px;
-  
+
         & .label {
           color: #a5a8b6;
         }
-  
+
         & .value {
+          display: flex;
           font-weight: 800;
+
+          & .currency-wrapper {
+            margin-right: 5px;
+          }
         }
       }
     }

@@ -13,15 +13,38 @@ import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
 /* Import Components */
 import Trades from "../components/Trades"
 import View from "../components/reusables/View"
+import CurrencyLogo from "../components/CurrencyLogo"
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
     loading: true,
-    data: {},
+    data: {
+      currencies: [],
+    },
   })
 
   const getStrategy = () => {
     const transformToView = (data) => {
+      const transformDuration = (start) => {
+        const currentTime = Math.floor(Date.now() / 1000)
+
+        const durationInSeconds = currentTime - start
+
+        const days = Math.floor(durationInSeconds / (3600 * 24))
+        const hours = Math.floor((durationInSeconds % (3600 * 24)) / 3600)
+
+        return `${days} days, ${hours} hours`
+      }
+
+      const transformTimeframe = (timeframe) => {
+        switch (timeframe) {
+          case "1M":
+            return "1 minute"
+          default:
+            return ""
+        }
+      }
+
       const initialBalance = data.initial_balance
       const currentBalance = parseFloat(data.current_balance).toFixed(2)
       const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
@@ -29,6 +52,8 @@ const CurrentStrategy = () => {
         (currentBalance / initialBalance - 1) *
         100
       ).toFixed(2)
+      const duration = transformDuration(data.start_timestamp)
+      const timeframe = transformTimeframe(data.timeframe)
 
       return {
         ...data,
@@ -52,6 +77,8 @@ const CurrentStrategy = () => {
             value: indicator.parameters[key],
           })),
         })),
+        duration,
+        timeframe,
       }
     }
     get()
@@ -87,7 +114,27 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Profit/Loss</div>
-                <div className="value">{strategy.data.profit_and_loss_label}</div>
+                <div className="value">
+                  {strategy.data.profit_and_loss_label}
+                </div>
+              </div>
+              <div className="box">
+                <div className="label">Currencies</div>
+                <div className="value">
+                  {strategy.data.currencies.map((currency) => (
+                    <div className="currency-wrapper">
+                      <CurrencyLogo currency={currency} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="box">
+                <div className="label">Duration</div>
+                <div>{strategy.data.duration}</div>
+              </div>
+              <div className="box">
+                <div className="label">Timeframe</div>
+                <div>{strategy.data.timeframe}</div>
               </div>
             </div>
           </div>
