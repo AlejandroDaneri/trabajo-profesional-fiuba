@@ -20,7 +20,7 @@ services:
       - ./algo_trader:/app
       - ~/satoshibot/cache_binance:/data/cache_binance
     # Run Unit Tests
-    command: ["python", "-m", "unittest"]
+    # command: ["python", "-m", "unittest"]
     # Run Backtest
     # command: ["python", "main_test.py"]
     healthcheck:
