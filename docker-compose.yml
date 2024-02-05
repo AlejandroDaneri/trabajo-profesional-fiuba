@@ -19,6 +19,10 @@ services:
     volumes:
       - ./algo_trader:/app
       - ~/satoshibot/cache_binance:/data/cache_binance
+    # Run Unit Tests
+    command: ["python", "-m", "unittest"]
+    # Run Backtest
+    # command: ["python", "main_test.py"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s

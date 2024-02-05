@@ -72,8 +72,8 @@ class Binance:
                 "5M": math.ceil(n / (24 * 1 * (60 / 5))) + 1,
                 "15M": math.ceil(n / (24 * 1 * (60 / 15))) + 1,
                 "30M": math.ceil(n / (24 * 1 * (60 / 30))) + 1,
-                "1H": math.ceil(n / (24 * 1 * (60 / 60))) + 1,
-                "4H": math.ceil(n / (24 * 4 * (60 / 60))) + 1
+                "1H": math.ceil(n / (24 / 1 * (60 / 60))) + 1,
+                "4H": math.ceil(n / (24 / 4 * (60 / 60))) + 1
             }
 
             # build days list required to get n rows
