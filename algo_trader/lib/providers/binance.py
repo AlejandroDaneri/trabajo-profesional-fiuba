@@ -113,7 +113,10 @@ class Binance:
         start_ = datetime.strptime(start, '%Y-%m-%d')
         start__ = int(datetime.timestamp(start_)) * 1000
         end_ = datetime.strptime(end, '%Y-%m-%d')
-        end__ = int(datetime.timestamp(end_)) * 1000
+        end__ = (int(datetime.timestamp(end_)) * 1000)
+        
+        # to avoid include a row that belong day after
+        end__ = end__ - 1
         
         data = None
         if timeframe == "1M":
