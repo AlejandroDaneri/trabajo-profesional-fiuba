@@ -8,6 +8,7 @@ from lib.indicators.pvi import PVI
 from lib.indicators.mfi import MFI
 from lib.indicators.rsi import RSI
 from lib.indicators.bbands import BBANDS
+from lib.indicators.stochastic import Stochastic
 
 class KONCORDE(Indicator):
     def __init__(self, 
@@ -35,7 +36,7 @@ class KONCORDE(Indicator):
         typical_price = (data['Open'] + data['High'] + data['Low'] + data['Close']) / 4
 
         # Calculate Stochastic indicator of typical price
-        storch = self.calc_stoch(typical_price, data, self.storch_length, 3)
+        storch = self.calc_stoch(typical_price, data, self.storch_length)
 
         # Calculate the mfi
         mfi = MFI(0, 0, self.rsi_mfi_length) # buy_threshold and sell_threshold parameters is not used here
@@ -75,11 +76,12 @@ class KONCORDE(Indicator):
         return (vi - vi_avg) * 100 / (vi_max - vi_min)
     
     # Calculate Stochastic indicator
-    def calc_stoch(self, src, data, length, smoothFastD):
-        lowestLow = data['Low'].rolling(window=length).min()
-        highestHigh = data['High'].rolling(window=length).max()
-        currentValue = 100 * (src - lowestLow) / (highestHigh - lowestLow)
-        return currentValue.rolling(smoothFastD).mean()
+    def calc_stoch(self, src, data, rounds):
+        storch = Stochastic(0, 0, rounds) # buy_threshold and sell_threshold parameters is not used here
+        df = pd.DataFrame(src, columns = ['Close'])
+        df['High'] = data['High']
+        df['Low'] = data['Low']
+        return storch.calculate(df)['%D']
     
     # Calculate RSI indicator
     def calc_rsi(self, src, rounds):
