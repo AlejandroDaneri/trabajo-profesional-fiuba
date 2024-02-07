@@ -9,6 +9,7 @@ from lib.indicators.obv import OBV
 from lib.indicators.nvi import NVI
 from lib.indicators.pvi import PVI
 from lib.indicators.mfi import MFI
+from lib.indicators.stochastic import Stochastic
 from lib.indicators.koncorde import KONCORDE
 from lib.strategies.basic import Basic
 
@@ -135,6 +136,18 @@ def hydrate_indicator_mfi(parameters):
         return None
     return MFI(buy_threshold, sell_threshold, rounds)
 
+def hydrate_indicator_stochastic(parameters):
+    if parameters is None:
+        print("indicator stochastic not have parameters")
+        return None
+    buy_threshold = parameters["buy_threshold"]
+    sell_threshold = parameters["sell_threshold"]
+    rounds = parameters["rounds"]
+    if buy_threshold is None or sell_threshold is None or rounds is None:
+        print("indicator stochastic not have all the parameters")
+        return None
+    return Stochastic(buy_threshold, sell_threshold, rounds)
+
 def hydrate_indicator_koncorde(parameters):
     if parameters is None:
         print("indicator koncorde not have parameters")
@@ -209,6 +222,11 @@ def hydrate_strategy(currencies, indicators):
                 mfi = hydrate_indicator_mfi(indicator["parameters"])
                 if mfi is not None:
                     indicators_builded.append(mfi)
+
+            elif indicator["name"] == "stochastic":
+                stochastic = hydrate_indicator_stochastic(indicator["parameters"])
+                if stochastic is not None:
+                    indicators_builded.append(stochastic)
 
             elif indicator["name"] == "koncorde":
                 koncorde = hydrate_indicator_koncorde(indicator["parameters"])
