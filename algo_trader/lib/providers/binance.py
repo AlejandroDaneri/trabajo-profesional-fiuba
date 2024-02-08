@@ -6,7 +6,7 @@ from datetime import date, timedelta
 import os
 import math
 
-def cache_get(ticker: str, timeframe: str, day: date):
+def cache_get_month(ticker: str, month: date):
     # verify if pair folder exists
     pair_folder_path = f"/data/cache_binance/{ticker}"
 
@@ -14,23 +14,43 @@ def cache_get(ticker: str, timeframe: str, day: date):
         # create pair folder
         os.makedirs(pair_folder_path)
 
-    if day == date.today():
-        return None
+def cache_get_day(ticker: str, timeframe: str, month: date):
+    # verify if pair folder exists
+    pair_folder_path = f"/data/cache_binance/{ticker}"
+
+    if os.path.isdir(pair_folder_path) is False:
+        # create pair folder
+        os.makedirs(pair_folder_path)
+
+    today = date.today()
+    if month.year == today.year and month.month == today.month:
+        return
 
     # try to get from cache
     try:
-        data = pd.read_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
+        data = pd.read_csv(f'{pair_folder_path}/{ticker}__{month.strftime("%Y-%m")}__{timeframe}.csv')
         data = data.set_index("Open")
 
         return data
     except:
         return None
+    
+def cache_set_month(ticker: str, month: date, data):
+    # not save on cache non closed month
+    today = date.today()
+    if month.year == today.year and month.month == today.month:
+        return
 
-def cache_set(ticker: str, timeframe: str, day: date, data):
     pair_folder_path = f"/data/cache_binance/{ticker}"
-    # store to cache
-    if day != date.today():
-        data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
+    data.to_csv(f'{pair_folder_path}/{ticker}__{month.strftime("%Y-%m")}__1D.csv')
+
+def cache_set_day(ticker: str, timeframe: str, day: date, data):
+    # not save on cache non closed day
+    if day == date.today():
+        return
+
+    pair_folder_path = f"/data/cache_binance/{ticker}"
+    data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
 
 class Binance:
     def __init__(self):
@@ -74,6 +94,7 @@ class Binance:
             data = None
             for month_i in sorted(months):
                 data_month = self.get_by_month(ticker, month_i)
+                print(data_month)
 
                 if data is None:
                     data = data_month
@@ -121,6 +142,11 @@ class Binance:
         return self.binance_get(ticker, timeframe, start_date)
     
     def get_by_month(self, ticker, month: date):
+        # try to get from cache
+        data = cache_get_month(ticker, month)
+        if data is not None:
+            return data
+
         start = str(month)
         end = str(month + timedelta(days=31))
         start_ = datetime.strptime(start, '%Y-%m-%d')
@@ -134,6 +160,10 @@ class Binance:
         data['Open_'] = pd.to_datetime(data['Open_'])
         data = data[(data['Open_'].dt.month == month.month)]
         data = data.drop('Open_', axis=1)
+
+        # store response to cache
+        cache_set_month(ticker, month, data)
+    
         return data
 
     # ticker: example BTCUSDT
