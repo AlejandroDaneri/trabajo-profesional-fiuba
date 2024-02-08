@@ -52,7 +52,6 @@ class Binance:
         klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end, limit=n)
         data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
         data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
-        data['Open_'] = pd.to_datetime(data['Open'])
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Open")
         return data
@@ -128,10 +127,14 @@ class Binance:
         start__ = int(datetime.timestamp(start_)) * 1000
         end_ = datetime.strptime(end, '%Y-%m-%d')
         end__ = (int(datetime.timestamp(end_)) * 1000)
-    
         data = self.binance_get(ticker, '1D', start__, end__)
 
-        return data[(data['Open_'].dt.month == month.month)]
+        # filter day that not belong to month
+        data['Open_'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
+        data['Open_'] = pd.to_datetime(data['Open_'])
+        data = data[(data['Open_'].dt.month == month.month)]
+        data = data.drop('Open_', axis=1)
+        return data
 
     # ticker: example BTCUSDT
     # timeframe: example 1H
