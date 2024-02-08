@@ -21,6 +21,7 @@ def cache_get(ticker: str, timeframe: str, day: date):
     try:
         data = pd.read_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
         data = data.set_index("Open")
+
         return data
     except:
         return None
@@ -51,6 +52,7 @@ class Binance:
         klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end, limit=n)
         data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
         data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
+        data['Open_'] = pd.to_datetime(data['Open'])
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Open")
         return data
@@ -61,8 +63,27 @@ class Binance:
     def get_latest_n(self, ticker: str, timeframe: str, n: int):
 
         # this timeframes do not use cache
-        if timeframe == "1D" or timeframe == "1W":
-            return self.binance_get(ticker, timeframe, None, None, n)
+        if timeframe == "1D":
+            
+            day = datetime.today() - timedelta(days=n)
+            months = set()
+
+            while day <= datetime.today():
+                months.add(date(day.year, day.month, 1))
+                day = day + timedelta(days=1)
+
+            data = None
+            for month_i in sorted(months):
+                data_month = self.get_by_month(ticker, month_i)
+
+                if data is None:
+                    data = data_month
+                else:
+                    data = pd.concat([data, data_month])
+
+            
+            to_delete = len(data) - n
+            return data.iloc[:-to_delete, :]
 
         # this timeframes uses cache
         if timeframe == "1H" or timeframe == '4H' or timeframe == '1M' or timeframe == '5M' or timeframe == '30M' or timeframe == '15M':
@@ -100,6 +121,18 @@ class Binance:
     def get_from(self, ticker: str, timeframe: str, start_date: str):
         return self.binance_get(ticker, timeframe, start_date)
     
+    def get_by_month(self, ticker, month: date):
+        start = str(month)
+        end = str(month + timedelta(days=31))
+        start_ = datetime.strptime(start, '%Y-%m-%d')
+        start__ = int(datetime.timestamp(start_)) * 1000
+        end_ = datetime.strptime(end, '%Y-%m-%d')
+        end__ = (int(datetime.timestamp(end_)) * 1000)
+    
+        data = self.binance_get(ticker, '1D', start__, end__)
+
+        return data[(data['Open_'].dt.month == month.month)]
+
     # ticker: example BTCUSDT
     # timeframe: example 1H
     # day: example 2023-12-08
