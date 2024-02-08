@@ -170,7 +170,7 @@ class Binance:
     # timeframe: example 1H
     # day: example 2023-12-08
     def get_by_day(self, ticker: str, timeframe: str, day: date):
-        data = cache_get(ticker, timeframe, day)
+        data = cache_get_day(ticker, timeframe, day)
         if data is not None:
             return data
 
@@ -193,6 +193,6 @@ class Binance:
         else:
             data = self.binance_get(ticker, timeframe, start__, end__)
 
-        cache_set(ticker, timeframe, day, data)
+        cache_set_day(ticker, timeframe, day, data)
 
         return data
