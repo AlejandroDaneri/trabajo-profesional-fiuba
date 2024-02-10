@@ -11,6 +11,7 @@ from lib.indicators.pvi import PVI
 from lib.indicators.mfi import MFI
 from lib.indicators.stochastic import Stochastic
 from lib.indicators.koncorde import KONCORDE
+from lib.indicators.sar import SAR
 from lib.strategies.basic import Basic
 
 def hydrate_indicator_rsi(parameters):
@@ -162,6 +163,18 @@ def hydrate_indicator_koncorde(parameters):
         return None
     return KONCORDE(rounds, rsi_mfi_length, bbands_length, bbands_factor, storch_length)
 
+def hydrate_indicator_sar(parameters):
+    if parameters is None:
+        print("indicator sar not have parameters")
+        return None
+    initial_af = parameters["initial_af"]
+    max_af = parameters["max_af"]
+    af_increment = parameters["af_increment"]
+    if initial_af is None or max_af is None or af_increment is None:
+        print("indicator sar not have all the parameters")
+        return None
+    return SAR(initial_af, max_af, af_increment)
+
 def hydrate_strategy(currencies, indicators):
     strategy = {}
     for currency in currencies:
@@ -232,6 +245,11 @@ def hydrate_strategy(currencies, indicators):
                 koncorde = hydrate_indicator_koncorde(indicator["parameters"])
                 if koncorde is not None:
                     indicators_builded.append(koncorde)
+
+            elif indicator["name"] == "sar":
+                sar = hydrate_indicator_sar(indicator["parameters"])
+                if sar is not None:
+                    indicators_builded.append(sar)
         
         strategy[currency] = Basic(indicators_builded)
     return strategy
