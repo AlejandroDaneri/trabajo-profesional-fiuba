@@ -3,11 +3,11 @@ from lib.actions import Action
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from algo_trader.lib.indicators.nvi import NVI
-from algo_trader.lib.indicators.pvi import PVI
-from algo_trader.lib.indicators.mfi import MFI
-from algo_trader.lib.indicators.rsi import RSI
-from algo_trader.lib.indicators.bbands import BBANDS
+from lib.indicators.nvi import NVI
+from lib.indicators.pvi import PVI
+from lib.indicators.mfi import MFI
+from lib.indicators.rsi import RSI
+from lib.indicators.bbands import BBANDS
 
 class KONCORDE(Indicator):
     def __init__(self, 
