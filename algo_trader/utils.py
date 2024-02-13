@@ -9,7 +9,9 @@ from lib.indicators.obv import OBV
 from lib.indicators.nvi import NVI
 from lib.indicators.pvi import PVI
 from lib.indicators.mfi import MFI
+from lib.indicators.stochastic import Stochastic
 from lib.indicators.koncorde import KONCORDE
+from lib.indicators.sar import SAR
 from lib.strategies.basic import Basic
 
 def hydrate_indicator_rsi(parameters):
@@ -135,6 +137,18 @@ def hydrate_indicator_mfi(parameters):
         return None
     return MFI(buy_threshold, sell_threshold, rounds)
 
+def hydrate_indicator_stochastic(parameters):
+    if parameters is None:
+        print("indicator stochastic not have parameters")
+        return None
+    buy_threshold = parameters["buy_threshold"]
+    sell_threshold = parameters["sell_threshold"]
+    rounds = parameters["rounds"]
+    if buy_threshold is None or sell_threshold is None or rounds is None:
+        print("indicator stochastic not have all the parameters")
+        return None
+    return Stochastic(buy_threshold, sell_threshold, rounds)
+
 def hydrate_indicator_koncorde(parameters):
     if parameters is None:
         print("indicator koncorde not have parameters")
@@ -148,6 +162,18 @@ def hydrate_indicator_koncorde(parameters):
         print("indicator koncorde not have all the parameters")
         return None
     return KONCORDE(rounds, rsi_mfi_length, bbands_length, bbands_factor, storch_length)
+
+def hydrate_indicator_sar(parameters):
+    if parameters is None:
+        print("indicator sar not have parameters")
+        return None
+    initial_af = parameters["initial_af"]
+    max_af = parameters["max_af"]
+    af_increment = parameters["af_increment"]
+    if initial_af is None or max_af is None or af_increment is None:
+        print("indicator sar not have all the parameters")
+        return None
+    return SAR(initial_af, max_af, af_increment)
 
 def hydrate_strategy(currencies, indicators):
     strategy = {}
@@ -210,10 +236,20 @@ def hydrate_strategy(currencies, indicators):
                 if mfi is not None:
                     indicators_builded.append(mfi)
 
+            elif indicator["name"] == "stochastic":
+                stochastic = hydrate_indicator_stochastic(indicator["parameters"])
+                if stochastic is not None:
+                    indicators_builded.append(stochastic)
+
             elif indicator["name"] == "koncorde":
                 koncorde = hydrate_indicator_koncorde(indicator["parameters"])
                 if koncorde is not None:
                     indicators_builded.append(koncorde)
+
+            elif indicator["name"] == "sar":
+                sar = hydrate_indicator_sar(indicator["parameters"])
+                if sar is not None:
+                    indicators_builded.append(sar)
         
         strategy[currency] = Basic(indicators_builded)
     return strategy
