@@ -73,11 +73,13 @@ const Table = ({ headers, data, buildRow }) => {
   })
 
   const onSort = (field) => {
-    sortFunc(prevState => ({
-      ...prevState,
-      field,
-      direction: prevState.direction === 'asc' ? 'desc' : 'asc'
-    }))
+    if (field) {
+      sortFunc(prevState => ({
+        ...prevState,
+        field,
+        direction: prevState.direction === 'asc' ? 'desc' : 'asc'
+      }))
+    }
   }
 
   const sort_ = (list, key, direction) => {

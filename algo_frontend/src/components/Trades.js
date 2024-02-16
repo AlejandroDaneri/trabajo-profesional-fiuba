@@ -74,14 +74,14 @@ const Trades = ({ strategyID }) => {
     },
     {
       label: "Date Buy",
-      sortable: true
     },
     {
       label: "Date Sell",
-      sortable: true
     },
     {
+      value: 'duration',
       label: "Duration (min)",
+      sortable: true
     },
     {
       label: "Price Buy ($)",
