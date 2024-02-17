@@ -95,7 +95,9 @@ const Trades = ({ strategyID }) => {
       sortable: true
     },
     {
+      value: "pl",
       label: "Profit/Loss (%)",
+      sortable: true
     },
   ]
 
