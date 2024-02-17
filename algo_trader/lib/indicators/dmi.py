@@ -3,8 +3,7 @@ from lib.indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from algo_trader.lib.indicators.atr import ATR
-
+from lib.indicators.atr import ATR
 
 class DMI(Indicator):
     def __init__(self, rounds, adx_threshold):
@@ -68,7 +67,7 @@ class DMI(Indicator):
 
         new_signal = new_dmi.iloc[-1]
 
-        print(f'[DMI] Current value:\n{new_signal}')
+        print(f'[DMI] Current value: {new_signal}')
         print(f'[DMI] ADX Threshold: {self.adx_threshold}')
 
         if sell_signal == True:

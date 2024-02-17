@@ -40,6 +40,8 @@ const CurrentStrategy = () => {
         switch (timeframe) {
           case "1M":
             return "1 minute"
+          case "1H":
+            return "1 hour"
           default:
             return ""
         }

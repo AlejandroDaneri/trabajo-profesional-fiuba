@@ -5,10 +5,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class MACD(Indicator):
-    def __init__(self, slow, fast, suavizado):
+    def __init__(self, slow, fast, smoothed):
         self.slow = slow
         self.fast = fast
-        self.suavizado = suavizado
+        self.smoothed = smoothed
         super().__init__("MACD")
 
     def calculate(self, data):
@@ -28,7 +28,7 @@ class MACD(Indicator):
         df["macd"] = df.ema_fast - df.ema_slow
 
         # Smooth the MACD and call it the 'signal'
-        df["signal"] = df.macd.ewm(span=self.suavizado).mean()
+        df["signal"] = df.macd.ewm(span=self.smoothed).mean()
 
         # Finally, the point of interest is the difference between the MACD and the signal
         # It is particularly interesting when it crosses zero.
