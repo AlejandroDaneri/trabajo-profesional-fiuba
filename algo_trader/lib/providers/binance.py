@@ -62,11 +62,13 @@ class Cache:
         data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
 
 class Binance:
-    def __init__(self):
+    def __init__(self, cache_enabled: bool):
         api_key = "OF6SkzXI0EAcvmMWlkeUKl6YyxYIFU4pN0Bj19gaVYZcgaTt7OImXxEyvoPcDhmk"
         secret_key = "tXay1BDYuSyigxvl27UQIBJbIHADaep8FT7HPO9Mb3vfmcyDkz4keEaHkpm7dcFe"
         self.provider = BinanceProvider(api_key, secret_key, tld='us')
-        self.cache = Cache()
+        self.cache_enabled = cache_enabled
+        if (self.cache_enabled):
+            self.cache = Cache()
     
     def binance_get(self, ticker: str, timeframe: str, start=None, end=None, n=1000):
         timeframes = {
@@ -151,10 +153,12 @@ class Binance:
         return self.binance_get(ticker, timeframe, start_date)
     
     def get_by_month(self, ticker, month: date):
+
         # try to get from cache
-        data = self.cache.get_month(ticker, month)
-        if data is not None:
-            return data
+        if (self.cache_enabled):
+            data = self.cache.get_month(ticker, month)
+            if data is not None:
+                return data
 
         start = str(month)
         end = str(month + timedelta(days=31))
@@ -171,7 +175,8 @@ class Binance:
         data = data.drop('Open_', axis=1)
 
         # store response to cache
-        self.cache.set_month(ticker, month, data)
+        if (self.cache_enabled):
+            self.cache.set_month(ticker, month, data)
     
         return data
 
@@ -179,9 +184,11 @@ class Binance:
     # timeframe: example 1H
     # day: example 2023-12-08
     def get_by_day(self, ticker: str, timeframe: str, day: date):
-        data = self.cache.get_day(ticker, timeframe, day)
-        if data is not None:
-            return data
+
+        if (self.cache_enabled):
+            data = self.cache.get_day(ticker, timeframe, day)
+            if data is not None:
+                return data
 
         start = str(day)
         start_ = datetime.strptime(start, '%Y-%m-%d')
@@ -203,6 +210,7 @@ class Binance:
         else:
             data = self.binance_get(ticker, timeframe, start_unix, end_unix)
 
-        self.cache.set_day(ticker, timeframe, day, data)
+        if (self.cache_enabled):
+            self.cache.set_day(ticker, timeframe, day, data)
 
         return data
