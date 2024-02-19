@@ -20,8 +20,8 @@ class ATR(Indicator):
         df["Close"] = data["Close"]
 
         df["HighLow"] = data["High"] - data["Low"]
-        df["HighClose"] = abs(data["High"] - data["Close"].shift(1))
-        df["LowClose"] = abs(data["Low"] - data["Close"].shift(1))
+        df["HighClose"] = abs(data["High"] - data["Close"].shift(1).fillna(0))
+        df["LowClose"] = abs(data["Low"] - data["Close"].shift(1).fillna(0))
 
         df["TrueRange"] = df[["HighLow", "HighClose", "LowClose"]].max(axis=1, skipna=False)
         df["ATR"] = df["TrueRange"].ewm(span=self.rounds, min_periods=self.rounds).mean()

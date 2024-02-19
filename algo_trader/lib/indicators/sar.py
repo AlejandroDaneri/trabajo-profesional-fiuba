@@ -18,6 +18,9 @@ class SAR(Indicator):
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
 
+        # Disable SettingWithCopyWarning
+        pd.options.mode.chained_assignment = None
+
         # Copy the 'Close' column from the original data to the new DataFrame
         df["Close"] = data["Close"]
 
@@ -38,7 +41,7 @@ class SAR(Indicator):
         # Initialize first row values
         df["SAR"].iloc[0] = df["Low"].iloc[0] if uptrend else df["High"].iloc[0]
         df["AF"].iloc[0] = self.initial_af
-        df["EP"].iloc[0] = df["High"].iloc[0] if uptrend else df["Lpw"].iloc[0]
+        df["EP"].iloc[0] = df["High"].iloc[0] if uptrend else df["Low"].iloc[0]
 
         for i in range(1, len(df)):
             prev_sar = df["SAR"].iloc[i - 1]
@@ -81,7 +84,7 @@ class SAR(Indicator):
     
     def calc_sell_signals(self):
         return np.where(
-            (self.df_output.SAR.shift(1) <= self.df_output.Low.shift(1)) & 
+            (self.df_output.SAR.shift(1) <= self.df_output.Low.shift(1).fillna(0)) & 
             (self.df_output.Low < self.df_output.SAR), True, False)
     
     def plot(self):
