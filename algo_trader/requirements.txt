@@ -6,3 +6,4 @@ websocket-client==1.7.0
 python-binance==1.0.19
 requests==2.31.0
 pytest==8.0.0
+cryptocmd==0.6.4
