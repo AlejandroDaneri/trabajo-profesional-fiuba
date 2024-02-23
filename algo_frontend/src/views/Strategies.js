@@ -72,6 +72,7 @@ const Strategies = () => {
     {
       value: "state",
       label: "State",
+      default: true
     },
     {
       value: "initial_balance",
