@@ -39,42 +39,47 @@ class Basic(Strategy):
 
         # Obtener señales de compra y venta
         buy_signals, sell_signals = self.get_buy_sell_signals(historical_data)
-
+        
         # Obtener acciones a partir de las señales
         actions = self.get_actions(buy_signals, sell_signals)
 
-        # Obtener trades a partir de las acciones
+        # get trades from actions
         trades = self.get_trades(actions)
 
-        # Realizar análisis de backtesting
-        self.analyze_backtesting(trades)
+        return trades
 
+        # Realizar análisis de backtesting
+        #self.analyze_backtesting(trades)
+
+    # detect if each indicator belong the strategy detect a good moment to buy or sell
     def get_buy_sell_signals(
         self, historical_data: pd.DataFrame
     ) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        # Lógica para obtener señales de compra y venta
-        # Asumo que tu estrategia tiene un método predict_signal similar al que mostraste
         buy_signals = pd.DataFrame(index=historical_data.index)
         sell_signals = pd.DataFrame(index=historical_data.index)
+        buy_signals["Close"] = historical_data["Close"]
+        sell_signals["Close"] = historical_data["Close"]
 
         for indicator in self.indicators:
             indicator.calculate(historical_data)
-            signal = indicator.predict_signal(historical_data)
-            buy_signals[indicator.name] = np.where(signal == "buy", 1, 0)
-            sell_signals[indicator.name] = np.where(signal == "sell", 1, 0)
+            buy_signals[indicator.name] = np.where(indicator.calc_buy_signals(), 1, 0)
+            sell_signals[indicator.name] = np.where(indicator.calc_sell_signals(), 1, 0)
 
         return buy_signals, sell_signals
 
+    # using signals this method make a transformation to actions
+    # that means buy or sell
     def get_actions(
         self, buy_signals: pd.DataFrame, sell_signals: pd.DataFrame
     ) -> pd.DataFrame:
-        # Lógica para obtener acciones a partir de las señales
         actions = pd.DataFrame(index=buy_signals.index)
         actions["Close"] = buy_signals["Close"]
 
         # Define masks for buy and sell signals
-        buy_mask = buy_signals["all"]
-        sell_mask = sell_signals["all"]
+        #   its a buy if all indicators say that
+        #   its a sell if all indicators say that
+        buy_mask = buy_signals.all(axis=1)
+        sell_mask = sell_signals.all(axis=1)
 
         # Determine if it's a buy, sell, or no action day
         actions["signal"] = np.where(buy_mask, "buy", np.where(sell_mask, "sell", ""))
@@ -99,7 +104,7 @@ class Basic(Strategy):
         return trades
 
     def get_trades(self, actions: pd.DataFrame) -> pd.DataFrame:
-        # Lógica para obtener trades a partir de las acciones
+        # logic to get trades from actions
         pairs = actions.iloc[::2].loc[:, ["Close"]].reset_index()
         odds = actions.iloc[1::2].loc[:, ["Close"]].reset_index()
         trades = pd.concat([pairs, odds], axis=1)
@@ -107,8 +112,7 @@ class Basic(Strategy):
         trades.columns = ["buy_date", "buy_price", "sell_date", "sell_price"]
         trades["return"] = trades.sell_price / trades.buy_price - 1
         trades["return"] -= cumulative_return
-        trades["days"] = (trades.sell_date - trades.buy_date).dt.days
-
+        #trades["days"] = (trades.sell_date - trades.buy_date).dt.days
         if len(trades):
             trades["result"] = np.where(trades["return"] > 0, "Winner", "Loser")
             trades["cumulative_return"] = (trades["return"] + 1).cumprod() - 1
