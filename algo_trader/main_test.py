@@ -29,7 +29,7 @@ def main():
     simulation_data = {}
     
     n_train = 200
-    n_simulate = 800
+    n_simulate = 1000
     n_total = n_train + n_simulate
 
     for currency in currencies:
@@ -41,7 +41,6 @@ def main():
     trade_bot = TradeBot(strategy, exchange)
 
     for index in range(n_simulate):
-        
         for currency in currencies:
             row = simulation_data[currency].iloc[[index]]
             print(f'Simulating: {currency} {row.index[0]}')

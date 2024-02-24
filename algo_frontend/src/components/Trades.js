@@ -30,16 +30,12 @@ const Trades = ({ strategyID }) => {
     return trades.map((trade) => ({
       ...trade,
       amount: parseFloat(trade.amount).toFixed(4),
-      orders: {
-        buy: {
-          ...trade.orders.buy,
-          timestamp_label: unixToDate(trade.orders.buy.timestamp),
-        },
-        sell: {
-          ...trade.orders.sell,
-          timestamp_label: unixToDate(trade.orders.sell.timestamp),
-        },
-      },
+      buy_timestamp: trade.orders.buy.timestamp,
+      buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
+      buy_price: trade.orders.buy.price,
+      sell_timestamp: trade.orders.sell.timestamp,
+      sell_timestamp_label: unixToDate(trade.orders.sell.timestamp),
+      sell_price: trade.orders.sell.price,
       duration:
         (trade.orders.sell.timestamp / 1000 -
           trade.orders.buy.timestamp / 1000) /
@@ -70,24 +66,38 @@ const Trades = ({ strategyID }) => {
     {
       value: "amount",
       label: "Amount",
+      sortable: true
     },
     {
+      value: "buy_timestamp",
       label: "Date Buy",
+      sortable: true,
+      default: true
     },
     {
+      value: "sell_timestamp",
       label: "Date Sell",
+      sortable: true
     },
     {
+      value: 'duration',
       label: "Duration (min)",
+      sortable: true
     },
     {
+      value: "buy_price",
       label: "Price Buy ($)",
+      sortable: true
     },
     {
+      value: "sell_price",
       label: "Price Sell ($)",
+      sortable: true
     },
     {
+      value: "pl",
       label: "Profit/Loss (%)",
+      sortable: true
     },
   ]
 
@@ -95,11 +105,11 @@ const Trades = ({ strategyID }) => {
     return [
       <CurrencyLogo currency={row.pair} />,
       row.amount,
-      row.orders.buy.timestamp_label,
-      row.orders.sell.timestamp_label,
+      row.buy_timestamp_label,
+      row.sell_timestamp_label,
       row.duration,
-      row.orders.buy.price,
-      row.orders.sell.price,
+      row.buy_price,
+      row.sell_price,
       <ResultStyle win={row.pl > 0}>{row.pl} </ResultStyle>,
     ]
   }
