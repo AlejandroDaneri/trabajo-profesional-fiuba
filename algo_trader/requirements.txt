@@ -7,3 +7,5 @@ python-binance==1.0.19
 requests==2.31.0
 pytest==8.0.0
 cryptocmd==0.6.4
+jupyter==1.0.0
+jupyter_http_over_ws==0.0.8
