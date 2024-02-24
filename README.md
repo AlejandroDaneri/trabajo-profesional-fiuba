@@ -52,7 +52,7 @@ El servicio couchdb proporciona una base de datos NoSQL para almacenar datos nec
 
 ### Telegram
 
-Para conectarse al servicio de alertas de telegram, se debe ingresar al siguiente link [SatoshiFiubaBot](https://t.me/SatoshiFiubaBot) y escribir `/start`. Para renovar las alertas, diariamente, se deberá iniciar la conversación con el bot.
+Para conectarse al servicio de alertas de telegram, se debe ingresar al siguiente link [SatoshiFiubaBot](https://t.me/SatoshiFiubaBot) y escribir `/start`.
 
 #### Construcción y Ejecución del Servicio
 
