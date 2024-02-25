@@ -35,7 +35,7 @@ class OBV(Indicator):
 
     def calc_sell_signals(self):
         return np.where(
-            (self.df_output.OBV_EMA.shift(1) < self.df_output.OBV.shift(1)) & 
+            (self.df_output.OBV_EMA.shift(1) < self.df_output.OBV.shift(1).fillna(0)) & 
             (self.df_output.OBV <= self.df_output.OBV_EMA), True, False)
 
     def plot(self):
