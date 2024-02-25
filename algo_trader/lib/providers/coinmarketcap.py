@@ -11,7 +11,7 @@ class CoinMarketCap:
         headers, data = scraper.get_data()
 
         data = pd.DataFrame(data, columns=headers)
-        data['Open'] = data['Date'].apply(lambda x : datetime.strptime(x, '%d-%m-%Y').strftime('%Y-%m-%d'))
-        data = data.set_index('Open')
+        data['data_open'] = data['Date'].apply(lambda x : datetime.strptime(x, '%d-%m-%Y').strftime('%Y-%m-%d'))
+        data = data.set_index('data_open')
         data = data.sort_index()
         return data
