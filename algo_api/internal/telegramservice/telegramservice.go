@@ -39,6 +39,7 @@ func (t *TelegramService) AddTelegramChat(chatId string) (error) {
         return err
     }
     chat["chat_id"] = chatId
+    chat["pvt_type"] = "telegram"
     _, _, err = db.Save(chat, nil)
     if err != nil {
         return err
@@ -55,9 +56,7 @@ func (t *TelegramService) GetAllTelegramChats() ([]string, error) {
     q := `
     {
         "selector": {
-            "chat_id": {
-                "$exists": true
-            }
+            "pvt_type": "telegram"
         }
     }
     `
