@@ -3,9 +3,11 @@ package main
 import (
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/tradeservice"
+	"algo_api/internal/telegramservice"
 	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -309,6 +311,64 @@ func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func AddTelegramChat(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ChatID int64 `json:"chat_id"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = telegramservice.GetInstance().AddTelegramChat(strconv.FormatInt(body.ChatID, 10))
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not add Telegram chat ID")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	response := map[string]string{"message": "Telegram chat ID added successfully"}
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
+func GetTelegramChats(w http.ResponseWriter, r *http.Request) {
+    chats, err := telegramservice.GetInstance().GetAllTelegramChats()
+    if err != nil {
+        logrus.WithError(err).Error("Failed to get Telegram chats")
+        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+        return
+    }
+
+    response, err := json.Marshal(chats)
+    if err != nil {
+        logrus.WithError(err).Error("Failed to marshal response")
+        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+        return
+    }
+
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(http.StatusOK)
+    _, err = w.Write(response)
+    if err != nil {
+        logrus.WithError(err).Error("Failed to write response")
+    }
+}
+
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
@@ -321,6 +381,9 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")
+
+	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")
+	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
 }
 
 func main() {
