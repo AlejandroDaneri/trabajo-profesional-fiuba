@@ -116,7 +116,7 @@ class KONCORDE(Indicator):
         )
 
     def calc_sell_signals(self):
-        return self.calc_sell_signals(
+        return self._calc_sell_signals(
             (self.output.TREND.shift(1) > self.output.TREND_AVG.shift(1))
             & (self.output.TREND_AVG >= self.output.TREND)
         )

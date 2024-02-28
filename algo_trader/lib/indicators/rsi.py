@@ -38,7 +38,8 @@ class RSI(Indicator):
 
         # Calculate the ratio between the exponential moving averages ('RS' column)
         df["RS"] = df.EMA_win / df.EMA_loss
-        df[self.name] = 100 - (100 / (1 + df["RS"]))  # TODO: Check vs alphavantage API
+
+        df[self.name] = 100 - (100 / (1 + df["RS"]))
 
         # Calculate the final Relative Strength Index (RSI) using the calculated RS
         self.output = df[self.name]

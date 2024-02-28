@@ -47,7 +47,7 @@ class MACD(Indicator):
         return self._calc_buy_signals((self.output.shift(1) < 0) & (0 < self.output))
 
     def calc_sell_signals(self):
-        return self.calc_sell_signals((self.output.shift(1) > 0) & (0 >= self.output))
+        return self._calc_sell_signals((self.output.shift(1) > 0) & (0 >= self.output))
 
     def plot(self):
         data = pd.DataFrame(self.output, index=self.dates)
