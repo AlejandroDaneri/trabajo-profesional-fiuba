@@ -1,4 +1,3 @@
-from lib.actions import Action
 from lib.indicators.indicator import Indicator
 import numpy as np
 import pandas as pd
@@ -37,10 +36,10 @@ class BBANDS(Indicator):
         return self.df_output
 
     def calc_buy_signals(self):
-        return np.where(self.df_output.Close <= self.df_output.LowerBand, True, False)
+        return self._calc_buy_signals(self.df_output.Close <= self.df_output.LowerBand)
 
     def calc_sell_signals(self):
-        return np.where(self.df_output.Close >= self.df_output.UpperBand, True, False)
+        return self._calc_sell_signals(self.df_output.Close >= self.df_output.UpperBand)
 
     def plot(self):
         data = self.df_output
@@ -56,8 +55,6 @@ class BBANDS(Indicator):
 
     def predict_signal(self, new_record):
         new_bbands_value = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_bbands_value.iloc[-1]
 
@@ -65,12 +62,7 @@ class BBANDS(Indicator):
         print(f"[BBANDS] UpperBand value: {new_signal.UpperBand}")
         print(f"[BBANDS] LowerBand value: {new_signal.LowerBand}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[BBANDS] Signal: {signal}")
 

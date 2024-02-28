@@ -23,10 +23,10 @@ class Crossing(Indicator):
         return super().calculate(data, normalize)
 
     def calc_sell_signals(self):
-        return np.where(self.output < self.sell_threshold, True, False)
+        return self._calc_sell_signals(self.output < self.sell_threshold)
 
     def calc_buy_signals(self):
-        return np.where(self.output > self.buy_threshold, True, False)
+        return self._calc_buy_signals(self.output > self.buy_threshold)
 
     def predict_signal(self, new_record):
         new_output = self.calculate(pd.concat([self.data, new_record]))
@@ -37,11 +37,7 @@ class Crossing(Indicator):
         print(f"[Crossing] Sell Threshold: {self.sell_threshold}")
         print(f"[Crossing] Buy Threshold: {self.buy_threshold}")
 
-        signal = Action.HOLD
-        if new_signal < self.sell_threshold:
-            signal = Action.SELL
-        elif new_signal > self.buy_threshold:
-            signal = Action.BUY
+        signal = self.get_last_signal(True)
 
         print(f"[Crossing] Signal: {signal}")
 

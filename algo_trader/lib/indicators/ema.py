@@ -30,19 +30,15 @@ class EMA(Indicator):
         return self.df_output
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.df_output.FAST_EMA.shift(1) < self.df_output.SLOW_EMA.shift(1))
-            & (self.df_output.SLOW_EMA <= self.df_output.FAST_EMA),
-            True,
-            False,
+            & (self.df_output.SLOW_EMA <= self.df_output.FAST_EMA)
         )
 
     def calc_sell_signals(self):
-        return np.where(
+        return self._calc_sell_signals(
             (self.df_output.SLOW_EMA.shift(1) < self.df_output.FAST_EMA.shift(1))
-            & (self.df_output.FAST_EMA <= self.df_output.SLOW_EMA),
-            True,
-            False,
+            & (self.df_output.FAST_EMA <= self.df_output.SLOW_EMA)
         )
 
     def plot(self):
@@ -56,20 +52,13 @@ class EMA(Indicator):
 
     def predict_signal(self, new_record):
         new_df = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_df.iloc[-1]
 
         print(f"[EMA] Current fast EMA value: {new_signal.FAST_EMA}")
         print(f"[EMA] Current slow EMA value: {new_signal.SLOW_EMA}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[EMA] Signal: {signal}")
 

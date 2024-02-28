@@ -84,19 +84,15 @@ class SAR(Indicator):
         return self.df_output
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.df_output.High.shift(1) <= self.df_output.SAR.shift(1))
-            & (self.df_output.SAR < self.df_output.High),
-            True,
-            False,
+            & (self.df_output.SAR < self.df_output.High)
         )
 
     def calc_sell_signals(self):
-        return np.where(
+        return self._calc_sell_signals(
             (self.df_output.SAR.shift(1) <= self.df_output.Low.shift(1).fillna(0))
-            & (self.df_output.Low < self.df_output.SAR),
-            True,
-            False,
+            & (self.df_output.Low < self.df_output.SAR)
         )
 
     def plot(self):
@@ -111,8 +107,6 @@ class SAR(Indicator):
 
     def predict_signal(self, new_record):
         new_df = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_df.iloc[-1]
 
@@ -120,12 +114,7 @@ class SAR(Indicator):
         print(f"[SAR] Current High value: {new_signal.High}")
         print(f"[SAR] Current Low value: {new_signal.Low}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[SAR] Signal: {signal}")
 

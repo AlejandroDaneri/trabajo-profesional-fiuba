@@ -49,19 +49,15 @@ class MFI(Indicator):
         return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.output.shift(1) < self.buy_threshold)
-            & (self.buy_threshold <= self.output),
-            True,
-            False,
+            & (self.buy_threshold <= self.output)
         )
 
     def calc_sell_signals(self):
-        return np.where(
+        return self._calc_sell_signals(
             (self.output.shift(1) > self.sell_threshold)
-            & (self.sell_threshold >= self.output),
-            True,
-            False,
+            & (self.sell_threshold >= self.output)
         )
 
     def plot(self):
@@ -78,8 +74,6 @@ class MFI(Indicator):
 
     def predict_signal(self, new_record):
         new_mfi = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_mfi.iloc[-1]
 
@@ -87,12 +81,7 @@ class MFI(Indicator):
         print(f"[MFI] Sell Threshold: {self.sell_threshold}")
         print(f"[MFI] Buy Threshold: {self.buy_threshold}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[MFI] Signal: {signal}")
 

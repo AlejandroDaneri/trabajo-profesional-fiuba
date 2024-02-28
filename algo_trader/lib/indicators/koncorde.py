@@ -110,19 +110,15 @@ class KONCORDE(Indicator):
         return ((src - ob1) / ob2) * 100
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.output.TREND.shift(1) < self.output.TREND_AVG.shift(1))
-            & (self.output.TREND_AVG <= self.output.TREND),
-            True,
-            False,
+            & (self.output.TREND_AVG <= self.output.TREND)
         )
 
     def calc_sell_signals(self):
-        return np.where(
+        return self.calc_sell_signals(
             (self.output.TREND.shift(1) > self.output.TREND_AVG.shift(1))
-            & (self.output.TREND_AVG >= self.output.TREND),
-            True,
-            False,
+            & (self.output.TREND_AVG >= self.output.TREND)
         )
 
     def plot(self):
@@ -155,8 +151,6 @@ class KONCORDE(Indicator):
 
     def predict_signal(self, new_record):
         new_koncorde_value = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_koncorde_value.iloc[-1]
 
@@ -165,12 +159,7 @@ class KONCORDE(Indicator):
         print(f"[KONCORDE] Trend value: {new_signal.TREND}")
         print(f"[KONCORDE] Trend avg value: {new_signal.TREND_AVG}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[KONCORDE] Signal: {signal}")
 
