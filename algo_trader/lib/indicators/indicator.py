@@ -27,17 +27,13 @@ class Indicator:
         pass
 
     def _calc_buy_signals(self, condition):
-        return np.where(
-            condition,
-            True,
-            False,
-        )
+        return np.where(condition, 1, 0)
 
     def _calc_sell_signals(self, condition):
         return np.where(
             condition,
-            True,
-            False,
+            -1,
+            0,
         )
 
     def normalize_output(self):

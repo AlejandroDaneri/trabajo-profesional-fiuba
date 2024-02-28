@@ -36,10 +36,10 @@ class BBANDS(Indicator):
         return self.df_output
 
     def calc_buy_signals(self):
-        return np.where(self.df_output.Close <= self.df_output.LowerBand, 1, 0)
+        return self._calc_buy_signals(self.df_output.Close <= self.df_output.LowerBand)
 
     def calc_sell_signals(self):
-        return np.where(self.df_output.Close >= self.df_output.UpperBand, -1, 0)
+        return self._calc_sell_signals(self.df_output.Close >= self.df_output.UpperBand)
 
     def plot(self):
         data = self.df_output
