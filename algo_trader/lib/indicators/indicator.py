@@ -6,10 +6,11 @@ class Indicator:
         self.name = name
         return
 
-    @abstractmethod
-    def calculate(self, *args):
-        pass
-    
+    def calculate(self, data, normalize=False):
+        if normalize:
+            return self.normalize_output()
+        return self.output
+
     @abstractmethod
     def predict_signal(self, new_record):
         pass
@@ -21,3 +22,8 @@ class Indicator:
     @abstractmethod
     def calc_sell_signals(self):
         pass
+
+    def normalize_output(self):
+        mean = self.data[self.name].mean()
+        std = self.data[self.name].std()
+        return (self.output - mean) / std
