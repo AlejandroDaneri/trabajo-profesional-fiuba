@@ -27,3 +27,9 @@ class Indicator:
         mean = self.output.mean()
         std = self.output.std()
         return (self.output - mean) / std
+
+    def generate_signals(self):
+        buy_signals = self.calc_buy_signals()
+        sell_signals = self.calc_sell_signals()
+
+        return buy_signals + sell_signals
