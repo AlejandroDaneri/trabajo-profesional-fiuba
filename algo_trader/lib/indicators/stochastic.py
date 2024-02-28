@@ -43,23 +43,19 @@ class Stochastic(Indicator):
         return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.output["%K"].shift(1) < self.output["%D"].shift(1))
             & (self.output["%D"] <= self.output["%K"])
             & (self.output["%K"] <= self.buy_threshold)
-            & (self.output["%D"] <= self.buy_threshold),
-            True,
-            False,
+            & (self.output["%D"] <= self.buy_threshold)
         )
 
     def calc_sell_signals(self):
-        return np.where(
+        return self._calc_sell_signals(
             (self.output["%K"].shift(1) > self.output["%D"].shift(1))
             & (self.output["%D"] >= self.output["%K"])
             & (self.output["%K"] >= self.sell_threshold)
-            & (self.output["%D"] >= self.sell_threshold),
-            True,
-            False,
+            & (self.output["%D"] >= self.sell_threshold)
         )
 
     def plot(self):
@@ -77,8 +73,6 @@ class Stochastic(Indicator):
 
     def predict_signal(self, new_record):
         new_stoch = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_stoch.iloc[-1]
 
@@ -86,12 +80,7 @@ class Stochastic(Indicator):
         print(f"[Stochastic] Sell Threshold: {self.sell_threshold}")
         print(f"[Stochastic] Buy Threshold: {self.buy_threshold}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[Stochastic] Signal: {signal}")
 

@@ -16,7 +16,7 @@ class Sigma(Indicator):
         return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where(self.output > 0.01, True, False)
+        return self._calc_buy_signals(self.output > 0.01)
 
     def calc_sell_signals(self):
-        return np.where(self.output < 55, True, False)
+        return self._calc_sell_signals(self.output < 55)

@@ -31,19 +31,15 @@ class OBV(Indicator):
         return self.df_output
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.df_output.OBV.shift(1) < self.df_output.OBV_EMA.shift(1))
-            & (self.df_output.OBV_EMA <= self.df_output.OBV),
-            True,
-            False,
+            & (self.df_output.OBV_EMA <= self.df_output.OBV)
         )
 
     def calc_sell_signals(self):
-        return np.where(
+        return self._calc_sell_signals(
             (self.df_output.OBV_EMA.shift(1) < self.df_output.OBV.shift(1).fillna(0))
-            & (self.df_output.OBV <= self.df_output.OBV_EMA),
-            True,
-            False,
+            & (self.df_output.OBV <= self.df_output.OBV_EMA)
         )
 
     def plot(self):
@@ -57,8 +53,6 @@ class OBV(Indicator):
     def predict_signal(self, new_record):
         # Calculate OBV for the updated DataFrame
         new_obv = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         # Extract the value of OBV for the new record
         new_signal = new_obv.iloc[-1]
@@ -66,13 +60,7 @@ class OBV(Indicator):
         print(f"[OBV] Current OBV value: {new_signal.OBV}")
         print(f"[OBV] Current OBV_EMA value: {new_signal.OBV_EMA}")
 
-        # Trading decisions based on OBV signals
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[OBV] Signal: {signal}")
 

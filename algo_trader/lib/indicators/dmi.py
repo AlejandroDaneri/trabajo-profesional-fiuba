@@ -59,12 +59,10 @@ class DMI(Indicator):
         return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.output["-di"].shift(1) > self.output["+di"].shift(1))
             & (self.output["-di"] <= self.output["+di"])
-            & (self.adx_threshold <= self.output["ADX"]),
-            True,
-            False,
+            & (self.adx_threshold <= self.output["ADX"])
         )
 
     def calc_sell_signals(self):
@@ -90,20 +88,13 @@ class DMI(Indicator):
 
     def predict_signal(self, new_record):
         new_dmi = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_dmi.iloc[-1]
 
         print(f"[DMI] Current value: {new_signal}")
         print(f"[DMI] ADX Threshold: {self.adx_threshold}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[DMI] Signal: {signal}")
 

@@ -44,10 +44,10 @@ class MACD(Indicator):
         return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where((self.output.shift(1) < 0) & (0 < self.output), True, False)
+        return self._calc_buy_signals((self.output.shift(1) < 0) & (0 < self.output))
 
     def calc_sell_signals(self):
-        return np.where((self.output.shift(1) > 0) & (0 >= self.output), True, False)
+        return self.calc_sell_signals((self.output.shift(1) > 0) & (0 >= self.output))
 
     def plot(self):
         data = pd.DataFrame(self.output, index=self.dates)
@@ -66,19 +66,12 @@ class MACD(Indicator):
 
     def predict_signal(self, new_record):
         new_macd_value = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_macd_value.iloc[-1]
 
         print(f"[MACD] Current value: {new_signal}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[MACD] Signal: {signal}")
 

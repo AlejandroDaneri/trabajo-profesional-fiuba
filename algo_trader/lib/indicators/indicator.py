@@ -1,5 +1,8 @@
 from abc import abstractmethod
 
+import numpy as np
+from lib.actions import Action
+
 
 class Indicator:
     def __init__(self, name):
@@ -23,6 +26,20 @@ class Indicator:
     def calc_sell_signals(self):
         pass
 
+    def _calc_buy_signals(self, condition):
+        return np.where(
+            condition,
+            True,
+            False,
+        )
+
+    def _calc_sell_signals(self, condition):
+        return np.where(
+            condition,
+            True,
+            False,
+        )
+
     def normalize_output(self):
         mean = self.output.mean()
         std = self.output.std()
@@ -33,3 +50,14 @@ class Indicator:
         sell_signals = self.calc_sell_signals()
 
         return buy_signals + sell_signals
+
+    def get_last_signal(self, as_enum=False):
+        signal = self.generate_signals()[-1]
+        if as_enum:
+            if signal == -1:
+                signal = Action.SELL
+            elif signal == 1:
+                signal = Action.BUY
+            else:
+                signal = Action.HOLD
+        return signal

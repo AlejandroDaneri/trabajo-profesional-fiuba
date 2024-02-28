@@ -52,19 +52,15 @@ class PVI(Indicator):
         return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where(
+        return self._calc_buy_signals(
             (self.output["PVI_EMA"].shift(1) > self.output["PVI"].shift(1))
-            & (self.output["PVI_EMA"] <= self.output["PVI"]),
-            True,
-            False,
+            & (self.output["PVI_EMA"] <= self.output["PVI"])
         )
 
     def calc_sell_signals(self):
-        return np.where(
+        return self._calc_sell_signals(
             (self.output["PVI_EMA"].shift(1) < self.output["PVI"].shift(1))
-            & (self.output["PVI_EMA"] >= self.output["PVI"]),
-            True,
-            False,
+            & (self.output["PVI_EMA"] >= self.output["PVI"])
         )
 
     def plot(self):
@@ -93,20 +89,13 @@ class PVI(Indicator):
 
     def predict_signal(self, new_record):
         new_pvi = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_pvi.iloc[-1]
 
         print(f"[PVI] Current pvi value: {new_signal.PVI}")
         print(f"[PVI] Current pvi_ema value: {new_signal.PVI_EMA}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
         print(f"[PVI] Signal: {signal}")
 
