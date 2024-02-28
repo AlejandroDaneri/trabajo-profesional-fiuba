@@ -11,7 +11,7 @@ class SMA(Indicator):
         self.slow_rounds = slow_rounds
         super().__init__("SMA")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         # Create a DataFrame with the same index as the input data
         self.data = data
         df = pd.DataFrame(index=data.index)
@@ -31,20 +31,26 @@ class SMA(Indicator):
 
     def calc_buy_signals(self):
         return np.where(
-            (self.df_output.FAST_SMA.shift(1) < self.df_output.SLOW_SMA.shift(1)) & 
-            (self.df_output.SLOW_SMA <= self.df_output.FAST_SMA), True, False)
-    
+            (self.df_output.FAST_SMA.shift(1) < self.df_output.SLOW_SMA.shift(1))
+            & (self.df_output.SLOW_SMA <= self.df_output.FAST_SMA),
+            True,
+            False,
+        )
+
     def calc_sell_signals(self):
         return np.where(
-            (self.df_output.SLOW_SMA.shift(1) < self.df_output.FAST_SMA.shift(1)) & 
-            (self.df_output.FAST_SMA <= self.df_output.SLOW_SMA), True, False)
-    
+            (self.df_output.SLOW_SMA.shift(1) < self.df_output.FAST_SMA.shift(1))
+            & (self.df_output.FAST_SMA <= self.df_output.SLOW_SMA),
+            True,
+            False,
+        )
+
     def plot(self):
-        data = pd.DataFrame(self.df_output, index= self.dates)
+        data = pd.DataFrame(self.df_output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data.index, data.FAST_SMA, color='green', linewidth=1)
-        plt.plot(data.index, data.SLOW_SMA, color='red', linewidth=1)
+        plt.plot(data.index, data.FAST_SMA, color="green", linewidth=1)
+        plt.plot(data.index, data.SLOW_SMA, color="red", linewidth=1)
         plt.grid()
         plt.show()
 
@@ -55,8 +61,8 @@ class SMA(Indicator):
 
         new_signal = new_df.iloc[-1]
 
-        print(f'[SMA] Current fast SMA value: {new_signal.FAST_SMA}')
-        print(f'[SMA] Current slow SMA value: {new_signal.SLOW_SMA}')
+        print(f"[SMA] Current fast SMA value: {new_signal.FAST_SMA}")
+        print(f"[SMA] Current slow SMA value: {new_signal.SLOW_SMA}")
 
         if sell_signal == True:
             signal = Action.SELL
@@ -64,7 +70,7 @@ class SMA(Indicator):
             signal = Action.BUY
         else:
             signal = Action.HOLD
-        
-        print(f'[SMA] Signal: {signal}')
-        
+
+        print(f"[SMA] Signal: {signal}")
+
         return signal

@@ -10,7 +10,7 @@ class PVI(Indicator):
         self.rounds = rounds
         super().__init__("PVI")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         # Disable SettingWithCopyWarning
         pd.options.mode.chained_assignment = None
 
@@ -31,11 +31,13 @@ class PVI(Indicator):
         # Calculate each PVI value based on its previous PVI value
         for index in range(len(df)):
             if index > 0:
-                prev_pvi = df.PVI.iloc[index-1]
-                prev_close = df.Close.iloc[index-1]
+                prev_pvi = df.PVI.iloc[index - 1]
+                prev_close = df.Close.iloc[index - 1]
                 if df.vol_diff.iloc[index] > 0:
-                    pvi = prev_pvi + ( (df.Close.iloc[index] - prev_close) / (prev_close * prev_pvi) )
-                else: 
+                    pvi = prev_pvi + (
+                        (df.Close.iloc[index] - prev_close) / (prev_close * prev_pvi)
+                    )
+                else:
                     pvi = prev_pvi
             else:
                 # Base PVI value is established (1000 is recommended)
@@ -45,25 +47,47 @@ class PVI(Indicator):
 
         # Drop innecesary columns
         df.drop(["vol_diff"], axis=1, inplace=True)
-        
+
         self.output = df
-        return self.output
+        return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where((self.output["PVI_EMA"].shift(1) > self.output["PVI"].shift(1)) & 
-                        (self.output["PVI_EMA"] <= self.output["PVI"]), True, False)
-    
+        return np.where(
+            (self.output["PVI_EMA"].shift(1) > self.output["PVI"].shift(1))
+            & (self.output["PVI_EMA"] <= self.output["PVI"]),
+            True,
+            False,
+        )
+
     def calc_sell_signals(self):
-        return np.where((self.output["PVI_EMA"].shift(1) < self.output["PVI"].shift(1)) & 
-                        (self.output["PVI_EMA"] >= self.output["PVI"]), True, False)
-    
+        return np.where(
+            (self.output["PVI_EMA"].shift(1) < self.output["PVI"].shift(1))
+            & (self.output["PVI_EMA"] >= self.output["PVI"]),
+            True,
+            False,
+        )
+
     def plot(self):
         data = pd.DataFrame(self.output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data["PVI_EMA"], color='gray', linewidth=1)
-        plt.fill_between(data.index, data["PVI"], data["PVI_EMA"], where=data["PVI"] > data["PVI_EMA"], alpha=0.5, color='green')
-        plt.fill_between(data.index, data["PVI"], data["PVI_EMA"], where=data["PVI"] < data["PVI_EMA"], alpha=0.5, color='red')
+        plt.plot(data["PVI_EMA"], color="gray", linewidth=1)
+        plt.fill_between(
+            data.index,
+            data["PVI"],
+            data["PVI_EMA"],
+            where=data["PVI"] > data["PVI_EMA"],
+            alpha=0.5,
+            color="green",
+        )
+        plt.fill_between(
+            data.index,
+            data["PVI"],
+            data["PVI_EMA"],
+            where=data["PVI"] < data["PVI_EMA"],
+            alpha=0.5,
+            color="red",
+        )
         plt.grid()
         plt.show()
 
@@ -74,8 +98,8 @@ class PVI(Indicator):
 
         new_signal = new_pvi.iloc[-1]
 
-        print(f'[PVI] Current pvi value: {new_signal.PVI}')
-        print(f'[PVI] Current pvi_ema value: {new_signal.PVI_EMA}')
+        print(f"[PVI] Current pvi value: {new_signal.PVI}")
+        print(f"[PVI] Current pvi_ema value: {new_signal.PVI_EMA}")
 
         if sell_signal == True:
             signal = Action.SELL
@@ -83,7 +107,7 @@ class PVI(Indicator):
             signal = Action.BUY
         else:
             signal = Action.HOLD
-        
-        print(f'[PVI] Signal: {signal}')
-        
+
+        print(f"[PVI] Signal: {signal}")
+
         return signal

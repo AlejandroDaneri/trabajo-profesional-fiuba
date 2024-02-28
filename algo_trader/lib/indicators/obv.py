@@ -10,7 +10,7 @@ class OBV(Indicator):
         self.rounds = rounds
         super().__init__("OBV")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         self.data = data
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
@@ -20,7 +20,9 @@ class OBV(Indicator):
 
         # Calculate the balance volume
         change = data.Close.diff()
-        df["OBV"] = np.cumsum(np.where(change > 0, data.Volume, np.where(change < 0, -data.Volume, 0)))
+        df["OBV"] = np.cumsum(
+            np.where(change > 0, data.Volume, np.where(change < 0, -data.Volume, 0))
+        )
 
         # Calculate the EMA from balance volume
         df["OBV_EMA"] = df["OBV"].ewm(span=self.rounds, adjust=False).mean()
@@ -30,20 +32,26 @@ class OBV(Indicator):
 
     def calc_buy_signals(self):
         return np.where(
-            (self.df_output.OBV.shift(1) < self.df_output.OBV_EMA.shift(1)) & 
-            (self.df_output.OBV_EMA <= self.df_output.OBV), True, False)
+            (self.df_output.OBV.shift(1) < self.df_output.OBV_EMA.shift(1))
+            & (self.df_output.OBV_EMA <= self.df_output.OBV),
+            True,
+            False,
+        )
 
     def calc_sell_signals(self):
         return np.where(
-            (self.df_output.OBV_EMA.shift(1) < self.df_output.OBV.shift(1).fillna(0)) & 
-            (self.df_output.OBV <= self.df_output.OBV_EMA), True, False)
+            (self.df_output.OBV_EMA.shift(1) < self.df_output.OBV.shift(1).fillna(0))
+            & (self.df_output.OBV <= self.df_output.OBV_EMA),
+            True,
+            False,
+        )
 
     def plot(self):
         data = pd.DataFrame(self.df_output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data.OBV, color='blue', linewidth=1)
-        plt.plot(data.OBV_EMA, color='green', linewidth=0.5)
+        plt.plot(data.OBV, color="blue", linewidth=1)
+        plt.plot(data.OBV_EMA, color="green", linewidth=0.5)
         plt.show()
 
     def predict_signal(self, new_record):
@@ -55,8 +63,8 @@ class OBV(Indicator):
         # Extract the value of OBV for the new record
         new_signal = new_obv.iloc[-1]
 
-        print(f'[OBV] Current OBV value: {new_signal.OBV}')
-        print(f'[OBV] Current OBV_EMA value: {new_signal.OBV_EMA}')
+        print(f"[OBV] Current OBV value: {new_signal.OBV}")
+        print(f"[OBV] Current OBV_EMA value: {new_signal.OBV_EMA}")
 
         # Trading decisions based on OBV signals
         if sell_signal == True:
@@ -65,7 +73,7 @@ class OBV(Indicator):
             signal = Action.BUY
         else:
             signal = Action.HOLD
-        
-        print(f'[OBV] Signal: {signal}')
-        
+
+        print(f"[OBV] Signal: {signal}")
+
         return signal
