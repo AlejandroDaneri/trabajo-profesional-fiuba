@@ -24,6 +24,6 @@ class Indicator:
         pass
 
     def normalize_output(self):
-        mean = self.data[self.name].mean()
-        std = self.data[self.name].std()
+        mean = self.output.mean()
+        std = self.output.std()
         return (self.output - mean) / std
