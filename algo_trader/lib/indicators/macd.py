@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 class MACD(Indicator):
     def __init__(self, slow, fast, smoothed):
         self.slow = slow
@@ -11,7 +12,7 @@ class MACD(Indicator):
         self.smoothed = smoothed
         super().__init__("MACD")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         self.data = data
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
@@ -40,41 +41,38 @@ class MACD(Indicator):
         # Rename the 'histogram' column with the indicator name for convenience (notation abuse)
         df[self.name] = df["histogram"]
         self.output = df[self.name]
-        return self.output
+        return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return np.where((self.output.shift(1) < 0) & (0 < self.output), True, False)
-    
+        return self._calc_buy_signals((self.output.shift(1) < 0) & (0 < self.output))
+
     def calc_sell_signals(self):
-        return np.where((self.output.shift(1) > 0) & (0 >= self.output), True, False)
-    
+        return self._calc_sell_signals((self.output.shift(1) > 0) & (0 >= self.output))
+
     def plot(self):
-        data = pd.DataFrame(self.output, index= self.dates)
+        data = pd.DataFrame(self.output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
         plt.plot(self.output)
         plt.grid()
-        plt.axhline(0, linestyle='--', linewidth=1.5, color='black')
-        plt.fill_between(data.index, self.output, 0, where=self.output>0, alpha=0.5, color='green')
-        plt.fill_between(data.index, self.output, 0, where=self.output<0, alpha=0.5, color='red')
+        plt.axhline(0, linestyle="--", linewidth=1.5, color="black")
+        plt.fill_between(
+            data.index, self.output, 0, where=self.output > 0, alpha=0.5, color="green"
+        )
+        plt.fill_between(
+            data.index, self.output, 0, where=self.output < 0, alpha=0.5, color="red"
+        )
         plt.show()
 
     def predict_signal(self, new_record):
         new_macd_value = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_macd_value.iloc[-1]
 
-        print(f'[MACD] Current value: {new_signal}')
+        print(f"[MACD] Current value: {new_signal}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
+        signal = self.get_last_signal(True)
 
-        print(f'[MACD] Signal: {signal}')
-        
+        print(f"[MACD] Signal: {signal}")
+
         return signal
