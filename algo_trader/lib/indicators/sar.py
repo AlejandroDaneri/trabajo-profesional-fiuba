@@ -80,6 +80,9 @@ class SAR(Indicator):
                     # Carry over EP
                     df["EP"].iloc[i] = prev_ep
 
+        # Drop innecesary columns
+        df.drop(["AF", "EP"], axis=1, inplace=True)
+
         self.df_output = df
         return self.df_output
 

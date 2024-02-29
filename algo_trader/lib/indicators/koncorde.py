@@ -36,7 +36,7 @@ class KONCORDE(Indicator):
         df["Close"] = data["Close"]
 
         # Calculate the typical price, its is the average of the maximum, minimum, open and close price
-        typical_price = (data["Open"] + data["High"] + data["Low"] + data["Close"]) / 4
+        typical_price = (data['Open'].fillna(0) + data['High'].fillna(0) + data['Low'].fillna(0) + data['Close'].fillna(0)) / 4
 
         # Calculate Stochastic indicator of typical price
         storch = self.calc_stoch(typical_price, data, self.storch_length)

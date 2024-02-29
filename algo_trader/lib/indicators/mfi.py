@@ -40,9 +40,6 @@ class MFI(Indicator):
         df["MR"] = df["MF_Avg_Gain"] / df["MF_Avg_Loss"]
 
         # Calculate the MFI
-        df["MFI"] = 100 - (100 / (1 + df["MR"]))
-
-        # Calculate the MFI
         df[self.name] = 100 - (100 / (1 + df["MR"]))
 
         self.output = df[self.name]
