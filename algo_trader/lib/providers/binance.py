@@ -83,9 +83,9 @@ class Binance:
         }
         klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end, limit=n)
         data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
-        data['Open'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
+        data['Open time'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
-        data = data.set_index("Open")
+        data = data.set_index("Open time")
         return data
 
     # ticker: example BTCUSDT

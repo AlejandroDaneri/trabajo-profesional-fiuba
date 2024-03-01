@@ -12,7 +12,7 @@ class Crossing(Indicator):
         self.slow = slow
         super().__init__("Cruce")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         df = pd.DataFrame(index=data.index)
         self.data = data
         df["Close"] = data["Close"]
@@ -20,29 +20,25 @@ class Crossing(Indicator):
             df.Close.rolling(self.fast).mean() / df.Close.rolling(self.slow).mean() - 1
         )
         self.output = df[self.name]
-        return self.output
+        return super().calculate(data, normalize)
 
     def calc_sell_signals(self):
-        return np.where(self.output < self.sell_threshold, True, False)
+        return self._calc_sell_signals(self.output < self.sell_threshold)
 
     def calc_buy_signals(self):
-        return np.where(self.output > self.buy_threshold, True, False)
+        return self._calc_buy_signals(self.output > self.buy_threshold)
 
     def predict_signal(self, new_record):
         new_output = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_output.iloc[-1]
 
-        print(f'[Crossing] Current value: {new_signal}')
-        print(f'[Crossing] Sell Threshold: {self.sell_threshold}')
-        print(f'[Crossing] Buy Threshold: {self.buy_threshold}')
+        print(f"[Crossing] Current value: {new_signal}")
+        print(f"[Crossing] Sell Threshold: {self.sell_threshold}")
+        print(f"[Crossing] Buy Threshold: {self.buy_threshold}")
 
-        signal = Action.HOLD
-        if new_signal < self.sell_threshold:
-            signal = Action.SELL
-        elif new_signal > self.buy_threshold:
-            signal = Action.BUY
-        
-        print(f'[Crossing] Signal: {signal}')
+        signal = self.get_last_signal(True)
+
+        print(f"[Crossing] Signal: {signal}")
 
         return signal

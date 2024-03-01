@@ -11,7 +11,7 @@ class EMA(Indicator):
         self.slow_rounds = slow_rounds
         super().__init__("EMA")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         # Create a DataFrame with the same index as the input data
         self.data = data
         df = pd.DataFrame(index=data.index)
@@ -30,41 +30,36 @@ class EMA(Indicator):
         return self.df_output
 
     def calc_buy_signals(self):
-        return np.where(
-            (self.df_output.FAST_EMA.shift(1) < self.df_output.SLOW_EMA.shift(1)) & 
-            (self.df_output.SLOW_EMA <= self.df_output.FAST_EMA), True, False)
-    
+        return self._calc_buy_signals(
+            (self.df_output.FAST_EMA.shift(1) < self.df_output.SLOW_EMA.shift(1))
+            & (self.df_output.SLOW_EMA <= self.df_output.FAST_EMA)
+        )
+
     def calc_sell_signals(self):
-        return np.where(
-            (self.df_output.SLOW_EMA.shift(1) < self.df_output.FAST_EMA.shift(1)) & 
-            (self.df_output.FAST_EMA <= self.df_output.SLOW_EMA), True, False)
-    
+        return self._calc_sell_signals(
+            (self.df_output.SLOW_EMA.shift(1) < self.df_output.FAST_EMA.shift(1))
+            & (self.df_output.FAST_EMA <= self.df_output.SLOW_EMA)
+        )
+
     def plot(self):
-        data = pd.DataFrame(self.df_output, index= self.dates)
+        data = pd.DataFrame(self.df_output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data.index, data.FAST_EMA, color='green', linewidth=1)
-        plt.plot(data.index, data.SLOW_EMA, color='red', linewidth=1)
+        plt.plot(data.index, data.FAST_EMA, color="green", linewidth=1)
+        plt.plot(data.index, data.SLOW_EMA, color="red", linewidth=1)
         plt.grid()
         plt.show()
 
     def predict_signal(self, new_record):
         new_df = self.calculate(pd.concat([self.data, new_record]))
-        sell_signal = self.calc_sell_signals()[-1]
-        buy_signal = self.calc_buy_signals()[-1]
 
         new_signal = new_df.iloc[-1]
 
-        print(f'[EMA] Current fast EMA value: {new_signal.FAST_EMA}')
-        print(f'[EMA] Current slow EMA value: {new_signal.SLOW_EMA}')
+        print(f"[EMA] Current fast EMA value: {new_signal.FAST_EMA}")
+        print(f"[EMA] Current slow EMA value: {new_signal.SLOW_EMA}")
 
-        if sell_signal == True:
-            signal = Action.SELL
-        elif buy_signal == True:
-            signal = Action.BUY
-        else:
-            signal = Action.HOLD
-        
-        print(f'[EMA] Signal: {signal}')
-        
+        signal = self.get_last_signal(True)
+
+        print(f"[EMA] Signal: {signal}")
+
         return signal
