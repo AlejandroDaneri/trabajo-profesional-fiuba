@@ -6,9 +6,8 @@ import matplotlib.pyplot as plt
 
 
 class EMA(Indicator):
-    def __init__(self, fast_rounds, slow_rounds):
-        self.fast_rounds = fast_rounds
-        self.slow_rounds = slow_rounds
+    def __init__(self, rounds):
+        self.rounds = rounds
         super().__init__("EMA")
 
     def calculate(self, data, normalize=False):
@@ -20,33 +19,30 @@ class EMA(Indicator):
         # Copy the 'Close' column from the original data to the new DataFrame
         df["Close"] = data["Close"]
 
-        # Calculate the fast average of the last n rounds of close
-        df["FAST_EMA"] = data["Close"].ewm(span=self.fast_rounds, adjust=False).mean()
-
-        # Calculate the slow average of the last n rounds of close
-        df["SLOW_EMA"] = data["Close"].ewm(span=self.slow_rounds, adjust=False).mean()
+        # Calculate the average of the last n rounds of close
+        df["EMA"] = data["Close"].ewm(span=self.rounds, adjust=False).mean()
 
         self.df_output = df
         return self.df_output
 
     def calc_buy_signals(self):
         return self._calc_buy_signals(
-            (self.df_output.FAST_EMA.shift(1) < self.df_output.SLOW_EMA.shift(1))
-            & (self.df_output.SLOW_EMA <= self.df_output.FAST_EMA)
+            (self.df_output.Close.shift(1) < self.df_output.EMA.shift(1))
+            & (self.df_output.EMA <= self.df_output.Close)
         )
 
     def calc_sell_signals(self):
         return self._calc_sell_signals(
-            (self.df_output.SLOW_EMA.shift(1) < self.df_output.FAST_EMA.shift(1))
-            & (self.df_output.FAST_EMA <= self.df_output.SLOW_EMA)
+            (self.df_output.EMA.shift(1) < self.df_output.Close.shift(1))
+            & (self.df_output.Close <= self.df_output.EMA)
         )
 
     def plot(self):
         data = pd.DataFrame(self.df_output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(data.index, data.FAST_EMA, color="green", linewidth=1)
-        plt.plot(data.index, data.SLOW_EMA, color="red", linewidth=1)
+        plt.plot(data.index, data.EMA, color="green", linewidth=1)
+        plt.plot(data.index, data.Close, color="blue", linewidth=1)
         plt.grid()
         plt.show()
 
@@ -55,8 +51,8 @@ class EMA(Indicator):
 
         new_signal = new_df.iloc[-1]
 
-        print(f"[EMA] Current fast EMA value: {new_signal.FAST_EMA}")
-        print(f"[EMA] Current slow EMA value: {new_signal.SLOW_EMA}")
+        print(f"[EMA] Current EMA value: {new_signal.EMA}")
+        print(f"[EMA] Current Close value: {new_signal.Close}")
 
         signal = self.get_last_signal(True)
 
