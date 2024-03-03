@@ -7,8 +7,9 @@ from lib.indicators.atr import ATR
 
 
 class DMI(Indicator):
-    def __init__(self, rounds, adx_threshold):
-        self.rounds = rounds
+    def __init__(self, di_rounds, adx_rounds, adx_threshold):
+        self.di_rounds = di_rounds
+        self.adx_rounds = adx_rounds
         self.adx_threshold = adx_threshold
         super().__init__("DMI")
 
@@ -21,7 +22,7 @@ class DMI(Indicator):
         df["Close"] = data["Close"]
 
         # Calculate ATR (Average True Range)
-        atr = ATR(self.rounds)
+        atr = ATR(self.di_rounds)
         df["ATR"] = atr.calculate(data)
 
         # Calculate DMI and ADX
@@ -36,19 +37,19 @@ class DMI(Indicator):
         df["+di"] = (
             100
             * (df["+dm"] / df["ATR"])
-            .ewm(alpha=1 / self.rounds, min_periods=self.rounds)
+            .ewm(alpha=1 / self.di_rounds, min_periods=self.di_rounds)
             .mean()
         )
         df["-di"] = (
             100
             * (df["-dm"] / df["ATR"])
-            .ewm(alpha=1 / self.rounds, min_periods=self.rounds)
+            .ewm(alpha=1 / self.di_rounds, min_periods=self.di_rounds)
             .mean()
         )
         df["ADX"] = (
             100
             * abs((df["+di"] - df["-di"]) / (df["+di"] + df["-di"]))
-            .ewm(alpha=1 / self.rounds, min_periods=self.rounds)
+            .ewm(alpha=1 / self.adx_rounds, min_periods=self.adx_rounds)
             .mean()
         )
 

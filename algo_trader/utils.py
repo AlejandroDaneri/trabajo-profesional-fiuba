@@ -56,12 +56,13 @@ def hydrate_indicator_dmi(parameters):
     if parameters is None:
         print("indicator dmi not have parameters")
         return None
-    rounds = parameters["rounds"]
+    di_rounds = parameters["di_rounds"]
+    adx_rounds = parameters["adx_rounds"]
     adx_threshold = parameters["adx_threshold"]
-    if rounds is None or adx_threshold is None:
+    if di_rounds is None or adx_rounds is None or adx_threshold is None:
         print("indicator dmi not have all the parameters")
         return None
-    return DMI(rounds, adx_threshold)
+    return DMI(di_rounds, adx_rounds, adx_threshold)
 
 def hydrate_indicator_ema(parameters):
     if parameters is None:
