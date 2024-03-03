@@ -5,9 +5,10 @@ from datetime import datetime
 class CoinMarketCap:
     # example:
     #  ticker: 'BTC'
-    #  start: '2011-01-01'
+    #  start: '20-01-2014'
     def get(self, ticker: str, start: str):
-        scraper = CmcScraper(ticker, start_date=start)
+        end = datetime.now().strftime('%d-%m-%Y')
+        scraper = CmcScraper(ticker, start_date=start, end_date=end)
         headers, data = scraper.get_data()
 
         data = pd.DataFrame(data, columns=headers)
