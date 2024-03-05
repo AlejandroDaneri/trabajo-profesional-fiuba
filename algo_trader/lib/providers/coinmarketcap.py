@@ -6,8 +6,7 @@ class CoinMarketCap:
     # example:
     #  ticker: 'BTC'
     #  start: '20-01-2014'
-    def get(self, ticker: str, start: str):
-        end = datetime.now().strftime('%d-%m-%Y')
+    def get(self, ticker: str, start: str, end=datetime.now().strftime('%d-%m-%Y')):
         scraper = CmcScraper(ticker, start_date=start, end_date=end)
         headers, data = scraper.get_data()
 
