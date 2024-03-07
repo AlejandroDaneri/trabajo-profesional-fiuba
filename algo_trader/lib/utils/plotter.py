@@ -2,7 +2,30 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-def plot_strategy(data, trades, log_scale=False):
+def plot_buy_and_hold(data, initial_balance=1000, log_scale=False):
+  def generate_range(start, end, amount):
+    df = pd.DataFrame(columns=['balance'])
+
+    start_date = datetime.strptime(start, '%Y-%m-%d')
+    end_date = datetime.strptime(end, '%Y-%m-%d')
+
+    for n in range(int((end_date - start_date).days + 1)):
+      current = (start_date + timedelta(days=n)).strftime('%Y-%m-%d')
+      df.loc[current] = {
+        'balance': amount * data.loc[current].Close
+      }
+
+    return df
+  
+  start = data.index[0]
+  end = data.index[-1]
+  amount = initial_balance / data.iloc[0].Close
+
+  df = generate_range(start, end, amount)
+
+  plot(df.index, df.balance, log_scale, color='orange')
+
+def plot_strategy(data, trades, initial_balance=1000, log_scale=False):
 
   def generate_range_sell(start, end, balance):
     df = pd.DataFrame(columns=['balance'])
@@ -33,7 +56,7 @@ def plot_strategy(data, trades, log_scale=False):
     return df
 
   df = pd.DataFrame(columns=['balance'])
-  balance = 1000
+  balance = initial_balance
   amount = 0
 
   start = data.index[0]
@@ -66,7 +89,7 @@ def plot_strategy(data, trades, log_scale=False):
 
   plot(df.index, df.balance, log_scale)
 
-def plot(x: pd.Series, y: pd.Series, log_scale=False):
+def plot(x: pd.Series, y: pd.Series, log_scale=False, color='#006CA7'):
     # matplotlib works better if we set dates instead strings
     # on the axis x, the plot looks much better 
     start = datetime.strptime(x[0], '%Y-%m-%d')
@@ -79,5 +102,5 @@ def plot(x: pd.Series, y: pd.Series, log_scale=False):
     fig.set_size_inches(30, 5)
     if log_scale:
       plt.yscale('log')
-    plt.plot(dates, y)
+    plt.plot(dates, y, color=color)
     plt.show()
