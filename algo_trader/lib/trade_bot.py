@@ -29,7 +29,7 @@ class TradeBot:
     def run_strategy(self, currency, new_record):
         action = self.strategy[currency].predict(new_record)
         print(f'[Strategy] Signal: {action}')
-        timestamp = new_record.index[0]
+        timestamp = new_record["Timestamp"][0]
         if (self.trades): 
             asset_last_value = new_record["Close"][0]
 
