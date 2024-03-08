@@ -82,10 +82,10 @@ class Binance:
             "1W": BinanceProvider.KLINE_INTERVAL_1WEEK
         }
         klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end, limit=n)
-        data = pd.DataFrame(klines, columns = ["Open time", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
-        data['Open time'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
+        data = pd.DataFrame(klines, columns = ["Timestamp", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
+        data['Date'] = data['Timestamp'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
-        data = data.set_index("Open time")
+        data = data.set_index("Date")
         return data
     
     # example:
@@ -183,7 +183,7 @@ class Binance:
         data = self.binance_get(ticker, '1D', start__, end__)
 
         # filter day that not belong to month
-        data['Open_'] = data['Open time'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
+        data['Open_'] = data['Date'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d %H-%M'))
         data['Open_'] = pd.to_datetime(data['Open_'])
         data = data[(data['Open_'].dt.month == month.month)]
         data = data.drop('Open_', axis=1)

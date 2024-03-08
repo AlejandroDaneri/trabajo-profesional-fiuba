@@ -30,7 +30,7 @@ class BinanceTests(unittest.TestCase):
             data = provider.get_latest_n('BTCUSDT', timeframe, 1000)
 
             prev_value = None
-            for index, value in (data['Open time'].apply(lambda x : int(x / 1000))).items():
+            for index, value in (data['Date'].apply(lambda x : int(x / 1000))).items():
                 if prev_value is not None:
                     self.assertEqual(prev_value + to_seconds[timeframe], value)
                 prev_value = value
