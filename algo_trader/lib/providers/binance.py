@@ -87,6 +87,20 @@ class Binance:
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Open time")
         return data
+    
+    # example:
+    #  ticker: 'BTC'
+    #  start: yyyy-mm-dd
+    #  start: '2014-01-15'
+    #  end: yyyy-mm-dd
+    #  end: '2024-03-15'
+    def get(self, ticker: str, start: str, end: str):
+        klines = self.provider.get_historical_klines(f"{ticker}USDT", BinanceProvider.KLINE_INTERVAL_1DAY, start_str=start, end_str=end)
+        data = pd.DataFrame(klines, columns = ["Date", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
+        data['Date'] = data['Date'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime('%Y-%m-%d'))
+        data['Close'] =  data['Close'].apply(lambda x : float(x))
+        data = data.set_index("Date")
+        return data
 
     # ticker: example BTCUSDT
     # timeframe: example 1H
