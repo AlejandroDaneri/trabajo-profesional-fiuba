@@ -62,14 +62,14 @@ class Cache:
         data.to_csv(f'{pair_folder_path}/{ticker}__{str(day)}__{timeframe}.csv')
 
 class Binance:
-    def __init__(self, cache_enabled=True):
+    def __init__(self, cache_enabled=False):
         api_key = "OF6SkzXI0EAcvmMWlkeUKl6YyxYIFU4pN0Bj19gaVYZcgaTt7OImXxEyvoPcDhmk"
         secret_key = "tXay1BDYuSyigxvl27UQIBJbIHADaep8FT7HPO9Mb3vfmcyDkz4keEaHkpm7dcFe"
         self.provider = BinanceProvider(api_key, secret_key, tld='us')
         self.cache_enabled = cache_enabled
         if (self.cache_enabled):
             self.cache = Cache()
-    
+
     def binance_get(self, ticker: str, timeframe: str, start=None, end=None, n=1000):
         timeframes = {
             "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,

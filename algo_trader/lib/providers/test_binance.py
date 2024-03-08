@@ -2,7 +2,7 @@ from lib.providers.binance import Binance
 import unittest
 from datetime import datetime
 
-provider = Binance()
+provider = Binance(cache_enabled=True)
 
 class BinanceTests(unittest.TestCase):
     def test_get_latest_n(self):
