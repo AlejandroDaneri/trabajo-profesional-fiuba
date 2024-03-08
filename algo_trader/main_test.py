@@ -19,7 +19,7 @@ def main():
         current_balance = float(strategy["current_balance"])
     timeframe = strategy["timeframe"]
 
-    provider = Binance()
+    provider = Binance(cache_enabled=True)
     exchange = Dummy(initial_balance)
 
     strategy = hydrate_strategy(currencies, indicators)

@@ -1,10 +1,13 @@
-from lib.indicators.crossing import Crossing
 from lib.indicators.rsi import RSI
 from lib.indicators.macd import MACD
 from lib.indicators.bbands import BBANDS
 from lib.indicators.dmi import DMI
 from lib.indicators.ema import EMA
 from lib.indicators.sma import SMA
+from lib.indicators.crossingEma import CrossingEMA
+from lib.indicators.crossingSma import CrossingSMA
+from lib.indicators.threeEma import ThreeEMA
+from lib.indicators.threeSma import ThreeSMA
 from lib.indicators.obv import OBV
 from lib.indicators.nvi import NVI
 from lib.indicators.pvi import PVI
@@ -64,23 +67,67 @@ def hydrate_indicator_ema(parameters):
     if parameters is None:
         print("indicator ema not have parameters")
         return None
+    rounds = parameters["rounds"]
+    if rounds is None:
+        print("indicator ema not have all the parameters")
+        return None
+    return EMA(rounds)
+
+def hydrate_indicator_crossing_ema(parameters):
+    if parameters is None:
+        print("indicator crossing ema not have parameters")
+        return None
     fast_rounds = parameters["fast_rounds"]
     slow_rounds = parameters["slow_rounds"]
     if fast_rounds is None or slow_rounds is None:
-        print("indicator ema not have all the parameters")
+        print("indicator crossing ema not have all the parameters")
         return None
-    return EMA(fast_rounds, slow_rounds)
+    return CrossingEMA(fast_rounds, slow_rounds)
+
+def hydrate_indicator_three_ema(parameters):
+    if parameters is None:
+        print("indicator three ema not have parameters")
+        return None
+    fast_rounds = parameters["fast_rounds"]
+    slow_rounds = parameters["slow_rounds"]
+    support_rounds = parameters["support_rounds"]
+    if fast_rounds is None or slow_rounds is None or support_rounds is None:
+        print("indicator three ema not have all the parameters")
+        return None
+    return ThreeEMA(fast_rounds, slow_rounds, support_rounds)
 
 def hydrate_indicator_sma(parameters):
     if parameters is None:
         print("indicator sma not have parameters")
         return None
+    rounds = parameters["rounds"]
+    if rounds is None:
+        print("indicator sma not have all the parameters")
+        return None
+    return SMA(rounds)
+
+def hydrate_indicator_crossing_sma(parameters):
+    if parameters is None:
+        print("indicator crossing sma not have parameters")
+        return None
     fast_rounds = parameters["fast_rounds"]
     slow_rounds = parameters["slow_rounds"]
     if fast_rounds is None or slow_rounds is None:
-        print("indicator sma not have all the parameters")
+        print("indicator crossing sma not have all the parameters")
         return None
-    return SMA(fast_rounds, slow_rounds)
+    return CrossingSMA(fast_rounds, slow_rounds)
+
+def hydrate_indicator_three_sma(parameters):
+    if parameters is None:
+        print("indicator three sma not have parameters")
+        return None
+    fast_rounds = parameters["fast_rounds"]
+    slow_rounds = parameters["slow_rounds"]
+    support_rounds = parameters["support_rounds"]
+    if fast_rounds is None or slow_rounds is None or support_rounds is None:
+        print("indicator three sma not have all the parameters")
+        return None
+    return ThreeSMA(fast_rounds, slow_rounds, support_rounds)
 
 def hydrate_indicator_obv(parameters):
     if parameters is None:
@@ -91,19 +138,6 @@ def hydrate_indicator_obv(parameters):
         print("indicator obv not have all the parameters")
         return None
     return OBV(rounds)
-
-def hydrate_indicator_crossing(parameters):
-    if parameters is None:
-        print("indicator crossing not have parameters")
-        return None
-    buy_threshold = parameters["buy_threshold"]
-    sell_threshold = parameters["sell_threshold"]
-    fast = parameters["fast"]
-    slow = parameters["slow"]
-    if buy_threshold is None or sell_threshold is None or fast is None or slow is None:
-        print("indicator crossing not have all the parameters")
-        return None
-    return Crossing(buy_threshold, sell_threshold, fast, slow)
 
 def hydrate_indicator_nvi(parameters):
     if parameters is None:
@@ -216,10 +250,25 @@ def hydrate_strategy(currencies, indicators):
                 if obv is not None:
                     indicators_builded.append(obv)
 
-            elif indicator["name"] == "crossing":
-                crossing = hydrate_indicator_crossing(indicator["parameters"])
-                if crossing is not None:
-                    indicators_builded.append(crossing)
+            elif indicator["name"] == "crossing_ema":
+                crossing_ema = hydrate_indicator_crossing_ema(indicator["parameters"])
+                if crossing_ema is not None:
+                    indicators_builded.append(crossing_ema)
+
+            elif indicator["name"] == "crossing_sma":
+                crossing_sma = hydrate_indicator_crossing_sma(indicator["parameters"])
+                if crossing_sma is not None:
+                    indicators_builded.append(crossing_sma)
+
+            elif indicator["name"] == "three_ema":
+                three_ema = hydrate_indicator_three_ema(indicator["parameters"])
+                if three_ema is not None:
+                    indicators_builded.append(three_ema)
+
+            elif indicator["name"] == "three_sma":
+                three_sma = hydrate_indicator_three_sma(indicator["parameters"])
+                if three_sma is not None:
+                    indicators_builded.append(three_sma)
 
             elif indicator["name"] == "nvi":
                 nvi = hydrate_indicator_nvi(indicator["parameters"])
