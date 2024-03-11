@@ -94,7 +94,9 @@ class Binance:
     #  start: '2014-01-15'
     #  end: yyyy-mm-dd
     #  end: '2024-03-15'
-    def get(self, ticker: str, start: str, end: str, timeframe = '1D'):
+    def get(self, ticker: str, timeframe: str, start = None, end = None, n = None):
+        timeframe_ = timeframe or '1D'
+
         timeframes = {
             "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
             "5M": BinanceProvider.KLINE_INTERVAL_5MINUTE,
@@ -105,20 +107,25 @@ class Binance:
             "1D": BinanceProvider.KLINE_INTERVAL_1DAY,
             "1W": BinanceProvider.KLINE_INTERVAL_1WEEK
         }
+
         dates = {
             "1D": "%Y-%m-%d",
             "1M": "%Y-%m-%d %H:%M",
             "5M": "%Y-%m-%d %H:%M"
         }
-        start_ = datetime.strptime(start, '%Y-%m-%d')
-        start_unix = int(datetime.timestamp(start_)) * 1000
 
-        end_ = datetime.strptime(end, '%Y-%m-%d')
-        end_unix = int(datetime.timestamp(end_)) * 1000
+        if n is None:
+            start_ = datetime.strptime(start, '%Y-%m-%d')
+            start_unix = int(datetime.timestamp(start_)) * 1000
 
-        klines = self.provider.get_historical_klines(f"{ticker}USDT", timeframes[timeframe], start_str=start_unix, end_str=end_unix)
+            end_ = datetime.strptime(end, '%Y-%m-%d')
+            end_unix = int(datetime.timestamp(end_)) * 1000
+
+            klines = self.provider.get_historical_klines(f"{ticker}USDT", timeframes[timeframe_], start_str=start_unix, end_str=end_unix)
+        else:
+            klines = self.provider.get_historical_klines(f"{ticker}USDT", timeframes[timeframe_], limit=n)
         data = pd.DataFrame(klines, columns = ["Date", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
-        data['Date'] = data['Date'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime(dates[timeframe]))
+        data['Date'] = data['Date'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime(dates[timeframe_]))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Date")
         return data
