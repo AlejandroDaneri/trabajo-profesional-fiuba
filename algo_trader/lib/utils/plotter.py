@@ -120,8 +120,9 @@ def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):
   if log_scale:
     plt.yscale('log')
   
+  dates = generate_dates(x[0], x[-1])
   for column in y:
-    plt.plot(generate_dates(x[0], x[-1]), y[column], label = column)
+    plt.plot(dates, y[column], label = column)
   plt.legend()
   plt.show()
 
