@@ -107,12 +107,15 @@ class Binance:
         }
         dates = {
             "1D": "%Y-%m-%d",
-            "1M": "%Y-%m-%d %H:%M"
+            "1M": "%Y-%m-%d %H:%M",
+            "5M": "%Y-%m-%d %H:%M"
         }
         start_ = datetime.strptime(start, '%Y-%m-%d')
         start_unix = int(datetime.timestamp(start_)) * 1000
+
         end_ = datetime.strptime(end, '%Y-%m-%d')
         end_unix = int(datetime.timestamp(end_)) * 1000
+
         klines = self.provider.get_historical_klines(f"{ticker}USDT", timeframes[timeframe], start_str=start_unix, end_str=end_unix)
         data = pd.DataFrame(klines, columns = ["Date", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
         data['Date'] = data['Date'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime(dates[timeframe]))
