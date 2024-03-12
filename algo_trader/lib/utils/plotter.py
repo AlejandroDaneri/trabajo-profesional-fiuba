@@ -114,6 +114,18 @@ def plot_strategy(data, trades, initial_balance=1000, log_scale=False):
   df = expand_trades(data, trades, initial_balance)
   plot(df.index, df.balance, log_scale)
 
+def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):
+  fig = plt.figure()
+  fig.set_size_inches(30, 5)
+  if log_scale:
+    plt.yscale('log')
+  
+  dates = generate_dates(x[0], x[-1])
+  for column in y:
+    plt.plot(dates, y[column], label = column)
+  plt.legend()
+  plt.show()
+
 def plot(x: pd.Series, y: pd.Series, log_scale=False, color='#006CA7'):
     # matplotlib works better if we set dates instead strings
     # on the axis x, the plot looks much better 

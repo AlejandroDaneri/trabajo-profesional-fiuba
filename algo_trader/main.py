@@ -32,7 +32,7 @@ def main():
     data = {}
     train_data = {}
     for currency in currencies:
-        data[currency] = provider.get_latest_n(f'{currency}USDT', timeframe, n_train)
+        data[currency] = provider.get(currency, timeframe, n=n_train)
         train_data[currency] = data[currency].iloc[0:n_train]
         strategy[currency].train(train_data[currency])
 
@@ -41,7 +41,7 @@ def main():
 
     while True:
         for currency in currencies:
-            data = provider.get_latest_n(f'{currency}USDT', timeframe, 1)
+            data = provider.get(currency, timeframe, n=1)
             print(f'Get: {currency} {data.index[0]}')
             trade = trade_bot.run_strategy(currency, data)
             if trade is not None:
