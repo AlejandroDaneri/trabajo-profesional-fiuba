@@ -125,6 +125,7 @@ class Binance:
         else:
             klines = self.provider.get_historical_klines(f"{ticker}USDT", timeframes[timeframe_], limit=n)
         data = pd.DataFrame(klines, columns = ["Date", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
+        data["Timestamp"] = data['Date']
         data['Date'] = data['Date'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime(dates[timeframe_]))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
         data = data.set_index("Date")
