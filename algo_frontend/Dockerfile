@@ -1,14 +1,15 @@
 # Stage 1. build app
-FROM node:16 as build
+FROM node:16.20.2 as build
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json ./
-COPY package-lock.json ./
-RUN npm install react-scripts@3.4.1 -g --silent
+COPY yarn.lock ./
+
 COPY . ./
+
 RUN yarn
-RUN npm run build
+RUN yarn run build
 
 # Stage 2. Based on Nginx, to have only the compiled app, ready for production with Nginx
 FROM nginx:stable-alpine
