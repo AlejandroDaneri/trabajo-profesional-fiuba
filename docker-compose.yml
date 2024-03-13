@@ -7,7 +7,8 @@ services:
       context: ./algo_frontend
       dockerfile: Dockerfile.dev
     volumes:
-      - ./algo_frontend:/app
+      - ./algo_frontend/public:/app/public
+      - ./algo_frontend/src:/app/src
     ports:
       - 3000:3000
 
