@@ -192,11 +192,11 @@ def hydrate_indicator_koncorde(parameters):
     rsi_mfi_length = parameters["rsi_mfi_length"]
     bbands_length = parameters["bbands_length"]
     bbands_factor = parameters["bbands_factor"]
-    storch_length = parameters["storch_length"]
-    if rounds is None or rsi_mfi_length is None or bbands_length is None or bbands_factor is None or storch_length is None:
+    stoch_length = parameters["stoch_length"]
+    if rounds is None or rsi_mfi_length is None or bbands_length is None or bbands_factor is None or stoch_length is None:
         print("indicator koncorde not have all the parameters")
         return None
-    return KONCORDE(rounds, rsi_mfi_length, bbands_length, bbands_factor, storch_length)
+    return KONCORDE(rounds, rsi_mfi_length, bbands_length, bbands_factor, stoch_length)
 
 def hydrate_indicator_sar(parameters):
     if parameters is None:
