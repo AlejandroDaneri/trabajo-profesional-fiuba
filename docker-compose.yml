@@ -30,6 +30,15 @@ services:
       timeout: 5s
       retries: 5
 
+  telegram_bot:
+    container_name: telegram_bot
+    build:
+      context: ./telegram_bot
+    working_dir: /app
+    volumes:
+      - ./telegram_bot:/app
+    command: ["python3", "-u", "main.py"]
+
   algo_api:
     container_name: api
     build: ./algo_api

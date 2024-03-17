@@ -19,25 +19,33 @@ def get_all_chat_ids(bot_token):
     chat_ids_api = json.loads(response_algo_api.text)
 
     chat_ids = set()
-    
-    for chat_id in chat_ids_api:
-        chat_ids.add(chat_id)
+
+    if(chat_ids_api != None):
+        for chat_id in chat_ids_api:
+            chat_ids.add(chat_id)
 
     response_telegram_api = requests.get(get_updates_url)
     updates = response_telegram_api.json().get('result', [])
 
-    for update in updates:
-        chat_id = update.get('message', {}).get('chat', {}).get('id')
-        if chat_id:
-            chat_ids.add(chat_id)
-            if(chat_id not in chat_ids_api):
-                response_telegram_api = api.post('api/telegram/chat', json={"chat_id": chat_id})
-                if response_telegram_api.status_code // 100 == 2:
-                    print("Chat ID posted successfully:", chat_id)
+    if(updates != None):
+        for update in updates:
+            chat_id = update.get('message', {}).get('chat', {}).get('id')
+            if chat_id:
+                chat_ids.add(chat_id)
+                if(chat_ids_api != None):
+                    if(chat_id not in chat_ids_api):
+                        post_telegram_chat(chat_id)
                 else:
-                    print("Failed to post chat ID. Status code:", response_telegram_api.status_code)
+                    post_telegram_chat(chat_id)
 
     return list(chat_ids)
+
+def post_telegram_chat(chat_id):
+    response_telegram_api = api.post('api/telegram/chat', json={"chat_id": chat_id})
+    if response_telegram_api.status_code // 100 == 2:
+        print("Chat ID posted successfully:", chat_id)
+    else:
+        print("Failed to post chat ID. Status code:", response_telegram_api.status_code)
 
 def notify_telegram_users(message):
     bot_token = os.environ.get('BOT_TOKEN')
