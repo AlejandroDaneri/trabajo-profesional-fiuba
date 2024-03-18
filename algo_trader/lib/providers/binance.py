@@ -111,7 +111,8 @@ class Binance:
         dates = {
             "1D": "%Y-%m-%d",
             "1M": "%Y-%m-%d %H:%M",
-            "5M": "%Y-%m-%d %H:%M"
+            "5M": "%Y-%m-%d %H:%M",
+            "1H": "%Y-%m-%d %H"
         }
 
         if n is None:

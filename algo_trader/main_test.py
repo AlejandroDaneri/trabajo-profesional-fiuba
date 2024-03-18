@@ -1,6 +1,6 @@
-from lib.exchanges.dummy import Dummy
 from lib.trade_bot import TradeBot
-from lib.providers.binance import Binance
+from lib.exchanges.binance import Binance as BinanceExchange
+from lib.providers.binance import Binance as BinanceProvider
 from utils import hydrate_strategy
 from api_client import ApiClient
 
@@ -19,8 +19,8 @@ def main():
         current_balance = float(strategy["current_balance"])
     timeframe = strategy["timeframe"]
 
-    provider = Binance(cache_enabled=True)
-    exchange = Dummy(initial_balance)
+    provider = BinanceProvider()
+    exchange = BinanceExchange(initial_balance)
 
     strategy = hydrate_strategy(currencies, indicators)
     
@@ -33,7 +33,7 @@ def main():
     n_total = n_train + n_simulate
 
     for currency in currencies:
-        data[currency] = provider.get_latest_n(f'{currency}USDT', timeframe, n_total)
+        data[currency] = provider.get(currency, timeframe, n=n_total)
         train_data[currency] = data[currency].iloc[0:n_train]
         simulation_data[currency] = data[currency].iloc[n_train:n_total]
         strategy[currency].train(train_data[currency])
