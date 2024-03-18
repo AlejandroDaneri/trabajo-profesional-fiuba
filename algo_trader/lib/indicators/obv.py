@@ -50,7 +50,7 @@ class OBV(Indicator):
         plt.plot(data.OBV_EMA, color="green", linewidth=0.5)
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         # Calculate OBV for the updated DataFrame
         new_obv = self.calculate(pd.concat([self.data, new_record]))
 
@@ -60,7 +60,7 @@ class OBV(Indicator):
         print(f"[OBV] Current OBV value: {new_signal.OBV}")
         print(f"[OBV] Current OBV_EMA value: {new_signal.OBV_EMA}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[OBV] Signal: {signal}")
 

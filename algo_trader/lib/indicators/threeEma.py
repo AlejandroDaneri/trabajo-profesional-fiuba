@@ -28,7 +28,9 @@ class ThreeEMA(Indicator):
         df["SLOW_EMA"] = data["Close"].ewm(span=self.slow_rounds, adjust=False).mean()
 
         # Calculate the support average of the last n rounds of close
-        df["SUPPORT_EMA"] = data["Close"].ewm(span=self.support_rounds, adjust=False).mean()
+        df["SUPPORT_EMA"] = (
+            data["Close"].ewm(span=self.support_rounds, adjust=False).mean()
+        )
 
         self.df_output = df
         return self.df_output
@@ -36,7 +38,7 @@ class ThreeEMA(Indicator):
     def calc_buy_signals(self):
         return self._calc_buy_signals(
             (self.df_output.FAST_EMA.shift(1) < self.df_output.SLOW_EMA.shift(1))
-            & (self.df_output.SLOW_EMA <= self.df_output.FAST_EMA) 
+            & (self.df_output.SLOW_EMA <= self.df_output.FAST_EMA)
             & (self.df_output.SUPPORT_EMA >= self.df_output.SLOW_EMA)
             & (self.df_output.SUPPORT_EMA >= self.df_output.FAST_EMA)
         )
@@ -59,7 +61,7 @@ class ThreeEMA(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_df = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_df.iloc[-1]
@@ -68,7 +70,7 @@ class ThreeEMA(Indicator):
         print(f"[Three EMA] Current slow EMA value: {new_signal.SLOW_EMA}")
         print(f"[Three EMA] Current support EMA value: {new_signal.SUPPORT_EMA}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[Three EMA] Signal: {signal}")
 
