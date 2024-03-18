@@ -1,6 +1,7 @@
 from telegram.ext import Updater, CommandHandler
 import os
 
+
 def start(update, context):
     update.message.reply_text('Welcome to SatoshiBot! You were successfully subscribed to the Telegram messages.')
 
