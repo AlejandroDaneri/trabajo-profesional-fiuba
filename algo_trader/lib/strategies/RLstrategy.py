@@ -13,10 +13,11 @@ class RL(Strategy):
     def __init__(self, indicators: List[Indicator]):
         print(tf.__version__)
         self.name = "RL"
-        self.model = keras.models.load_model("model")
-        self.lags = 15
 
-        df = pd.read_csv("model_info.csv")
+        self.model = keras.models.load_model("model")  # TODO: change hardcoded src
+        self.lags = 15  # FIXME: add this info to model_info.csv
+
+        df = pd.read_csv("model_info.csv")  # TODO: change hardcoded src
 
         self.mu = df["mu"]
         self.std = df["std"]
@@ -31,8 +32,8 @@ class RL(Strategy):
         return (data - self.mu) / self.std
 
     def prepare_data(self, historical_data: pd.DataFrame):
-        self.data = historical_data
-        ##TODO: Delete with new model
+        self.data = historical_data  # FIXME: check len >= self.lags
+        ##FIXME: Delete with new model
         self.data["High"] = self.data["High"].apply(lambda x: float(x))
         self.data["Low"] = self.data["Low"].apply(lambda x: float(x))
         self.data["Close"] = self.data["Close"].apply(lambda x: float(x))
@@ -42,7 +43,7 @@ class RL(Strategy):
         self.data["r"] = np.log(self.data["Close"] / self.data["Close"].shift(1))
         for indicator in self.indicators:
             self.data[indicator.name] = None
-            indicator.calculate(self.data, True)  ##TODO: Change to false in new models
+            indicator.calculate(self.data, True)  ##FIXME: Change to false in new models
             self.data[indicator.name] = indicator.generate_signals()
         self.data = self.standarize(historical_data)
 
