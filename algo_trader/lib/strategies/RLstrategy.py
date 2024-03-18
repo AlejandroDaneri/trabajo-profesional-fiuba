@@ -32,8 +32,10 @@ class RL(Strategy):
         return (data - self.mu) / self.std
 
     def prepare_data(self, historical_data: pd.DataFrame):
-        self.data = historical_data  # FIXME: check len >= self.lags
-        ##FIXME: Delete with new model
+        if len(historical_data) < self.lags:
+            raise ValueError("Length of historical_data is less than self.lags")
+        
+        self.data = historical_data
         self.data["High"] = self.data["High"].apply(lambda x: float(x))
         self.data["Low"] = self.data["Low"].apply(lambda x: float(x))
         self.data["Close"] = self.data["Close"].apply(lambda x: float(x))
@@ -43,7 +45,7 @@ class RL(Strategy):
         self.data["r"] = np.log(self.data["Close"] / self.data["Close"].shift(1))
         for indicator in self.indicators:
             self.data[indicator.name] = None
-            indicator.calculate(self.data, True)  ##FIXME: Change to false in new models
+            indicator.calculate(self.data, False)  
             self.data[indicator.name] = indicator.generate_signals()
         self.data = self.standarize(historical_data)
 
