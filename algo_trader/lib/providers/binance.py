@@ -111,7 +111,8 @@ class Binance:
         dates = {
             "1D": "%Y-%m-%d",
             "1M": "%Y-%m-%d %H:%M",
-            "5M": "%Y-%m-%d %H:%M"
+            "5M": "%Y-%m-%d %H:%M",
+            "1H": "%Y-%m-%d %H"
         }
 
         if n is None:
@@ -128,6 +129,10 @@ class Binance:
         data["Timestamp"] = data['Date']
         data['Date'] = data['Date'].apply(lambda x : datetime.fromtimestamp(x / 1000).strftime(dates[timeframe_]))
         data['Close'] =  data['Close'].apply(lambda x : float(x))
+        data['Open'] =  data['Open'].apply(lambda x : float(x))
+        data['High'] =  data['High'].apply(lambda x : float(x))
+        data['Low'] =  data['Low'].apply(lambda x : float(x))
+        data['Volume'] =  data['Volume'].apply(lambda x : float(x))
         data = data.set_index("Date")
         return data
 
