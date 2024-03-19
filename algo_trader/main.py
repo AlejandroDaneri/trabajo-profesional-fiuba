@@ -1,11 +1,12 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
-from lib.exchanges.dummy import Dummy
 from lib.trade_bot import TradeBot
-from lib.providers.binance import Binance
+from lib.providers.binance import Binance as BinanceProvider
+from lib.exchanges.binance import Binance as BinanceExchange
 from utils import hydrate_strategy
 from api_client import ApiClient
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
+
 import time
 
 api = ApiClient()
@@ -16,14 +17,22 @@ def main():
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
-    initial_balance = float(strategy["initial_balance"])
-    current_balance = initial_balance
-    if strategy["current_balance"] is not None:
-        current_balance = float(strategy["current_balance"])
-    timeframe = strategy["timeframe"]
 
-    provider = Binance()
-    exchange = Dummy(initial_balance)
+    provider = BinanceProvider()
+    exchange = BinanceExchange()
+
+    exchange.convert_all_to_usdt()
+    print(f"Initial Balance: {exchange.get_balance()}")
+
+    api.put('api/strategy/initial_balance', json={
+        "initial_balance": str(exchange.get_balance())
+    })
+
+    api.put('api/strategy/balance', json={
+        "current_balance": str(exchange.get_balance())
+    })
+
+    timeframe = strategy["timeframe"]
 
     strategy = hydrate_strategy(currencies, indicators)
 
@@ -82,6 +91,8 @@ def main():
                 notify_telegram_users(trade_details_message)
 
                 current_balance = trade_bot.get_balance()
+                print(f"Current balance: {current_balance}")
+
                 api.put('api/strategy/balance', json={
                     "current_balance": str(current_balance)
                 })

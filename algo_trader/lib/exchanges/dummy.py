@@ -15,7 +15,7 @@ class Dummy(Exchange):
             price = trade.buy_order.price
             self.buy(symbol, amount, price)
             self.trades.append(trade)
-            self.total = amount*price
+            self.total = amount * price
             print(f"Actual portfolio: {self.portfolio}")
             print(f"Actual USDT balance: {self.balance}")
             print(f"Actual total: {self.total}")
