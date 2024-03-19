@@ -79,31 +79,6 @@ class Binance(Exchange):
         except Exception as e:
             print(f"Ocurrió un error al crear la orden: {e}")
         
-    
-    def execute_order(self, symbol: str, target: float, side):
-        try:
-            filled = float(0)
-
-            while(filled < target):
-                quantity = float(round(float(target) - filled, 5))
-
-                if side is SIDE_BUY:
-                    print(f"trying to BUY: {quantity}")
-                
-                if side is SIDE_SELL:
-                    print(f"trying to SELL: {quantity}")
-
-                order = self.client.new_order(
-                    symbol = f"{symbol}USDT",
-                    side = side,
-                    type = ORDER_TYPE_MARKET,
-                    quantity = quantity,
-                )
-
-                filled = filled + float(order['executedQty'])
-        except Exception as e:
-            print(f"Ocurrió un error al crear la orden: {e}")
-
     def buy(self, symbol: str, quantity: float, price: float):
         print(f"[Exchange | Binance] Buying symbol: {symbol}")
         self.execute_buy_order(symbol)
@@ -124,8 +99,7 @@ class Binance(Exchange):
             symbol = value['asset']
             if symbol not in ['BTC', 'SOL', 'ETH']:
                 continue
-            quantity = float(value['free'])
-        self.execute_order(symbol, quantity, SIDE_SELL)
+            self.execute_sell_order(symbol)
         print("[Exchange | Binance] convertion completed")
         print(f"[Exchange | Binance] balance USDT: {self.get_balance_symbol('USDT')}")
 
