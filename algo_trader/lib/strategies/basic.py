@@ -31,6 +31,8 @@ class Basic(Strategy):
         # Get the most common signal
         most_common_signal = signal_counter.most_common(1)[0][0]
 
+        print(f'[Strategy | Basic] Signal: {most_common_signal}')
+
         return most_common_signal
 
     def backtest(self, historical_data: pd.DataFrame) -> None:
