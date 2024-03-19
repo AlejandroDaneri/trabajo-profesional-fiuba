@@ -16,6 +16,8 @@ services:
     container_name: trader
     build:
       context: ./algo_trader
+    env_file:
+      - ./.env
     working_dir: /app
     volumes:
       - ./algo_trader:/app

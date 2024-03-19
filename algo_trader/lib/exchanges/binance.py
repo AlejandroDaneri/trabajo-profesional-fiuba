@@ -4,12 +4,12 @@ from lib.exchanges.exchange import Exchange
 
 from binance.enums import *
 from binance.spot import Spot as Client
-import numpy
+import os
 
 class Binance(Exchange):
     def __init__(self):
-        api_key = "rg4ZZURyk0DxHbPG08lKi7mVlBUTcmmWvOt7e1kDJpNNG6nozZaPS491WNbiJs3f"
-        secret_key = "SnuHSKxk8wXFXh3PDG37rahOo9v7Jyg26QPm9RBSb0wT1nci29s5wkLBBGRH7V5J"
+        api_key = os.getenv('EXCHANGE_BINANCE_API_KEY')
+        secret_key = os.getenv('EXCHANGE_BINANCE_API_SECRET')
 
         self.client = Client(
             api_key,
