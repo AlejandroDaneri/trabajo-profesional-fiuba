@@ -17,12 +17,10 @@ class TradeBot:
         if action != Action.HOLD:
             if action == Action.BUY:
                 self.current_trade = Trade(symbol, amount, price, timestamp)
-                # hola, aca se compra
                 self.exchange.place_order(self.current_trade, Action.BUY)
             if action == Action.SELL:
                 self.current_trade.sell(price, timestamp)
                 self.trades.append(self.current_trade)
-                # hola, aca se vende
                 self.exchange.place_order(self.current_trade, Action.SELL)
                 return_trade = self.current_trade
                 self.current_trade = None
@@ -30,7 +28,6 @@ class TradeBot:
 
     def run_strategy(self, currency, new_record):
         action = self.strategy[currency].predict(new_record)
-        print(f'[Strategy] Signal: {action}')
         timestamp = new_record["Timestamp"][0]
         if (self.trades): 
             asset_last_value = new_record["Close"][0]

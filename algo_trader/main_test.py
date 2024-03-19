@@ -20,7 +20,10 @@ def main():
     timeframe = strategy["timeframe"]
 
     provider = BinanceProvider()
-    exchange = BinanceExchange(initial_balance)
+    exchange = BinanceExchange()
+
+    exchange.convert_all_to_usdt()
+    print("Balance: ", exchange.get_balance())
 
     strategy = hydrate_strategy(currencies, indicators)
     
@@ -67,7 +70,8 @@ def main():
 
         print("\n")
     
-    print("Balance: {}".format(trade_bot.get_balance()))
+    exchange.convert_all_to_usdt()
+    print("Balance: ", exchange.get_balance_usdt())
 
 if __name__ == "__main__":
     main()
