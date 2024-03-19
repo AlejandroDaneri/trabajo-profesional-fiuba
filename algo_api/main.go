@@ -2,13 +2,13 @@ package main
 
 import (
 	"algo_api/internal/strategyservice"
-	"algo_api/internal/tradeservice"
 	"algo_api/internal/telegramservice"
+	"algo_api/internal/tradeservice"
 	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -196,6 +196,28 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func SetStrategyInitialBalance(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		InitialBalance string `json:"initial_balance"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = strategyservice.GetInstance().SetInitialBalance(body.InitialBalance)
+	if err != nil {
+		logrus.Error("Could not set balance to the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		CurrentBalance string `json:"current_balance"`
@@ -346,28 +368,27 @@ func AddTelegramChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTelegramChats(w http.ResponseWriter, r *http.Request) {
-    chats, err := telegramservice.GetInstance().GetAllTelegramChats()
-    if err != nil {
-        logrus.WithError(err).Error("Failed to get Telegram chats")
-        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-        return
-    }
+	chats, err := telegramservice.GetInstance().GetAllTelegramChats()
+	if err != nil {
+		logrus.WithError(err).Error("Failed to get Telegram chats")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-    response, err := json.Marshal(chats)
-    if err != nil {
-        logrus.WithError(err).Error("Failed to marshal response")
-        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-        return
-    }
+	response, err := json.Marshal(chats)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to marshal response")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusOK)
-    _, err = w.Write(response)
-    if err != nil {
-        logrus.WithError(err).Error("Failed to write response")
-    }
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(response)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to write response")
+	}
 }
-
 
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
@@ -378,6 +399,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
 	router.HandleFunc("/strategy", DeleteStrategy).Methods("DELETE")
+	router.HandleFunc("/strategy/initial_balance", SetStrategyInitialBalance).Methods("PUT")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")

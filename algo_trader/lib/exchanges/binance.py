@@ -17,7 +17,7 @@ class Binance(Exchange):
             base_url='https://testnet.binance.vision'
         )
 
-        super().__init__(self.get_balance())
+        super().__init__(self.get_balance_symbol('USDT'))
 
         self.trades = []
 
@@ -40,7 +40,10 @@ class Binance(Exchange):
                 return float(value['free'])
 
     def get_balance(self) -> float:
-        return self.get_balance_symbol('USDT')
+        total = 0
+        for symbol in ['SOL', 'ETH', 'BTC']:
+            total = total + (self.get_balance_symbol(symbol) * self.get_price(symbol))
+        return total + self.get_balance_symbol('USDT')
 
     def get_price(self, symbol) -> float:
         return float(self.client.ticker_price(symbol=f"{symbol}USDT")["price"])
@@ -48,15 +51,15 @@ class Binance(Exchange):
     def execute_buy_order(self, symbol):
         try:
             remanent = 100
-            while(self.get_balance() > remanent):
-                print(f"trying to BUY: {self.get_balance()}")
-
+            while(self.get_balance_symbol('USDT') > remanent):
                 order = self.client.new_order(
                     symbol = f"{symbol}USDT",
                     side = SIDE_BUY,
                     type = ORDER_TYPE_MARKET,
-                    quoteOrderQty = self.get_balance()
+                    quoteOrderQty = self.get_balance_symbol('USDT')
                 )
+
+                print(f"[Exchange | Binance] filled: {order['executedQty']}")
         except Exception as e:
             print(f"Ocurrió un error al crear la orden: {e}")
     
@@ -71,6 +74,8 @@ class Binance(Exchange):
                     type = ORDER_TYPE_MARKET,
                     quantity = float(round(self.get_balance_symbol(symbol), 5))
                 )
+
+                print(f"[Exchange | Binance] filled: {order['executedQty']}")
         except Exception as e:
             print(f"Ocurrió un error al crear la orden: {e}")
         
@@ -100,30 +105,29 @@ class Binance(Exchange):
             print(f"Ocurrió un error al crear la orden: {e}")
 
     def buy(self, symbol: str, quantity: float, price: float):
-        print(f"[Exchange | Binance] Buying quantity: {symbol}")
+        print(f"[Exchange | Binance] Buying symbol: {symbol}")
         self.execute_buy_order(symbol)
         self.portfolio[symbol] = self.get_balance_symbol(symbol)
-        #super().buy(symbol, quantity, price)
+        print(f"[Exchange | Binance] amount: {self.get_balance_symbol(symbol)}")
 
     def sell(self, symbol: str, quantity: int, price: float):
         print(f"[Exchange | Binance] Selling quantity: {symbol}")
         self.execute_sell_order(symbol)
         self.portfolio[symbol] = self.get_balance_symbol(symbol)
-        #super().sell(symbol, quantity, price)
+        print(f"[Exchange | Binance] amount: {self.get_balance_symbol(symbol)}")
 
     def convert_all_to_usdt(self):
         print("[Exchange | Binance] converting all to USDT")
-        print(f"[Exchange | Binance] balance USDT: {self.get_balance()}")
+        print(f"[Exchange | Binance] balance USDT: {self.get_balance_symbol('USDT')}")
         balances = self.client.account()['balances']
         for index, value in enumerate(balances):
             symbol = value['asset']
             if symbol not in ['BTC', 'SOL', 'ETH']:
                 continue
             quantity = float(value['free'])
-            if symbol != 'USDT':
-                self.execute_order(symbol, quantity, SIDE_SELL)
+        self.execute_order(symbol, quantity, SIDE_SELL)
         print("[Exchange | Binance] convertion completed")
-        print(f"[Exchange | Binance] balance USDT: {self.get_balance()}")
+        print(f"[Exchange | Binance] balance USDT: {self.get_balance_symbol('USDT')}")
 
     
 

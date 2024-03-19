@@ -14,9 +14,6 @@ def main():
     print(strategy)
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
-    initial_balance = float(strategy["initial_balance"])
-    if strategy["current_balance"] is not None:
-        current_balance = float(strategy["current_balance"])
     timeframe = strategy["timeframe"]
 
     provider = BinanceProvider()
@@ -25,6 +22,14 @@ def main():
     exchange.convert_all_to_usdt()
     print("Balance: ", exchange.get_balance())
 
+    api.put('api/strategy/initial_balance', json={
+        "initial_balance": str(exchange.get_balance())
+    })
+
+    api.put('api/strategy/balance', json={
+        "current_balance": str(exchange.get_balance())
+    })
+
     strategy = hydrate_strategy(currencies, indicators)
     
     data = {}
@@ -32,7 +37,7 @@ def main():
     simulation_data = {}
     
     n_train = 200
-    n_simulate = 1000
+    n_simulate = 300
     n_total = n_train + n_simulate
 
     for currency in currencies:
@@ -71,7 +76,7 @@ def main():
         print("\n")
     
     exchange.convert_all_to_usdt()
-    print("Balance: ", exchange.get_balance_usdt())
+    print("Balance: ", exchange.get_balance())
 
 if __name__ == "__main__":
     main()
