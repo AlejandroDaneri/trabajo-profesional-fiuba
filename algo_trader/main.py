@@ -7,6 +7,7 @@ from utils import hydrate_strategy
 from api_client import ApiClient
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
 import time
+from datetime import datetime
 
 api = ApiClient()
 
@@ -74,9 +75,9 @@ def main():
                     data['pair'],
                     data['amount'],
                     data['buy']['price'],
-                    data['buy']['timestamp'],
+                    datetime.fromtimestamp(data['buy']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
                     data['sell']['price'],
-                    data['sell']['timestamp']
+                    datetime.fromtimestamp(data['sell']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S')
                 )
 
                 notify_telegram_users(trade_details_message)
