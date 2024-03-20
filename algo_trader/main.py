@@ -61,6 +61,11 @@ def main():
                 print(data)
                 response = api.post('api/trade', json=data)
 
+                if data['buy']['price'] <= data['sell']['price']:
+                    trade_result = "👍 Positive"
+                else: 
+                    trade_result = "👎 Negative"
+
                 trade_details_message = (
                 "Trade Details:\n"
                 "Pair: {}\n"
@@ -70,14 +75,16 @@ def main():
                 "  Timestamp: {}\n"
                 "Sell Order:\n"
                 "  Price: {}\n"
-                "  Timestamp: {}"
+                "  Timestamp: {}\n"
+                "Trade Result: {}"
                 ).format(
                     data['pair'],
                     data['amount'],
                     data['buy']['price'],
                     datetime.fromtimestamp(data['buy']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
                     data['sell']['price'],
-                    datetime.fromtimestamp(data['sell']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S')
+                    datetime.fromtimestamp(data['sell']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+                    trade_result
                 )
 
                 notify_telegram_users(trade_details_message)
