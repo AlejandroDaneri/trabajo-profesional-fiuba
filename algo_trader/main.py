@@ -72,6 +72,9 @@ def main():
                         }
                     }
                     response = api.post('api/trade', json=data)
+
+                    # remove tmp current trade
+                    api.delete('api/trade/current')
                 
                 # trade current: buy executed but not sell yet
                 if trade.buy_order.timestamp and not trade.sell_order.timestamp:
