@@ -95,6 +95,42 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func SetCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Pair     string `json:"pair"`
+		Amount   string `json:"amount"`
+		BuyOrder struct {
+			Price     string `json:"price"`
+			Timestamp int64  `json:"timestamp"`
+		} `json:"buy"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	trade := map[string]interface{}{
+		"pair":   body.Pair,
+		"amount": body.Amount,
+		"orders": map[string]interface{}{
+			"buy": map[string]interface{}{
+				"price":     body.BuyOrder.Price,
+				"timestamp": body.BuyOrder.Timestamp,
+			},
+		},
+	}
+
+	logrus.Info(trade)
+
+	// 1. Si existe un current trade, borrarlo.
+	// 2. Guardar el nuevo current trade.
+}
+
 func GetTrade(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tradeID := vars["tradeId"]
@@ -392,6 +428,7 @@ func GetTelegramChats(w http.ResponseWriter, r *http.Request) {
 
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
+	router.HandleFunc("/trade/current", SetCurrentTrade).Methods("PUT")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trades/strategy/{strategyId}", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")

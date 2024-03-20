@@ -57,20 +57,33 @@ def main():
             print(f'Get: {currency} {data.index[0]}')
             trade = trade_bot.run_strategy(currency, data)
             if trade is not None:
-                data = {
-                    "pair": trade.symbol,
-                    "amount": str(trade.amount),
-                    "buy": {
-                        "price": str(trade.buy_order.price),
-                        "timestamp": int(trade.buy_order.timestamp)
-                    },
-                    "sell": {
-                        "price": str(trade.sell_order.price),
-                        "timestamp": int(trade.sell_order.timestamp)
+                # trade closed: means buy and sell executed
+                if trade.buy_order.timestamp and trade.sell_order.timestamp:
+                    data = {
+                        "pair": trade.symbol,
+                        "amount": str(trade.amount),
+                        "buy": {
+                            "price": str(trade.buy_order.price),
+                            "timestamp": int(trade.buy_order.timestamp)
+                        },
+                        "sell": {
+                            "price": str(trade.sell_order.price),
+                            "timestamp": int(trade.sell_order.timestamp)
+                        }
                     }
-                }
-                print(data)
-                response = api.post('api/trade', json=data)
+                    response = api.post('api/trade', json=data)
+                
+                # trade current: buy executed but not sell yet
+                if trade.buy_order.timestamp and not trade.sell_order.timestamp:
+                    data = {
+                        "pair": trade.symbol,
+                        "amount": str(trade.amount),
+                        "buy": {
+                            "price": str(trade.buy_order.price),
+                            "timestamp": int(trade.buy_order.timestamp)
+                        }
+                    }
+                    response = api.post('api/trade/current', json=data)
 
                 trade_details_message = (
                 "Trade Details:\n"

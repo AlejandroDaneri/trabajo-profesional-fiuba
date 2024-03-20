@@ -13,11 +13,12 @@ class TradeBot:
 
         self.current_trade = None
 
-    def execute_trade(self, action: Action, symbol, amount: float, price: float, timestamp: int):
+    def execute_trade(self, action: Action, symbol, amount: float, price: float, timestamp: int) -> Trade:
         if action != Action.HOLD:
             if action == Action.BUY:
                 self.current_trade = Trade(symbol, amount, price, timestamp)
                 self.exchange.place_order(self.current_trade, Action.BUY)
+                return self.current_trade
             if action == Action.SELL:
                 self.current_trade.sell(price, timestamp)
                 self.trades.append(self.current_trade)
