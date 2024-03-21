@@ -108,7 +108,7 @@ class SAR(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_df = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_df.iloc[-1]
@@ -117,7 +117,7 @@ class SAR(Indicator):
         print(f"[SAR] Current High value: {new_signal.High}")
         print(f"[SAR] Current Low value: {new_signal.Low}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[SAR] Signal: {signal}")
 

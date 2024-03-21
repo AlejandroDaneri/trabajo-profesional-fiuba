@@ -50,7 +50,7 @@ class CrossingEMA(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_df = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_df.iloc[-1]
@@ -58,7 +58,7 @@ class CrossingEMA(Indicator):
         print(f"[Crossing EMA] Current fast EMA value: {new_signal.FAST_EMA}")
         print(f"[Crossing EMA] Current slow EMA value: {new_signal.SLOW_EMA}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[Crossing EMA] Signal: {signal}")
 
