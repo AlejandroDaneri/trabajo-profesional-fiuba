@@ -46,7 +46,7 @@ class EMA(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_df = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_df.iloc[-1]
@@ -54,7 +54,7 @@ class EMA(Indicator):
         print(f"[EMA] Current EMA value: {new_signal.EMA}")
         print(f"[EMA] Current Close value: {new_signal.Close}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[EMA] Signal: {signal}")
 

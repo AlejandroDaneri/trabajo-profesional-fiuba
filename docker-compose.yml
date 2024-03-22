@@ -17,7 +17,7 @@ services:
     build:
       context: ./algo_trader
     env_file:
-      - ./.env
+      - ./algo_trader/.env
     working_dir: /app
     volumes:
       - ./algo_trader:/app

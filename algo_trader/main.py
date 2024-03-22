@@ -24,9 +24,12 @@ def main():
     exchange.convert_all_to_usdt()
     print(f"Initial Balance: {exchange.get_balance()}")
 
-    api.put('api/strategy/initial_balance', json={
-        "initial_balance": str(exchange.get_balance())
-    })
+    # if initial balance is none, we set exchange balance as initial balance
+    initial_balance = strategy["initial_balance"]
+    if initial_balance is None:
+        api.put('api/strategy/initial_balance', json={
+            "initial_balance": str(exchange.get_balance())
+        })
 
     api.put('api/strategy/balance', json={
         "current_balance": str(exchange.get_balance())
