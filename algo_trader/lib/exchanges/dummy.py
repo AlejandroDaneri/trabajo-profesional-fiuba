@@ -3,10 +3,13 @@ from lib.trade import Trade
 from lib.exchanges.exchange import Exchange
 
 class Dummy(Exchange):
-    def __init__(self, initial_balance):
+    def __init__(self, initial_balance=10000):
         super().__init__(initial_balance)
         self.trades = []
 
+    def convert_all_to_usdt(ok):
+        pass
+    
     def place_order(self, trade: Trade, action: Action):
         symbol = trade.symbol
         amount = trade.amount

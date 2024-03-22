@@ -1,21 +1,5 @@
-from lib.indicators.rsi import RSI
-from lib.indicators.macd import MACD
-from lib.indicators.bbands import BBANDS
-from lib.indicators.dmi import DMI
-from lib.indicators.ema import EMA
-from lib.indicators.sma import SMA
-from lib.indicators.crossingEma import CrossingEMA
-from lib.indicators.crossingSma import CrossingSMA
-from lib.indicators.threeEma import ThreeEMA
-from lib.indicators.threeSma import ThreeSMA
-from lib.indicators.obv import OBV
-from lib.indicators.nvi import NVI
-from lib.indicators.pvi import PVI
-from lib.indicators.mfi import MFI
-from lib.indicators.stochastic import Stochastic
-from lib.indicators.koncorde import KONCORDE
-from lib.indicators.sar import SAR
-from lib.strategies.basic import Basic
+from lib.indicators import *
+from lib.strategies.RLstrategy import RL
 
 def hydrate_indicator_rsi(parameters):
     if parameters is None:
@@ -300,5 +284,5 @@ def hydrate_strategy(currencies, indicators):
                 if sar is not None:
                     indicators_builded.append(sar)
         
-        strategy[currency] = Basic(indicators_builded)
+        strategy[currency] = RL(indicators_builded)
     return strategy
