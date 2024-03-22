@@ -169,18 +169,3 @@ class KONCORDE(Indicator):
         print(f"[KONCORDE] Signal: {signal}")
 
         return signal
-
-    @staticmethod
-    def hydrate(parameters):
-        if parameters is None:
-            print("indicator koncorde not have parameters")
-            return None
-        rounds = parameters["rounds"]
-        rsi_mfi_length = parameters["rsi_mfi_length"]
-        bbands_length = parameters["bbands_length"]
-        bbands_factor = parameters["bbands_factor"]
-        storch_length = parameters["storch_length"]
-        if rounds is None or rsi_mfi_length is None or bbands_length is None or bbands_factor is None or storch_length is None:
-            print("indicator koncorde not have all the parameters")
-            return None
-        return KONCORDE(rounds, rsi_mfi_length, bbands_length, bbands_factor, storch_length)

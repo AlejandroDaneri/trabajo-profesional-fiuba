@@ -75,16 +75,3 @@ class ThreeEMA(Indicator):
         print(f"[Three EMA] Signal: {signal}")
 
         return signal
-    
-    @staticmethod
-    def hydrate(parameters):
-        if parameters is None:
-            print("indicator three ema not have parameters")
-            return None
-        fast_rounds = parameters["fast_rounds"]
-        slow_rounds = parameters["slow_rounds"]
-        support_rounds = parameters["support_rounds"]
-        if fast_rounds is None or slow_rounds is None or support_rounds is None:
-            print("indicator three ema not have all the parameters")
-            return None
-        return ThreeEMA(fast_rounds, slow_rounds, support_rounds)

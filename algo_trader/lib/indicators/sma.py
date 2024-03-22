@@ -59,15 +59,3 @@ class SMA(Indicator):
         print(f"[SMA] Signal: {signal}")
 
         return signal
-
-
-    @staticmethod
-    def hydrate(parameters):
-        if parameters is None:
-            print("indicator sma not have parameters")
-            return None
-        rounds = parameters["rounds"]
-        if rounds is None:
-            print("indicator sma not have all the parameters")
-            return None
-        return SMA(rounds)

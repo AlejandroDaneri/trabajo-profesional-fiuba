@@ -67,15 +67,3 @@ class BBANDS(Indicator):
         print(f"[BBANDS] Signal: {signal}")
 
         return signal
-
-    @staticmethod
-    def hydrate(parameters):
-        if parameters is None:
-            print("indicator bbands not have parameters")
-            return None
-        rounds = parameters["rounds"]
-        factor = parameters["factor"]
-        if rounds is None or factor is None:
-            print("indicator bbands not have all the parameters")
-            return None
-        return BBANDS(rounds, factor)

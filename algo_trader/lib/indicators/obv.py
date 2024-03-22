@@ -65,15 +65,3 @@ class OBV(Indicator):
         print(f"[OBV] Signal: {signal}")
 
         return signal
-    
-    
-    @staticmethod
-    def hydrate(parameters):
-        if parameters is None:
-            print("Indicator OBV does not have parameters")
-            return None
-        rounds = parameters.get("rounds")
-        if rounds is None:
-            print("Indicator OBV does not have all the parameters")
-            return None
-        return OBV(rounds)

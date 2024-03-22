@@ -100,14 +100,3 @@ class PVI(Indicator):
         print(f"[PVI] Signal: {signal}")
 
         return signal
-
-    @staticmethod
-    def hydrate(parameters):
-        if parameters is None:
-            print("indicator pvi not have parameters")
-            return None
-        rounds = parameters["rounds"]
-        if rounds is None:
-            print("indicator pvi not have all the parameters")
-            return None
-        return PVI(rounds)
