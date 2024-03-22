@@ -15,7 +15,7 @@ class Indicator:
         return self.output
 
     @abstractmethod
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         pass
 
     @abstractmethod

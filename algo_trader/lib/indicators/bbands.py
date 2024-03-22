@@ -53,7 +53,7 @@ class BBANDS(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_bbands_value = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_bbands_value.iloc[-1]
@@ -62,7 +62,7 @@ class BBANDS(Indicator):
         print(f"[BBANDS] UpperBand value: {new_signal.UpperBand}")
         print(f"[BBANDS] LowerBand value: {new_signal.LowerBand}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[BBANDS] Signal: {signal}")
 
