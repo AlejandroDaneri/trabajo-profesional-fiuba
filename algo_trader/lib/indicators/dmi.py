@@ -99,3 +99,15 @@ class DMI(Indicator):
         print(f"[DMI] Signal: {signal}")
 
         return signal
+
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("indicator dmi not have parameters")
+            return None
+        rounds = parameters["rounds"]
+        adx_threshold = parameters["adx_threshold"]
+        if rounds is None or adx_threshold is None:
+            print("indicator dmi not have all the parameters")
+            return None
+        return DMI(rounds, adx_threshold)

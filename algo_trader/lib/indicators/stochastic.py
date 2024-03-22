@@ -85,3 +85,16 @@ class Stochastic(Indicator):
         print(f"[Stochastic] Signal: {signal}")
 
         return signal
+
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("indicator stochastic not have parameters")
+            return None
+        buy_threshold = parameters["buy_threshold"]
+        sell_threshold = parameters["sell_threshold"]
+        rounds = parameters["rounds"]
+        if buy_threshold is None or sell_threshold is None or rounds is None:
+            print("indicator stochastic not have all the parameters")
+            return None
+        return Stochastic(buy_threshold, sell_threshold, rounds)

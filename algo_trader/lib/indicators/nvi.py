@@ -100,3 +100,14 @@ class NVI(Indicator):
         print(f"[NVI] Signal: {signal}")
 
         return signal
+    
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("indicator nvi not have parameters")
+            return None
+        rounds = parameters["rounds"]
+        if rounds is None:
+            print("indicator nvi not have all the parameters")
+            return None
+        return NVI(rounds)

@@ -59,3 +59,14 @@ class EMA(Indicator):
         print(f"[EMA] Signal: {signal}")
 
         return signal
+
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("indicator ema not have parameters")
+            return None
+        rounds = parameters["rounds"]
+        if rounds is None:
+            print("indicator ema not have all the parameters")
+            return None
+        return EMA(rounds)

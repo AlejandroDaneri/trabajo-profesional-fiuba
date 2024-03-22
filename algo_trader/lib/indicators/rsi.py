@@ -84,3 +84,16 @@ class RSI(Indicator):
         print(f"[Indicator | RSI] Signal: {signal}")
 
         return signal
+    
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("Indicator RSI does not have parameters")
+            return None
+        buy_threshold = parameters.get("buy_threshold")
+        sell_threshold = parameters.get("sell_threshold")
+        rounds = parameters.get("rounds")
+        if buy_threshold is None or sell_threshold is None or rounds is None:
+            print("Indicator RSI does not have all the parameters")
+            return None
+        return RSI(buy_threshold, sell_threshold, rounds)

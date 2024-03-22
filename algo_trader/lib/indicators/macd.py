@@ -76,3 +76,16 @@ class MACD(Indicator):
         print(f"[MACD] Signal: {signal}")
 
         return signal
+
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("indicator macd not have parameters")
+            return None
+        slow = parameters["slow"]
+        fast = parameters["fast"]
+        smoothed = parameters["smoothed"]
+        if slow is None or fast is None or smoothed is None:
+            print("indicator macd not have all the parameters")
+            return None
+        return MACD(slow, fast, smoothed)

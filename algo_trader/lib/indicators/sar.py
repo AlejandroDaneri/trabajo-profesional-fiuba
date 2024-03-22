@@ -122,3 +122,16 @@ class SAR(Indicator):
         print(f"[SAR] Signal: {signal}")
 
         return signal
+
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("indicator sar not have parameters")
+            return None
+        initial_af = parameters["initial_af"]
+        max_af = parameters["max_af"]
+        af_increment = parameters["af_increment"]
+        if initial_af is None or max_af is None or af_increment is None:
+            print("indicator sar not have all the parameters")
+            return None
+        return SAR(initial_af, max_af, af_increment)

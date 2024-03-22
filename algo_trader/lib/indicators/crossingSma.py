@@ -63,3 +63,15 @@ class CrossingSMA(Indicator):
         print(f"[Crossing SMA] Signal: {signal}")
 
         return signal
+
+    @staticmethod
+    def hydrate(parameters):
+        if parameters is None:
+            print("indicator crossing sma not have parameters")
+            return None
+        fast_rounds = parameters["fast_rounds"]
+        slow_rounds = parameters["slow_rounds"]
+        if fast_rounds is None or slow_rounds is None:
+            print("indicator crossing sma not have all the parameters")
+            return None
+        return CrossingSMA(fast_rounds, slow_rounds)
