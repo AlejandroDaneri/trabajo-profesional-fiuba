@@ -105,6 +105,36 @@ func RemoveCurrentTrade(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	id := "current"
+
+	currentTrade, err := tradeservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get current trade")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	bytes, err := json.Marshal(currentTrade)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
 func SetCurrentTrade(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		Pair     string `json:"pair"`
@@ -472,6 +502,7 @@ func GetTelegramChats(w http.ResponseWriter, r *http.Request) {
 
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
+	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
 	router.HandleFunc("/trade/current", SetCurrentTrade).Methods("PUT")
 	router.HandleFunc("/trade/current", RemoveCurrentTrade).Methods("DELETE")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")

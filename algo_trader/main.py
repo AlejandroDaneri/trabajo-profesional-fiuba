@@ -1,5 +1,6 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
+from lib.trade import Trade
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance as BinanceProvider
 from lib.exchanges.binance import Binance as BinanceExchange
@@ -49,7 +50,22 @@ def main():
         strategy[currency].train(train_data[currency])
 
     trade_bot = TradeBot(strategy, exchange)
-    print("trade bot created")
+
+    response = api.get('api/trade/current')
+    current_trade = response.json()
+    if current_trade is not None:
+        print("restoring opened trade")
+        print(current_trade)
+        amount = current_trade["amount"]
+        symbol = current_trade["pair"]
+        price = current_trade["orders"]["buy"]["price"]
+        timestamp = current_trade["orders"]["buy"]["timestamp"]
+        trade_bot.set_current_trade(Trade(
+            amount,
+            symbol,
+            price,
+            timestamp
+        ))
 
     while True:
         for currency in currencies:

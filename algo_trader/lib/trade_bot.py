@@ -80,6 +80,8 @@ class TradeBot:
             #print("Time to HODL")
             return None
 
+    def set_current_trade(self, trade: Trade):
+        self.current_trade = trade
 
     def get_trades(self):
         return self.trades
