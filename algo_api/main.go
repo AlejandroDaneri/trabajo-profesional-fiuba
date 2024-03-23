@@ -95,6 +95,116 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func RemoveCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	err := tradeservice.GetInstance().Remove("current")
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete current trade")
+		return
+	}
+}
+
+func GetCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	id := "current"
+
+	currentTrade, err := tradeservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get current trade")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	bytes, err := json.Marshal(currentTrade)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func SetCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Pair     string `json:"pair"`
+		Amount   string `json:"amount"`
+		BuyOrder struct {
+			Price     string `json:"price"`
+			Timestamp int64  `json:"timestamp"`
+		} `json:"buy"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	id := "current"
+
+	trade := map[string]interface{}{
+		"_id":    id,
+		"pair":   body.Pair,
+		"amount": body.Amount,
+		"orders": map[string]interface{}{
+			"buy": map[string]interface{}{
+				"price":     body.BuyOrder.Price,
+				"timestamp": body.BuyOrder.Timestamp,
+			},
+		},
+		"type": "current",
+	}
+
+	strategy, err := strategyservice.GetInstance().GetRunning()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get the strategy")
+		return
+	}
+
+	currentTrade, err := tradeservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete current trade")
+		return
+	}
+
+	if currentTrade != nil {
+		err := tradeservice.GetInstance().Remove(id)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"err": err,
+			}).Error("Could not delete current trade")
+			return
+		}
+	}
+
+	_, err = tradeservice.GetInstance().Create(trade, strategy.ID)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not create current trade")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func GetTrade(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tradeID := vars["tradeId"]
@@ -160,7 +270,7 @@ func ListTrades(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveTrades(w http.ResponseWriter, r *http.Request) {
-	err := tradeservice.GetInstance().Remove()
+	err := tradeservice.GetInstance().RemoveAll()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -392,6 +502,9 @@ func GetTelegramChats(w http.ResponseWriter, r *http.Request) {
 
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
+	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
+	router.HandleFunc("/trade/current", SetCurrentTrade).Methods("PUT")
+	router.HandleFunc("/trade/current", RemoveCurrentTrade).Methods("DELETE")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trades/strategy/{strategyId}", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")

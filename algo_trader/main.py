@@ -1,5 +1,6 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
+from lib.trade import Trade
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance as BinanceProvider
 from lib.exchanges.binance import Binance as BinanceExchange
@@ -49,7 +50,22 @@ def main():
         strategy[currency].train(train_data[currency])
 
     trade_bot = TradeBot(strategy, exchange)
-    print("trade bot created")
+
+    response = api.get('api/trade/current')
+    current_trade = response.json()
+    if current_trade is not None:
+        print("restoring opened trade")
+        print(current_trade)
+        amount = current_trade["amount"]
+        symbol = current_trade["pair"]
+        price = current_trade["orders"]["buy"]["price"]
+        timestamp = current_trade["orders"]["buy"]["timestamp"]
+        trade_bot.set_current_trade(Trade(
+            amount,
+            symbol,
+            price,
+            timestamp
+        ))
 
     while True:
         for currency in currencies:
@@ -57,20 +73,36 @@ def main():
             print(f'Get: {currency} {data.index[0]}')
             trade = trade_bot.run_strategy(currency, data)
             if trade is not None:
-                data = {
-                    "pair": trade.symbol,
-                    "amount": str(trade.amount),
-                    "buy": {
-                        "price": str(trade.buy_order.price),
-                        "timestamp": int(trade.buy_order.timestamp)
-                    },
-                    "sell": {
-                        "price": str(trade.sell_order.price),
-                        "timestamp": int(trade.sell_order.timestamp)
+                # trade closed: means buy and sell executed
+                if trade.buy_order.timestamp and trade.sell_order.timestamp:
+                    data = {
+                        "pair": trade.symbol,
+                        "amount": str(trade.amount),
+                        "buy": {
+                            "price": str(trade.buy_order.price),
+                            "timestamp": int(trade.buy_order.timestamp)
+                        },
+                        "sell": {
+                            "price": str(trade.sell_order.price),
+                            "timestamp": int(trade.sell_order.timestamp)
+                        }
                     }
-                }
-                print(data)
-                response = api.post('api/trade', json=data)
+                    response = api.post('api/trade', json=data)
+
+                    # remove tmp current trade
+                    api.delete('api/trade/current')
+                
+                # trade current: buy executed but not sell yet
+                if trade.buy_order.timestamp and not trade.sell_order.timestamp:
+                    data = {
+                        "pair": trade.symbol,
+                        "amount": str(trade.amount),
+                        "buy": {
+                            "price": str(trade.buy_order.price),
+                            "timestamp": int(trade.buy_order.timestamp)
+                        }
+                    }
+                    response = api.post('api/trade/current', json=data)
 
                 trade_details_message = (
                 "Trade Details:\n"
