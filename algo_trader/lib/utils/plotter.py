@@ -126,12 +126,20 @@ def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):
   plt.legend()
   plt.show()
 
-def plot(x: pd.Series, y: pd.Series, log_scale=False, color='#006CA7'):
+def plot(x: pd.Series, y: pd.Series, log_scale=False, color='#006CA7', buy_threshold=None, sell_threshold=None):
     # matplotlib works better if we set dates instead strings
     # on the axis x, the plot looks much better 
     fig = plt.figure()
     fig.set_size_inches(30, 5)
+
     if log_scale:
       plt.yscale('log')
+
     plt.plot(generate_dates(x[0], x[-1]), y, color=color)
+
+    if buy_threshold is not None:
+      plt.axhline(y=buy_threshold, color='g', linestyle='--')
+    if sell_threshold is not None:
+      plt.axhline(y=sell_threshold, color='r', linestyle='--')
+
     plt.show()
