@@ -7,7 +7,8 @@ services:
       context: ./algo_frontend
       dockerfile: Dockerfile.dev
     volumes:
-      - ./algo_frontend:/app
+      - ./algo_frontend/public:/app/public
+      - ./algo_frontend/src:/app/src
     ports:
       - 3000:3000
 
@@ -15,19 +16,32 @@ services:
     container_name: trader
     build:
       context: ./algo_trader
+    env_file:
+      - ./algo_trader/.env
     working_dir: /app
     volumes:
       - ./algo_trader:/app
       - ~/satoshibot/cache_binance:/data/cache_binance
     # Unit Tests
-    command: ["pytest"]
+    # command: ["pytest"]
     # Backtesting
     # command: ["python3", "-u", "main_test.py"]
+    # Production
+    command: ["python3", "-u", "main.py"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  telegram_bot:
+    container_name: telegram_bot
+    build:
+      context: ./telegram_bot
+    working_dir: /app
+    volumes:
+      - ./telegram_bot:/app
+    command: ["python3", "-u", "main.py"]
 
   algo_api:
     container_name: api

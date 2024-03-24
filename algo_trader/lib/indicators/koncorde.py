@@ -36,7 +36,12 @@ class KONCORDE(Indicator):
         df["Close"] = data["Close"]
 
         # Calculate the typical price, its is the average of the maximum, minimum, open and close price
-        typical_price = (data['Open'].fillna(0) + data['High'].fillna(0) + data['Low'].fillna(0) + data['Close'].fillna(0)) / 4
+        typical_price = (
+            data["Open"].fillna(0)
+            + data["High"].fillna(0)
+            + data["Low"].fillna(0)
+            + data["Close"].fillna(0)
+        ) / 4
 
         # Calculate Stochastic indicator of typical price
         stoch = self.calc_stoch(typical_price, data, self.stoch_length)
@@ -149,7 +154,7 @@ class KONCORDE(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_koncorde_value = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_koncorde_value.iloc[-1]
@@ -159,7 +164,7 @@ class KONCORDE(Indicator):
         print(f"[KONCORDE] Trend value: {new_signal.TREND}")
         print(f"[KONCORDE] Trend avg value: {new_signal.TREND_AVG}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[KONCORDE] Signal: {signal}")
 

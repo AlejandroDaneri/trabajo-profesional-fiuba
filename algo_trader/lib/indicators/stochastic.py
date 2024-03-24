@@ -71,7 +71,7 @@ class Stochastic(Indicator):
         plt.axhline(self.sell_threshold, linestyle="--", linewidth=1.5, color="red")
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_stoch = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_stoch.iloc[-1]
@@ -80,7 +80,7 @@ class Stochastic(Indicator):
         print(f"[Stochastic] Sell Threshold: {self.sell_threshold}")
         print(f"[Stochastic] Buy Threshold: {self.buy_threshold}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[Stochastic] Signal: {signal}")
 

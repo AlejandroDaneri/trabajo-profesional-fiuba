@@ -50,7 +50,7 @@ class CrossingSMA(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_df = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_df.iloc[-1]
@@ -58,7 +58,7 @@ class CrossingSMA(Indicator):
         print(f"[Crossing SMA] Current fast SMA value: {new_signal.FAST_SMA}")
         print(f"[Crossing SMA] Current slow SMA value: {new_signal.SLOW_SMA}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[Crossing SMA] Signal: {signal}")
 

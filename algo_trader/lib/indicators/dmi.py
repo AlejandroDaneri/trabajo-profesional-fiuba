@@ -87,7 +87,7 @@ class DMI(Indicator):
         plt.axhline(self.adx_threshold, linestyle="--", linewidth=1.5, color="gray")
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_dmi = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_dmi.iloc[-1]
@@ -95,7 +95,7 @@ class DMI(Indicator):
         print(f"[DMI] Current value: {new_signal}")
         print(f"[DMI] ADX Threshold: {self.adx_threshold}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[DMI] Signal: {signal}")
 

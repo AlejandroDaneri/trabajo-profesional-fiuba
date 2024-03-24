@@ -87,7 +87,7 @@ class NVI(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_nvi = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_nvi.iloc[-1]
@@ -95,8 +95,8 @@ class NVI(Indicator):
         print(f"[NVI] Current nvi value: {new_signal.NVI}")
         print(f"[NVI] Current nvi_ema value: {new_signal.NVI_EMA}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[NVI] Signal: {signal}")
 
-        return signal
+        return signal    

@@ -64,14 +64,14 @@ class MACD(Indicator):
         )
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_macd_value = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_macd_value.iloc[-1]
 
         print(f"[MACD] Current value: {new_signal}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[MACD] Signal: {signal}")
 

@@ -2,13 +2,13 @@ package main
 
 import (
 	"algo_api/internal/strategyservice"
-	"algo_api/internal/tradeservice"
 	"algo_api/internal/telegramservice"
+	"algo_api/internal/tradeservice"
 	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
-	"strconv"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -95,6 +95,116 @@ func CreateTrade(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func RemoveCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	err := tradeservice.GetInstance().Remove("current")
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete current trade")
+		return
+	}
+}
+
+func GetCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	id := "current"
+
+	currentTrade, err := tradeservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get current trade")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	bytes, err := json.Marshal(currentTrade)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func SetCurrentTrade(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Pair     string `json:"pair"`
+		Amount   string `json:"amount"`
+		BuyOrder struct {
+			Price     string `json:"price"`
+			Timestamp int64  `json:"timestamp"`
+		} `json:"buy"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	id := "current"
+
+	trade := map[string]interface{}{
+		"_id":    id,
+		"pair":   body.Pair,
+		"amount": body.Amount,
+		"orders": map[string]interface{}{
+			"buy": map[string]interface{}{
+				"price":     body.BuyOrder.Price,
+				"timestamp": body.BuyOrder.Timestamp,
+			},
+		},
+		"type": "current",
+	}
+
+	strategy, err := strategyservice.GetInstance().GetRunning()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get the strategy")
+		return
+	}
+
+	currentTrade, err := tradeservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete current trade")
+		return
+	}
+
+	if currentTrade != nil {
+		err := tradeservice.GetInstance().Remove(id)
+		if err != nil {
+			logrus.WithFields(logrus.Fields{
+				"err": err,
+			}).Error("Could not delete current trade")
+			return
+		}
+	}
+
+	_, err = tradeservice.GetInstance().Create(trade, strategy.ID)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not create current trade")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func GetTrade(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	tradeID := vars["tradeId"]
@@ -160,7 +270,7 @@ func ListTrades(w http.ResponseWriter, r *http.Request) {
 }
 
 func RemoveTrades(w http.ResponseWriter, r *http.Request) {
-	err := tradeservice.GetInstance().Remove()
+	err := tradeservice.GetInstance().RemoveAll()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -193,6 +303,28 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 			"err": err,
 		}).Error("Could not write response")
 		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func SetStrategyInitialBalance(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		InitialBalance string `json:"initial_balance"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = strategyservice.GetInstance().SetInitialBalance(body.InitialBalance)
+	if err != nil {
+		logrus.Error("Could not set balance to the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
 	}
 }
 
@@ -346,31 +478,33 @@ func AddTelegramChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetTelegramChats(w http.ResponseWriter, r *http.Request) {
-    chats, err := telegramservice.GetInstance().GetAllTelegramChats()
-    if err != nil {
-        logrus.WithError(err).Error("Failed to get Telegram chats")
-        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-        return
-    }
+	chats, err := telegramservice.GetInstance().GetAllTelegramChats()
+	if err != nil {
+		logrus.WithError(err).Error("Failed to get Telegram chats")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-    response, err := json.Marshal(chats)
-    if err != nil {
-        logrus.WithError(err).Error("Failed to marshal response")
-        http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-        return
-    }
+	response, err := json.Marshal(chats)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to marshal response")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-    w.Header().Set("Content-Type", "application/json")
-    w.WriteHeader(http.StatusOK)
-    _, err = w.Write(response)
-    if err != nil {
-        logrus.WithError(err).Error("Failed to write response")
-    }
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(response)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to write response")
+	}
 }
-
 
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
+	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
+	router.HandleFunc("/trade/current", SetCurrentTrade).Methods("PUT")
+	router.HandleFunc("/trade/current", RemoveCurrentTrade).Methods("DELETE")
 	router.HandleFunc("/trade/{tradeId}", GetTrade).Methods("GET")
 	router.HandleFunc("/trades/strategy/{strategyId}", ListTrades).Methods("GET")
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
@@ -378,6 +512,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
 	router.HandleFunc("/strategy", DeleteStrategy).Methods("DELETE")
+	router.HandleFunc("/strategy/initial_balance", SetStrategyInitialBalance).Methods("PUT")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")

@@ -70,17 +70,18 @@ class RSI(Indicator):
         plt.axhline(self.sell_threshold, linestyle="--", linewidth=1.5, color="red")
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_rsi = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_rsi.iloc[-1]
 
-        print(f"[RSI] Current value: {new_signal}")
-        print(f"[RSI] Sell Threshold: {self.sell_threshold}")
-        print(f"[RSI] Buy Threshold: {self.buy_threshold}")
+        print(f"[Indicator | RSI] Current value: {new_signal}")
+        print(f"[Indicator | RSI] Sell Threshold: {self.sell_threshold}")
+        print(f"[Indicator | RSI] Buy Threshold: {self.buy_threshold}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
-        print(f"[RSI] Signal: {signal}")
+        print(f"[Indicator | RSI] Signal: {signal}")
 
         return signal
+    

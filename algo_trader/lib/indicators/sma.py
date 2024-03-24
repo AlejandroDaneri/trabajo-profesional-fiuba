@@ -46,7 +46,7 @@ class SMA(Indicator):
         plt.grid()
         plt.show()
 
-    def predict_signal(self, new_record):
+    def predict_signal(self, new_record, as_enum=True):
         new_df = self.calculate(pd.concat([self.data, new_record]))
 
         new_signal = new_df.iloc[-1]
@@ -54,7 +54,7 @@ class SMA(Indicator):
         print(f"[SMA] Current SMA value: {new_signal.SMA}")
         print(f"[SMA] Current Close value: {new_signal.Close}")
 
-        signal = self.get_last_signal(True)
+        signal = self.get_last_signal(as_enum)
 
         print(f"[SMA] Signal: {signal}")
 

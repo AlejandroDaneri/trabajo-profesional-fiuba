@@ -17,9 +17,9 @@ type TradePublicFields struct {
 			Timestamp int64  `json:"timestamp"`
 		} `json:"buy"`
 		Sell struct {
-			Price     string `json:"price"`
-			Timestamp int64  `json:"timestamp"`
-		} `json:"sell"`
+			Price     string `json:"price,omitempty"`
+			Timestamp int64  `json:"timestamp,omitempty"`
+		} `json:"sell,omitempty"`
 	} `json:"orders"`
 	StrategyID string `json:"strategy_id"`
 }

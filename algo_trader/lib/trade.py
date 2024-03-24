@@ -1,5 +1,3 @@
-from datetime import datetime
-
 class Order:
     def __init__(self, price, timestamp):
         self.price: float = price
