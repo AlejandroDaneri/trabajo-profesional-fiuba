@@ -18,13 +18,13 @@ class KONCORDE(Indicator):
         rsi_mfi_length=14,
         bbands_length=25,
         bbands_factor=2.0,
-        storch_length=21,
+        stoch_length=21,
     ):
         self.rounds = rounds
         self.rsi_mfi_length = rsi_mfi_length
         self.bbands_length = bbands_length
         self.bbands_factor = bbands_factor
-        self.storch_length = storch_length
+        self.stoch_length = stoch_length
         super().__init__("KONCORDE")
 
     def calculate(self, data, normalize=False):
@@ -44,7 +44,7 @@ class KONCORDE(Indicator):
         ) / 4
 
         # Calculate Stochastic indicator of typical price
-        storch = self.calc_stoch(typical_price, data, self.storch_length)
+        stoch = self.calc_stoch(typical_price, data, self.stoch_length)
 
         # Calculate the mfi
         mfi = MFI(
@@ -62,7 +62,7 @@ class KONCORDE(Indicator):
 
         # Calculate values
         df["BIG_HANDS"] = self.calc_nvi(data, self.rounds)
-        df["TREND"] = (rsi_values + mfi_values + boll_osc + (storch / 3)) / 2
+        df["TREND"] = (rsi_values + mfi_values + boll_osc + (stoch / 3)) / 2
         df["SMALL_HANDS"] = df["TREND"] + self.calc_pvi(data, self.rounds)
         df["TREND_AVG"] = df["TREND"].ewm(span=self.rounds, adjust=False).mean()
 
@@ -89,13 +89,13 @@ class KONCORDE(Indicator):
 
     # Calculate Stochastic indicator
     def calc_stoch(self, src, data, rounds):
-        storch = Stochastic(
+        stoch = Stochastic(
             0, 0, rounds
         )  # buy_threshold and sell_threshold parameters is not used here
         df = pd.DataFrame(src, columns=["Close"])
         df["High"] = data["High"]
         df["Low"] = data["Low"]
-        return storch.calculate(df)["%D"]
+        return stoch.calculate(df)["%D"]
 
     # Calculate RSI indicator
     def calc_rsi(self, src, rounds):
