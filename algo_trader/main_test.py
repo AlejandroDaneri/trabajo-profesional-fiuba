@@ -44,7 +44,7 @@ def main():
         data[currency] = provider.get_latest_n(f"{currency}USDT", timeframe, n=n_total)
         train_data[currency] = data[currency].iloc[0:n_train]
         simulation_data[currency] = data[currency].iloc[n_train:n_total]
-        strategy[currency].train(train_data[currency])
+        strategy[currency].prepare_data(train_data[currency])
 
     trade_bot = TradeBot(strategy, exchange)
 
