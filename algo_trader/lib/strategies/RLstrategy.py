@@ -17,10 +17,7 @@ class RL(Strategy):
         self.model = keras.models.load_model("model")  # TODO: change hardcoded src
         self.lags = 15  # FIXME: add this info to model_info.csv
 
-        df = pd.read_csv("model_info.csv")  # TODO: change hardcoded src
-
-        self.mu = df["mu"]
-        self.std = df["std"]
+        self.stats_df = pd.read_csv("model_info.csv", index_col=0)  # TODO: change hardcoded src
 
         self.features = [indicator.name for indicator in indicators]
 
@@ -29,13 +26,15 @@ class RL(Strategy):
         super().__init__(indicators)
 
     def standarize(self, data):
-        return (data - self.mu) / self.std
-
+        for col in data.columns:
+            data[col] = (data[col] - self.stats_df.loc[col, 'mu']) / self.stats_df.loc[col, 'std']
+        return data
+    
     def prepare_data(self, historical_data: pd.DataFrame):
         if len(historical_data) < self.lags:
             raise ValueError("Length of historical_data is less than self.lags")
         
-        self.data = historical_data
+        self.data = historical_data[["Open", "High", "Low", "Close","Volume"]].copy()
         self.data["High"] = self.data["High"].apply(lambda x: float(x))
         self.data["Low"] = self.data["Low"].apply(lambda x: float(x))
         self.data["Close"] = self.data["Close"].apply(lambda x: float(x))
@@ -47,7 +46,10 @@ class RL(Strategy):
             self.data[indicator.name] = None
             indicator.calculate(self.data, False)  
             self.data[indicator.name] = indicator.generate_signals()
-        self.data = self.standarize(historical_data)
+        
+
+        self.data = self.standarize(self.data)
+
 
     def _reshape(self, state):
         return np.reshape(state, [1, self.lags, self.n_features])
@@ -56,12 +58,23 @@ class RL(Strategy):
         return self.data[self.features].iloc[-self.lags :]
 
     def predict(self, new_record: pd.Series):
+        print(self.data)
+        new_record = new_record[["Open", "High", "Low", "Close","Volume","r"]].copy()
+        new_record["High"] = new_record["High"].apply(lambda x: float(x))
+        new_record["Low"] = new_record["Low"].apply(lambda x: float(x))
+        new_record["Close"] = new_record["Close"].apply(lambda x: float(x))
+        new_record["Volume"] = new_record["Volume"].apply(lambda x: float(x))
+        new_record["Open"] = new_record["Open"].apply(lambda x: float(x))
+
+
         for indicator in self.indicators:
             new_record[indicator.name] = None
             new_record[indicator.name] = indicator.predict_signal(new_record, False)
 
         new_data = self.standarize(new_record)
+
         self.data = pd.concat([self.data, new_data])
+
         new_data = self._get_state()
         state = self._reshape(new_data.values)
         signal = np.argmax(self.model.predict(state)[0])

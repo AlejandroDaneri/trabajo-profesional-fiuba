@@ -57,3 +57,17 @@ class Indicator:
             else:
                 signal = Action.HOLD
         return signal
+
+    @classmethod
+    def hydrate(cls, parameters):
+        required_params = cls.__init__.__code__.co_varnames[1:]  # Exclude 'self' parameter
+        if parameters is None:
+            print(f"Indicator {cls.__name__} does not have parameters")
+            return None
+
+        missing_params = [param for param in required_params if param not in parameters]
+        if missing_params:
+            print(f"Indicator {cls.__name__} is missing required parameters: {', '.join(missing_params)}")
+            return None
+
+        return cls(**{param: parameters[param] for param in required_params})

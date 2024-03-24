@@ -84,3 +84,4 @@ class RSI(Indicator):
         print(f"[Indicator | RSI] Signal: {signal}")
 
         return signal
+    

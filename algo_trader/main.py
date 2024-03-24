@@ -47,7 +47,7 @@ def main():
     for currency in currencies:
         data[currency] = provider.get(currency, timeframe, n=n_train)
         train_data[currency] = data[currency].iloc[0:n_train]
-        strategy[currency].train(train_data[currency])
+        strategy[currency].prepare_data(train_data[currency])
 
     trade_bot = TradeBot(strategy, exchange)
 

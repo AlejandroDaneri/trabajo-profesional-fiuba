@@ -99,4 +99,4 @@ class NVI(Indicator):
 
         print(f"[NVI] Signal: {signal}")
 
-        return signal
+        return signal    

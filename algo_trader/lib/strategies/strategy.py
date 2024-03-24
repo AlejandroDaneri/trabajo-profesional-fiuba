@@ -11,7 +11,7 @@ class Strategy:
 
     ## consumes all historical data and prepare strategy for predictions
     @abstractmethod
-    def train(self, historical_data):
+    def prepare_data(self, historical_data):
         pass
 
     ## return the best action based on the latest data.

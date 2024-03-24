@@ -11,7 +11,7 @@ class Basic(Strategy):
         self.name = "BASIC"
         super().__init__(indicators)
 
-    def train(self, historical_data):
+    def prepare_data(self, historical_data):
         for indicator in self.indicators:
             indicator.calculate(historical_data)
         return
@@ -37,7 +37,7 @@ class Basic(Strategy):
 
     def backtest(self, historical_data: pd.DataFrame) -> None:
         # Entrenar la estrategia con datos históricos
-        self.train(historical_data)
+        self.prepare_data(historical_data)
 
         # Obtener señales de compra y venta
         buy_signals, sell_signals = self.get_buy_sell_signals(historical_data)
