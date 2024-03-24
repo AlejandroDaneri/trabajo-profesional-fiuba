@@ -10,7 +10,7 @@ def hydrate_strategy(currencies, indicators):
             indicator_name = indicator["name"]
             indicator_params = indicator["parameters"]
             
-            indicator_class = globals().get(indicator_name.upper())
+            indicator_class = globals().get(indicator_name)
             if indicator_class is None:
                 print(f"Indicator {indicator_name} not found.")
                 continue

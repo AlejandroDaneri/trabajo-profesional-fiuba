@@ -71,3 +71,10 @@ class Indicator:
             return None
 
         return cls(**{param: parameters[param] for param in required_params})
+    
+    def to_dict(self):
+        params = {attr: getattr(self, attr) for attr in self.__dict__ if not attr.startswith('__')}
+        return {
+            "name": self.__class__.__name__,
+            "parameters": params
+        }
