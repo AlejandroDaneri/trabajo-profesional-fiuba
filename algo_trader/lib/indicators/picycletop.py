@@ -6,6 +6,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Fuente: https://www.lookintobitcoin.com/charts/pi-cycle-top-indicator
+
 class PiCycleTop(Indicator):
     def __init__(self):
         super().__init__("PiCycleTop")
