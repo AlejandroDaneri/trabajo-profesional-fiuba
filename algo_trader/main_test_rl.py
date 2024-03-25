@@ -3,7 +3,6 @@ from lib.exchanges.dummy import Dummy as DummyExchange
 from lib.providers.binance import Binance as BinanceProvider
 from utils import hydrate_strategy
 from api_client import ApiClient
-import numpy as np
 
 api = ApiClient()
 
@@ -43,11 +42,8 @@ def main():
 
     for currency in currencies:
         data[currency] = provider.get_latest_n(f"{currency}USDT", timeframe, n=n_total)
-        data[currency]["r"] = np.log(data[currency]["Close"] / data[currency]["Close"].shift(1))
-
         train_data[currency] = data[currency].iloc[0:n_train]
         simulation_data[currency] = data[currency].iloc[n_train:n_total]
-        
         strategy[currency].prepare_data(train_data[currency])
 
     trade_bot = TradeBot(strategy, exchange)
