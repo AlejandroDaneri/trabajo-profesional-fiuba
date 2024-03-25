@@ -17,8 +17,12 @@ class MeanReversionOscilatorEma100(Indicator):
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
         df["Close"] = data["Close"]
+
+        # calculates EMA 100
         indicator_ema = EMA(100)
         df["ema_100"] = indicator_ema.calculate(data)["EMA"]
+
+        # calculates the OSCILATOR using Z-Score method
         df["diff"] = df["Close"] - df["ema_100"]
         media = df["diff"].rolling(self.window).mean()
         desviacion_estandar = df["diff"].rolling(self.window).std()
