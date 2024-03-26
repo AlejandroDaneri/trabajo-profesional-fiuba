@@ -7,7 +7,6 @@ from utils import hydrate_strategy
 from api_client import ApiClient
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
 import time
-from datetime import datetime
 
 api = ApiClient()
 
@@ -61,33 +60,7 @@ def main():
                 print(data)
                 response = api.post('api/trade', json=data)
 
-                if data['buy']['price'] <= data['sell']['price']:
-                    trade_result = "👍 Positive"
-                else: 
-                    trade_result = "👎 Negative"
-
-                trade_details_message = (
-                "Trade Details:\n"
-                "Pair: {}\n"
-                "Amount: {}\n"
-                "Buy Order:\n"
-                "  Price: {}\n"
-                "  Timestamp: {}\n"
-                "Sell Order:\n"
-                "  Price: {}\n"
-                "  Timestamp: {}\n"
-                "Trade Result: {}"
-                ).format(
-                    data['pair'],
-                    data['amount'],
-                    data['buy']['price'],
-                    datetime.fromtimestamp(data['buy']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-                    data['sell']['price'],
-                    datetime.fromtimestamp(data['sell']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-                    trade_result
-                )
-
-                notify_telegram_users(trade_details_message)
+                notify_telegram_users(data)
 
                 current_balance = trade_bot.get_balance()
                 api.put('api/strategy/balance', json={

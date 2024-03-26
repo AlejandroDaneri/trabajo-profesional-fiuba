@@ -1,6 +1,7 @@
 import requests
 import os
 import json
+from datetime import datetime
 
 from api_client import ApiClient
 
@@ -47,7 +48,39 @@ def post_telegram_chat(chat_id):
     else:
         print("Failed to post chat ID. Status code:", response_telegram_api.status_code)
 
-def notify_telegram_users(message):
+def build_message(data):
+    if data['buy']['price'] <= data['sell']['price']:
+        trade_result = "👍 Positive"
+    else: 
+        trade_result = "👎 Negative"
+
+    trade_details_message = (
+    "Trade Details:\n"
+    "Pair: {}\n"
+    "Amount: {}\n"
+    "Buy Order:\n"
+    "  Price: {}\n"
+    "  Timestamp: {}\n"
+    "Sell Order:\n"
+    "  Price: {}\n"
+    "  Timestamp: {}\n"
+    "Trade Result: {}"
+    ).format(
+        data['pair'],
+        data['amount'],
+        data['buy']['price'],
+        datetime.fromtimestamp(data['buy']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+        data['sell']['price'],
+        datetime.fromtimestamp(data['sell']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+        trade_result
+    )
+
+    return trade_details_message
+
+def notify_telegram_users(data):
+
+    message = build_message(data)
+
     bot_token = os.environ.get('BOT_TOKEN')
     all_chat_ids = get_all_chat_ids(bot_token)
 
