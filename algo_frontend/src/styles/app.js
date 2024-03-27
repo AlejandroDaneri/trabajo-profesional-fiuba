@@ -1,9 +1,7 @@
-import styled from "styled-components"
-import { TOPBAR_HEIGHT } from "./topbar"
+import styled from "styled-components";
 
 const AppStyle = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-direction: column;
   width: 100%;
@@ -16,8 +14,8 @@ const AppStyle = styled.div`
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: calc(100vh - ${TOPBAR_HEIGHT});
+    height: 100%;
   }
-`
+`;
 
-export default AppStyle
+export default AppStyle;
