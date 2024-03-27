@@ -1,5 +1,5 @@
 from lib.trade_bot import TradeBot
-from lib.exchanges.binance import Binance as BinanceExchange
+from lib.exchanges.dummy import Dummy as DummyExchange
 from lib.providers.binance import Binance as BinanceProvider
 from utils import hydrate_strategy
 from api_client import ApiClient
@@ -17,7 +17,7 @@ def main():
     timeframe = strategy["timeframe"]
 
     provider = BinanceProvider()
-    exchange = BinanceExchange()
+    exchange = DummyExchange()
 
     exchange.convert_all_to_usdt()
     print("Balance: ", exchange.get_balance())

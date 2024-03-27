@@ -33,7 +33,8 @@ type IService interface {
 	Get(id string) (*database.TradeResponseFields, error)
 	ListAll() ([]*database.TradeResponseFields, error)
 	ListByStrategy(strategyID string) ([]*database.TradeResponseFields, error)
-	Remove() error
+	Remove(id string) error
+	RemoveAll() error
 }
 
 func (s *TradeService) Create(trade map[string]interface{}, strategyID string) (string, error) {
@@ -151,7 +152,22 @@ func (s *TradeService) ListByStrategy(strategyID string) ([]*database.TradeRespo
 	return trades, nil
 }
 
-func (s *TradeService) Remove() error {
+func (s *TradeService) Remove(id string) error {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return err
+	}
+
+	err = db.Delete(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *TradeService) RemoveAll() error {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
