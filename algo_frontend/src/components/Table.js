@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState } from "react";
 
 const TableWrapper = styled.div`
-  height: calc(100vh - ${({ top }) => top}px);
+  max-height: calc(100vh - ${({ top }) => top}px);
   overflow-y: scroll;
   width: 100%;
 
