@@ -37,8 +37,9 @@ def main():
     })
 
     timeframe = strategy["timeframe"]
+    type = strategy["type"]
 
-    strategy = hydrate_strategy(currencies, indicators)
+    strategy = hydrate_strategy(type, currencies, indicators)
 
     n_train = 200
 
