@@ -1,19 +1,21 @@
-/* Import Libs */
-import { useEffect, useState } from "react"
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useEffect, useState } from "react";
 
-/* Import WebApi */
-import { get } from "../webapi/strategy"
-
-/* Import Utils */
-import { capitalize } from "../utils/string"
-
-/* Import Styles */
-import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
-
-/* Import Components */
-import Trades from "../components/Trades"
-import View from "../components/reusables/View"
-import CurrencyLogo from "../components/CurrencyLogo"
+import CurrencyLogo from "../components/CurrencyLogo";
+import { CurrentStrategyStyle } from "../styles/CurrentStrategy";
+import Trades from "../components/Trades";
+import View from "../components/reusables/View";
+import { capitalize } from "../utils/string";
+import { get } from "../webapi/strategy";
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
@@ -21,41 +23,65 @@ const CurrentStrategy = () => {
     data: {
       currencies: [],
     },
-  })
+  });
+
+  //Here we should fetch the actual information from the database.
+  const generateTradingData = () => {
+    const startDate = new Date(2023, 0, 1);
+    const endDate = new Date(2023, 0, 20);
+    const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000));
+
+    const tradingData = [];
+
+    for (let i = 0; i <= days; i++) {
+      const date = new Date(startDate);
+      date.setDate(startDate.getDate() + i);
+
+      tradingData.push({
+        date: date.toLocaleDateString(),
+        strategy: Math.random() * 100 + 500,
+        buyAndHold: Math.random() * 100 + 500,
+      });
+    }
+
+    return tradingData;
+  };
+
+  const tradingChartData = generateTradingData();
 
   const getStrategy = () => {
     const transformToView = (data) => {
       const transformDuration = (start) => {
-        const currentTime = Math.floor(Date.now() / 1000)
+        const currentTime = Math.floor(Date.now() / 1000);
 
-        const durationInSeconds = currentTime - start
+        const durationInSeconds = currentTime - start;
 
-        const days = Math.floor(durationInSeconds / (3600 * 24))
-        const hours = Math.floor((durationInSeconds % (3600 * 24)) / 3600)
+        const days = Math.floor(durationInSeconds / (3600 * 24));
+        const hours = Math.floor((durationInSeconds % (3600 * 24)) / 3600);
 
-        return `${days} days, ${hours} hours`
-      }
+        return `${days} days, ${hours} hours`;
+      };
 
       const transformTimeframe = (timeframe) => {
         switch (timeframe) {
           case "1M":
-            return "1 minute"
+            return "1 minute";
           case "1H":
-            return "1 hour"
+            return "1 hour";
           default:
-            return ""
+            return "";
         }
-      }
+      };
 
-      const initialBalance = data.initial_balance
-      const currentBalance = parseFloat(data.current_balance).toFixed(2)
-      const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
+      const initialBalance = data.initial_balance;
+      const currentBalance = parseFloat(data.current_balance).toFixed(2);
+      const profitAndLoss = (currentBalance - initialBalance).toFixed(2);
       const profitAndLossPercentaje = (
         (currentBalance / initialBalance - 1) *
         100
-      ).toFixed(2)
-      const duration = transformDuration(data.start_timestamp)
-      const timeframe = transformTimeframe(data.timeframe)
+      ).toFixed(2);
+      const duration = transformDuration(data.start_timestamp);
+      const timeframe = transformTimeframe(data.timeframe);
 
       return {
         ...data,
@@ -66,9 +92,9 @@ const CurrentStrategy = () => {
           name: (() => {
             switch (indicator.name) {
               case "rsi":
-                return "RSI"
+                return "RSI";
               default:
-                return capitalize(indicator.name)
+                return capitalize(indicator.name);
             }
           })(),
           parameters: Object.keys(indicator.parameters).map((key) => ({
@@ -81,22 +107,22 @@ const CurrentStrategy = () => {
         })),
         duration,
         timeframe,
-      }
-    }
+      };
+    };
     get()
       .then((response) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
           data: transformToView(response.data),
-        }))
+        }));
       })
-      .catch((_) => {})
-  }
+      .catch((_) => {});
+  };
 
   useEffect(() => {
-    getStrategy()
-  }, [])
+    getStrategy();
+  }, []);
 
   return (
     <View
@@ -144,10 +170,54 @@ const CurrentStrategy = () => {
             <h2>Trades</h2>
             <Trades strategyID={strategy.data.id} />
           </div>
+          <div>
+            <h2>Graphs</h2>
+            <div className="graph-item">
+              <h3>Comparison of Strategies</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart
+                  width={500}
+                  height={300}
+                  data={tradingChartData}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis
+                    label={{
+                      value: "Balance",
+                      angle: -90,
+                      position: "insideLeft",
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="strategy"
+                    name="Current Strategy"
+                    stroke="#8884d8"
+                    activeDot={{ r: 8 }}
+                  />
+                  <Line
+                    type="monotone"
+                    name="Buy And Hold"
+                    dataKey="buyAndHold"
+                    stroke="#82ca9d"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </CurrentStrategyStyle>
       }
     />
-  )
-}
+  );
+};
 
-export default CurrentStrategy
+export default CurrentStrategy;
