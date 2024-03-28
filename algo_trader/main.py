@@ -51,22 +51,24 @@ def main():
         strategy[currency].prepare_data(train_data[currency])
 
     trade_bot = TradeBot(strategy, exchange)
-
+    
     response = api.get('api/trade/current')
-    current_trade = response.json()
-    if current_trade is not None:
-        print("restoring opened trade")
+    if response.status_code == 200:
+        current_trade = response.json()
         print(current_trade)
-        amount = current_trade["amount"]
-        symbol = current_trade["pair"]
-        price = current_trade["orders"]["buy"]["price"]
-        timestamp = current_trade["orders"]["buy"]["timestamp"]
-        trade_bot.set_current_trade(Trade(
-            amount,
-            symbol,
-            price,
-            timestamp
-        ))
+        if current_trade is not None:
+            print("restoring opened trade")
+            print(current_trade)
+            amount = current_trade["amount"]
+            symbol = current_trade["pair"]
+            price = current_trade["orders"]["buy"]["price"]
+            timestamp = current_trade["orders"]["buy"]["timestamp"]
+            trade_bot.set_current_trade(Trade(
+                amount,
+                symbol,
+                price,
+                timestamp
+            ))
 
     while True:
         for currency in currencies:
