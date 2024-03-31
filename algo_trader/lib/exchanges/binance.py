@@ -53,7 +53,7 @@ class Binance(Exchange):
         try:
             remanent = 100
             while(self.get_balance_symbol('USDT') > remanent):
-                # "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
+                # fix to: "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
                 time.sleep(60 / 6000)
                 order = self.client.new_order(
                     symbol = f"{symbol}USDT",
@@ -69,7 +69,7 @@ class Binance(Exchange):
     def execute_sell_order(self, symbol):
         try:
             while(self.get_balance_symbol(symbol) > 0):
-                # "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
+                # fix to: "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
                 time.sleep(60 / 6000)
                 print(f"trying to BUY symbol: {symbol}, amount: {self.get_balance_symbol(symbol)}")
 
