@@ -33,7 +33,6 @@ def main():
     provider = BinanceProvider()
     exchange = BinanceExchange()
 
-    exchange.convert_all_to_usdt()
     print(f"Initial Balance: {exchange.get_balance()}")
 
     # if initial balance is none, we set exchange balance as initial balance
@@ -80,6 +79,10 @@ def main():
                 price,
                 timestamp
             ))
+    else:
+        # since there is not a existing trade
+        # balance on the exchange should be USDT
+        exchange.convert_all_to_usdt()
 
     while True:
         for currency in currencies:
