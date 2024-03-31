@@ -88,7 +88,7 @@ def main():
             trade = trade_bot.run_strategy(currency, data)
             if trade is not None:
                 # trade closed: means buy and sell executed
-                if trade.buy_order.timestamp and trade.sell_order.timestamp:
+                if trade.is_closed():
                     data = {
                         "pair": trade.symbol,
                         "amount": str(trade.amount),
@@ -105,9 +105,8 @@ def main():
 
                     # remove tmp current trade
                     api.delete('api/trade/current')
-                
-                # trade current: buy executed but not sell yet
-                if trade.buy_order.timestamp and not trade.sell_order.timestamp:
+                else:
+                    # trade current: buy executed but not sell yet
                     data = {
                         "pair": trade.symbol,
                         "amount": str(trade.amount),
@@ -118,33 +117,33 @@ def main():
                     }
                     response = api.post('api/trade/current', json=data)
 
-                trade_details_message = (
-                "Trade Details:\n"
-                "Pair: {}\n"
-                "Amount: {}\n"
-                "Buy Order:\n"
-                "  Price: {}\n"
-                "  Timestamp: {}\n"
-                "Sell Order:\n"
-                "  Price: {}\n"
-                "  Timestamp: {}"
-                ).format(
-                    data['pair'],
-                    data['amount'],
-                    data['buy']['price'],
-                    data['buy']['timestamp'],
-                    data['sell']['price'],
-                    data['sell']['timestamp']
-                )
+                    trade_details_message = (
+                    "Trade Details:\n"
+                    "Pair: {}\n"
+                    "Amount: {}\n"
+                    "Buy Order:\n"
+                    "  Price: {}\n"
+                    "  Timestamp: {}\n"
+                    "Sell Order:\n"
+                    "  Price: {}\n"
+                    "  Timestamp: {}"
+                    ).format(
+                        data['pair'],
+                        data['amount'],
+                        data['buy']['price'],
+                        data['buy']['timestamp'],
+                        data['sell']['price'],
+                        data['sell']['timestamp']
+                    )
 
-                notify_telegram_users(trade_details_message)
+                    notify_telegram_users(trade_details_message)
 
-                current_balance = trade_bot.get_balance()
-                print(f"Current balance: {current_balance}")
+                    current_balance = trade_bot.get_balance()
+                    print(f"Current balance: {current_balance}")
 
-                api.put('api/strategy/balance', json={
-                    "current_balance": str(current_balance)
-                })
+                    api.put('api/strategy/balance', json={
+                        "current_balance": str(current_balance)
+                    })
         print("\n")
         time.sleep(60)
 
