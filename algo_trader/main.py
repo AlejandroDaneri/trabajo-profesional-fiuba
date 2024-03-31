@@ -7,8 +7,19 @@ from lib.exchanges.binance import Binance as BinanceExchange
 from utils import hydrate_strategy
 from api_client import ApiClient
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
-
 import time
+import sentry_sdk
+
+sentry_sdk.init(
+    dsn="https://99aef705bb2355581d11e36d65ffa585@o4506996875919360.ingest.us.sentry.io/4506996882341888",
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    traces_sample_rate=1.0,
+    # Set profiles_sample_rate to 1.0 to profile 100%
+    # of sampled transactions.
+    # We recommend adjusting this value in production.
+    profiles_sample_rate=1.0,
+)
 
 api = ApiClient()
 
