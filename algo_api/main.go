@@ -166,7 +166,7 @@ func SetCurrentTrade(w http.ResponseWriter, r *http.Request) {
 				"timestamp": body.BuyOrder.Timestamp,
 			},
 		},
-		"type": "current",
+		"type": "trade",
 	}
 
 	strategy, err := strategyservice.GetInstance().GetRunning()
@@ -181,8 +181,7 @@ func SetCurrentTrade(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
-		}).Error("Could not delete current trade")
-		return
+		}).Error("Could not get current trade")
 	}
 
 	if currentTrade != nil {
