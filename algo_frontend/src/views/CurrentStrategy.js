@@ -1,8 +1,11 @@
 import {
+  Bar,
+  BarChart,
   CartesianGrid,
   Legend,
   Line,
   LineChart,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -24,6 +27,34 @@ const CurrentStrategy = () => {
       currencies: [],
     },
   });
+
+  //Here we should fetch the actual information from the database.
+  const generateStockPerformanceData = () => {
+    const startDate = new Date(2024, 2, 20);
+    const endDate = new Date(2024, 4, 1);
+    const weeks = Math.ceil((endDate - startDate) / (7 * 24 * 60 * 60 * 1000));
+
+    const stockData = [];
+
+    for (let i = 0; i < weeks; i++) {
+      const weekStartDate = new Date(startDate);
+      weekStartDate.setDate(startDate.getDate() + i * 7);
+
+      const weekEndDate = new Date(weekStartDate);
+      weekEndDate.setDate(weekStartDate.getDate() + 6);
+
+      const pv = Math.random() * 10000 - 5000;
+      const uv = Math.random() * 10000 - 5000;
+
+      stockData.push({
+        name: `${weekStartDate.toLocaleDateString()} - ${weekEndDate.toLocaleDateString()}`,
+        pv,
+        uv,
+      });
+    }
+
+    return stockData;
+  };
 
   //Here we should fetch the actual information from the database.
   const generateTradingData = () => {
@@ -48,6 +79,8 @@ const CurrentStrategy = () => {
   };
 
   const tradingChartData = generateTradingData();
+
+  const stockPerformanceChartData = generateStockPerformanceData();
 
   const getStrategy = () => {
     const transformToView = (data) => {
@@ -172,7 +205,7 @@ const CurrentStrategy = () => {
           </div>
           <div>
             <h2>Graphs</h2>
-            <div className="graph-item">
+            <div>
               <h3>Comparison of Strategies</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart
@@ -211,6 +244,49 @@ const CurrentStrategy = () => {
                     stroke="#82ca9d"
                   />
                 </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="graph-item">
+              <h3>Weekly Stock Performance</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  width={500}
+                  height={300}
+                  data={stockPerformanceChartData}
+                  stackOffset="sign"
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis
+                    label={{
+                      value: "Profit/Loss",
+                      angle: -90,
+                      position: "insideLeft",
+                      style: { textAnchor: "middle" },
+                    }}
+                  />
+                  <Tooltip />
+                  <Legend />
+                  <ReferenceLine y={0} stroke="#000" />
+                  <Bar
+                    dataKey="pv"
+                    name="Current Strategy"
+                    fill="#8884d8"
+                    stackId="stack"
+                  />
+                  <Bar
+                    dataKey="uv"
+                    name="Buy and Hold"
+                    fill="#82ca9d"
+                    stackId="stack"
+                  />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
