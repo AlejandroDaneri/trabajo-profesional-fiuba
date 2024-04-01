@@ -108,18 +108,8 @@ def main():
 
                     # remove tmp current trade
                     api.delete('api/trade/current')
-                else:
-                    # trade current: buy executed but not sell yet
-                    data = {
-                        "pair": trade.symbol,
-                        "amount": str(trade.amount),
-                        "buy": {
-                            "price": str(trade.buy_order.price),
-                            "timestamp": int(trade.buy_order.timestamp)
-                        }
-                    }
-                    response = api.post('api/trade/current', json=data)
 
+                    # push notification to telegram
                     trade_details_message = (
                     "Trade Details:\n"
                     "Pair: {}\n"
@@ -138,15 +128,26 @@ def main():
                         data['sell']['price'],
                         data['sell']['timestamp']
                     )
-
                     notify_telegram_users(trade_details_message)
-
+                    response = api.post('api/trade/current', json=data)
+                    
+                    # update balance to strategy doc in the db
                     current_balance = trade_bot.get_balance()
                     print(f"Current balance: {current_balance}")
-
                     api.put('api/strategy/balance', json={
                         "current_balance": str(current_balance)
                     })
+                else:
+                    # trade current: buy executed but not sell yet
+                    data = {
+                        "pair": trade.symbol,
+                        "amount": str(trade.amount),
+                        "buy": {
+                            "price": str(trade.buy_order.price),
+                            "timestamp": int(trade.buy_order.timestamp)
+                        }
+                    }
+                    
         print("\n")
         time.sleep(60)
 
