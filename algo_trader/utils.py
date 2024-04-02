@@ -24,5 +24,7 @@ def hydrate_strategy(type, currencies, indicators):
             strategy[currency] = Basic(indicators_builded)
         elif type == "rl":
             strategy[currency] = RL(indicators_builded)
+        else:
+            raise Exception("No valid Strategy") 
 
     return strategy
