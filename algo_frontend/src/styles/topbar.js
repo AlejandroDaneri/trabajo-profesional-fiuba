@@ -14,6 +14,18 @@ const TopbarStyle = styled.div`
   width: 100%;
   height: ${TOPBAR_HEIGHT};
 
+  & .logout {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    cursor: pointer;
+
+    &:hover {
+      background: red;
+    }
+  }
+
   & button {
     color: white;
   }

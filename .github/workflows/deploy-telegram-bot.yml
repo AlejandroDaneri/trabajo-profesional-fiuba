@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - "algo_trader/**"
+      - "telegram_bot/**"
 
 jobs:
   build:
@@ -15,19 +15,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Create .env file
-        run: |
-          echo "EXCHANGE_BINANCE_API_KEY=${{ secrets.EXCHANGE_BINANCE_API_KEY }}" > algo_trader/.env
-          echo "EXCHANGE_BINANCE_API_SECRET=${{ secrets.EXCHANGE_BINANCE_API_SECRET }}" >> algo_trader.env
-
       - name: Build Docker Image
-        run: docker build -t adaneri/algo_trader:latest algo_trader
+        run: docker build -t adaneri/telegram_bot:latest telegram_bot
 
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Push Docker Image
-        run: docker push adaneri/algo_trader:latest
+        run: docker push adaneri/telegram_bot:latest
 
   deploy:
     needs: build
@@ -42,4 +37,4 @@ jobs:
           script: |
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
             docker-compose -f docker-compose.yml pull
-            docker-compose -f docker-compose.yml up -d --force-recreate trader
+            docker-compose -f docker-compose.yml up -d --force-recreate telegram

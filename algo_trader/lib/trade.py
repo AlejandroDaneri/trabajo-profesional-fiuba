@@ -1,5 +1,3 @@
-from datetime import datetime
-
 class Order:
     def __init__(self, price, timestamp):
         self.price: float = price
@@ -11,6 +9,7 @@ class Trade:
         self.amount: int = amount
 
         self.buy_order = Order(price, timestamp)
+        self.sell_order = None
     
     def sell(self, price, timestamp):
         self.sell_order = Order(price, timestamp)

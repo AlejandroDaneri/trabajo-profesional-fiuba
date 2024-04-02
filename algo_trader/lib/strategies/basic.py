@@ -6,12 +6,13 @@ import pandas as pd
 import numpy as np
 from typing import List, Tuple
 
+
 class Basic(Strategy):
     def __init__(self, indicators: List[Indicator]):
         self.name = "BASIC"
         super().__init__(indicators)
 
-    def train(self, historical_data):
+    def prepare_data(self, historical_data):
         for indicator in self.indicators:
             indicator.calculate(historical_data)
         return
@@ -31,15 +32,17 @@ class Basic(Strategy):
         # Get the most common signal
         most_common_signal = signal_counter.most_common(1)[0][0]
 
+        print(f'[Strategy | Basic] Signal: {most_common_signal}')
+
         return most_common_signal
 
     def backtest(self, historical_data: pd.DataFrame) -> None:
         # Entrenar la estrategia con datos históricos
-        self.train(historical_data)
+        self.prepare_data(historical_data)
 
         # Obtener señales de compra y venta
         buy_signals, sell_signals = self.get_buy_sell_signals(historical_data)
-        
+
         # Obtener acciones a partir de las señales
         actions = self.get_actions(buy_signals, sell_signals)
 
@@ -49,7 +52,7 @@ class Basic(Strategy):
         return trades
 
         # Realizar análisis de backtesting
-        #self.analyze_backtesting(trades)
+        # self.analyze_backtesting(trades)
 
     # detect if each indicator belong the strategy detect a good moment to buy or sell
     def get_buy_sell_signals(
@@ -104,17 +107,15 @@ class Basic(Strategy):
         return trades
 
     def get_trades(self, actions: pd.DataFrame) -> pd.DataFrame:
-        # logic to get trades from actions
         pairs = actions.iloc[::2].loc[:, ["Close"]].reset_index()
         odds = actions.iloc[1::2].loc[:, ["Close"]].reset_index()
         trades = pd.concat([pairs, odds], axis=1)
-        cumulative_return = 0
         trades.columns = ["buy_date", "buy_price", "sell_date", "sell_price"]
         trades["return"] = trades.sell_price / trades.buy_price - 1
-        trades["return"] -= cumulative_return
-        #trades["days"] = (trades.sell_date - trades.buy_date).dt.days
-        if len(trades):
-            trades["result"] = np.where(trades["return"] > 0, "Winner", "Loser")
-            trades["cumulative_return"] = (trades["return"] + 1).cumprod() - 1
+
+        cumulative_return = (1 + trades["return"]).cumprod() - 1
+        trades["cumulative_return"] = cumulative_return
+
+        trades["result"] = np.where(trades["return"] > 0, "Winner", "Loser")
 
         return trades
