@@ -66,6 +66,9 @@ const Topbar = () => {
       <div className="nav-links">
         <ButtonMenu route="/home/trades" title="Current Strategy" />
         <ButtonMenu route="/home/strategies" title="Strategies" />
+        <div className="logout" onClick={onLogout}>
+          <i className="material-icons">power_settings_new</i>
+        </div>
       </div>
     </TopbarStyle>
   )

@@ -5,6 +5,7 @@ from lib.exchanges.exchange import Exchange
 from binance.enums import *
 from binance.spot import Spot as Client
 import os
+import time
 
 class Binance(Exchange):
     def __init__(self):
@@ -52,6 +53,8 @@ class Binance(Exchange):
         try:
             remanent = 100
             while(self.get_balance_symbol('USDT') > remanent):
+                # fix to: "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
+                time.sleep(60 / 6000)
                 order = self.client.new_order(
                     symbol = f"{symbol}USDT",
                     side = SIDE_BUY,
@@ -66,6 +69,8 @@ class Binance(Exchange):
     def execute_sell_order(self, symbol):
         try:
             while(self.get_balance_symbol(symbol) > 0):
+                # fix to: "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
+                time.sleep(60 / 6000)
                 print(f"trying to BUY symbol: {symbol}, amount: {self.get_balance_symbol(symbol)}")
 
                 order = self.client.new_order(

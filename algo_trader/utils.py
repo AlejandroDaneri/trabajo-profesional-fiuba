@@ -1,7 +1,8 @@
 from lib.indicators import *
 from lib.strategies.RLstrategy import RL
+from lib.strategies.basic import Basic
 
-def hydrate_strategy(currencies, indicators):
+def hydrate_strategy(type, currencies, indicators):
     strategy = {}
     for currency in currencies:
         indicators_builded = []
@@ -19,5 +20,9 @@ def hydrate_strategy(currencies, indicators):
             if instance is not None:
                 indicators_builded.append(instance)
 
-        strategy[currency] = RL(indicators_builded)
+        if type == "basic":
+            strategy[currency] = Basic(indicators_builded)
+        elif type == "rl":
+            strategy[currency] = RL(indicators_builded)
+
     return strategy

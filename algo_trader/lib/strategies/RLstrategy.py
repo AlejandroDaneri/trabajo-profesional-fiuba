@@ -26,6 +26,7 @@ class RL(Strategy):
         super().__init__(indicators)
 
     def standarize(self, data):
+        data = data.copy()
         for col in data.columns:
             data[col] = (data[col] - self.stats_df.loc[col, 'mu']) / self.stats_df.loc[col, 'std']
         return data
@@ -47,33 +48,33 @@ class RL(Strategy):
             indicator.calculate(self.data, False)  
             self.data[indicator.name] = indicator.generate_signals()
         
-
-        self.data = self.standarize(self.data)
+        self.data_std = self.standarize(self.data)
 
 
     def _reshape(self, state):
         return np.reshape(state, [1, self.lags, self.n_features])
 
     def _get_state(self):
-        return self.data[self.features].iloc[-self.lags :]
+        return self.data_std[self.features].iloc[-self.lags :]
 
-    def predict(self, new_record: pd.Series):
-        print(self.data)
-        new_record = new_record[["Open", "High", "Low", "Close","Volume","r"]].copy()
+    def predict(self, new_record: pd.DataFrame):
+        new_record = new_record[["Open", "High", "Low", "Close","Volume"]].copy()
         new_record["High"] = new_record["High"].apply(lambda x: float(x))
         new_record["Low"] = new_record["Low"].apply(lambda x: float(x))
         new_record["Close"] = new_record["Close"].apply(lambda x: float(x))
         new_record["Volume"] = new_record["Volume"].apply(lambda x: float(x))
         new_record["Open"] = new_record["Open"].apply(lambda x: float(x))
+        new_record["r"] = np.log(new_record["Close"]/ self.data["Close"][-1])
 
 
         for indicator in self.indicators:
             new_record[indicator.name] = None
             new_record[indicator.name] = indicator.predict_signal(new_record, False)
 
+        self.data = pd.concat([self.data, new_record])
         new_data = self.standarize(new_record)
 
-        self.data = pd.concat([self.data, new_data])
+        self.data_std = pd.concat([self.data_std, new_data])
 
         new_data = self._get_state()
         state = self._reshape(new_data.values)

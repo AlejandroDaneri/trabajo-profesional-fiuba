@@ -27,34 +27,41 @@ const Trades = ({ strategyID }) => {
   })
 
   const transformToView = (trades) => {
-    return trades.map((trade) => ({
-      ...trade,
-      amount: parseFloat(trade.amount).toFixed(4),
-      buy_timestamp: trade.orders.buy.timestamp,
-      buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
-      buy_price: trade.orders.buy.price,
-      sell_timestamp: trade.orders.sell.timestamp,
-      sell_timestamp_label: unixToDate(trade.orders.sell.timestamp),
-      sell_price: trade.orders.sell.price,
-      duration:
-        (trade.orders.sell.timestamp / 1000 -
-          trade.orders.buy.timestamp / 1000) /
-        60,
-      pl: (
-        (trade.orders.sell.price / trade.orders.buy.price - 1) *
-        100
-      ).toFixed(3),
-    }))
+    return trades.map((trade) => {
+
+      if (trade.id === 'current') {
+        return {
+          pair: trade.pair,
+          amount: parseFloat(trade.amount).toFixed(4),
+          buy_timestamp: trade.orders.buy.timestamp,
+          buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
+        }
+      } else {
+        return {
+          ...trade,
+          amount: parseFloat(trade.amount).toFixed(4),
+          buy_timestamp: trade.orders.buy.timestamp,
+          buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
+          buy_price: trade.orders.buy.price,
+          sell_timestamp: trade.orders.sell.timestamp,
+          sell_timestamp_label: unixToDate(trade.orders.sell.timestamp),
+          sell_price: trade.orders.sell.price,
+          duration: (trade.orders.sell.timestamp / 1000 - trade.orders.buy.timestamp / 1000) / 60,
+          pl: ((trade.orders.sell.price / trade.orders.buy.price - 1) * 100).toFixed(3),
+        }
+      }
+    })
   }
 
   useEffect(() => {
     if (strategyID) {
-      list(strategyID).then((response) => {
-        stateFunc((prevState) => ({
-          ...prevState,
-          data: transformToView(response.data),
-        }))
-      })
+      list(strategyID)
+        .then((response) => {
+          stateFunc((prevState) => ({
+            ...prevState,
+            data: transformToView(response.data),
+          }))
+        })
     }
   }, [strategyID])
 
