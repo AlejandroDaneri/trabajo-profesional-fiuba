@@ -52,14 +52,17 @@ class Binance(Exchange):
     def execute_buy_order(self, symbol):
         try:
             remanent = 100
-            while(self.get_balance_symbol('USDT') > remanent):
+            while(True):
+                balance_usdt = self.get_balance_symbol('USDT')
+                if balance_usdt > remanent:
+                    break
                 # fix to: "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
                 time.sleep(60 / 6000)
                 order = self.client.new_order(
                     symbol = f"{symbol}USDT",
                     side = SIDE_BUY,
                     type = ORDER_TYPE_MARKET,
-                    quoteOrderQty = self.get_balance_symbol('USDT')
+                    quoteOrderQty = balance_usdt
                 )
 
                 print(f"[Exchange | Binance] filled: {order['executedQty']}")
