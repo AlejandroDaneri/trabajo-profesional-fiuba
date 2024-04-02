@@ -7,9 +7,11 @@ import (
 	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -521,6 +523,17 @@ func MakeRoutes(router *mux.Router) {
 }
 
 func main() {
+	err := sentry.Init(sentry.ClientOptions{
+		Dsn: "https://23953c767ab38badfb11e0f1e37181ca@o4506996875919360.ingest.us.sentry.io/4507018359078912",
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+	})
+	if err != nil {
+		log.Fatalf("sentry.Init: %s", err)
+	}
+
 	router := mux.NewRouter()
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	MakeRoutes(apiRouter)
@@ -528,7 +541,7 @@ func main() {
 	router.HandleFunc("/ping", PingPong).Methods("GET")
 
 	fmt.Println("Servidor escuchando en el puerto 8080")
-	err := http.ListenAndServe(":8080", router)
+	err = http.ListenAndServe(":8080", router)
 	if err != nil {
 		fmt.Println("Error al iniciar el servidor:", err)
 	}

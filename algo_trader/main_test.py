@@ -41,7 +41,7 @@ def main():
     n_total = n_train + n_simulate
 
     for currency in currencies:
-        data[currency] = provider.get_latest_n(f"{currency}USDT", timeframe, n=n_total)
+        data[currency] = provider.get(currency, timeframe, n=n_total)
         train_data[currency] = data[currency].iloc[0:n_train]
         simulation_data[currency] = data[currency].iloc[n_train:n_total]
         strategy[currency].prepare_data(train_data[currency])
