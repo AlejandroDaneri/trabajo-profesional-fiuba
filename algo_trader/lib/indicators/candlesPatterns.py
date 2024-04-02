@@ -62,12 +62,15 @@ class CandlesPatterns(Indicator):
         # Check if the candle shape is a morning star
         df["Morning_star"] = np.where(
             (df["Open-2"] > df["Close-2"]) &
-            (abs(df["Open-1"]/df["Close-1"] - 1) <= dojiCandleLength) &
+            ((abs(df["Open-1"]/df["Close-1"]) - 1) <= dojiCandleLength) &
             (df["Open"] < df["Close"]) &
             (abs(df["Open"] - df["Close"]) > abs(df["Open-2"] - df["Close-2"])/2),
             True, False)
         
-        df["Bullish_signal"] = any(df["Bullish_hammer"], df["Bullish_engulfing"], df["Morning_star"])
+        df["Bullish_signal"] = np.where(
+            df["Bullish_hammer"] | df["Bullish_engulfing"] | df["Morning_star"],
+            True, False
+        )
 
         # Check if the candle shape is a shooting star
         df["Shooting_star"] = np.where(
@@ -93,7 +96,7 @@ class CandlesPatterns(Indicator):
         # Check if the candle shape is a evening star
         df["Evening_star"] = np.where(
             (df["Open-2"] < df["Close-2"]) &
-            (abs(df["Open-1"]/df["Close-1"] - 1) <= dojiCandleLength) &
+            ((abs(df["Open-1"]/df["Close-1"]) - 1) <= dojiCandleLength) &
             (df["Open"] > df["Close"]) &
             (abs(df["Open"] - df["Close"]) > abs(df["Open-2"] - df["Close-2"])/2),
             True, False)
@@ -107,9 +110,12 @@ class CandlesPatterns(Indicator):
             (df["Open"] > df["Close"]),
             True, False)
         
-        df["Bearish_signal"] = any(df["Shooting_star"], df["Bearish_engulfing"], df["Evening_star"], df["Hanging_man"])
+        df["Bearish_signal"] = np.where(
+            df["Shooting_star"] | df["Bearish_engulfing"] | df["Evening_star"] | df["Hanging_man"],
+            True, False
+        )
 
-        self.df_output = df["Close", "Bullish_signal", "Bearish_signal"]
+        self.df_output = df[["Open", "Close", "High", "Low", "Bullish_signal", "Bearish_signal"]]
         return self.df_output
 
     def calc_buy_signals(self):
@@ -121,17 +127,6 @@ class CandlesPatterns(Indicator):
         return self._calc_sell_signals(
             self.df_output["Bearish_signal"]
         )
-
-    def plot(self):
-        data = pd.DataFrame(self.df_output, index=self.dates)
-        fig = plt.figure()
-        fig.set_size_inches(30, 5)
-        plt.plot(data.index, data.Close)
-        plt.plot(data.index, data.Bullish_signal, '^', label='Buy signal', color='green')
-        plt.plot(data.index, data.Bearish_signal, 'v', label='Sell signal', color='red')
-        plt.legend(loc='upper left')
-        plt.grid()
-        plt.show()
 
     def predict_signal(self, new_record, as_enum=True):
         new_df = self.calculate(pd.concat([self.data, new_record]))
