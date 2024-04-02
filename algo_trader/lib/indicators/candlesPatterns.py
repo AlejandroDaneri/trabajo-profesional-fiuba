@@ -15,7 +15,8 @@ class CandlesPatterns(Indicator):
         df = pd.DataFrame(index=data.index)
         self.dates = data.index
 
-        dojiCandleLength = 0.0002
+        dojiCandleLength = 0.015
+        largeCandleLength = 0.02
 
         # Copy columns from the original data to the new DataFrame
         df["Close"] = data["Close"]
@@ -35,9 +36,6 @@ class CandlesPatterns(Indicator):
         df["High-2"] = df["High"].shift(2).fillna(0)
         df["Low-2"] = df["Low"].shift(2).fillna(0)
 
-        # Calculate the difference in volume between the current and previous rows
-        df["Vol_diff"] = data["Volume"].diff()
-
         # Check if the candle shape is a bullish hammer
         df["Bullish_hammer"] = np.where(
             (df["Open-2"] > df["Close-2"]) &
@@ -53,16 +51,16 @@ class CandlesPatterns(Indicator):
         # Check if the candle shape is a bullish engulfing
         df["Bullish_engulfing"] = np.where(
             (df["Open-2"] > df["Close-2"]) &
-            (df["Open-1"] > df["Close-1"]) &
-            (df["Open"] < df["Close"]) &
-            (abs(df["Open"] - df["Close"]) > abs(df["Open-1"] - df["Close-1"])) &
-            (df["Vol_diff"] > 0),
+            (df["Open-1"] < df["Close-1"]) &
+            (abs(df["Open-1"] - df["Close-1"]) > abs(df["Open-2"] - df["Close-2"])) &
+            (df["Open"] < df["Close"]),
             True, False)
 
         # Check if the candle shape is a morning star
         df["Morning_star"] = np.where(
             (df["Open-2"] > df["Close-2"]) &
-            ((abs(df["Open-1"]/df["Close-1"]) - 1) <= dojiCandleLength) &
+            (abs((df["Open-2"]/df["Close-2"]) - 1) >= largeCandleLength) &
+            (abs((df["Open-1"]/df["Close-1"]) - 1) <= dojiCandleLength) &
             (df["Open"] < df["Close"]) &
             (abs(df["Open"] - df["Close"]) > abs(df["Open-2"] - df["Close-2"])/2),
             True, False)
@@ -87,16 +85,16 @@ class CandlesPatterns(Indicator):
         # Check if the candle shape is a bearish engulfing
         df["Bearish_engulfing"] = np.where(
             (df["Open-2"] < df["Close-2"]) &
-            (df["Open-1"] < df["Close-1"]) &
-            (df["Open"] > df["Close"]) &
-            (abs(df["Open"] - df["Close"]) > abs(df["Open-1"] - df["Close-1"])) &
-            (df["Vol_diff"] > 0),
+            (df["Open-1"] > df["Close-1"]) &
+            (abs(df["Open-1"] - df["Close-1"]) > abs(df["Open-2"] - df["Close-2"])) &
+            (df["Open"] > df["Close"]),
             True, False)
 
         # Check if the candle shape is a evening star
         df["Evening_star"] = np.where(
             (df["Open-2"] < df["Close-2"]) &
-            ((abs(df["Open-1"]/df["Close-1"]) - 1) <= dojiCandleLength) &
+            (abs((df["Open-2"]/df["Close-2"]) - 1) >= largeCandleLength) &
+            (abs((df["Open-1"]/df["Close-1"]) - 1) <= dojiCandleLength) &
             (df["Open"] > df["Close"]) &
             (abs(df["Open"] - df["Close"]) > abs(df["Open-2"] - df["Close-2"])/2),
             True, False)
