@@ -129,7 +129,6 @@ def main():
                         data['sell']['timestamp']
                     )
                     notify_telegram_users(trade_details_message)
-                    response = api.post('api/trade/current', json=data)
                     
                     # update balance to strategy doc in the db
                     current_balance = trade_bot.get_balance()
@@ -147,6 +146,7 @@ def main():
                             "timestamp": int(trade.buy_order.timestamp)
                         }
                     }
+                    response = api.post('api/trade/current', json=data)
                     
         print("\n")
         time.sleep(60)
