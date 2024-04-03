@@ -205,7 +205,7 @@ func (s *StrategyService) Start(strategy map[string]interface{}) (string, error)
 }
 
 func (s *StrategyService) Stop(id string) error {
-	strategy, err := s.get("")
+	strategy, err := s.get(id)
 	if err != nil {
 		return err
 	}
