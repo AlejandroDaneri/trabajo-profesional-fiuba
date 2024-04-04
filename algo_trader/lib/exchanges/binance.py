@@ -23,18 +23,6 @@ class Binance(Exchange):
 
         self.trades = []
 
-    def place_order(self, trade: Trade, action: Action):
-        symbol = trade.symbol
-        quantity = trade.amount
-        price = self.get_price(symbol)
-        if action == Action.BUY:
-            self.buy(symbol, None, None)
-            self.trades.append(trade)
-            self.total = quantity * price
-        else:
-            self.sell(symbol, None, None)
-            self.total = quantity * price
-
     def get_balance_symbol(self, symbol: str) -> float:
         balances = self.client.account()['balances']
         for index, value in enumerate(balances):

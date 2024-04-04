@@ -10,10 +10,6 @@ class Exchange:
         self.portfolio = {}
         self.total = self.balance
 
-    @abstractmethod
-    def place_order(self, trade: Trade, type: Action):
-        pass
-
     def buy(self, symbol: str, price: int, timestamp: float) -> Trade:
         amount = self.total / price
 
