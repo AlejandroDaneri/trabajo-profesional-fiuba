@@ -287,7 +287,7 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
-		}).Error("Could not get the strategy")
+		}).Error("Could not get find strategy running")
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
