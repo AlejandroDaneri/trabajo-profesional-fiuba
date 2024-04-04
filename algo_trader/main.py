@@ -88,6 +88,19 @@ def main():
         exchange.convert_all_to_usdt()
 
     while True:
+        response = api.get('api/strategy/running')
+        if response.status_code != 200:
+            print("[main] zero running strategies")
+
+            response = api.delete('api/trade/current')
+            # close open trade
+            if response == 200:
+                # to-do close open trade
+                print("[main] closing trade open")
+            
+            time.sleep(60)
+            continue
+
         for currency in currencies:
             data = provider.get(currency, timeframe, n=1)
             print(f'Get: {currency} {data.index[0]}')

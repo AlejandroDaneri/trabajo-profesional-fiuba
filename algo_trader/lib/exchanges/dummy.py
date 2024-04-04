@@ -38,11 +38,11 @@ class Dummy(Exchange):
                 f"Invalid action: {action}. Only 'buy' and 'sell' actions are supported."
             )
 
-    def buy(self, symbol: str, amount: int, price: float):
-        super().buy(symbol, amount, price)
-        print(f"Buying {amount} units of {symbol} at {price} on Dummy Exchange.")
+    def buy(self, symbol: str, price: int, timestamp: float) -> Trade:
+        print(f"[Exchange | Dummy] Buying {symbol}, price {price}")
+        return super().buy(symbol, price, timestamp)
 
-    def sell(self, symbol: str, amount: int, price: float):
-        super().sell(symbol, amount, price)
-        print(f"Selling {amount} units of {symbol} at {price} on Dummy Exchange.")
+    def sell(self, trade: Trade, price: int, timestamp: float) -> Trade:
+        print(f"[Exchange | Dummy] Selling {trade.symbol}, price {price}")
+        return super().sell(trade, price, timestamp)
 

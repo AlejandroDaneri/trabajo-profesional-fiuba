@@ -1,6 +1,7 @@
 from lib.trade import Trade
 from lib.actions import Action
 from lib.exchanges.exchange import Exchange
+from lib.trade import Order
 
 from binance.enums import *
 from binance.spot import Spot as Client
@@ -69,7 +70,7 @@ class Binance(Exchange):
         except Exception as e:
             print(f"Ocurrió un error al crear la orden: {e}")
     
-    def execute_sell_order(self, symbol):
+    def execute_sell_order(self, symbol: str):
         try:
             while(self.get_balance_symbol(symbol) > 0):
                 # fix to: "Too much request weight used; current limit is 6000 request weight per 1 MINUTE"
@@ -87,17 +88,31 @@ class Binance(Exchange):
         except Exception as e:
             print(f"Ocurrió un error al crear la orden: {e}")
         
-    def buy(self, symbol: str, quantity: float, price: float):
+    def buy(self, symbol: str, price: int, timestamp: float) -> Trade:
         print(f"[Exchange | Binance] Buying symbol: {symbol}")
         self.execute_buy_order(symbol)
         self.portfolio[symbol] = self.get_balance_symbol(symbol)
         print(f"[Exchange | Binance] amount: {self.get_balance_symbol(symbol)}")
 
-    def sell(self, symbol: str, quantity: int, price: float):
-        print(f"[Exchange | Binance] Selling quantity: {symbol}")
-        self.execute_sell_order(symbol)
-        self.portfolio[symbol] = self.get_balance_symbol(symbol)
-        print(f"[Exchange | Binance] amount: {self.get_balance_symbol(symbol)}")
+        return Trade(
+            symbol,
+            self.get_balance_symbol(symbol),
+            self.get_price(symbol),
+            time.time()
+        )
+
+    def sell(self, trade: Trade, price: int, timestamp: int) -> Trade:
+        print(f"[Exchange | Binance] Selling quantity: {trade.symbol}")
+        self.execute_sell_order(trade.symbol)
+        self.portfolio[trade.symbol] = self.get_balance_symbol(trade.symbol)
+        print(f"[Exchange | Binance] amount: {self.get_balance_symbol(trade.symbol)}")
+
+        trade.sell_order = Order(
+            self.get_price(trade.symbol),
+            time.time()
+        )
+
+        return trade
 
     def convert_all_to_usdt(self):
         print("[Exchange | Binance] converting all to USDT")
