@@ -308,6 +308,40 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetStrategy(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	strategy, err := strategyservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get find strategy running")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	bytes, err := json.Marshal(strategy)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
 func SetStrategyInitialBalance(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		InitialBalance string `json:"initial_balance"`
@@ -391,7 +425,7 @@ func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strategyservice.GetInstance().Start(strategy)
+	id, err := strategyservice.GetInstance().Create(strategy)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -513,6 +547,7 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
+	router.HandleFunc("/strategy/{id}", GetStrategy).Methods("GET")
 	router.HandleFunc("/strategy", DeleteStrategy).Methods("DELETE")
 	router.HandleFunc("/strategy/initial_balance", SetStrategyInitialBalance).Methods("PUT")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
