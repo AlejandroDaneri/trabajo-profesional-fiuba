@@ -22,7 +22,16 @@ describe("Trade ", () => {
         url: "/api/strategy",
         body: strategy,
       }).then((response) => {
+        const strategyID = response.body
         expect(response.status).to.eq(200)
+
+        cy.request({
+          method: "PUT",
+          url: `/api/strategy/start/${strategyID}`,
+          body: strategy,
+        }).then(_ => {
+          expect(response.status).to.eq(200)
+        })
       })
   })
 
