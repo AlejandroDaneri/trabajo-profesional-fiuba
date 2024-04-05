@@ -191,7 +191,7 @@ const Strategies = () => {
         ))}
       </div>,
       <div className="actions">
-        {row.state === "finished" && (
+        {row.state === "created" && (
           <Button text="Start" onClick={() => onStartStrategy(row.id)} />
         )}
         {row.state === "running" && (
