@@ -27,7 +27,7 @@ describe("Trade ", () => {
 
         cy.request({
           method: "PUT",
-          url: `/api/strategy/start/${strategyID}`,
+          url: `/api/strategy/${strategyID}/start`,
           body: strategy,
         }).then(_ => {
           expect(response.status).to.eq(200)

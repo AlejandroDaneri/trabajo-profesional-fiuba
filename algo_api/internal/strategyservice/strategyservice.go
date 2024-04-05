@@ -36,8 +36,8 @@ func NewService() IService {
 type IService interface {
 	GetRunning() (*database.StrategyResponseFields, error)
 	List() ([]*database.StrategyResponseFields, error)
-	SetInitialBalance(balance string) error
-	SetCurrentBalance(balance string) error
+	SetInitialBalance(id, balance string) error
+	SetCurrentBalance(id, balance string) error
 	Get(id string) (*database.StrategyResponseFields, error)
 	Create(strategy map[string]interface{}) (string, error)
 	Start(id string) error
@@ -154,8 +154,8 @@ func (s *StrategyService) List() ([]*database.StrategyResponseFields, error) {
 	return strategies, nil
 }
 
-func (s *StrategyService) SetInitialBalance(balance string) error {
-	strategy, err := s.get("")
+func (s *StrategyService) SetInitialBalance(id, balance string) error {
+	strategy, err := s.get(id)
 	if err != nil {
 		return err
 	}
@@ -180,8 +180,8 @@ func (s *StrategyService) SetInitialBalance(balance string) error {
 	return nil
 }
 
-func (s *StrategyService) SetCurrentBalance(balance string) error {
-	strategy, err := s.get("")
+func (s *StrategyService) SetCurrentBalance(id, balance string) error {
+	strategy, err := s.get(id)
 	if err != nil {
 		return err
 	}

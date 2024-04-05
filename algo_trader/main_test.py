@@ -17,11 +17,11 @@ def main():
     strategy = response.json()
     print(strategy)
 
+    id = strategy["id"]
     type = strategy["type"]
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
     timeframe = strategy["timeframe"]
-    
 
     provider = BinanceProvider()
     exchange = Dummy()
@@ -29,11 +29,11 @@ def main():
     exchange.convert_all_to_usdt()
     print("Balance: ", exchange.get_balance())
 
-    api.put('api/strategy/initial_balance', json={
+    api.put(f'api/strategy/{id}/initial_balance', json={
         "initial_balance": str(exchange.get_balance())
     })
 
-    api.put('api/strategy/balance', json={
+    api.put(f'api/strategy/{id}/balance', json={
         "current_balance": str(exchange.get_balance())
     })
 
@@ -78,7 +78,7 @@ def main():
                     response = api.post('api/trade', json=data)
 
                     current_balance = trade_bot.get_balance()
-                    api.put('api/strategy/balance', json={
+                    api.put(f'api/strategy/{id}/balance', json={
                         "current_balance": str(current_balance)
                     })
         print("\n")

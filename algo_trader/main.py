@@ -30,8 +30,12 @@ def main():
     response = api.get('api/strategy/running')
     strategy = response.json()
     print(strategy)
+
+    id = strategy["id"]
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
+    timeframe = strategy["timeframe"]
+    type = strategy["type"]
 
     provider = BinanceProvider()
     exchange = BinanceExchange()
@@ -41,16 +45,13 @@ def main():
     # if initial balance is none, we set exchange balance as initial balance
     initial_balance = strategy["initial_balance"]
     if initial_balance is None:
-        api.put('api/strategy/initial_balance', json={
+        api.put(f'api/strategy/{id}/initial_balance', json={
             "initial_balance": str(exchange.get_balance())
         })
 
-    api.put('api/strategy/balance', json={
+    api.put(f'api/strategy/{id}/balance', json={
         "current_balance": str(exchange.get_balance())
     })
-
-    timeframe = strategy["timeframe"]
-    type = strategy["type"]
 
     strategy = hydrate_strategy(type, currencies, indicators)
 
@@ -151,7 +152,7 @@ def main():
                     # update balance to strategy doc in the db
                     current_balance = trade_bot.get_balance()
                     print(f"Current balance: {current_balance}")
-                    api.put('api/strategy/balance', json={
+                    api.put(f'api/strategy/{id}/balance', json={
                         "current_balance": str(current_balance)
                     })
                 else:
