@@ -15,9 +15,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
+        
+      - name: Create .env file
+        run: |
+          echo "dummy =dummy" > algo_trader/.env
+          
       - name: start services
-        run: docker-compose up -d algo_api couchdb
+        run: docker-compose up -d 
 
       - name: init db
         run: docker exec api go run cmd/setup/main.go
