@@ -3,7 +3,7 @@ describe("Strategy ", () => {
     const strategy_example = {
       indicators: [
         {
-          name: "rsi",
+          name: "RSI",
           parameters: {
             buy_threshold: 65,
             sell_threshold: 55,
@@ -13,6 +13,7 @@ describe("Strategy ", () => {
       ],
       currencies: ["SOL", "BTC"],
       initial_balance: "1000",
+      type: "basic"
     }
 
     Cypress.env('strategy_example', strategy_example)

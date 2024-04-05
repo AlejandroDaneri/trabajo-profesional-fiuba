@@ -6,7 +6,7 @@ describe("Trade ", () => {
     const strategy = {
       indicators: [
         {
-          name: "rsi",
+          name: "RSI",
           parameters: {
             buy_threshold: 65,
             sell_threshold: 55,
@@ -16,6 +16,7 @@ describe("Trade ", () => {
       ],
       currencies: ["SOL", "BTC"],
       initial_balance: "1000",
+      type: "basic"
     }
       cy.request({
         method: "POST",

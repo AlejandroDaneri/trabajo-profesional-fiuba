@@ -14,5 +14,5 @@ export const start = (id) => {
 }
 
 export const stop = (id) => {
-  return axios.put(`${getBackend()}/api/strategy/stop/${id}`)
+  return axios.put(`${getBackend()}/api/strategy/${id}/stop`)
 }
