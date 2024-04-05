@@ -400,6 +400,20 @@ func StopStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func StartStrategy(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err := strategyservice.GetInstance().Start(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not stop the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		InitialBalance string `json:"initial_balance"`
@@ -551,6 +565,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/strategy", DeleteStrategy).Methods("DELETE")
 	router.HandleFunc("/strategy/initial_balance", SetStrategyInitialBalance).Methods("PUT")
 	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
+	router.HandleFunc("/strategy/start/{id}", StartStrategy).Methods("PUT")
 	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")
 
