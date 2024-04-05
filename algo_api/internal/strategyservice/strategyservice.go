@@ -5,6 +5,7 @@ import (
 	"algo_api/internal/databaseservice"
 	"algo_api/internal/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -74,6 +75,9 @@ func (s *StrategyService) get(id string) (*database.Strategy, error) {
 			"q":   utils.ToPrettyPrint(q),
 		}).Error("Could not run the Mango Query")
 		return nil, err
+	}
+	if len(docs) == 0 {
+		return nil, errors.New("could not find any running strategy")
 	}
 	bytes, err := json.Marshal(docs[0])
 	if err != nil {
@@ -205,7 +209,7 @@ func (s *StrategyService) Start(strategy map[string]interface{}) (string, error)
 }
 
 func (s *StrategyService) Stop(id string) error {
-	strategy, err := s.get("")
+	strategy, err := s.get(id)
 	if err != nil {
 		return err
 	}

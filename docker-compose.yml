@@ -49,6 +49,7 @@ services:
     environment:
       - COUCHDB_USER=admin
       - COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF
+      - ENV=development
     volumes:
       - ./algo_api:/go/src/app
     working_dir: /go/src/app

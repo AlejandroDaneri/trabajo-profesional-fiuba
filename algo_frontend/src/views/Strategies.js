@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
 /* Import WebApi */
-import { list, stop } from "../webapi/strategy"
+import { list, start, stop } from "../webapi/strategy"
 
 /* Import Styles */
 import StrategiesStyle from "../styles/strategies"
@@ -96,6 +96,29 @@ const Strategies = () => {
     },
   ]
 
+  const onStartStrategy = (strategyId) => {
+    start(strategyId)
+      .then((_) => {
+        dispatch({
+          type: POPUP_ACTION_OPEN,
+          payload: {
+            type: POPUP_TYPE_SUCCESS,
+            message: "Strategy start Success",
+          },
+        })
+        list_()
+      })
+      .catch((_) => {
+        dispatch({
+          type: POPUP_ACTION_OPEN,
+          payload: {
+            type: POPUP_TYPE_ERROR,
+            message: "Could not start Strategy",
+          },
+        })
+      })
+  }
+
   const onStopStrategy = (strategyId) => {
     stop(strategyId)
       .then((_) => {
@@ -168,6 +191,9 @@ const Strategies = () => {
         ))}
       </div>,
       <div className="actions">
+        {row.state === "finished" && (
+          <Button text="Start" onClick={() => onStartStrategy(row.id)} />
+        )}
         {row.state === "running" && (
           <Button text="Stop" onClick={() => onStopStrategy(row.id)} />
         )}
