@@ -38,7 +38,9 @@ type IService interface {
 	List() ([]*database.StrategyResponseFields, error)
 	SetInitialBalance(balance string) error
 	SetCurrentBalance(balance string) error
-	Start(strategy map[string]interface{}) (string, error)
+	Get(id string) (*database.StrategyResponseFields, error)
+	Create(strategy map[string]interface{}) (string, error)
+	Start(id string) error
 	Stop(id string) error
 	Delete() error
 }
@@ -93,6 +95,18 @@ func (s *StrategyService) get(id string) (*database.Strategy, error) {
 
 func (s *StrategyService) GetRunning() (*database.StrategyResponseFields, error) {
 	strategy, err := s.get("")
+	if err != nil {
+		return nil, err
+	}
+
+	return &database.StrategyResponseFields{
+		StrategyPublicFields: strategy.StrategyPublicFields,
+		ID:                   strategy.ID,
+	}, nil
+}
+
+func (s *StrategyService) Get(id string) (*database.StrategyResponseFields, error) {
+	strategy, err := s.get(id)
 	if err != nil {
 		return nil, err
 	}
@@ -192,15 +206,14 @@ func (s *StrategyService) SetCurrentBalance(balance string) error {
 	return nil
 }
 
-func (s *StrategyService) Start(strategy map[string]interface{}) (string, error) {
+func (s *StrategyService) Create(strategy map[string]interface{}) (string, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
 		return "", err
 	}
 	strategy["pvt_type"] = "strategy"
-	strategy["state"] = database.StrategyStateRunning
-	strategy["start_timestamp"] = time.Now().Unix()
+	strategy["state"] = database.StrategyStateCreated
 	id, _, err := db.Save(strategy, nil)
 	if err != nil {
 		return "", err
@@ -214,6 +227,31 @@ func (s *StrategyService) Stop(id string) error {
 		return err
 	}
 	strategy.State = database.StrategyStateFinished
+	strategy.EndTimestamp = time.Now().Unix()
+
+	m, err := utils.StructToMap(*strategy)
+	if err != nil {
+		return err
+	}
+
+	db, err := s.databaseservice.GetDB("trades")
+	if err != nil {
+		return err
+	}
+
+	_, _, err = db.Save(m, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *StrategyService) Start(id string) error {
+	strategy, err := s.get(id)
+	if err != nil {
+		return err
+	}
+	strategy.State = database.StrategyStateRunning
 	strategy.EndTimestamp = time.Now().Unix()
 
 	m, err := utils.StructToMap(*strategy)

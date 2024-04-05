@@ -16,7 +16,7 @@ describe("Strategy ", () => {
   })
 
   it("Should get trade after create it", () => {
-    const strategy_1 = {
+    const strategy = {
       indicators: [
         {
           name: "rsi",
@@ -31,81 +31,23 @@ describe("Strategy ", () => {
       initial_balance: "1000",
     }
 
-    const strategy_2 = {
-      indicators: [
-        {
-          name: "crossing",
-          parameters: {
-            buy_threshold: -0.01,
-            sell_threshold: 0,
-            fast: 20,
-            slow: 60,
-          },
-        },
-      ],
-      currencies: ["SOL", "ETH"],
-      initial_balance: "1000",
-    }
-
-    const trade = {
-      pair: "BTC",
-      amount: "0.5343",
-      buy: {
-        price: "39000",
-        timestamp: 1704844260000,
-      },
-      sell: {
-        price: "40000",
-        timestamp: 1704844260000 + 10 * 60 * 1000,
-      },
-    }
-
-    // creates strategy 1
+    // create strategy
     cy.request({
       method: "POST",
       url: "/api/strategy",
-      body: strategy_1,
+      body: strategy,
     }).then((response) => {
+      const strategyID = response.body
       expect(response.status).to.eq(200)
-      // creates trade 1
+      expect(strategyID).to.be.a('string')
+      expect(strategyID).to.not.be.empty
+
+      // get strategy
       cy.request({
-        method: "POST",
-        url: "/api/trade",
-        body: trade,
-      }).then((_) => {
-        // creates trade 2
-        cy.request({
-          method: "POST",
-          url: "/api/trade",
-          body: trade,
-        }).then((response) => {
-          const strategyID = response.data
-          cy.request({
-            method: "PUT",
-            url: `/api/strategy/stop/${strategyID}`,
-          }).then((_) => {
-            // creates estrategia 2
-            cy.request({
-              method: "POST",
-              url: "/api/strategy",
-              body: strategy_2,
-            }).then((_) => {
-              // creates trade 1
-              cy.request({
-                method: "POST",
-                url: "/api/trade",
-                body: trade,
-              }).then((_) => {
-                // creates trade 2
-                cy.request({
-                  method: "POST",
-                  url: "/api/trade",
-                  body: trade,
-                })
-              })
-            })
-          })
-        })
+        method: "GET",
+        url: `/api/strategy/${strategyID}`,
+      }).then(response => {
+        expect(JSON.parse(response.body).id).to.eq(strategyID)
       })
     })
   })
