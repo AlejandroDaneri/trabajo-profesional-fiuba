@@ -16,10 +16,12 @@ def main():
 
     strategy = response.json()
     print(strategy)
+
+    type = strategy["type"]
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
     timeframe = strategy["timeframe"]
-    type = strategy["type"]
+    
 
     provider = BinanceProvider()
     exchange = Dummy()
