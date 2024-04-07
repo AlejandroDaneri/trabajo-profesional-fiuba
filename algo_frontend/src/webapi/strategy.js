@@ -10,7 +10,7 @@ export const list = () => {
 }
 
 export const start = (id) => {
-  return axios.put(`${getBackend()}/api/strategy/start/${id}`)
+  return axios.put(`${getBackend()}/api/strategy/${id}/start`)
 }
 
 export const stop = (id) => {

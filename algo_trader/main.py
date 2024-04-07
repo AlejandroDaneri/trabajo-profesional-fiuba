@@ -28,6 +28,9 @@ api = ApiClient()
 
 def main():
     response = api.get('api/strategy/running')
+    if response.status_code != 200:
+        print("[main] zero running strategies")
+        return
     strategy = response.json()
     print(strategy)
 
