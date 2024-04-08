@@ -131,26 +131,8 @@ def main():
                     # remove tmp current trade
                     api.delete('api/trade/current')
 
-                    # push notification to telegram
-                    trade_details_message = (
-                    "Trade Details:\n"
-                    "Pair: {}\n"
-                    "Amount: {}\n"
-                    "Buy Order:\n"
-                    "  Price: {}\n"
-                    "  Timestamp: {}\n"
-                    "Sell Order:\n"
-                    "  Price: {}\n"
-                    "  Timestamp: {}"
-                    ).format(
-                        data['pair'],
-                        data['amount'],
-                        data['buy']['price'],
-                        data['buy']['timestamp'],
-                        data['sell']['price'],
-                        data['sell']['timestamp']
-                    )
-                    notify_telegram_users(trade_details_message)
+                    notify_telegram_users(data)
+                    response = api.post('api/trade/current', json=data)
                     
                     # update balance to strategy doc in the db
                     current_balance = trade_bot.get_balance()
