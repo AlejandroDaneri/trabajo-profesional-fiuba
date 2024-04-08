@@ -14,6 +14,7 @@ type Indicator struct {
 }
 
 const (
+	StrategyStateCreated  = "created"
 	StrategyStateRunning  = "running"
 	StrategyStateFinished = "finished"
 )

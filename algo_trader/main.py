@@ -9,26 +9,36 @@ from api_client import ApiClient
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
 import time
 import sentry_sdk
+import os
 
-sentry_sdk.init(
-    dsn="https://99aef705bb2355581d11e36d65ffa585@o4506996875919360.ingest.us.sentry.io/4506996882341888",
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    traces_sample_rate=1.0,
-    # Set profiles_sample_rate to 1.0 to profile 100%
-    # of sampled transactions.
-    # We recommend adjusting this value in production.
-    profiles_sample_rate=1.0,
-)
+env = os.getenv('ENV')
+if env != "development": 
+    sentry_sdk.init(
+        dsn="https://99aef705bb2355581d11e36d65ffa585@o4506996875919360.ingest.us.sentry.io/4506996882341888",
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        traces_sample_rate=1.0,
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=1.0,
+    )
 
 api = ApiClient()
 
 def main():
     response = api.get('api/strategy/running')
+    if response.status_code != 200:
+        print("[main] zero running strategies")
+        return
     strategy = response.json()
     print(strategy)
+
+    id = strategy["id"]
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
+    timeframe = strategy["timeframe"]
+    type = strategy["type"]
 
     provider = BinanceProvider()
     exchange = BinanceExchange()
@@ -38,16 +48,13 @@ def main():
     # if initial balance is none, we set exchange balance as initial balance
     initial_balance = strategy["initial_balance"]
     if initial_balance is None:
-        api.put('api/strategy/initial_balance', json={
+        api.put(f'api/strategy/{id}/initial_balance', json={
             "initial_balance": str(exchange.get_balance())
         })
 
-    api.put('api/strategy/balance', json={
+    api.put(f'api/strategy/{id}/balance', json={
         "current_balance": str(exchange.get_balance())
     })
-
-    timeframe = strategy["timeframe"]
-    type = strategy["type"]
 
     strategy = hydrate_strategy(type, currencies, indicators)
 
@@ -85,6 +92,19 @@ def main():
         exchange.convert_all_to_usdt()
 
     while True:
+        response = api.get('api/strategy/running')
+        if response.status_code != 200:
+            print("[main] zero running strategies")
+
+            response = api.delete('api/trade/current')
+            # close open trade
+            if response == 200:
+                # to-do close open trade
+                print("[main] closing trade open")
+            
+            time.sleep(60)
+            continue
+
         for currency in currencies:
             data = provider.get(currency, timeframe, n=1)
             print(f'Get: {currency} {data.index[0]}')
@@ -92,6 +112,8 @@ def main():
             if trade is not None:
                 # trade closed: means buy and sell executed
                 if trade.is_closed():
+
+                    # save closed trade
                     data = {
                         "pair": trade.symbol,
                         "amount": str(trade.amount),
@@ -115,7 +137,7 @@ def main():
                     # update balance to strategy doc in the db
                     current_balance = trade_bot.get_balance()
                     print(f"Current balance: {current_balance}")
-                    api.put('api/strategy/balance', json={
+                    api.put(f'api/strategy/{id}/balance', json={
                         "current_balance": str(current_balance)
                     })
                 else:
@@ -128,6 +150,7 @@ def main():
                             "timestamp": int(trade.buy_order.timestamp)
                         }
                     }
+                    response = api.post('api/trade/current', json=data)
                     
         print("\n")
         time.sleep(60)

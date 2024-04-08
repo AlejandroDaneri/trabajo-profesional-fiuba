@@ -12,6 +12,9 @@ def main():
     response = api.get('api/strategy/running')
     strategy = response.json()
     print(strategy)
+
+    id = strategy["id"]
+    type = strategy["type"]
     indicators = strategy["indicators"]
     currencies = strategy["currencies"]
     timeframe = strategy["timeframe"]
@@ -22,15 +25,15 @@ def main():
     exchange.convert_all_to_usdt()
     print("Balance: ", exchange.get_balance())
 
-    api.put('api/strategy/initial_balance', json={
+    api.put(f'api/strategy/{id}/initial_balance', json={
         "initial_balance": str(exchange.get_balance())
     })
 
-    api.put('api/strategy/balance', json={
+    api.put(f'api/strategy/{id}/balance', json={
         "current_balance": str(exchange.get_balance())
     })
 
-    strategy = hydrate_strategy(currencies, indicators)
+    strategy = hydrate_strategy(type, currencies, indicators)
     
     data = {}
     train_data = {}
@@ -41,7 +44,7 @@ def main():
     n_total = n_train + n_simulate
 
     for currency in currencies:
-        data[currency] = provider.get_latest_n(f"{currency}USDT", timeframe, n=n_total)
+        data[currency] = provider.get(currency, timeframe, n=n_total)
         train_data[currency] = data[currency].iloc[0:n_train]
         simulation_data[currency] = data[currency].iloc[n_train:n_total]
         strategy[currency].prepare_data(train_data[currency])
@@ -54,24 +57,25 @@ def main():
             print(f'Simulating: {currency} {row.index[0]}')
             trade = trade_bot.run_strategy(currency, row)
             if trade is not None:
-                data = {
-                    "pair": trade.symbol,
-                    "amount": str(trade.amount),
-                    "buy": {
-                        "price": str(trade.buy_order.price),
-                        "timestamp": int(trade.buy_order.timestamp)
-                    },
-                    "sell": {
-                        "price": str(trade.sell_order.price),
-                        "timestamp": int(trade.sell_order.timestamp)
+                if trade.is_closed():
+                    data = {
+                        "pair": trade.symbol,
+                        "amount": str(trade.amount),
+                        "buy": {
+                            "price": str(trade.buy_order.price),
+                            "timestamp": int(trade.buy_order.timestamp)
+                        },
+                        "sell": {
+                            "price": str(trade.sell_order.price),
+                            "timestamp": int(trade.sell_order.timestamp)
+                        }
                     }
-                }
-                response = api.post('api/trade', json=data)
+                    response = api.post('api/trade', json=data)
 
-                current_balance = trade_bot.get_balance()
-                api.put('api/strategy/balance', json={
-                    "current_balance": str(current_balance)
-                })
+                    current_balance = trade_bot.get_balance()
+                    api.put(f'api/strategy/{id}/balance', json={
+                        "current_balance": str(current_balance)
+                    })
 
         print("\n")
     

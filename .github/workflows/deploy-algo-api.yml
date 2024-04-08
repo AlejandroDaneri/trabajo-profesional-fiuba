@@ -15,9 +15,13 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
-
-      - name: compose
-        run: docker compose up -d
+        
+      - name: Create .env file
+        run: |
+          echo "dummy =dummy" > algo_trader/.env
+          
+      - name: start services
+        run: docker-compose up -d 
 
       - name: init db
         run: docker exec api go run cmd/setup/main.go
@@ -34,6 +38,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        
+      - name: Create .env file
+        run: |
+          echo "EXCHANGE_BINANCE_API_KEY=${{ secrets.EXCHANGE_BINANCE_API_KEY }}" > algo_trader/.env
+          echo "EXCHANGE_BINANCE_API_SECRET=${{ secrets.EXCHANGE_BINANCE_API_SECRET }}" >> algo_trader.env
 
       - name: Build Docker Image
         run: docker build -t adaneri/algo_api:latest algo_api

@@ -9,6 +9,10 @@ export const list = () => {
   return axios.get(`${getBackend()}/api/strategy`)
 }
 
+export const start = (id) => {
+  return axios.put(`${getBackend()}/api/strategy/${id}/start`)
+}
+
 export const stop = (id) => {
-  return axios.put(`${getBackend()}/api/strategy/stop/${id}`)
+  return axios.put(`${getBackend()}/api/strategy/${id}/stop`)
 }

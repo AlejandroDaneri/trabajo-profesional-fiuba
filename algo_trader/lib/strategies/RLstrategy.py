@@ -78,7 +78,8 @@ class RL(Strategy):
 
         new_data = self._get_state()
         state = self._reshape(new_data.values)
-        signal = np.argmax(self.model.predict(state)[0])
+        m_signal = np.argmax(self.model.predict(state)[0])
+        signal = 1 if m_signal == 1 else -1
         if signal == -1:
             signal = Action.SELL
         elif signal == 1:

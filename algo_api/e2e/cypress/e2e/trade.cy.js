@@ -6,7 +6,7 @@ describe("Trade ", () => {
     const strategy = {
       indicators: [
         {
-          name: "rsi",
+          name: "RSI",
           parameters: {
             buy_threshold: 65,
             sell_threshold: 55,
@@ -16,13 +16,23 @@ describe("Trade ", () => {
       ],
       currencies: ["SOL", "BTC"],
       initial_balance: "1000",
+      type: "basic"
     }
       cy.request({
         method: "POST",
         url: "/api/strategy",
         body: strategy,
       }).then((response) => {
+        const strategyID = response.body
         expect(response.status).to.eq(200)
+
+        cy.request({
+          method: "PUT",
+          url: `/api/strategy/${strategyID}/start`,
+          body: strategy,
+        }).then(_ => {
+          expect(response.status).to.eq(200)
+        })
       })
   })
 

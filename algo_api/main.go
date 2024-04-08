@@ -7,9 +7,12 @@ import (
 	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 	"strconv"
 
+	"github.com/getsentry/sentry-go"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )
@@ -284,7 +287,41 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
-		}).Error("Could not get the strategy")
+		}).Error("Could not get find strategy running")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	bytes, err := json.Marshal(strategy)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func GetStrategy(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	strategy, err := strategyservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get find strategy running")
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
@@ -306,6 +343,14 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 }
 
 func SetStrategyInitialBalance(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
 	var body struct {
 		InitialBalance string `json:"initial_balance"`
 	}
@@ -319,7 +364,7 @@ func SetStrategyInitialBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = strategyservice.GetInstance().SetInitialBalance(body.InitialBalance)
+	err = strategyservice.GetInstance().SetInitialBalance(id, body.InitialBalance)
 	if err != nil {
 		logrus.Error("Could not set balance to the strategy")
 		http.Error(w, http.StatusText(500), 500)
@@ -328,6 +373,14 @@ func SetStrategyInitialBalance(w http.ResponseWriter, r *http.Request) {
 }
 
 func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
 	var body struct {
 		CurrentBalance string `json:"current_balance"`
 	}
@@ -341,7 +394,7 @@ func SetStrategyBalance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = strategyservice.GetInstance().SetCurrentBalance(body.CurrentBalance)
+	err = strategyservice.GetInstance().SetCurrentBalance(id, body.CurrentBalance)
 	if err != nil {
 		logrus.Error("Could not set balance to the strategy")
 		http.Error(w, http.StatusText(500), 500)
@@ -353,6 +406,20 @@ func StopStrategy(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	err := strategyservice.GetInstance().Stop(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not stop the strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
+func StartStrategy(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err := strategyservice.GetInstance().Start(id)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -388,7 +455,7 @@ func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strategyservice.GetInstance().Start(strategy)
+	id, err := strategyservice.GetInstance().Create(strategy)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -509,11 +576,13 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
+	router.HandleFunc("/strategy/{id}/initial_balance", SetStrategyInitialBalance).Methods("PUT")
+	router.HandleFunc("/strategy/{id}/balance", SetStrategyBalance).Methods("PUT")
+	router.HandleFunc("/strategy/{id}/start", StartStrategy).Methods("PUT")
+	router.HandleFunc("/strategy/{id}/stop", StopStrategy).Methods("PUT")
+	router.HandleFunc("/strategy/{id}", GetStrategy).Methods("GET")
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
 	router.HandleFunc("/strategy", DeleteStrategy).Methods("DELETE")
-	router.HandleFunc("/strategy/initial_balance", SetStrategyInitialBalance).Methods("PUT")
-	router.HandleFunc("/strategy/balance", SetStrategyBalance).Methods("PUT")
-	router.HandleFunc("/strategy/stop/{id}", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")
 
 	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")
@@ -521,6 +590,20 @@ func MakeRoutes(router *mux.Router) {
 }
 
 func main() {
+	myVar := os.Getenv("ENV")
+	if myVar != "development" {
+		err := sentry.Init(sentry.ClientOptions{
+			Dsn: "https://23953c767ab38badfb11e0f1e37181ca@o4506996875919360.ingest.us.sentry.io/4507018359078912",
+			// Set TracesSampleRate to 1.0 to capture 100%
+			// of transactions for performance monitoring.
+			// We recommend adjusting this value in production,
+			TracesSampleRate: 1.0,
+		})
+		if err != nil {
+			log.Fatalf("sentry.Init: %s", err)
+		}
+	}
+
 	router := mux.NewRouter()
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	MakeRoutes(apiRouter)
