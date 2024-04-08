@@ -1,15 +1,14 @@
+import styled from "styled-components";
 import { useState } from "react";
-import styled from "styled-components"
 
 const TableWrapper = styled.div`
-  height: calc(100vh - ${({top}) => top}px);
+  max-height: calc(100vh - ${({ top }) => top}px);
   overflow-y: scroll;
   width: 100%;
 
   &::-webkit-scrollbar {
     width: 5px;
   }
-
 
   &::-webkit-scrollbar-thumb {
     background-color: darkgrey;
@@ -61,41 +60,43 @@ const ThContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: ${({ clickeable }) => clickeable && 'pointer'};
-` 
+  cursor: ${({ clickeable }) => clickeable && "pointer"};
+`;
 
 const Table = ({ headers, data, buildRow }) => {
-  const [ref, refState] = useState()
+  const [ref, refState] = useState();
 
   const [sort, sortFunc] = useState({
-    field: headers.find(header => header.default).value,
-    direction: 'desc' 
-  })
+    field: headers.find((header) => header.default).value,
+    direction: "desc",
+  });
 
   const onSort = (field) => {
     if (field) {
-      sortFunc(prevState => ({
+      sortFunc((prevState) => ({
         ...prevState,
         field,
-        direction: prevState.direction === 'asc' ? 'desc' : 'asc'
-      }))
+        direction: prevState.direction === "asc" ? "desc" : "asc",
+      }));
     }
-  }
+  };
 
   const sort_ = (list, key, direction) => {
-    if (direction === 'asc') {
-      return list.sort((a, b) => a[key] - b[key])
+    if (list != null) {
+      if (direction === "asc") {
+        return list.sort((a, b) => a[key] - b[key]);
+      }
+      if (direction === "desc") {
+        return list.sort((a, b) => b[key] - a[key]);
+      }
     }
-    if (direction === 'desc') {
-      return list.sort((a, b) => b[key] - a[key])
-    }
-  }
+  };
 
-  const dataSorted = sort_(data, sort.field, sort.direction)
+  const dataSorted = sort_(data, sort.field, sort.direction);
 
   return (
     <TableWrapper
-      ref={ref => refState(ref)}
+      ref={(ref) => refState(ref)}
       top={ref?.getBoundingClientRect()?.top}
     >
       <TableStyle columns={headers.length}>
@@ -103,9 +104,18 @@ const Table = ({ headers, data, buildRow }) => {
           <tr>
             {(headers || []).map((header) => (
               <th>
-                <ThContainer clickeable={header.sortable} onClick={() => onSort(header.value)}>
+                <ThContainer
+                  clickeable={header.sortable}
+                  onClick={() => onSort(header.value)}
+                >
                   {header.label}
-                  {(sort.field === header.value) && <span className="material-icons">{sort.direction === 'asc' ? 'arrow_drop_up' : 'arrow_drop_down'}</span>}
+                  {sort.field === header.value && (
+                    <span className="material-icons">
+                      {sort.direction === "asc"
+                        ? "arrow_drop_up"
+                        : "arrow_drop_down"}
+                    </span>
+                  )}
                 </ThContainer>
               </th>
             ))}
@@ -122,7 +132,7 @@ const Table = ({ headers, data, buildRow }) => {
         </tbody>
       </TableStyle>
     </TableWrapper>
-  )
-}
+  );
+};
 
-export default Table
+export default Table;
