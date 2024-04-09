@@ -10,6 +10,7 @@ const ViewStyle = styled.div`
   & .header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0;
     margin: 0;
     width: 100%;
@@ -17,6 +18,26 @@ const ViewStyle = styled.div`
     border-top: 2px solid white;
     border-bottom: 2px solid white;
     background: #2d2d2d;
+
+    & .header-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px solid white;
+      width: 100px;
+      height: 30px;
+      margin-right: 20px;
+
+      &:hover {
+        background: white;
+        color: #282c34;
+        cursor: pointer;
+      }
+
+      & i {
+        font-size: 16px;
+      }
+    }
 
     & h1 {
       margin: 0;
@@ -27,11 +48,17 @@ const ViewStyle = styled.div`
   }
 `
 
-const View = ({ title, content }) => {
+const View = ({ title, content, buttons }) => {
   return (
     <ViewStyle>
       <div className="header">
         <h1>{title}</h1>
+        {buttons?.map((button) => (
+          <div className="header-button" onClick={button.onClick}>
+            {button.icon}
+            {button.label}
+          </div>
+        ))}
       </div>
       <div className="content">{content}</div>
     </ViewStyle>

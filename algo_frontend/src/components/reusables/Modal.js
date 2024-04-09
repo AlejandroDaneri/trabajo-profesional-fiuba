@@ -24,12 +24,12 @@ const ModalStyle = styled.div`
   }
 `
 
-const Modal = ({ open, onToggleOpen, title, content }) => {
+const Modal = ({ open, onToggleOpen, title, content, width }) => {
   return (
     <ReactAwesomeModal
       visible={open}
       onClickAway={onToggleOpen}
-      width="90%"
+      width={width || "90%"}
       effect="fadeInUp"
     >
       <ModalStyle>

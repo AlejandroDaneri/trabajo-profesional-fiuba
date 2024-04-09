@@ -16,3 +16,7 @@ export const start = (id) => {
 export const stop = (id) => {
   return axios.put(`${getBackend()}/api/strategy/${id}/stop`)
 }
+
+export const add = (strategy) => {
+  return axios.post(`${getBackend()}/api/strategy`, strategy)
+}

@@ -14,8 +14,10 @@ const ButtonStyle = styled.div`
   }
 `
 
-const Button = ({ text, onClick }) => {
-  return <ButtonStyle onClick={onClick}>{text}</ButtonStyle>
+const Button = ({ text, onClick, loading }) => {
+  return (
+    <ButtonStyle onClick={onClick}>{loading ? "loading" : text}</ButtonStyle>
+  )
 }
 
 export default Button
