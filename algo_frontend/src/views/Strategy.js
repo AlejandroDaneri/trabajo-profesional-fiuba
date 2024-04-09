@@ -99,6 +99,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           parameters: createParameters(row.value),
         }
       }),
+      timeframe: strategy.data.timeframe.value,
     }
   }
 

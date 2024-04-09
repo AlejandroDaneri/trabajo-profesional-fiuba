@@ -1,7 +1,6 @@
 /* Import Libs */
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
-import styled from "styled-components"
 
 /* Import WebApi */
 import { list, start, stop } from "../webapi/strategy"
@@ -27,7 +26,8 @@ import View from "../components/reusables/View"
 import FlotantBox, {
   FlotantBoxProvider,
 } from "../components/reusables/FlotantBox"
-import FieldSelect from "../components/reusables/FieldSelect"
+
+/* Import Views */
 import Strategy from "./Strategy"
 
 const Strategies = () => {
@@ -88,6 +88,10 @@ const Strategies = () => {
     {
       value: "balance",
       label: "Balance",
+    },
+    {
+      value: "timeframe",
+      label: "Timeframe",
     },
     {
       value: "indicators",
@@ -170,6 +174,7 @@ const Strategies = () => {
       capitalize(row.state),
       row.initial_balance,
       row.current_balance,
+      row.timeframe,
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (

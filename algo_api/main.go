@@ -437,6 +437,7 @@ func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 			Parameters interface{} `json:"parameters"`
 		} `json:"indicators"`
 		Currencies []string `json:"currencies"`
+		Timeframe  string   `json:"timeframe"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)

@@ -15,6 +15,10 @@ const styles = {
     ...styles,
     color: "black",
   }),
+  singleValue: (base) => ({
+    ...base,
+    color: "white",
+  }),
   multiValueRemove: (base) => ({
     ...base,
     color: "black",
