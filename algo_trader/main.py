@@ -28,7 +28,7 @@ api = ApiClient()
 
 def main():
     strategy = None
-    while strategy is not None:
+    while strategy is None:
         response = api.get('api/strategy/running')
         if response.status_code == 200:
             strategy = response.json()
