@@ -27,11 +27,14 @@ if env != "development":
 api = ApiClient()
 
 def main():
-    response = api.get('api/strategy/running')
-    if response.status_code != 200:
-        print("[main] zero running strategies")
-        return
-    strategy = response.json()
+    strategy = None
+    while strategy is not None:
+        response = api.get('api/strategy/running')
+        if response.status_code == 200:
+            strategy = response.json()
+        else:
+            print("[main] zero running strategies")
+            time.sleep(60)
     print(strategy)
 
     id = strategy["id"]
