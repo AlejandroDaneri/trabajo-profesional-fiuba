@@ -51,6 +51,7 @@ class Binance:
             "1M": "%Y-%m-%d %H:%M",
             "5M": "%Y-%m-%d %H:%M",
             "15M": "%Y-%m-%d %H:%M",
+            "30M": "%Y-%m-%d %H:%M",
             "1H": "%Y-%m-%d %H",
             "4H": "%Y-%m-%d %H",
             "1D": "%Y-%m-%d"
