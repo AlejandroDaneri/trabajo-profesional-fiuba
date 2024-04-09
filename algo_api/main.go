@@ -432,8 +432,7 @@ func StartStrategy(w http.ResponseWriter, r *http.Request) {
 
 func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 	var body struct {
-		InitialBalance string `json:"initial_balance"`
-		Indicators     []struct {
+		Indicators []struct {
 			Name       string      `json:"name"`
 			Parameters interface{} `json:"parameters"`
 		} `json:"indicators"`

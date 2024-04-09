@@ -1,6 +1,7 @@
 /* Import Libs */
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
+import styled from "styled-components"
 
 /* Import WebApi */
 import { list, start, stop } from "../webapi/strategy"
@@ -26,6 +27,8 @@ import View from "../components/reusables/View"
 import FlotantBox, {
   FlotantBoxProvider,
 } from "../components/reusables/FlotantBox"
+import FieldSelect from "../components/reusables/FieldSelect"
+import Strategy from "./Strategy"
 
 const Strategies = () => {
   const dispatch = useDispatch()
@@ -40,6 +43,10 @@ const Strategies = () => {
     data: {
       strategyID: "",
     },
+  })
+
+  const [addModal, addModalFunc] = useState({
+    show: false,
   })
 
   const transformToView = (data) => {
@@ -72,7 +79,7 @@ const Strategies = () => {
     {
       value: "state",
       label: "State",
-      default: true
+      default: true,
     },
     {
       value: "initial_balance",
@@ -142,6 +149,13 @@ const Strategies = () => {
       })
   }
 
+  const onToggleAddModal = () => {
+    addModalFunc((prevState) => ({
+      ...prevState,
+      show: !prevState.show,
+    }))
+  }
+
   const onShowTrades = (strategyID) => {
     tradesModalFunc((prevState) => ({
       show: !prevState.show,
@@ -202,18 +216,34 @@ const Strategies = () => {
     ]
   }
 
+  const onAdd = () => {
+    list_()
+  }
+
   return (
     <>
       <Modal
         title="Trades"
-        content={
-          <Trades strategyID={tradesModal.data?.strategyID} />
-        }
+        content={<Trades strategyID={tradesModal.data?.strategyID} />}
         open={tradesModal.show}
         onToggleOpen={onShowTrades}
       />
+      <Modal
+        title="Strategy"
+        content={<Strategy onCloseModal={onToggleAddModal} onAdd={onAdd} />}
+        open={addModal.show}
+        onToggleOpen={onToggleAddModal}
+        width="900px"
+      />
       <View
         title="Strategies"
+        buttons={[
+          {
+            icon: <i className="material-icons">add_circle</i>,
+            label: "Add",
+            onClick: onToggleAddModal,
+          },
+        ]}
         content={
           <StrategiesStyle>
             <Table headers={headers} data={state.data} buildRow={buildRow} />
