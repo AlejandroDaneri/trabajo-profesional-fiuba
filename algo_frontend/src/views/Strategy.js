@@ -71,11 +71,11 @@ const Strategy = ({ onCloseModal, onAdd }) => {
     const createParameters = (indicator) => {
       // to-do: able to set this parameters in the ui
       switch (indicator) {
-        case "rsi":
+        case "RSI":
           return { buy_threshold: 30, rounds: 14, sell_threshold: 71 }
-        case "macd":
+        case "MACD":
           return { slow: 26, fast: 12, smoothed: 20 }
-        case "ema":
+        case "EMA":
           return { rounds: 100 }
         default:
           return {}
