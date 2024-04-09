@@ -6,11 +6,17 @@ import Select from "./Select"
 
 const FieldSelectStyled = styled.div``
 
-const FieldSelect = ({ label, value, name, onChange, options }) => {
+const FieldSelect = ({ label, value, name, onChange, options, multiple }) => {
   return (
     <FieldSelectStyled>
       <p>{label}</p>
-      <Select value={value} name={name} onChange={onChange} options={options} />
+      <Select
+        value={value}
+        name={name}
+        onChange={onChange}
+        options={options}
+        multiple={multiple}
+      />
     </FieldSelectStyled>
   )
 }

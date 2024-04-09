@@ -21,14 +21,13 @@ const styles = {
   }),
 }
 
-const Select = ({ value, name, onChange, options }) => {
+const Select = ({ value, name, onChange, options, multiple }) => {
   const onChange_ = (value) => {
     onChange(name, value)
   }
 
   return (
     <ReactSelect
-      isMulti
       value={value}
       name={name}
       onChange={onChange_}
@@ -36,6 +35,7 @@ const Select = ({ value, name, onChange, options }) => {
       styles={styles}
       width={800}
       height={60}
+      isMulti={multiple}
     />
   )
 }
