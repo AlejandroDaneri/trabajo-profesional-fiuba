@@ -15,20 +15,23 @@ const styles = {
     ...styles,
     color: "black",
   }),
+  singleValue: (base) => ({
+    ...base,
+    color: "white",
+  }),
   multiValueRemove: (base) => ({
     ...base,
     color: "black",
   }),
 }
 
-const Select = ({ value, name, onChange, options }) => {
+const Select = ({ value, name, onChange, options, multiple }) => {
   const onChange_ = (value) => {
     onChange(name, value)
   }
 
   return (
     <ReactSelect
-      isMulti
       value={value}
       name={name}
       onChange={onChange_}
@@ -36,6 +39,7 @@ const Select = ({ value, name, onChange, options }) => {
       styles={styles}
       width={800}
       height={60}
+      isMulti={multiple}
     />
   )
 }

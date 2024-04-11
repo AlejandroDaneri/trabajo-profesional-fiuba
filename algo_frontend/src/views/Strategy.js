@@ -50,6 +50,15 @@ const Currency = ({ currency }) => {
 
 const CURRENCIES = ["BTC", "ETH", "SOL"]
 const INDICATORS = ["EMA", "RSI", "MACD"]
+const TIMEFRAMES = [
+  { value: "1M", label: "1 minute" },
+  { value: "5M", label: "5 minutes" },
+  { value: "15M", label: "15 minutes" },
+  { value: "30M", label: "30 minutes" },
+  { value: "1H", label: "1 hour" },
+  { value: "4H", label: "4 hour" },
+  { value: "1D", label: "1 day" },
+]
 
 const Strategy = ({ onCloseModal, onAdd }) => {
   const [strategy, strategyFunc] = useState({
@@ -90,6 +99,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           parameters: createParameters(row.value),
         }
       }),
+      timeframe: strategy.data.timeframe.value,
     }
   }
 
@@ -127,6 +137,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           value: currency,
           label: <Currency currency={currency} />,
         }))}
+        multiple
       />
       <FieldSelect
         name="indicators"
@@ -137,6 +148,14 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           value: indicator,
           label: indicator,
         }))}
+        multiple
+      />
+      <FieldSelect
+        name="timeframe"
+        label="Timeframe"
+        value={strategy.timeframe}
+        onChange={onChange}
+        options={TIMEFRAMES}
       />
       <div className="actions">
         <div className="cancel">

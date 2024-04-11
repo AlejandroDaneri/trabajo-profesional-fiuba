@@ -4,8 +4,9 @@ const StrategiesStyle = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
-  width: 80%;
+  width: 90%;
   height: 90%;
+  padding: 20px;
 
   & .indicator-content {
     width: 200px;
