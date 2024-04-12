@@ -80,30 +80,39 @@ const Strategies = () => {
       value: "state",
       label: "State",
       default: true,
+      width: 10,
     },
     {
       value: "initial_balance",
       label: "Initial Balance",
+      width: 10
     },
     {
       value: "balance",
       label: "Balance",
+      width: 10,
     },
     {
       value: "timeframe",
       label: "Timeframe",
+      width: 10,
     },
     {
       value: "indicators",
       label: "Indicators",
+      width: 20,
+
     },
     {
       value: "currencies",
       label: "Currencies",
+      width: 20,
+
     },
     {
       value: "actions",
       label: "Actions",
+      width: 20,
     },
   ]
 
