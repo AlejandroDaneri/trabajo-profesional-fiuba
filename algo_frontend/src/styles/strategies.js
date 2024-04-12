@@ -28,6 +28,8 @@ const StrategiesStyle = styled.div`
       color: #282c34;
       padding: 3px;
       cursor: pointer;
+      font-size: 12px;
+      margin-right: 10px;
     }
   }
 
@@ -47,7 +49,7 @@ const StrategiesStyle = styled.div`
 
     & .button-container {
       cursor: pointer;
-      margin-right: 5px;
+      margin-right: 10px;
     }
   }
 `

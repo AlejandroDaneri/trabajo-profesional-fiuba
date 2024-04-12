@@ -85,7 +85,7 @@ const Strategies = () => {
     {
       value: "initial_balance",
       label: "Initial Balance",
-      width: 10
+      width: 10,
     },
     {
       value: "balance",
@@ -101,13 +101,11 @@ const Strategies = () => {
       value: "indicators",
       label: "Indicators",
       width: 20,
-
     },
     {
       value: "currencies",
       label: "Currencies",
       width: 20,
-
     },
     {
       value: "actions",
@@ -244,19 +242,47 @@ const Strategies = () => {
       <div className="actions">
         {row.state === "created" && (
           <div className="button-container">
-            <Button text="Start" onClick={() => onStartStrategy(row.id)} />
+            <Button
+              width={25}
+              height={25}
+              text={<i className="material-icons">play_arrow</i>}
+              onClick={() => onStartStrategy(row.id)}
+              tooltip="Play"
+              circle
+            />
           </div>
         )}
         {row.state === "running" && (
           <div className="button-container">
-            <Button text="Stop" onClick={() => onStopStrategy(row.id)} />
+            <Button
+              width={25}
+              height={25}
+              text={<i className="material-icons">stop</i>}
+              onClick={() => onStopStrategy(row.id)}
+              tooltip="Stop"
+              circle
+            />
           </div>
         )}
         <div className="button-container">
-          <Button text="Trades" onClick={() => onShowTrades(row.id)} />
+          <Button
+            width={25}
+            height={25}
+            text={<i className="material-icons">list</i>}
+            onClick={() => onShowTrades(row.id)}
+            tooltip="Trades"
+            circle
+          />
         </div>
-        <div className="button-container" onClick={() => onRemoveStrategy(row.id)}>
-          <i className="material-icons">delete</i>
+        <div className="button-container">
+          <Button
+            width={25}
+            height={25}
+            text={<i className="material-icons">delete</i>}
+            onClick={() => onRemoveStrategy(row.id)}
+            tooltip="Delete"
+            circle
+          />
         </div>
       </div>,
     ]
