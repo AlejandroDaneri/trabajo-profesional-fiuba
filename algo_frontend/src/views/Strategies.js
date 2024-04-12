@@ -1,6 +1,7 @@
 /* Import Libs */
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
+import BounceLoader from "react-spinners/BounceLoader"
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
@@ -201,7 +202,10 @@ const Strategies = () => {
 
   const buildRow = (row) => {
     return [
-      capitalize(row.state),
+      <div className="state">
+        <p>{capitalize(row.state)}</p>
+        {row.state === "running" && <div className="loader"><BounceLoader color="white" size={18} /></div>}
+      </div>,
       row.initial_balance,
       row.current_balance,
       row.timeframe,

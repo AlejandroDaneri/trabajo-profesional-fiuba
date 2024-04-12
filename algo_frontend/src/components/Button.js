@@ -10,16 +10,16 @@ const ButtonStyle = styled.div`
   cursor: pointer;
   border-radius: ${({ circle }) => circle && "30px"};
 
-  &:hover {
-    background: white;
-    color: #282c34;
-  }
-
   & i {
     color: white;
     font-size: 16px;
+  }
 
-    &:hover {
+  &:hover {
+    background: white;
+    color: #282c34;
+
+    & i {
       color: #282c34;
     }
   }

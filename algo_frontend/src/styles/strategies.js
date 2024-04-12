@@ -8,6 +8,18 @@ const StrategiesStyle = styled.div`
   height: 90%;
   padding: 20px;
 
+  & .state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 35px;
+
+    & .loader {
+      margin-left: 5px;
+      max-height: 35px;
+    }
+  }
+
   & .indicator-content {
     width: 200px;
     background: #282c34;
