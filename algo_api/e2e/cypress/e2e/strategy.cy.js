@@ -20,7 +20,7 @@ describe("Strategy ", () => {
 
     cy.request({
       method: "DELETE",
-      url: "/api/strategy",
+      url: "/api/strategy/all",
     }).then((response) => {
       expect(response.status).to.be.oneOf([200])
     })

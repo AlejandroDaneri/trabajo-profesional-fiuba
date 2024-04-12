@@ -42,6 +42,7 @@ type IService interface {
 	Create(strategy map[string]interface{}) (string, error)
 	Start(id string) error
 	Stop(id string) error
+	DeleteAll() error
 	Delete(id string) error
 }
 
@@ -269,6 +270,25 @@ func (s *StrategyService) Start(id string) error {
 		return err
 	}
 	return nil
+}
+
+func (s *StrategyService) DeleteAll() error {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return err
+	}
+
+	strategies, err := s.List()
+	if err != nil {
+		return err
+	}
+
+	for _, strategy := range strategies {
+		err = db.Delete(strategy.ID)
+	}
+
+	return err
 }
 
 func (s *StrategyService) Delete(id string) error {
