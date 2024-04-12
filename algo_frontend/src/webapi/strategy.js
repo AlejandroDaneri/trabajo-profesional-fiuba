@@ -17,6 +17,10 @@ export const stop = (id) => {
   return axios.put(`${getBackend()}/api/strategy/${id}/stop`)
 }
 
+export const remove = (id) => {
+  return axios.delete(`${getBackend()}/api/strategy/${id}`)
+}
+
 export const add = (strategy) => {
   return axios.post(`${getBackend()}/api/strategy`, strategy)
 }

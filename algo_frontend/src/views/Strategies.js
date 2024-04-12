@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 
 /* Import WebApi */
-import { list, start, stop } from "../webapi/strategy"
+import { list, remove, start, stop } from "../webapi/strategy"
 
 /* Import Styles */
 import StrategiesStyle from "../styles/strategies"
@@ -106,6 +106,29 @@ const Strategies = () => {
       label: "Actions",
     },
   ]
+
+  const onRemoveStrategy = (strategyId) => {
+    remove(strategyId)
+      .then((_) => {
+        dispatch({
+          type: POPUP_ACTION_OPEN,
+          payload: {
+            type: POPUP_TYPE_SUCCESS,
+            message: "Strategy remove Success",
+          },
+        })
+        list_()
+      })
+      .catch((_) => {
+        dispatch({
+          type: POPUP_ACTION_OPEN,
+          payload: {
+            type: POPUP_TYPE_ERROR,
+            message: "Could not remove Strategy",
+          },
+        })
+      })
+  }
 
   const onStartStrategy = (strategyId) => {
     start(strategyId)
@@ -222,6 +245,9 @@ const Strategies = () => {
         )}
         <div className="button-container">
           <Button text="Trades" onClick={() => onShowTrades(row.id)} />
+        </div>
+        <div className="button-container" onClick={() => onRemoveStrategy(row.id)}>
+          <i className="material-icons">delete</i>
         </div>
       </div>,
     ]

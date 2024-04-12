@@ -42,7 +42,7 @@ type IService interface {
 	Create(strategy map[string]interface{}) (string, error)
 	Start(id string) error
 	Stop(id string) error
-	Delete() error
+	Delete(id string) error
 }
 
 func (s *StrategyService) get(id string) (*database.Strategy, error) {
@@ -271,24 +271,14 @@ func (s *StrategyService) Start(id string) error {
 	return nil
 }
 
-func (s *StrategyService) Delete() error {
+func (s *StrategyService) Delete(id string) error {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
 		return err
 	}
 
-	strategies, err := s.List()
-	if err != nil {
-		return err
-	}
+	err = db.Delete(id)
 
-	for _, strategy := range strategies {
-		err = db.Delete(strategy.ID)
-		if err != nil {
-			continue
-		}
-	}
-
-	return nil
+	return err
 }

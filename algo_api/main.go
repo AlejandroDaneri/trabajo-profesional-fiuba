@@ -499,7 +499,15 @@ func ListStrategy(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
-	err := strategyservice.GetInstance().Delete()
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err := strategyservice.GetInstance().Delete(id)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -581,8 +589,8 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/strategy/{id}/start", StartStrategy).Methods("PUT")
 	router.HandleFunc("/strategy/{id}/stop", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy/{id}", GetStrategy).Methods("GET")
+	router.HandleFunc("/strategy/{id}", DeleteStrategy).Methods("DELETE")
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
-	router.HandleFunc("/strategy", DeleteStrategy).Methods("DELETE")
 	router.HandleFunc("/strategy", CreateStrategy).Methods("POST")
 
 	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")

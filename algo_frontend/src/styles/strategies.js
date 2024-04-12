@@ -4,7 +4,7 @@ const StrategiesStyle = styled.div`
   display: flex;
   align-items: center;
   flex-direction: column;
-  width: 90%;
+  width: 100%;
   height: 90%;
   padding: 20px;
 
@@ -46,6 +46,7 @@ const StrategiesStyle = styled.div`
     justify-content: center;
 
     & .button-container {
+      cursor: pointer;
       margin-right: 5px;
     }
   }
