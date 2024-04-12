@@ -20,7 +20,7 @@ def hydrate_strategy(type, currencies, indicators):
             if instance is not None:
                 indicators_builded.append(instance)
 
-        if type == "basic":
+        if type == "basic" or type == "":
             strategy[currency] = Basic(indicators_builded)
         elif type == "rl":
             strategy[currency] = RL(indicators_builded)
