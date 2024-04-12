@@ -44,6 +44,10 @@ const StrategiesStyle = styled.div`
   & .actions {
     display: flex;
     justify-content: center;
+
+    & .button-container {
+      margin-right: 5px;
+    }
   }
 `
 

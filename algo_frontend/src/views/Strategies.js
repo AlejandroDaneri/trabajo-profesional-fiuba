@@ -211,12 +211,18 @@ const Strategies = () => {
       </div>,
       <div className="actions">
         {row.state === "created" && (
-          <Button text="Start" onClick={() => onStartStrategy(row.id)} />
+          <div className="button-container">
+            <Button text="Start" onClick={() => onStartStrategy(row.id)} />
+          </div>
         )}
         {row.state === "running" && (
-          <Button text="Stop" onClick={() => onStopStrategy(row.id)} />
+          <div className="button-container">
+            <Button text="Stop" onClick={() => onStopStrategy(row.id)} />
+          </div>
         )}
-        <Button text="Trades" onClick={() => onShowTrades(row.id)} />
+        <div className="button-container">
+          <Button text="Trades" onClick={() => onShowTrades(row.id)} />
+        </div>
       </div>,
     ]
   }
