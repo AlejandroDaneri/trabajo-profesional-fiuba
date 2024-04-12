@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import { useState } from "react";
 
 const TableWrapper = styled.div`
@@ -28,7 +28,14 @@ const TableStyle = styled.table`
     width: 100%;
 
     & th {
-      width: calc(100% / ${({ columns }) => columns});
+      ${({ columnsWidth }) =>
+        (columnsWidth || []).map((column, index) => {
+            return css`
+              &:nth-child(${index + 1}) {
+                width: calc(${column}%);
+              }
+            `
+      })}
     }
   }
 
@@ -37,7 +44,14 @@ const TableStyle = styled.table`
     width: 100%;
 
     & td {
-      width: calc(100% / ${({ columns }) => columns});
+      ${({ columnsWidth }) =>
+          (columnsWidth || []).map((column, index) => {
+            return css`
+              &:nth-child(${index + 1}) {
+                width: calc(${column}%);
+              }
+            `
+          })}
     }
   }
 
@@ -94,12 +108,17 @@ const Table = ({ headers, data, buildRow }) => {
 
   const dataSorted = sort_(data, sort.field, sort.direction);
 
+  const totalRemanent = 100 - (headers || []).map(header => (header.width ? header.width : 0)).reduce((a, b) => a + b, 0)
+  const countRemanent = (headers || []).length - (headers || []).map(header => (header.width ? 1 : 0)).reduce((a, b) => a + b, 0)
+  const columnsWidth = (headers || []).map(header => header.width ? header.width : totalRemanent / countRemanent)
+
   return (
     <TableWrapper
       ref={(ref) => refState(ref)}
       top={ref?.getBoundingClientRect()?.top}
+      
     >
-      <TableStyle columns={headers.length}>
+      <TableStyle columns={headers.length} columnsWidth={columnsWidth}>
         <thead>
           <tr>
             {(headers || []).map((header) => (
