@@ -28,6 +28,8 @@ services:
     # command: ["python3", "-u", "main_test.py"]
     # Production
     command: ["python3", "-u", "main.py"]
+    ports:
+      - 8000:8000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s

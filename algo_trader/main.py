@@ -10,6 +10,13 @@ from common.notifications.telegram.telegram_notifications_service import notify_
 import time
 import sentry_sdk
 import os
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
 env = os.getenv('ENV')
 if env != "development": 
@@ -47,13 +54,6 @@ def main():
     exchange = BinanceExchange()
 
     print(f"Initial Balance: {exchange.get_balance()}")
-
-    # if initial balance is none, we set exchange balance as initial balance
-    initial_balance = strategy["initial_balance"]
-    if initial_balance is None:
-        api.put(f'api/strategy/{id}/initial_balance', json={
-            "initial_balance": str(exchange.get_balance())
-        })
 
     api.put(f'api/strategy/{id}/balance', json={
         "current_balance": str(exchange.get_balance())
@@ -96,7 +96,19 @@ def main():
 
     while True:
         response = api.get('api/strategy/running')
-        if response.status_code != 200:
+        if response.status_code == 200:
+            strategy = response.json()
+
+            id = strategy["id"]
+            # if initial balance is none, we set exchange balance as initial balance
+            # to-do: improve this, 2 approachs:
+            # 1. algo api should set initial balance doing a request to binance
+            # 2. algo trader should set initial balance listening a event from rabbitmq 
+            if strategy["initial_balance"] is None:
+                api.put(f'api/strategy/{id}/initial_balance', json={
+                    "initial_balance": str(exchange.get_balance())
+                })
+        else:
             print("[main] zero running strategies")
 
             response = api.delete('api/trade/current')
