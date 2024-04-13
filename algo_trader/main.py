@@ -96,19 +96,7 @@ def main():
 
     while True:
         response = api.get('api/strategy/running')
-        if response.status_code == 200:
-            strategy = response.json()
-
-            id = strategy["id"]
-            # if initial balance is none, we set exchange balance as initial balance
-            # to-do: improve this, 2 approachs:
-            # 1. algo api should set initial balance doing a request to binance
-            # 2. algo trader should set initial balance listening a event from rabbitmq 
-            if strategy["initial_balance"] is None:
-                api.put(f'api/strategy/{id}/initial_balance', json={
-                    "initial_balance": str(exchange.get_balance())
-                })
-        else:
+        if response.status_code != 200:
             print("[main] zero running strategies")
 
             response = api.delete('api/trade/current')
