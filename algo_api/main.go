@@ -1,6 +1,7 @@
 package main
 
 import (
+	"algo_api/internal/binanceservice"
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/telegramservice"
 	"algo_api/internal/tradeservice"
@@ -585,6 +586,26 @@ func GetTelegramChats(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetBinanceBalance(w http.ResponseWriter, r *http.Request) {
+	balance, err := binanceservice.GetInstance().GetBalance()
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	bytes, err := json.Marshal(balance)
+	if err != nil {
+		logrus.Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
@@ -607,6 +628,8 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
+
+	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 }
 
 func main() {

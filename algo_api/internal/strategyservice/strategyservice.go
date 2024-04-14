@@ -1,6 +1,7 @@
 package strategyservice
 
 import (
+	"algo_api/internal/binanceservice"
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
 	"algo_api/internal/utils"
@@ -25,11 +26,13 @@ func GetInstance() IService {
 
 type StrategyService struct {
 	databaseservice databaseservice.IService
+	binanceservice  binanceservice.IService
 }
 
 func NewService() IService {
 	return &StrategyService{
 		databaseservice: databaseservice.GetInstance(),
+		binanceservice:  binanceservice.GetInstance(),
 	}
 }
 
@@ -254,6 +257,13 @@ func (s *StrategyService) Start(id string) error {
 	}
 	strategy.State = database.StrategyStateRunning
 	strategy.EndTimestamp = time.Now().Unix()
+
+	balance, err := s.binanceservice.GetBalance()
+	if err != nil {
+		return err
+	}
+	strategy.InitialBalance = balance
+	strategy.CurrentBalance = balance
 
 	m, err := utils.StructToMap(*strategy)
 	if err != nil {

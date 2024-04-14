@@ -3,6 +3,8 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
+	"strings"
 )
 
 func StructToMap(value interface{}) (map[string]interface{}, error) {
@@ -30,4 +32,9 @@ func ToPrettyPrint(m interface{}) string {
 		return string(b)
 	}
 	return ""
+}
+
+func String2float(number string) float64 {
+	float, _ := strconv.ParseFloat(strings.TrimSpace(number), 64)
+	return float
 }

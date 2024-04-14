@@ -17,7 +17,7 @@ services:
     build:
       context: ./algo_trader
     env_file:
-      - ./algo_trader/.env
+      - .env
     working_dir: /app
     volumes:
       - ./algo_trader:/app
@@ -46,10 +46,8 @@ services:
   algo_api:
     container_name: api
     build: ./algo_api
-    environment:
-      - COUCHDB_USER=admin
-      - COUCHDB_PASSWORD=hU6GB8mupEtzgvXjrZQHKF
-      - ENV=development
+    env_file:
+      - .env
     volumes:
       - ./algo_api:/go/src/app
     working_dir: /go/src/app
