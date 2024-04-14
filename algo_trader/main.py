@@ -48,17 +48,6 @@ def main():
 
     print(f"Initial Balance: {exchange.get_balance()}")
 
-    # if initial balance is none, we set exchange balance as initial balance
-    initial_balance = strategy["initial_balance"]
-    if initial_balance is None:
-        api.put(f'api/strategy/{id}/initial_balance', json={
-            "initial_balance": str(exchange.get_balance())
-        })
-
-    api.put(f'api/strategy/{id}/balance', json={
-        "current_balance": str(exchange.get_balance())
-    })
-
     strategy = hydrate_strategy(type, currencies, indicators)
 
     n_train = 200
