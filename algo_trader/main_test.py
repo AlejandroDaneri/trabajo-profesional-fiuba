@@ -37,7 +37,7 @@ def main():
         "current_balance": str(exchange.get_balance())
     })
 
-    strategy = hydrate_strategy(type, currencies, indicators)
+    strategy = hydrate_strategy(type, currencies, indicators, timeframe)
     
     data = {}
     train_data = {}

@@ -309,6 +309,41 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetStrategyIsRunning(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+	strategy, err := strategyservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not get strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	isRunning := strategy.State == "running"
+	bytes, err := json.Marshal(isRunning)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
 func GetStrategy(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -616,6 +651,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
+	router.HandleFunc("/strategy/{id}/is_running", GetStrategyIsRunning).Methods("GET")
 	router.HandleFunc("/strategy/{id}/initial_balance", SetStrategyInitialBalance).Methods("PUT")
 	router.HandleFunc("/strategy/{id}/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/{id}/start", StartStrategy).Methods("PUT")
