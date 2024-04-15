@@ -89,5 +89,5 @@ class LSTM(Strategy):
             signal = Action.BUY
         else:
             signal = Action.HOLD
-        print("signal", signal)
+        print(f'[Strategy | LSTM] Signal: {signal}')
         return signal
