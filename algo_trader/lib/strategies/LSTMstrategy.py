@@ -14,21 +14,22 @@ from tensorflow import keras
 import time
 class LSTM(Strategy):
     def __init__(self, indicators: List[Indicator]=[]):
-        print(tf.__version__)
         self.name = "LSTM"
 
         self.model = keras.models.load_model("lstm_model_dnn")  # TODO: change hardcoded src
-
-        super().__init__(indicators)
+        print(self.model)
+        super().__init__([])
 
     
     def prepare_data(self, historical_data: pd.DataFrame):
+        print("LSTM| begin prepare")
         self.data = historical_data[["Open", "High", "Low", "Close","Volume"]].copy()
         self.data["High"] = self.data["High"].apply(lambda x: float(x))
         self.data["Low"] = self.data["Low"].apply(lambda x: float(x))
         self.data["Close"] = self.data["Close"].apply(lambda x: float(x))
         self.data["Volume"] = self.data["Volume"].apply(lambda x: float(x))
         self.data["Open"] = self.data["Open"].apply(lambda x: float(x))
+        print("LSTM| end prepare")
 
     def _reshape(self, data, time_steps):
         saved_params = pd.read_csv('scaling_params.csv')
@@ -52,16 +53,17 @@ class LSTM(Strategy):
         new_record["Low"] = new_record['Low'].apply(lambda x: float(x))
         new_record["Open"] = new_record['Open'].apply(lambda x: float(x))
         new_record["Volume"] = new_record['Volume'].apply(lambda x: float(x))
-
+        print("LSTM| Prediction")
         self.data = pd.concat([self.data, new_record])
 
         time_periods = [6, 8, 10, 12, 14, 16, 18, 22, 26, 33, 44, 55]
         name_periods = [6, 8, 10, 12, 14, 16, 18, 22, 26, 33, 44, 55]
 
         data = {}
-        df = new_record.copy()
         data['r'] = np.log(self.data['Close'] / self.data["Close"].shift(1))
         for period in time_periods:
+            print("LSTM| period: ",period)
+
             for nperiod in name_periods:
                 data[f'ATR_{nperiod}'] = ta.ATR(self.data['High'], self.data['Low'], self.data['Close'], timeperiod=period)
                 data[f'EMA_{nperiod}'] = ta.EMA(self.data['Close'], timeperiod=period)
