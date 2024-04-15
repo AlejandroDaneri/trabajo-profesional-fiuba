@@ -1,5 +1,6 @@
 from lib.indicators import *
 from lib.strategies.RLstrategy import RL
+from lib.strategies.LSTMstrategy import LSTM
 from lib.strategies.basic import Basic
 
 def hydrate_strategy(type, currencies, indicators):
@@ -24,5 +25,7 @@ def hydrate_strategy(type, currencies, indicators):
             strategy[currency] = Basic(indicators_builded)
         elif type == "rl":
             strategy[currency] = RL(indicators_builded)
+        elif type == "lstm":
+            strategy[currency] = LSTM(indicators_builded)
 
     return strategy
