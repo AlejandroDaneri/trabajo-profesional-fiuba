@@ -1,151 +1,29 @@
 print("Trabajo Profesional | Algo Trading | Trader")
 
-from lib.trade import Trade
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance as BinanceProvider
 from lib.exchanges.binance import Binance as BinanceExchange
-from utils import hydrate_strategy
 from api_client import ApiClient
-from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
-import time
-import sentry_sdk
-import os
 
-env = os.getenv('ENV')
-if env != "development": 
-    sentry_sdk.init(
-        dsn="https://99aef705bb2355581d11e36d65ffa585@o4506996875919360.ingest.us.sentry.io/4506996882341888",
-        # Set traces_sample_rate to 1.0 to capture 100%
-        # of transactions for performance monitoring.
-        traces_sample_rate=1.0,
-        # Set profiles_sample_rate to 1.0 to profile 100%
-        # of sampled transactions.
-        # We recommend adjusting this value in production.
-        profiles_sample_rate=1.0,
-    )
+from main_utils import init_sentry, get_current_strategy, inject_new_tick_to_trade_bot
 
-api = ApiClient()
+init_sentry()
 
 def main():
-    strategy = None
-    while strategy is None:
-        response = api.get('api/strategy/running')
-        if response.status_code == 200:
-            strategy = response.json()
-        else:
-            print("[main] zero running strategies")
-            time.sleep(60)
-    print(strategy)
-
-    id = strategy["id"]
-    indicators = strategy["indicators"]
-    currencies = strategy["currencies"]
-    timeframe = strategy["timeframe"]
-    type = strategy["type"]
-
-    provider = BinanceProvider()
+    data_provider = BinanceProvider()
     exchange = BinanceExchange()
+    api = ApiClient()
 
-    print(f"Initial Balance: {exchange.get_balance()}")
-
-    strategy = hydrate_strategy(type, currencies, indicators)
-
-    n_train = 200
-
-    data = {}
-    train_data = {}
-    for currency in currencies:
-        data[currency] = provider.get(currency, timeframe, n=n_train)
-        train_data[currency] = data[currency].iloc[0:n_train]
-        strategy[currency].prepare_data(train_data[currency])
-
+    strategy = get_current_strategy(data_provider, api)
     trade_bot = TradeBot(strategy, exchange)
-    
-    response = api.get('api/trade/current')
-    if response.status_code == 200:
-        current_trade = response.json()
-        print(current_trade)
-        if current_trade is not None:
-            print("restoring opened trade")
-            print(current_trade)
-            amount = current_trade["amount"]
-            symbol = current_trade["pair"]
-            price = current_trade["orders"]["buy"]["price"]
-            timestamp = current_trade["orders"]["buy"]["timestamp"]
-            trade_bot.set_current_trade(Trade(
-                amount,
-                symbol,
-                price,
-                timestamp
-            ))
-    else:
-        # since there is not a existing trade
-        # balance on the exchange should be USDT
-        exchange.convert_all_to_usdt()
 
     while True:
-        response = api.get('api/strategy/running')
-        if response.status_code != 200:
-            print("[main] zero running strategies")
-
-            response = api.delete('api/trade/current')
-            # close open trade
-            if response == 200:
-                # to-do close open trade
-                print("[main] closing trade open")
-            
-            time.sleep(60)
-            continue
-
-        for currency in currencies:
-            data = provider.get(currency, timeframe, n=1)
-            print(f'Get: {currency} {data.index[0]}')
-            trade = trade_bot.run_strategy(currency, data)
-            if trade is not None:
-                # trade closed: means buy and sell executed
-                if trade.is_closed():
-
-                    # save closed trade
-                    data = {
-                        "pair": trade.symbol,
-                        "amount": str(trade.amount),
-                        "buy": {
-                            "price": str(trade.buy_order.price),
-                            "timestamp": int(trade.buy_order.timestamp)
-                        },
-                        "sell": {
-                            "price": str(trade.sell_order.price),
-                            "timestamp": int(trade.sell_order.timestamp)
-                        }
-                    }
-                    response = api.post('api/trade', json=data)
-
-                    # remove tmp current trade
-                    api.delete('api/trade/current')
-
-                    notify_telegram_users(data)
-                    response = api.post('api/trade/current', json=data)
-                    
-                    # update balance to strategy doc in the db
-                    current_balance = trade_bot.get_balance()
-                    print(f"Current balance: {current_balance}")
-                    api.put(f'api/strategy/{id}/balance', json={
-                        "current_balance": str(current_balance)
-                    })
-                else:
-                    # trade current: buy executed but not sell yet
-                    data = {
-                        "pair": trade.symbol,
-                        "amount": str(trade.amount),
-                        "buy": {
-                            "price": str(trade.buy_order.price),
-                            "timestamp": int(trade.buy_order.timestamp)
-                        }
-                    }
-                    response = api.post('api/trade/current', json=data)
-                    
-        print("\n")
-        time.sleep(60)
-
+        is_running = api.get(f'api/strategy/{list(strategy.values())[0].get_id()}/is_running')
+        if (is_running):     
+            inject_new_tick_to_trade_bot(strategy, trade_bot, data_provider, api)
+        else:
+            strategy = get_current_strategy(data_provider, api)
+            trade_bot = TradeBot(strategy, exchange)
+     
 if __name__ == "__main__":
     main()

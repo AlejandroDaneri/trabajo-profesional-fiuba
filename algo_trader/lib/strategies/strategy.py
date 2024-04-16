@@ -3,10 +3,11 @@ from typing import List
 from lib.actions import Action
 from lib.indicators.indicator import Indicator
 
-
 class Strategy:
-    def __init__(self, indicators: List[Indicator]):
+    def __init__(self, indicators: List[Indicator], timeframe: str, id: str):
         self.indicators = indicators
+        self.timeframe = timeframe
+        self.id = id
         self.investment_ratio = 1
 
     ## consumes all historical data and prepare strategy for predictions
@@ -18,3 +19,9 @@ class Strategy:
     @abstractmethod
     def predict(self, new_record) -> Action:
         pass
+    
+    def get_timeframe(self) -> str:
+        return self.timeframe
+    
+    def get_id(self) -> str:
+        return self.id
