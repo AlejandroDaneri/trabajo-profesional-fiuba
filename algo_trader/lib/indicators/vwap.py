@@ -12,11 +12,12 @@ class VWAP(Indicator):
     def calculate(self, data):
         self.data = data
         df = pd.DataFrame(index=data.index)
+        df["Close"] = data["Close"]
         df["TypicalPrice"] = (data["High"] + data["Low"] + data["Close"]) / 3
         df["CumulativeTypicalPrice"] = (df["TypicalPrice"] * data["Volume"]).cumsum()
         df["CumulativeVolume"] = data["Volume"].cumsum()
         df["VWAP"] = df["CumulativeTypicalPrice"] / df["CumulativeVolume"]
-        self.df_output = df.dropna()
+        self.df_output = df.fillna(0)
         return self.df_output
 
     def calc_buy_signals(self):
