@@ -5,27 +5,29 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class KC(Indicator):
-    def __init__(self, periods, atr_length, atr_ma):
+    def __init__(self, periods, atr_length, atr_ma, factor):
         self.periods = periods
         self.atr_length = atr_length
         self.atr_ma = atr_ma
+        self.factor = factor
         super().__init__("KC")
 
     def calculate(self, data):
         self.data = data
         df = pd.DataFrame(index=data.index)
+        df["Close"] = data["Close"]
         df["ATR"] = data["High"] - data["Low"]
         df["MA_ATR"] = df["ATR"].rolling(self.atr_length).mean()
         df["UpperBand"] = data["Close"].rolling(self.periods).mean() + self.atr_ma * df["MA_ATR"]
         df["LowerBand"] = data["Close"].rolling(self.periods).mean() - self.atr_ma * df["MA_ATR"]
-        self.df_output = df.dropna()
+        self.df_output = df.fillna(0)
         return self.df_output
 
     def calc_buy_signals(self):
-        return self.data["Close"] < self.df_output["LowerBand"]
+        return (self.df_output["Close"] < self.df_output["LowerBand"]*(1 + self.factor)) & (self.df_output["Close"] > self.df_output["LowerBand"])
 
     def calc_sell_signals(self):
-        return self.data["Close"] > self.df_output["UpperBand"]
+        return (self.df_output["Close"] > self.df_output["UpperBand"]*(1 - self.factor)) & (self.df_output["Close"] < self.df_output["UpperBand"])
 
     def plot(self):
         plt.figure(figsize=(12, 6))

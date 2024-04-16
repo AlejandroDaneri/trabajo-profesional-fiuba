@@ -16,7 +16,7 @@ class EWO(Indicator):
         ema_short = data["Close"].ewm(span=self.short_period, adjust=False).mean()
         ema_long = data["Close"].ewm(span=self.long_period, adjust=False).mean()
         df["EWO"] = ema_short - ema_long
-        self.df_output = df.dropna()
+        self.df_output = df.fillna(0)
         return self.df_output
 
     def calc_buy_signals(self):

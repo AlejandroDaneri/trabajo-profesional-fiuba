@@ -13,7 +13,7 @@ class ROC(Indicator):
         self.data = data
         df = pd.DataFrame(index=data.index)
         df["ROC"] = (data["Close"] - data["Close"].shift(self.periods)) / data["Close"].shift(self.periods)
-        self.df_output = df.dropna()
+        self.df_output = df.fillna(0)
         return self.df_output
 
     def calc_buy_signals(self, threshold=0):
