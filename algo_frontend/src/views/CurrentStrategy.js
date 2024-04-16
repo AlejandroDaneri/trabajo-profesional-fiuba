@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import { useEffect, useState } from "react";
+import moment from 'moment'
 
 import CurrencyLogo from "../components/CurrencyLogo";
 import { CurrentStrategyStyle } from "../styles/CurrentStrategy";
@@ -84,16 +85,10 @@ const CurrentStrategy = () => {
 
   const getStrategy = () => {
     const transformToView = (data) => {
-      const transformDuration = (start) => {
-        const currentTime = Math.floor(Date.now() / 1000);
-
-        const durationInSeconds = currentTime - start;
-
-        const days = Math.floor(durationInSeconds / (3600 * 24));
-        const hours = Math.floor((durationInSeconds % (3600 * 24)) / 3600);
-
-        return `${days} days, ${hours} hours`;
-      };
+      const getDuration = (start) => {
+        const end = Date.now() / 1000
+        return moment.utc((end - start) * 1000).format('HH:mm:ss')
+      }
 
       const transformTimeframe = (timeframe) => {
         switch (timeframe) {
@@ -113,7 +108,7 @@ const CurrentStrategy = () => {
         (currentBalance / initialBalance - 1) *
         100
       ).toFixed(2);
-      const duration = transformDuration(data.start_timestamp);
+      const duration = getDuration(data.start_timestamp);
       const timeframe = transformTimeframe(data.timeframe);
 
       return {

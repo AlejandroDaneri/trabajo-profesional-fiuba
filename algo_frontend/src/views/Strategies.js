@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import BounceLoader from "react-spinners/BounceLoader"
+import moment from 'moment'
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
@@ -51,9 +52,14 @@ const Strategies = () => {
   })
 
   const transformToView = (data) => {
+    const getDuration = (start, end) => {
+      const end_ = end || (Date.now() / 1000)
+      return moment.utc((end_ - start) * 1000).format('HH:mm:ss')
+    }
     return data.map((strategy) => ({
       ...strategy,
       state_label: capitalize(strategy.state),
+      duration: getDuration(strategy.start_timestamp - strategy.end_timestamp)
     }))
   }
 
@@ -99,9 +105,14 @@ const Strategies = () => {
       width: 10,
     },
     {
+      value: "duration",
+      label: "Duration",
+      width: 10,
+    },
+    {
       value: "indicators",
       label: "Indicators",
-      width: 20,
+      width: 10,
     },
     {
       value: "currencies",
@@ -209,6 +220,7 @@ const Strategies = () => {
       row.initial_balance,
       row.current_balance,
       row.timeframe,
+      row.duration,
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (
