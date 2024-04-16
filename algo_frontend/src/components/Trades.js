@@ -114,7 +114,7 @@ const Trades = ({ strategyID }) => {
       row.amount,
       row.buy_timestamp_label,
       row.sell_timestamp_label,
-      row.duration,
+      row.duration.toFixed(4),
       row.buy_price,
       row.sell_price,
       <ResultStyle win={row.pl > 0}>{row.pl} </ResultStyle>,

@@ -18,6 +18,8 @@ def main():
     trade_bot = TradeBot(strategy, exchange)
 
     while True:
+        strategy_id = list(strategy.values())[0].get_id()
+        print(f"[main] running strategy id {strategy_id}")
         is_running = api.get(f'api/strategy/{list(strategy.values())[0].get_id()}/is_running')
         if (is_running):     
             inject_new_tick_to_trade_bot(strategy, trade_bot, data_provider, api)
