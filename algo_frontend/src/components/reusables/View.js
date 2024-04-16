@@ -28,6 +28,10 @@ const ViewStyle = styled.div`
       height: 30px;
       margin-right: 20px;
 
+      & p {
+        margin-left: 5px;
+      }
+
       &:hover {
         background: white;
         color: #282c34;
@@ -56,7 +60,7 @@ const View = ({ title, content, buttons }) => {
         {buttons?.map((button) => (
           <div className="header-button" onClick={button.onClick}>
             {button.icon}
-            {button.label}
+            <p>{button.label}</p>
           </div>
         ))}
       </div>
