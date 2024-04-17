@@ -1,14 +1,13 @@
-/* Import Libs */
-import { useState } from "react"
-import styled from "styled-components"
-
+import Button from "../components/Button";
+import { Checkbox } from "@material-ui/core";
 /* Import Components */
-import CurrencyLogo from "../components/CurrencyLogo"
-
+import CurrencyLogo from "../components/CurrencyLogo";
 /* Import Reusables Components */
-import FieldSelect from "../components/reusables/FieldSelect"
-import Button from "../components/Button"
-import { add } from "../webapi/strategy"
+import FieldSelect from "../components/reusables/FieldSelect";
+import { add } from "../webapi/strategy";
+import styled from "styled-components";
+/* Import Libs */
+import { useState } from "react";
 
 const StrategyStyle = styled.div`
   display: flex;
@@ -24,7 +23,7 @@ const StrategyStyle = styled.div`
       margin-right: 10px;
     }
   }
-`
+`;
 
 const OptionStyle = styled.div`
   display: flex;
@@ -37,7 +36,7 @@ const OptionStyle = styled.div`
     width: 20px;
     height: 20px;
   }
-`
+`;
 
 const Currency = ({ currency }) => {
   return (
@@ -45,11 +44,11 @@ const Currency = ({ currency }) => {
       <p>{currency}</p>
       <CurrencyLogo currency={currency} />
     </OptionStyle>
-  )
-}
+  );
+};
 
-const CURRENCIES = ["BTC", "ETH", "SOL"]
-const INDICATORS = ["EMA", "RSI", "MACD"]
+const CURRENCIES = ["BTC", "ETH", "SOL"];
+const INDICATORS = ["EMA", "RSI", "MACD"];
 const TIMEFRAMES = [
   { value: "1M", label: "1 minute" },
   { value: "5M", label: "5 minutes" },
@@ -58,13 +57,13 @@ const TIMEFRAMES = [
   { value: "1H", label: "1 hour" },
   { value: "4H", label: "4 hour" },
   { value: "1D", label: "1 day" },
-]
+];
 
 const Strategy = ({ onCloseModal, onAdd }) => {
   const [strategy, strategyFunc] = useState({
     loading: false,
     data: {},
-  })
+  });
 
   const onChange = (key, value) => {
     strategyFunc((prevState) => ({
@@ -73,23 +72,23 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         ...prevState.data,
         [key]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const transformToSend = (data) => {
     const createParameters = (indicator) => {
       // to-do: able to set this parameters in the ui
       switch (indicator) {
         case "RSI":
-          return { buy_threshold: 30, rounds: 14, sell_threshold: 71 }
+          return { buy_threshold: 30, rounds: 14, sell_threshold: 71 };
         case "MACD":
-          return { slow: 26, fast: 12, smoothed: 20 }
+          return { slow: 26, fast: 12, smoothed: 20 };
         case "EMA":
-          return { rounds: 100 }
+          return { rounds: 100 };
         default:
-          return {}
+          return {};
       }
-    }
+    };
 
     return {
       currencies: strategy.data.currencies.map((row) => row.value),
@@ -97,34 +96,34 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         return {
           name: row.value,
           parameters: createParameters(row.value),
-        }
+        };
       }),
       timeframe: strategy.data.timeframe.value,
-    }
-  }
+    };
+  };
 
   const onSave = () => {
     strategyFunc((prevState) => ({
       ...prevState,
       loading: true,
-    }))
+    }));
 
     add(transformToSend(strategy.data))
       .then((_) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
-        }))
-        onCloseModal()
-        onAdd()
+        }));
+        onCloseModal();
+        onAdd();
       })
       .catch((_) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
-        }))
-      })
-  }
+        }));
+      });
+  };
 
   return (
     <StrategyStyle>
@@ -139,17 +138,31 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         }))}
         multiple
       />
-      <FieldSelect
-        name="indicators"
-        label="Indicators"
-        value={strategy.indicators}
-        onChange={onChange}
-        options={INDICATORS.map((indicator) => ({
-          value: indicator,
-          label: indicator,
-        }))}
-        multiple
-      />
+      <div
+        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+      >
+        <p style={{ marginRight: "10px" }}>Indicators:</p>
+        {INDICATORS.map((indicator) => (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginRight: "20px",
+            }}
+            key={indicator}
+          >
+            <Checkbox
+              color="success"
+              style={{
+                color: "#FFFFFF",
+              }}
+            />
+            <label style={{ color: "white", marginLeft: "5px" }}>
+              {indicator}
+            </label>
+          </div>
+        ))}
+      </div>
       <FieldSelect
         name="timeframe"
         label="Timeframe"
@@ -164,7 +177,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         <Button text="Save" onClick={onSave} loading={strategy.loading} />
       </div>
     </StrategyStyle>
-  )
-}
+  );
+};
 
-export default Strategy
+export default Strategy;

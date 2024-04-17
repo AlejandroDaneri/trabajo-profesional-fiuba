@@ -24,6 +24,11 @@
   text-align: center;
 }
 
+.already-have-account-text {
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
 select {
   padding: 12px;
   margin-bottom: 15px;
@@ -67,12 +72,7 @@ form {
   cursor: pointer;
 }
 
-span {
-  color: var(--text-dark);
-  font-size: 14px;
-}
-
-label {
+.register-labels {
   margin-bottom: 8px;
   font-weight: bold;
   color: var(--text-dark);
@@ -92,6 +92,15 @@ input::placeholder {
 .button-container {
   display: flex;
   justify-content: space-between;
+}
+
+.create-account-heading {
+  text-align: center;
+  color: var(--primary-blue);
+  font-size: 36px;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 4px rgba(var(--primary-blue-rgb), 0.3);
+  animation: titleAnimation 0.8s ease;
 }
 
 .register-button {
