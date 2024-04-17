@@ -29,9 +29,12 @@ import { capitalize } from "../utils/string"
 /* Import WebApi */
 import { get } from "../webapi/strategy"
 
+/* Import Images */
+import logoBinance from "../images/logos/exchanges/binance.svg"
+
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
-    loading: true,
+    loading: false,
     data: {
       currencies: [],
     },
@@ -163,6 +166,7 @@ const CurrentStrategy = () => {
 
   useEffect(() => {
     const interval = setInterval(getStrategy, 10000)
+    getStrategy()
 
     return () => {
       clearInterval(interval)
@@ -190,6 +194,12 @@ const CurrentStrategy = () => {
                 <div className="label">Profit/Loss</div>
                 <div className="value">
                   {strategy.data.profit_and_loss_label}
+                </div>
+              </div>
+              <div className="box">
+                <div className="label">Exchange</div>
+                <div className="value">
+                  {strategy.data.exchange === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
                 </div>
               </div>
               <div className="box">

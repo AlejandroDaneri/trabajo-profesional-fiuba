@@ -219,6 +219,7 @@ func (s *StrategyService) Create(strategy map[string]interface{}) (string, error
 	strategy["pvt_type"] = "strategy"
 	strategy["type"] = "basic"
 	strategy["state"] = database.StrategyStateCreated
+	strategy["exchange"] = "binance"
 	id, _, err := db.Save(strategy, nil)
 	if err != nil {
 		return "", err

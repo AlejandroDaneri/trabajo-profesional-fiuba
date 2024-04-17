@@ -32,11 +32,14 @@ import FlotantBox, {
 /* Import Views */
 import Strategy from "./Strategy"
 
+/* Import Images */
+import logoBinance from "../images/logos/exchanges/binance.svg"
+
 const Strategies = () => {
   const dispatch = useDispatch()
 
   const [state, stateFunc] = useState({
-    loading: true,
+    loading: false,
     data: [],
   })
 
@@ -63,7 +66,11 @@ const Strategies = () => {
     }))
   }
 
-  const list_ = () => {
+  const getStrategies = () => {
+    stateFunc(prevState => ({
+      ...prevState,
+      loading: true,
+    }))
     list()
       .then((response) => {
         stateFunc({
@@ -79,7 +86,8 @@ const Strategies = () => {
   }
 
   useEffect(() => {
-    const interval = setInterval(list_, 1000)
+    const interval = setInterval(getStrategies, 10000)
+    getStrategies()
 
     return () => {
       clearInterval(interval)
@@ -114,6 +122,11 @@ const Strategies = () => {
       width: 10,
     },
     {
+      value: "exchange",
+      label: "Exchange",
+      width: 10,
+    },
+    {
       value: "indicators",
       label: "Indicators",
       width: 10,
@@ -121,7 +134,7 @@ const Strategies = () => {
     {
       value: "currencies",
       label: "Currencies",
-      width: 20,
+      width: 10,
     },
     {
       value: "actions",
@@ -140,7 +153,7 @@ const Strategies = () => {
             message: "Strategy remove Success",
           },
         })
-        list_()
+        getStrategies()
       })
       .catch((_) => {
         dispatch({
@@ -163,7 +176,7 @@ const Strategies = () => {
             message: "Strategy start Success",
           },
         })
-        list_()
+        getStrategies()
       })
       .catch((_) => {
         dispatch({
@@ -186,7 +199,7 @@ const Strategies = () => {
             message: "Strategy Stop Success",
           },
         })
-        list_()
+        getStrategies()
       })
       .catch((_) => {
         dispatch({
@@ -225,6 +238,7 @@ const Strategies = () => {
       row.current_balance,
       row.timeframe,
       row.duration,
+      row.exchange === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />,
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (
@@ -309,7 +323,7 @@ const Strategies = () => {
   }
 
   const onAdd = () => {
-    list_()
+    getStrategies()
   }
 
   return (
