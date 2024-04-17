@@ -36,7 +36,7 @@ const Strategies = () => {
   const dispatch = useDispatch()
 
   const [state, stateFunc] = useState({
-    loading: false,
+    loading: true,
     data: [],
   })
 
@@ -79,7 +79,11 @@ const Strategies = () => {
   }
 
   useEffect(() => {
-    list_()
+    const interval = setInterval(list_, 1000)
+
+    return () => {
+      clearInterval(interval)
+    }
   }, []) // eslint-disable-line
 
   const headers = [
@@ -325,6 +329,7 @@ const Strategies = () => {
       />
       <View
         title="Strategies"
+        loading={state.loading}
         buttons={[
           {
             icon: <i className="material-icons">add_circle</i>,
