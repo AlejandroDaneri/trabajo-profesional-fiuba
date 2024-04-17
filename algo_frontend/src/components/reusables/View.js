@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import BounceLoader from "react-spinners/BounceLoader"
 
 const ViewStyle = styled.div`
   display: flex;
@@ -18,6 +19,15 @@ const ViewStyle = styled.div`
     border-top: 2px solid white;
     border-bottom: 2px solid white;
     background: #2d2d2d;
+
+    & h1 {
+      display: flex;
+      align-items: center;
+
+      & .loader {
+        margin-left: 10px;
+      }
+    }
 
     & .header-button {
       display: flex;
@@ -52,11 +62,11 @@ const ViewStyle = styled.div`
   }
 `
 
-const View = ({ title, content, buttons }) => {
+const View = ({ title, content, buttons, loading }) => {
   return (
     <ViewStyle>
       <div className="header">
-        <h1>{title}</h1>
+        <h1>{title} {loading && <div className="loader"><BounceLoader color="white" size={32} /></div>}</h1>
         {buttons?.map((button) => (
           <div className="header-button" onClick={button.onClick}>
             {button.icon}
