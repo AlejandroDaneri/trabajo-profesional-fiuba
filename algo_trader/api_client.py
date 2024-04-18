@@ -2,7 +2,7 @@ import requests
 
 class ApiClient:
     def __init__(self):
-        self.base_url = "http://algo_api:8080"
+        self.base_url = "http://algo_api:8080/api"
 
     def get_full_url(self, path):
         return f"{self.base_url}/{path}"

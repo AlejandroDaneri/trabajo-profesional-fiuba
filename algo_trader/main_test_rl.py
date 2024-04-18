@@ -7,9 +7,9 @@ from api_client import ApiClient
 api = ApiClient()
 
 def main():
-    api.delete('api/trade')
+    api.delete('trade')
 
-    response = api.get('api/strategy/running')
+    response = api.get('strategy/running')
     strategy = response.json()
     print(strategy)
 
@@ -25,11 +25,11 @@ def main():
     exchange.convert_all_to_usdt()
     print("Balance: ", exchange.get_balance())
 
-    api.put(f'api/strategy/{id}/initial_balance', json={
+    api.put(f'strategy/{id}/initial_balance', json={
         "initial_balance": str(exchange.get_balance())
     })
 
-    api.put(f'api/strategy/{id}/balance', json={
+    api.put(f'strategy/{id}/balance', json={
         "current_balance": str(exchange.get_balance())
     })
 
@@ -70,10 +70,10 @@ def main():
                             "timestamp": int(trade.sell_order.timestamp)
                         }
                     }
-                    response = api.post('api/trade', json=data)
+                    response = api.post('trade', json=data)
 
                     current_balance = trade_bot.get_balance()
-                    api.put(f'api/strategy/{id}/balance', json={
+                    api.put(f'strategy/{id}/balance', json={
                         "current_balance": str(current_balance)
                     })
 

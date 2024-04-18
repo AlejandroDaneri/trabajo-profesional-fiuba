@@ -19,7 +19,7 @@ def main():
 
     while True:
         strategy_id = list(strategy.values())[0].get_id()
-        response = api.get(f'api/strategy/{strategy_id}/is_running')
+        response = api.get(f'strategy/{strategy_id}/is_running')
         is_running = response.json()
         print(f"[main] strategy id: {strategy_id}, running: {is_running}")
         if is_running:
