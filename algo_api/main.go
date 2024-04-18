@@ -641,6 +641,57 @@ func GetBinanceBalance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetChartDataBuyAndHold(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		Symbol    string `json:"symbol"`
+		Start     int    `json:"start"`
+		End       int    `json:"end"`
+		Timeframe string `json:"timeframe"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	logrus.Infof("%+v", body)
+
+	symbol := body.Symbol
+	start := body.Start
+	end := body.End
+	timeframe := body.Timeframe
+
+	candlesticks, err := binanceservice.GetInstance().GetChartData(symbol, start, end, timeframe)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"symbol":    symbol,
+			"start":     start,
+			"end":       end,
+			"timeframe": timeframe,
+		}).Error("Could not get chart data")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	bytes, err := json.Marshal(candlesticks)
+	if err != nil {
+		logrus.Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
@@ -666,6 +717,8 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
+
+	router.HandleFunc("/chart_data/buy_and_hold", GetChartDataBuyAndHold).Methods("GET")
 }
 
 func main() {
