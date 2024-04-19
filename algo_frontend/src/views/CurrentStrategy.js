@@ -31,6 +31,7 @@ import { get } from "../webapi/strategy"
 
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
+import { getBuyAndHold } from "../webapi/candleticks"
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
@@ -38,6 +39,11 @@ const CurrentStrategy = () => {
     data: {
       currencies: [],
     },
+  })
+
+  const [chartData, chartDataFunc] = useState({
+    loading: false,
+    data: []
   })
 
   //Here we should fetch the actual information from the database.
@@ -87,7 +93,7 @@ const CurrentStrategy = () => {
       })
     }
 
-    return tradingData;
+    return tradingData
   }
 
   const tradingChartData = generateTradingData()
@@ -105,6 +111,8 @@ const CurrentStrategy = () => {
         switch (timeframe) {
           case "1M":
             return "1 minute"
+          case "5M":
+            return "5 minute"
           case "1H":
             return "1 hour"
           default:
@@ -120,7 +128,6 @@ const CurrentStrategy = () => {
         100
       ).toFixed(2)
       const duration = getDuration(data.start_timestamp)
-      const timeframe = transformTimeframe(data.timeframe)
 
       return {
         ...data,
@@ -145,7 +152,7 @@ const CurrentStrategy = () => {
           })),
         })),
         duration,
-        timeframe,
+        timeframe_label: transformTimeframe(data.timeframe),
       }
     }
     strategyFunc((prevState) => ({
@@ -163,6 +170,48 @@ const CurrentStrategy = () => {
       .catch((_) => {
       })
   }
+
+  const getChartData = (symbol, start, end, timeframe) => {
+    const params = {
+      symbol,
+      start,
+      end,
+      timeframe
+    }
+
+    getBuyAndHold(params)
+      .then(response => {
+        chartDataFunc(prevState => ({
+          ...prevState,
+          loading: true,
+          data: (response.data || []).map(candletick => {
+            return {
+              closeTime: new Date(candletick.close_time * 1000),
+              close: candletick.close
+            }
+          })
+        }))
+      })
+      .catch(err => {
+        console.info('err', err)
+      })
+  }
+
+  useEffect(() => {
+    if (strategy.data.currencies[0] && strategy.data.start_timestamp && strategy.data.timeframe) {
+      getChartData(
+        strategy.data.currencies[0],
+        strategy.data.start_timestamp,
+        parseInt(Date.now() / 1000),
+        strategy.data.timeframe.toLowerCase()
+      )
+    }
+  }, [
+    strategy.data.currencies,
+    strategy.data.start_timestamp,
+    strategy.data.end_timestamp,
+    strategy.data.timeframe
+  ])
 
   useEffect(() => {
     const interval = setInterval(getStrategy, 10000)
@@ -218,7 +267,7 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Timeframe</div>
-                <div>{strategy.data.timeframe}</div>
+                <div>{strategy.data.timeframe_label}</div>
               </div>
             </div>
           </div>
@@ -234,7 +283,7 @@ const CurrentStrategy = () => {
                 <LineChart
                   width={500}
                   height={300}
-                  data={tradingChartData}
+                  data={chartData.data}
                   margin={{
                     top: 5,
                     right: 30,
@@ -263,7 +312,7 @@ const CurrentStrategy = () => {
                   <Line
                     type="monotone"
                     name="Buy And Hold"
-                    dataKey="buyAndHold"
+                    dataKey="close"
                     stroke="#82ca9d"
                   />
                 </LineChart>
