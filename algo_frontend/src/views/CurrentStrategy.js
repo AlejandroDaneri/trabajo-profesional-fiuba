@@ -28,10 +28,10 @@ import { capitalize } from "../utils/string"
 
 /* Import WebApi */
 import { get } from "../webapi/strategy"
+import { get as getCandleticks } from "../webapi/candleticks"
 
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
-import { getBuyAndHold } from "../webapi/candleticks"
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
@@ -41,7 +41,7 @@ const CurrentStrategy = () => {
     },
   })
 
-  const [chartData, chartDataFunc] = useState({
+  const [candleticks, candleticksFunc] = useState({
     loading: false,
     data: []
   })
@@ -171,7 +171,7 @@ const CurrentStrategy = () => {
       })
   }
 
-  const getChartData = (symbol, start, end, timeframe) => {
+  const getCandleticks_ = (symbol, start, end, timeframe) => {
     const params = {
       symbol,
       start,
@@ -179,15 +179,17 @@ const CurrentStrategy = () => {
       timeframe
     }
 
-    getBuyAndHold(params)
+    getCandleticks(params)
       .then(response => {
-        chartDataFunc(prevState => ({
+        const amount = strategy.data.initial_balance / response.data[0].close
+
+        candleticksFunc(prevState => ({
           ...prevState,
           loading: true,
           data: (response.data || []).map(candletick => {
             return {
               closeTime: new Date(candletick.close_time * 1000),
-              close: candletick.close
+              close: candletick.close  * amount
             }
           })
         }))
@@ -199,11 +201,11 @@ const CurrentStrategy = () => {
 
   useEffect(() => {
     if (strategy.data.currencies[0] && strategy.data.start_timestamp && strategy.data.timeframe) {
-      getChartData(
+      getCandleticks_(
         strategy.data.currencies[0],
         strategy.data.start_timestamp,
         parseInt(Date.now() / 1000),
-        strategy.data.timeframe.toLowerCase()
+        strategy.data.timeframe.toLowerCase(),
       )
     }
   }, [
@@ -283,7 +285,7 @@ const CurrentStrategy = () => {
                 <LineChart
                   width={500}
                   height={300}
-                  data={chartData.data}
+                  data={candleticks.data}
                   margin={{
                     top: 5,
                     right: 30,

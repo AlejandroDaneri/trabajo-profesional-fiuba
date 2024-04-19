@@ -641,7 +641,7 @@ func GetBinanceBalance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetChartDataBuyAndHold(w http.ResponseWriter, r *http.Request) {
+func GetCandleticks(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
 	symbol := params["symbol"][0]
@@ -649,14 +649,14 @@ func GetChartDataBuyAndHold(w http.ResponseWriter, r *http.Request) {
 	end, _ := strconv.Atoi(params["end"][0])
 	timeframe := params["timeframe"][0]
 
-	candlesticks, err := binanceservice.GetInstance().GetChartData(symbol, start, end, timeframe)
+	candlesticks, err := binanceservice.GetInstance().GetCandleticks(symbol, start, end, timeframe)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"symbol":    symbol,
 			"start":     start,
 			"end":       end,
 			"timeframe": timeframe,
-		}).Error("Could not get chart data")
+		}).Error("Could not get candleticks")
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
@@ -702,7 +702,7 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 
-	router.HandleFunc("/chart_data/buy_and_hold", GetChartDataBuyAndHold).Methods("GET")
+	router.HandleFunc("/candleticks", GetCandleticks).Methods("GET")
 }
 
 func main() {
