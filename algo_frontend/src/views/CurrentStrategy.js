@@ -126,7 +126,6 @@ const CurrentStrategy = () => {
         100
       ).toFixed(2)
       const duration = getDuration(data.start_timestamp)
-      const timeframe = transformTimeframe(data.timeframe)
 
       return {
         ...data,
@@ -151,7 +150,7 @@ const CurrentStrategy = () => {
           })),
         })),
         duration,
-        timeframe,
+        timeframe_label: transformTimeframe(data.timeframe),
       }
     }
     strategyFunc((prevState) => ({
@@ -170,15 +169,12 @@ const CurrentStrategy = () => {
       })
   }
 
-  const getChartData = () => {
-    const end = parseInt(Date.now() / 1000)
-    const start = end - (60 * 60 * 24 * 1)
-
+  const getChartData = (symbol, start, end, timeframe) => {
     const params = {
-      symbol: "BTC",
+      symbol,
       start,
       end,
-      timeframe: "1m"
+      timeframe
     }
 
     getBuyAndHold(params)
@@ -200,8 +196,20 @@ const CurrentStrategy = () => {
   }
 
   useEffect(() => {
-    getChartData()
-  }, [])
+    if (strategy.data.currencies[0] && strategy.data.start_timestamp && strategy.data.timeframe) {
+      getChartData(
+        strategy.data.currencies[0],
+        strategy.data.start_timestamp,
+        parseInt(Date.now() / 1000),
+        strategy.data.timeframe.toLowerCase()
+      )
+    }
+  }, [
+    strategy.data.currencies,
+    strategy.data.start_timestamp,
+    strategy.data.end_timestamp,
+    strategy.data.timeframe
+  ])
 
   useEffect(() => {
     const interval = setInterval(getStrategy, 10000)
@@ -257,7 +265,7 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Timeframe</div>
-                <div>{strategy.data.timeframe}</div>
+                <div>{strategy.data.timeframe_label}</div>
               </div>
             </div>
           </div>
