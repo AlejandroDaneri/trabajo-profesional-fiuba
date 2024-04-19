@@ -46,7 +46,7 @@ func NewService() IService {
 type IService interface {
 	GetPrice(symbol string) (string, error)
 	GetBalance() (string, error)
-	GetChartData(symbol string, start int, end int, timeframe string) ([]Candlestick, error)
+	GetChartData(symbol string, start uint64, end uint64, timeframe string) ([]Candlestick, error)
 }
 
 func (s *BinanceService) GetPrice(symbol string) (string, error) {
@@ -90,7 +90,7 @@ func (s *BinanceService) GetBalance() (string, error) {
 	return fmt.Sprintf("%.2f", balanceTotal), nil
 }
 
-func (s *BinanceService) GetChartData(symbol string, start int, end int, timeframe string) ([]Candlestick, error) {
+func (s *BinanceService) GetChartData(symbol string, start uint64, end uint64, timeframe string) ([]Candlestick, error) {
 	response, err :=
 		s.client.
 			NewUIKlinesService().

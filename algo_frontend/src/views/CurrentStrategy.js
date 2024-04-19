@@ -31,6 +31,7 @@ import { get } from "../webapi/strategy"
 
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
+import { getBuyAndHold } from "../webapi/candleticks"
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
@@ -38,6 +39,11 @@ const CurrentStrategy = () => {
     data: {
       currencies: [],
     },
+  })
+
+  const [chartData, chartDataFunc] = useState({
+    loading: false,
+    data: []
   })
 
   //Here we should fetch the actual information from the database.
@@ -87,7 +93,7 @@ const CurrentStrategy = () => {
       })
     }
 
-    return tradingData;
+    return tradingData
   }
 
   const tradingChartData = generateTradingData()
@@ -164,6 +170,39 @@ const CurrentStrategy = () => {
       })
   }
 
+  const getChartData = () => {
+    const end = parseInt(Date.now() / 1000)
+    const start = end - (60 * 60 * 24 * 1)
+
+    const params = {
+      symbol: "BTC",
+      start,
+      end,
+      timeframe: "1m"
+    }
+
+    getBuyAndHold(params)
+      .then(response => {
+        chartDataFunc(prevState => ({
+          ...prevState,
+          loading: true,
+          data: (response.data || []).map(candletick => {
+            return {
+              closeTime: new Date(candletick.close_time * 1000),
+              close: candletick.close
+            }
+          })
+        }))
+      })
+      .catch(err => {
+        console.info('err', err)
+      })
+  }
+
+  useEffect(() => {
+    getChartData()
+  }, [])
+
   useEffect(() => {
     const interval = setInterval(getStrategy, 10000)
     getStrategy()
@@ -234,7 +273,7 @@ const CurrentStrategy = () => {
                 <LineChart
                   width={500}
                   height={300}
-                  data={tradingChartData}
+                  data={chartData.data}
                   margin={{
                     top: 5,
                     right: 30,
@@ -263,7 +302,7 @@ const CurrentStrategy = () => {
                   <Line
                     type="monotone"
                     name="Buy And Hold"
-                    dataKey="buyAndHold"
+                    dataKey="close"
                     stroke="#82ca9d"
                   />
                 </LineChart>

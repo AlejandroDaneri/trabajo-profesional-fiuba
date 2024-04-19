@@ -642,30 +642,14 @@ func GetBinanceBalance(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetChartDataBuyAndHold(w http.ResponseWriter, r *http.Request) {
-	var body struct {
-		Symbol    string `json:"symbol"`
-		Start     int    `json:"start"`
-		End       int    `json:"end"`
-		Timeframe string `json:"timeframe"`
-	}
+	params := r.URL.Query()
 
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err": err,
-		}).Error("Could not decode body")
-		http.Error(w, http.StatusText(400), 400)
-		return
-	}
+	symbol := params["symbol"][0]
+	start, _ := strconv.Atoi(params["start"][0])
+	end, _ := strconv.Atoi(params["end"][0])
+	timeframe := params["timeframe"][0]
 
-	logrus.Infof("%+v", body)
-
-	symbol := body.Symbol
-	start := body.Start
-	end := body.End
-	timeframe := body.Timeframe
-
-	candlesticks, err := binanceservice.GetInstance().GetChartData(symbol, start, end, timeframe)
+	candlesticks, err := binanceservice.GetInstance().GetChartData(symbol, uint64(start), uint64(end), timeframe)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"symbol":    symbol,
