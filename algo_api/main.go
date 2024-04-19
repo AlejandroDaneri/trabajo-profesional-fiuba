@@ -649,7 +649,7 @@ func GetChartDataBuyAndHold(w http.ResponseWriter, r *http.Request) {
 	end, _ := strconv.Atoi(params["end"][0])
 	timeframe := params["timeframe"][0]
 
-	candlesticks, err := binanceservice.GetInstance().GetChartData(symbol, uint64(start), uint64(end), timeframe)
+	candlesticks, err := binanceservice.GetInstance().GetChartData(symbol, start, end, timeframe)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"symbol":    symbol,
