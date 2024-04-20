@@ -320,7 +320,7 @@ const CurrentStrategy = () => {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <div className="graph-item">
+            {false && <div className="graph-item">
               <h3>Weekly Stock Performance</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart
@@ -362,7 +362,7 @@ const CurrentStrategy = () => {
                   />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </div>}
           </div>
         </CurrentStrategyStyle>
       }
