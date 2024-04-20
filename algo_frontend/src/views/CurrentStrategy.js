@@ -189,7 +189,7 @@ const CurrentStrategy = () => {
           data: (response.data || []).map(candletick => {
             return {
               closeTime: new Date(candletick.close_time * 1000),
-              close: candletick.close  * amount
+              close: (candletick.close  * amount).toFixed(2)
             }
           })
         }))
