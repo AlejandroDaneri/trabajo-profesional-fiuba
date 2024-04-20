@@ -22,6 +22,14 @@ const ButtonMenuStyle = styled.button`
   height: 100%;
   width: 200px;
   border: none;
+  transition: background-color 1s ease;
+
+  & i {
+    margin-right: 5px;
+    font-size: 24px;
+    padding: 0;
+    color: ${({ selected }) => (selected ? "#000000" : "#ffffff")};
+  }
 
   & p {
     font-size: 16px;
@@ -30,7 +38,7 @@ const ButtonMenuStyle = styled.button`
   }
 `
 
-const ButtonMenu = ({ route, title }) => {
+const ButtonMenu = ({ route, title, icon }) => {
   const history = useHistory()
   const location = useLocation()
   return (
@@ -38,6 +46,7 @@ const ButtonMenu = ({ route, title }) => {
       onClick={() => history.push(route)}
       selected={location.pathname === route}
     >
+      {icon && <i className="material-icons">{icon}</i>}
       <p>{title}</p>
     </ButtonMenuStyle>
   )
@@ -64,8 +73,8 @@ const Topbar = () => {
         <p>SatoshiBOT.tech</p>
       </div>
       <div className="nav-links">
-        <ButtonMenu route="/home/trades" title="Current Strategy" />
-        <ButtonMenu route="/home/strategies" title="Strategies" />
+        <ButtonMenu route="/home/trades" title="Running" icon="repeat" />
+        <ButtonMenu route="/home/strategies" title="Strategies" icon="list" />
         <div className="logout" onClick={onLogout}>
           <i className="material-icons">power_settings_new</i>
         </div>

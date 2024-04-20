@@ -1,6 +1,6 @@
 import styled from "styled-components"
 
-export const TOPBAR_HEIGHT = "60px"
+export const TOPBAR_HEIGHT = "40px"
 
 const TopbarStyle = styled.div`
   display: flex;
@@ -37,14 +37,14 @@ const TopbarStyle = styled.div`
     border: 1px solid white;
     border-radius: 10px;
     width: 160px;
-    height: 40px;
+    height: 25px;
     box-shadow: white 0px 2px 8px 0px;
     margin: 5px;
     margin-left: 20px;
 
     & img {
-      width: 24px;
-      height: 24px;
+      width: 20px;
+      height: 20px;
     }
 
     & p {
