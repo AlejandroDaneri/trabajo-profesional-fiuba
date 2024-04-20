@@ -112,6 +112,11 @@ const Strategies = () => {
       width: 10,
     },
     {
+      value: "profit_and_loss",
+      label: "Profit and Loss",
+      width: 10,
+    },
+    {
       value: "timeframe",
       label: "Timeframe",
       width: 10,
@@ -229,6 +234,15 @@ const Strategies = () => {
   }
 
   const buildRow = (row) => {
+    const getPL = (row) => {
+      const profitAndLoss = (row.current_balance - row.initial_balance).toFixed(2)
+      const profitAndLossPercentaje = (
+        (row.current_balance / row.initial_balance - 1) *
+        100
+      ).toFixed(2)
+      return `${profitAndLoss} (${profitAndLossPercentaje}%)`
+    }
+
     return [
       <div className="state">
         <p>{capitalize(row.state)}</p>
@@ -236,6 +250,7 @@ const Strategies = () => {
       </div>,
       row.initial_balance,
       row.current_balance,
+      getPL(row),
       row.timeframe,
       row.duration,
       row.exchange === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />,
