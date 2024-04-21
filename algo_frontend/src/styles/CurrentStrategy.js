@@ -27,6 +27,7 @@ export const CurrentStrategyStyle = styled.div`
         height: 50px;
         border: 1px solid white;
         padding: 10px;
+        border-radius: 4px;
 
         & .label {
           color: #a5a8b6;
