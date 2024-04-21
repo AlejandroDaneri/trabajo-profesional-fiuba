@@ -1,5 +1,6 @@
 /* Import Libs */
 import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 const StrategyStyle = styled.div`
   display: flex;
@@ -7,7 +8,7 @@ const StrategyStyle = styled.div`
   & .currencies {
     display: flex;
     flex-direction: column;
-    border: 1px solid white;
+    border: 1px solid ${theme.white};
     border-radius: 10px;
     padding: 10px;
     margin-right: 10px;

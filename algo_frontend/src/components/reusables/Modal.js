@@ -1,9 +1,10 @@
 /* Import Libs */
 import ReactAwesomeModal from "react-awesome-modal"
 import styled from "styled-components"
+import { theme } from "../../utils/theme"
 
 const ModalStyle = styled.div`
-  background: #282c34;
+  background: ${theme.grayDark};
   border: 1px solid white;
 
   & .modal-header {
@@ -19,7 +20,7 @@ const ModalStyle = styled.div`
   & .modal-body {
     display: flex;
     justify-content: center;
-    background: #282c34;
+    background: ${theme.grayDark};
     width: 100%;
   }
 `

@@ -1,5 +1,6 @@
 import styled from "styled-components"
 import BounceLoader from "react-spinners/BounceLoader"
+import { theme } from "../../utils/theme"
 
 const ViewStyle = styled.div`
   display: flex;
@@ -16,9 +17,10 @@ const ViewStyle = styled.div`
     margin: 0;
     width: 100%;
     height: 80px;
-    border-top: 2px solid white;
-    border-bottom: 2px solid white;
+    border-top: 2px solid ${theme.white};
+    border-bottom: 2px solid ${theme.white};
     background: #2d2d2d;
+    color: ${theme.white};
 
     & h1 {
       display: flex;
@@ -44,7 +46,7 @@ const ViewStyle = styled.div`
 
       &:hover {
         background: white;
-        color: #282c34;
+        color: ${theme.grayDark};
         cursor: pointer;
       }
 

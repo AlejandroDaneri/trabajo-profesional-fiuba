@@ -2,6 +2,7 @@
 import React, { useRef, useState, useContext, createContext } from "react"
 import styled from "styled-components"
 import { v4 } from "uuid"
+import { theme } from "../../utils/theme"
 
 const FlotantBoxStyle = styled.div`
   display: flex;
@@ -22,8 +23,8 @@ const FlotantBoxStyle = styled.div`
       right: ${({ buttonWidth }) => buttonWidth + 5 + "px"};
       z-index: 1;
       border: 2px solid white;
-      background: #282c34;
-      color: white;
+      background: ${theme.grayDark};
+      color: ${theme.white};
       height: auto;
       padding: 5px;
     }

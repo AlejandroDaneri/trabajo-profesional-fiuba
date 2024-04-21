@@ -11,12 +11,13 @@ import TopbarStyle from "../styles/topbar"
 import logo from "../images/bitcoin.png"
 
 import { userState } from "../atoms/atoms"
+import { theme } from "../utils/theme"
 
 const ButtonMenuStyle = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ selected }) => (selected ? "#F7931A" : "black")};
+  background-color: ${({ selected }) => (selected ? theme.btc : "black")};
   cursor: pointer;
   transition: color 0.3s;
   height: 100%;
@@ -28,13 +29,13 @@ const ButtonMenuStyle = styled.button`
     margin-right: 5px;
     font-size: 24px;
     padding: 0;
-    color: ${({ selected }) => (selected ? "#000000" : "#ffffff")};
+    color: ${({ selected }) => (selected ? "#000000" : theme.white)};
   }
 
   & p {
     font-size: 16px;
     font-weight: 600;
-    color: ${({ selected }) => (selected ? "#000000" : "#ffffff")};
+    color: ${({ selected }) => (selected ? "#000000" : theme.white)};
   }
 `
 

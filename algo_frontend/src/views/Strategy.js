@@ -9,6 +9,7 @@ import CurrencyLogo from "../components/CurrencyLogo"
 import FieldSelect from "../components/reusables/FieldSelect"
 import Button from "../components/Button"
 import { add } from "../webapi/strategy"
+import { theme } from "../utils/theme"
 
 const StrategyStyle = styled.div`
   display: flex;
@@ -32,6 +33,10 @@ const OptionStyle = styled.div`
   align-items: center;
   width: 60px;
   max-height: 20px;
+  
+  & p {
+   color: ${theme.black};
+  }
 
   & img {
     width: 20px;
@@ -137,6 +142,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           value: currency,
           label: <Currency currency={currency} />,
         }))}
+        width={800}
         multiple
       />
       <FieldSelect
@@ -148,6 +154,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           value: indicator,
           label: indicator,
         }))}
+        width={800}
         multiple
       />
       <FieldSelect
@@ -156,6 +163,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         value={strategy.timeframe}
         onChange={onChange}
         options={TIMEFRAMES}
+        width={800}
       />
       <div className="actions">
         <div className="cancel">

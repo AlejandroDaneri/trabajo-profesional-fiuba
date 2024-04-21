@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 const ButtonStyle = styled.div`
   display: flex;
@@ -17,10 +18,10 @@ const ButtonStyle = styled.div`
 
   &:hover {
     background: white;
-    color: #282c34;
+    color: ${theme.grayDark};
 
     & i {
-      color: #282c34;
+      color: ${theme.grayDark};
     }
   }
 `
