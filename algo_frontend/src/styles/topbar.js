@@ -9,7 +9,7 @@ const TopbarStyle = styled.div`
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.3s;
-  background: black;
+  background: ${theme.dark};
   color: ${theme.white};
   text-color: ${theme.white};
   width: 100%;

@@ -31,12 +31,12 @@ const StrategyStyle = styled.div`
   & .indicators {
     display: flex;
     flex-direction: column;
-    border: 1px solid white;
+    border: 1px solid ${theme.white};
     border-radius: 10px;
     padding: 10px;
 
     & .indicator {
-      border: 1px solid white;
+      border: 1px solid ${theme.white};
       border-radius: 10px;
       padding: 10px;
       margin: 10px;

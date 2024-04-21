@@ -17,23 +17,23 @@ const ButtonMenuStyle = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ selected }) => (selected ? theme.btc : "black")};
+  background-color: ${({ selected }) => (selected ? theme.btc : theme.dark)};
+  border: none;
   cursor: pointer;
   transition: color 0.3s;
   height: 100%;
   width: 200px;
-  border: none;
   transition: background-color 1s ease;
 
   & i {
-    margin-right: 5px;
-    font-size: 24px;
+    margin-right: 10px;
+    font-size: 22px;
     padding: 0;
     color: ${({ selected }) => (selected ? "#000000" : theme.white)};
   }
 
   & p {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: ${({ selected }) => (selected ? "#000000" : theme.white)};
   }

@@ -19,7 +19,7 @@ const ViewStyle = styled.div`
     height: 80px;
     border-top: 2px solid ${theme.white};
     border-bottom: 2px solid ${theme.white};
-    background: #2d2d2d;
+    background: ${theme.black};
     color: ${theme.white};
 
     & h1 {
@@ -35,7 +35,7 @@ const ViewStyle = styled.div`
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 1px solid white;
+      border: 1px solid ${theme.white};
       width: 100px;
       height: 30px;
       margin-right: 20px;
@@ -45,7 +45,7 @@ const ViewStyle = styled.div`
       }
 
       &:hover {
-        background: white;
+        background: ${theme.white};
         color: ${theme.grayDark};
         cursor: pointer;
       }

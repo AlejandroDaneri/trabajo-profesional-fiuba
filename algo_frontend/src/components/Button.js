@@ -5,7 +5,7 @@ const ButtonStyle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid white;
+  border: 1px solid ${theme.white};
   width: ${({ width }) => width || 100}px;
   height: ${({ height }) => height || 26}px;
   cursor: pointer;
@@ -17,7 +17,7 @@ const ButtonStyle = styled.div`
   }
 
   &:hover {
-    background: white;
+    background: ${theme.white};
     color: ${theme.grayDark};
 
     & i {

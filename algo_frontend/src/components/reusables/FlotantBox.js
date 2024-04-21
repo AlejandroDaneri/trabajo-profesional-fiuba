@@ -22,7 +22,7 @@ const FlotantBoxStyle = styled.div`
       top: 0px;
       right: ${({ buttonWidth }) => buttonWidth + 5 + "px"};
       z-index: 1;
-      border: 2px solid white;
+      border: 2px solid ${theme.white};
       background: ${theme.grayDark};
       color: ${theme.white};
       height: auto;
