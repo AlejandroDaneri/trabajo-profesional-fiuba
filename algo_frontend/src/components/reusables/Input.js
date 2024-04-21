@@ -10,6 +10,7 @@ const InputStyle = styled.input`
     color: ${theme.white};
     outline: none;
     max-height: 40px;
+    margin: 0;
 `
 
 const Input = () => {
