@@ -1,7 +1,8 @@
 import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 export const ResultStyle = styled.div`
-  color: ${({ win }) => (win ? "green" : "red")};
+  color: ${({ win }) => (win ? theme.green : theme.red)};
   font-weight: 600;
 `
 

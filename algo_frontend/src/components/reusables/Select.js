@@ -1,6 +1,7 @@
 /* Import Libs */
 import React from "react"
 import ReactSelect from "react-select"
+import { theme } from "../../utils/theme"
 
 const styles = {
   control: (base, state) => {
@@ -13,19 +14,19 @@ const styles = {
   },
   option: (styles) => ({
     ...styles,
-    color: "black",
+    color: theme.black,
   }),
   singleValue: (base) => ({
     ...base,
-    color: "white",
+    color: theme.white,
   }),
   multiValueRemove: (base) => ({
     ...base,
-    color: "black",
+    color: theme.black,
   }),
 }
 
-const Select = ({ value, name, onChange, options, multiple }) => {
+const Select = ({ value, name, onChange, options, multiple, width }) => {
   const onChange_ = (value) => {
     onChange(name, value)
   }
@@ -37,8 +38,8 @@ const Select = ({ value, name, onChange, options, multiple }) => {
       onChange={onChange_}
       options={options}
       styles={styles}
-      width={800}
-      height={60}
+      width={width}
+      height={40}
       isMulti={multiple}
     />
   )
