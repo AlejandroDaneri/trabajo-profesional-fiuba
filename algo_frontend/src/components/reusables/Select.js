@@ -10,6 +10,12 @@ const styles = {
       width: state.selectProps.width,
       height: state.selectProps.height,
       background: "transparent",
+      border: `1px solid ${state.isFocused ? theme.btc : theme.gray}`,
+      boxShadow: 'none',
+      outline: 'none',
+      '&:hover': {
+        borderColor: theme.btc
+      } 
     }
   },
   option: (styles) => ({
