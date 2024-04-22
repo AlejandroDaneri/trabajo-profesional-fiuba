@@ -18,9 +18,10 @@ const styles = {
       } 
     }
   },
-  option: (styles) => ({
+  option: (styles, state) => ({
     ...styles,
     color: theme.black,
+    backgroundColor: state.isSelected && theme.gray,
   }),
   singleValue: (base) => ({
     ...base,
