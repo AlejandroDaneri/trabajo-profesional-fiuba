@@ -11,6 +11,10 @@ const InputStyle = styled.input`
     outline: none;
     max-height: 40px;
     margin: 0;
+
+    &:hover {
+        border: 1px solid ${theme.btc}
+    }
 `
 
 const Input = () => {
