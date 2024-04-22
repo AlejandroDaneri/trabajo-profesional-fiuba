@@ -13,12 +13,12 @@ import tensorflow as tf
 from tensorflow import keras
 import time
 class LSTM(Strategy):
-    def __init__(self, indicators: List[Indicator]=[]):
+    def __init__(self, indicators: List[Indicator], timeframe: str, id: str):
         self.name = "LSTM"
 
         self.model = keras.models.load_model("lstm_model_dnn")  # TODO: change hardcoded src
         print(self.model)
-        super().__init__([])
+        super().__init__([], timeframe, id)
 
     
     def prepare_data(self, historical_data: pd.DataFrame):
