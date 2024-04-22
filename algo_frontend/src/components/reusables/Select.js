@@ -24,6 +24,9 @@ const styles = {
     backgroundColor: state.isSelected && theme.gray,
     '&:active': {
       backgroundColor: theme.gray
+    },
+    '&:hover': {
+      backgroundColor: theme.gray
     } 
   }),
   singleValue: (base) => ({
