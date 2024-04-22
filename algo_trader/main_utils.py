@@ -26,7 +26,7 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict
 
     strategy = None
     while strategy is None:
-        response = api.get('api/strategy/running')
+        response = api.get('strategy/running')
         if response.status_code == 200:
             print("[main] strategy found")
             strategy = response.json()
