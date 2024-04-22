@@ -35,7 +35,8 @@ const OptionStyle = styled.div`
   max-height: 20px;
   
   & p {
-   color: ${theme.black};
+    margin: 0;
+    color: ${theme.black};
   }
 
   & img {
