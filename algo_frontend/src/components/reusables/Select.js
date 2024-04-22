@@ -22,6 +22,9 @@ const styles = {
     ...styles,
     color: theme.black,
     backgroundColor: state.isSelected && theme.gray,
+    '&:active': {
+      backgroundColor: theme.gray
+    } 
   }),
   singleValue: (base) => ({
     ...base,
