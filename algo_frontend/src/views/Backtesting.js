@@ -21,17 +21,29 @@ const BacktestingStyle = styled.div`
         flex-direction: column;
         margin-left: 20px;
         margin-top: 20px;
+    
+        width: 200px;
+        border-right: 0.5px solid white;
+        padding-right: 40px;
 
         & .section {
             margin-bottom: 20px;
             & h3 {
-                border-bottom: 1px solid white;
+                border-bottom: 0.5px solid white;
                 padding-bottom: 5px;
                 margin: 0;
             }
 
             & .section-content {
             }
+        }
+
+        & .actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            height: 60px;
+            border-top: 0.5px solid white;
         }
     }
 `
@@ -103,8 +115,9 @@ const Backtesting = () => {
                                 <FieldSwitch name="ema" label="EMA" value={state.ema} onChange={onChange} />
                             </div>
                         </div>
-                        
-                        <Button text="Submit" onClick={onSubmit} />
+                        <div className="actions">
+                            <Button text="Submit" onClick={onSubmit} />
+                        </div>
                     </div>
                 </BacktestingStyle>}
         />

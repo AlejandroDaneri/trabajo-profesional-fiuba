@@ -2,6 +2,7 @@ package main
 
 import (
 	"algo_api/internal/binanceservice"
+	"algo_api/internal/pythonservice"
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/telegramservice"
 	"algo_api/internal/tradeservice"
@@ -676,6 +677,10 @@ func GetCandleticks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetBacktesting(w http.ResponseWriter, r *http.Request) {
+	pythonservice.GetInstance().GetBacktesting()
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
@@ -703,6 +708,8 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 
 	router.HandleFunc("/candleticks", GetCandleticks).Methods("GET")
+
+	router.HandleFunc("/backtesting", GetBacktesting).Methods("GET")
 }
 
 func main() {
