@@ -2,10 +2,15 @@
 import React, { useState } from "react"
 import styled from "styled-components"
 
+/* Import Reusables Components */
 import View from "../components/reusables/View"
 import FieldInput from "../components/reusables/FieldInput"
 import FieldSelect from "../components/reusables/FieldSelect"
-import Switch from "../components/reusables/Switch"
+import FieldSwitch from "../components/reusables/FieldSwitch"
+import Button from "../components/Button"
+
+/* Impor WebApi */
+import { get as getBacktesting } from "../webapi/backtesting"
 
 const BacktestingStyle = styled.div`
     display: flex;
@@ -18,6 +23,7 @@ const BacktestingStyle = styled.div`
         margin-top: 20px;
 
         & .section {
+            margin-bottom: 20px;
             & h3 {
                 border-bottom: 1px solid white;
                 padding-bottom: 5px;
@@ -39,6 +45,19 @@ const Backtesting = () => {
             ...prevState,
             [key]: value
         }))
+    }
+
+    const transformToSend = (data) => {
+        return {
+            ...data,
+            coin: data.coin.value
+        }
+    }
+
+    const onSubmit = () => {
+        getBacktesting(transformToSend(state))
+            .then(_ => {})
+            .catch(_ => {})
     }
 
     return (
@@ -79,9 +98,13 @@ const Backtesting = () => {
                         <div className="section">
                             <h3>Indicators</h3>
                             <div className="section-content">
-                                <Switch id="rsiasdasda" name="rsi" value={state.rsi} onChange={onChange} />
+                                <FieldSwitch name="rsi" label="RSI" value={state.rsi} onChange={onChange} />
+                                <FieldSwitch name="macd" label="MACD" value={state.macd} onChange={onChange} />
+                                <FieldSwitch name="ema" label="EMA" value={state.ema} onChange={onChange} />
                             </div>
                         </div>
+                        
+                        <Button text="Submit" onClick={onSubmit} />
                     </div>
                 </BacktestingStyle>}
         />
