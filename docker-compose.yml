@@ -27,21 +27,31 @@ services:
     # Backtesting
     # command: ["python3", "-u", "main_test.py"]
     # Production
-    command: ["python3", "-u", "main.py"]
+    command: ["python3", "-u", "main_test.py"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  telegram_bot:
-    container_name: telegram_bot
+  # telegram_bot:
+  #   container_name: telegram_bot
+  #   build:
+  #     context: ./telegram_bot
+  #   working_dir: /app
+  #   volumes:
+  #     - ./telegram_bot:/app
+  #   command: ["python3", "-u", "main.py"]
+
+  backtester:
+    container_name: backtester
     build:
-      context: ./telegram_bot
+      context: ./backtester
     working_dir: /app
     volumes:
-      - ./telegram_bot:/app
-    command: ["python3", "-u", "main.py"]
+      - ./backtester:/app
+    ports:
+      - "5000:5000"
 
   algo_api:
     container_name: api
