@@ -1,27 +1,30 @@
-from flask import Flask, jsonify, request
-from datetime import datetime,timezone
+from flask import Flask, jsonify, request, abort
+from datetime import datetime,timezone  
 from trading_logic import getData, getFeatures, getActions, getTrades, eventDriveLong
 
 app = Flask(__name__)
 
+@app.errorhandler(400)
+def bad_request(error):
+    return jsonify({'error': 'Bad Request', 'message': error.description}), 400
 
 @app.route('/backtest')
 def hello_world():
-    coin = request.args.get('coin', 'SOL') 
-    initial_balance = float(request.args.get('initial_balance', 1000.0))  
-    data_from_ts = request.args.get('data_from', None)
-    data_to_ts = request.args.get('data_to', None)
+    coin = request.args.get('coin')
+    initial_balance = request.args.get('initial_balance')
+    data_from_ts = request.args.get('data_from')
+    data_to_ts = request.args.get('data_to')
 
-    if data_from_ts is not None:
-        data_from = datetime.fromtimestamp(int(data_from_ts),tz=timezone.utc).strftime('%Y-%m-%d')
-    else:
-        data_from = '2021-01-01'  
+    if not (coin and initial_balance and data_from_ts and data_to_ts):
+        abort(400, description="Required parameters 'coin', 'initial_balance', 'data_from', or 'data_to' are missing in the URL.")
 
-    if data_to_ts is not None:
-        data_to = datetime.fromtimestamp(int(data_from_ts),tz=timezone.utc).strftime('%Y-%m-%d')
-    else:
-        data_to = '2023-05-05'  
+    data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime('%Y-%m-%d')
+    data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime('%Y-%m-%d')
 
+    try:
+        initial_balance = float(initial_balance)
+    except ValueError:
+        abort(400, description="'initial_balance' must be a valid number.")
 
     data = getData(ticker=coin +'-USD', data_from=data_from, data_to=data_to)
     features = getFeatures(data, n_obv=100, n_sigma=40, n_rsi=15, fast=20, slow=60)
@@ -39,6 +42,5 @@ def hello_world():
 
     }
 
-    # Devolver el diccionario como respuesta JSON
     return jsonify(response_dict)
     
