@@ -8,6 +8,10 @@ app = Flask(__name__)
 def bad_request(error):
     return jsonify({'error': 'Bad Request', 'message': error.description}), 400
 
+@app.route('/ping')
+def ping():
+    return "ok", 200
+
 @app.route('/backtest')
 def backtest():
     coin = request.args.get('coin')

@@ -2,9 +2,9 @@ FROM python:3.10
 
 WORKDIR /app
 
-COPY . .
+COPY backtester .
 
-COPY ../lib /app/lib
+COPY lib /app/lib
 
 RUN pip install -r requirements.txt
 
