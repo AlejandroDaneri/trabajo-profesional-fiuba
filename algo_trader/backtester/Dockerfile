@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . .
 
+COPY ../lib /app/lib
+
 RUN pip install -r requirements.txt
 
 EXPOSE 5000
