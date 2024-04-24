@@ -17,7 +17,6 @@ def backtest():
 
     if not (coin and initial_balance and data_from_ts and data_to_ts):
         abort(400, description="Required parameters 'coin', 'initial_balance', 'data_from', or 'data_to' are missing in the URL.")
-
     data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime('%Y-%m-%d')
     data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime('%Y-%m-%d')
 
@@ -35,10 +34,11 @@ def backtest():
 
     trades_dict = trades.to_dict(orient='records')
     results_dict = results.to_dict(orient='records') #comparing vs buy and hold
+
     response_dict = {
         'trades': trades_dict, ## trades realized
         'benchmarking': results_dict, ## comparing to buy and hold
-        'final_balance' : initial_balance * (1 + trades['rendimientoAcumulado']).iloc[-1]
+        'final_balance' : initial_balance * (1 + trades['rendimientoAcumulado']).iloc[-1] if len(trades)>0 else "no trades, WIP"
 
     }
 
