@@ -86,7 +86,7 @@ def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: Trade
                 # remove tmp current trade
                 api.delete('trade/current')
 
-                notify_telegram_users(data)
+                # notify_telegram_users(data)
                 response = api.post('trade/current', json=data)
                             
                 # update balance to strategy doc in the db
