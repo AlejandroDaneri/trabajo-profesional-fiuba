@@ -20,7 +20,9 @@ def hello_world():
     results_dict = results.to_dict(orient='records') #comparing vs buy and hold
     response_dict = {
         'trades': trades_dict, ## trades realized
-        'benchmarking': results_dict ## comparing to buy and hold
+        'benchmarking': results_dict, ## comparing to buy and hold
+        'final_balance' : initial_balance * (1 + trades['rendimientoAcumulado']).iloc[-1]
+
     }
 
     # Devolver el diccionario como respuesta JSON
