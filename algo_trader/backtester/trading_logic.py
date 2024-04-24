@@ -17,10 +17,10 @@ def getActions(data, features, trig_buy_cross=0, trig_buy_rsi=65, trig_buy_sigma
     gatillos_venta['obv'] = features['OBV_osc'] > trig_sell_obv
     mascara_venta = gatillos_venta.all(axis=1)
 
-    data_aux = data.copy().dropna()
+    data.dropna(inplace=True)
 
-    data_aux['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
-    actions = data_aux.loc[data_aux['gatillo'] != ''].copy()
+    data['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
+    actions = data.loc[data['gatillo'] != ''].copy()
 
     actions['gatillo'] = np.where(actions['gatillo'] != actions['gatillo'].shift(), actions['gatillo'], "")
     actions = actions.loc[actions['gatillo'] != ''].copy()
@@ -32,7 +32,7 @@ def getActions(data, features, trig_buy_cross=0, trig_buy_rsi=65, trig_buy_sigma
     
     return actions
 
-def getTrades(actions, initial_balance):
+def getTrades(actions):
     pares = actions.iloc[::2][['Close']].reset_index()
     impares = actions.iloc[1::2][['Close']].reset_index()
     trades = pd.concat([pares, impares], axis=1)
@@ -40,15 +40,6 @@ def getTrades(actions, initial_balance):
     CT = 0
     trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta', 'px_venta'] 
     trades['rendimiento'] = trades['px_venta'] / trades['px_compra'] - 1
-
-    balance = initial_balance
-    trades['saldo_despues_compra'] = [balance]
-    for i in range(len(trades)):
-        if i % 2 == 0:  # Compra
-            balance -= trades.iloc[i]['px_compra']
-        else:  # Venta
-            balance += trades.iloc[i]['px_venta']
-        trades.at[i, 'saldo_despues_compra'] = balance
 
     trades['rendimiento'] -= CT
     trades['dias'] = (trades['fecha_venta'] - trades['fecha_compra']).dt.days
@@ -82,3 +73,34 @@ def getFeatures(data, n_obv=100, n_sigma=40, n_rsi=15, fast=20, slow=60):
 
     features = data.iloc[:, -4:].dropna()
     return features
+
+def eventDriveLong(df): 
+    df["pct_change"]=df['Close'].pct_change() 
+    signals=df['gatillo'].tolist()
+    pct_changes =df['pct_change'].tolist()
+
+    total = len(signals) 
+    i, results = 1, [0]
+
+    while i<total:
+
+        if signals[i-1] == 'compra':
+            j=i
+            while j<total:
+                results.append(pct_changes[j])
+                j +=1
+                if signals[j-1]=="venta":
+                    i=j
+                    break
+                if j == total:
+                    i=j
+                    print("Compra abierta")
+                    break
+
+        else:
+            results.append(0)
+            i +=1
+
+    result = pd.concat([df,pd.Series(data=results,index=df.index)],axis=1)
+    result.columns.values[-1] ="strategy"
+    return result
