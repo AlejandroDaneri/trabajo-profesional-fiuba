@@ -32,7 +32,7 @@ def getActions(data, features, trig_buy_cross=0, trig_buy_rsi=65, trig_buy_sigma
     
     return actions
 
-def getTrades(actions):
+def getTrades(actions, initial_balance):
     pares = actions.iloc[::2][['Close']].reset_index()
     impares = actions.iloc[1::2][['Close']].reset_index()
     trades = pd.concat([pares, impares], axis=1)
@@ -40,6 +40,16 @@ def getTrades(actions):
     CT = 0
     trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta', 'px_venta'] 
     trades['rendimiento'] = trades['px_venta'] / trades['px_compra'] - 1
+
+    balance = initial_balance
+    trades['saldo_despues_compra'] = [balance]
+    for i in range(len(trades)):
+        if i % 2 == 0:  # Compra
+            balance -= trades.iloc[i]['px_compra']
+        else:  # Venta
+            balance += trades.iloc[i]['px_venta']
+        trades.at[i, 'saldo_despues_compra'] = balance
+
     trades['rendimiento'] -= CT
     trades['dias'] = (trades['fecha_venta'] - trades['fecha_compra']).dt.days
 
