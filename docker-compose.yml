@@ -28,7 +28,7 @@ services:
     # Backtesting
     # command: ["python3", "-u", "main_test.py"]
     # Production
-    command: ["python3", "-u", "main_test.py"]
+    command: ["python3", "-u", "main.py"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s
@@ -47,13 +47,14 @@ services:
   backtester:
     container_name: backtester
     build:
-      context: ./algo_trader/backtester
+      context: ./algo_trader
+      dockerfile: backtester/Dockerfile
     working_dir: /app
     volumes:
       - ./algo_trader/backtester:/app
       - ./algo_trader/lib:/app/lib
     ports:
-      - "5000:5000"
+      - "5001:5000"
     command: gunicorn --bind 0.0.0.0:5000 --reload app:app
 
   algo_api:
