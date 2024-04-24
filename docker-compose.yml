@@ -15,13 +15,14 @@ services:
   algo_trader:
     container_name: trader
     build:
-      context: ./algo_trader
+      context: ./algo_trader/trader
     env_file:
       - .env
     working_dir: /app
     volumes:
-      - ./algo_trader:/app
+      - ./algo_trader/trader:/app
       - ~/satoshibot/cache_binance:/data/cache_binance
+      - ./algo_trader/lib:/app/lib
     # Unit Tests
     # command: ["pytest"]
     # Backtesting
@@ -46,10 +47,11 @@ services:
   backtester:
     container_name: backtester
     build:
-      context: ./backtester
+      context: ./algo_trader/backtester
     working_dir: /app
     volumes:
-      - ./backtester:/app
+      - ./algo_trader/backtester:/app
+      - ./algo_trader/lib:/app/lib
     ports:
       - "5000:5000"
 
