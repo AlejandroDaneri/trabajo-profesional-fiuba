@@ -27,7 +27,7 @@ class Binance(Exchange):
         balances = self.client.account()['balances']
         for index, value in enumerate(balances):
             if value['asset'] == symbol:
-                return float(value['free'])
+                return float(value['free']) + float(value['locked'])
 
     def get_balance(self) -> float:
         total = 0
