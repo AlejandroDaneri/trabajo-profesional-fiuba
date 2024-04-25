@@ -9,7 +9,7 @@ def bad_request(error):
     return jsonify({'error': 'Bad Request', 'message': error.description}), 400
 
 @app.route('/backtest')
-def hello_world():
+def backtest():
     coin = request.args.get('coin')
     initial_balance = request.args.get('initial_balance')
     data_from_ts = request.args.get('data_from')
@@ -38,7 +38,7 @@ def hello_world():
     response_dict = {
         'trades': trades_dict, ## trades realized
         'benchmarking': results_dict, ## comparing to buy and hold
-        'final_balance' : initial_balance * (1 + trades['rendimientoAcumulado']).iloc[-1]
+        'final_balance' : initial_balance * (1 + trades['cumulative_return']).iloc[-1] if len(trades)>0 else 0
 
     }
 
