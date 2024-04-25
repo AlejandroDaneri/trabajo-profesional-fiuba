@@ -677,7 +677,6 @@ func GetCandleticks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func GetBacktesting(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 
