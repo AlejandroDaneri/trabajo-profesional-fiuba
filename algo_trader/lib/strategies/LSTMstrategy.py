@@ -4,8 +4,17 @@ from lib.indicators.indicator import Indicator
 from lib.strategies.strategy import Strategy
 # from sklearn.preprocessing import MinMaxScaler
 
+from lib.indicators.atr import ATR
+from lib.indicators.ema import EMA
+from lib.indicators.rsi import RSI
+from lib.indicators.vwap import VWAP
+from lib.indicators.roc import ROC
+from lib.indicators.kc import KC
+from lib.indicators.donchian import DONCHIAN
+from lib.indicators.macd import MACD
+from lib.indicators.bbands import BBANDS
+from lib.indicators.ewo import EWO
 
-import talib as ta
 import pandas as pd
 import numpy as np
 from typing import List
@@ -64,24 +73,52 @@ class LSTM(Strategy):
         for period in time_periods:
             print("LSTM| period: ",period)
 
+            atr = ATR(period)
+            atr_df = atr.calculate(self.data)
+
+            ema = EMA(period)
+            ema_df = ema.calculate(self.data)
+
+            rsi = RSI(30, 70, period)
+            rsi_df = rsi.calculate(self.data)
+
+            vwap = VWAP(period)
+            vwap_df = vwap.calculate(self.data)
+
+            roc = ROC(period)
+            roc_df = roc.calculate(self.data)
+
+            kc = KC(period, period, 2, 0.08)
+            kc_df = kc.calculate(self.data)
+
+            donchian = DONCHIAN(period, 0.05)
+            donchian_df = donchian.calculate(self.data)
+
+            macd = MACD(period + 26, period + 12, period + 9)
+            macd_df = macd.calculate(self.data)
+
+            bbands = BBANDS(period, 2)
+            bbands_df = bbands.calculate(self.data)
+
+            ewo = EWO(period+5, period+35)
+            ewo_df = ewo.calculate(self.data)
+
             for nperiod in name_periods:
-                data[f'ATR_{nperiod}'] = ta.ATR(self.data['High'], self.data['Low'], self.data['Close'], timeperiod=period)
-                data[f'EMA_{nperiod}'] = ta.EMA(self.data['Close'], timeperiod=period)
-                data[f'RSI_{nperiod}'] = ta.RSI(self.data['Close'], timeperiod=period)
-                data[f'VWAP_{nperiod}'] = ta.SUM(self.data['Volume'] * (self.data['High'] + self.data['Low'] + self.data['Close']) / 3, timeperiod=period) / ta.SUM(self.data['Volume'], timeperiod=period)
-                data[f'ROC_{nperiod}'] = ta.ROC(self.data['Close'], timeperiod=period)
-                data[f'KC_upper_{nperiod}'] = ta.EMA(self.data['High'], timeperiod=period)
-                data[f'KC_middle_{nperiod}'] = ta.EMA(self.data['Low'], timeperiod=period)
-                data[f'Donchian_upper_{nperiod}'] = ta.MAX(self.data['High'], timeperiod=period)
-                data[f'Donchian_lower_{nperiod}'] = ta.MIN(self.data['Low'], timeperiod=period)
-                macd, macd_signal, _ = ta.MACD(self.data['Close'], fastperiod=(period + 12), slowperiod=(period + 26), signalperiod=(period + 9))
-                data[f'MACD_{nperiod}'] = macd
-                data[f'MACD_signal_{nperiod}'] = macd_signal
-                bb_upper, bb_middle, bb_lower = ta.BBANDS(self.data['Close'], timeperiod=period, nbdevup=2, nbdevdn=2)
-                data[f'BB_upper_{nperiod}'] = bb_upper
-                data[f'BB_middle_{nperiod}'] = bb_middle
-                data[f'BB_lower_{nperiod}'] = bb_lower
-                data[f'EWO_{nperiod}'] = ta.SMA(self.data['Close'], timeperiod=(period+5)) - ta.SMA(self.data['Close'], timeperiod=(period+35))
+                data[f'ATR_{nperiod}'] = atr_df
+                data[f'EMA_{nperiod}'] = ema_df["EMA"]
+                data[f'RSI_{nperiod}'] = rsi_df
+                data[f'VWAP_{nperiod}'] = vwap_df["VWAP"]
+                data[f'ROC_{nperiod}'] = roc_df["ROC"]
+                data[f'KC_upper_{nperiod}'] = kc_df["UpperBand"]
+                data[f'KC_lower_{nperiod}'] = kc_df["LowerBand"]
+                data[f'Donchian_upper_{nperiod}'] = donchian_df["HighChannel"]
+                data[f'Donchian_lower_{nperiod}'] = donchian_df["LowChannel"]
+                data[f'MACD_{nperiod}'] = macd_df["histogram"]
+                data[f'MACD_signal_{nperiod}'] = macd_df["signal"]
+                data[f'BB_upper_{nperiod}'] = bbands_df["UpperBand"]
+                data[f'BB_middle_{nperiod}'] = bbands_df["MidBand"]
+                data[f'BB_lower_{nperiod}'] = bbands_df["LowerBand"]
+                data[f'EWO_{nperiod}'] = ewo_df["EWO"]
 
         new_df = pd.DataFrame.from_dict(data, orient='columns')
 
