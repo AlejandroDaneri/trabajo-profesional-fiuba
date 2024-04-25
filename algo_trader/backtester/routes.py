@@ -8,6 +8,10 @@ app = Flask(__name__)
 def bad_request(error):
     return jsonify({'error': 'Bad Request', 'message': error.description}), 400
 
+@app.route('/ping')
+def ping():
+    return "ok", 200
+
 @app.route('/backtest')
 def backtest():
     coin = request.args.get('coin')
@@ -17,7 +21,6 @@ def backtest():
 
     if not (coin and initial_balance and data_from_ts and data_to_ts):
         abort(400, description="Required parameters 'coin', 'initial_balance', 'data_from', or 'data_to' are missing in the URL.")
-
     data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime('%Y-%m-%d')
     data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime('%Y-%m-%d')
 
@@ -35,9 +38,10 @@ def backtest():
 
     trades_dict = trades.to_dict(orient='records')
     results_dict = results.to_dict(orient='records') #comparing vs buy and hold
+
     response_dict = {
-        'trades': trades_dict, ## trades realized
-        'benchmarking': results_dict, ## comparing to buy and hold
+        #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
+        #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang
         'final_balance' : initial_balance * (1 + trades['cumulative_return']).iloc[-1] if len(trades)>0 else 0
 
     }
