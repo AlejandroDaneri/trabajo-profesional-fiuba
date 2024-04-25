@@ -1,4 +1,4 @@
 model/
 model_info.csv
 .env
-btc_ohlcv_data.csvx
+btc_ohlcv_data.csv
