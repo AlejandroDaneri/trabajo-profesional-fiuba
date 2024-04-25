@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import BounceLoader from "react-spinners/BounceLoader"
+import moment from 'moment'
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
@@ -31,6 +32,9 @@ import FlotantBox, {
 /* Import Views */
 import Strategy from "./Strategy"
 
+/* Import Images */
+import logoBinance from "../images/logos/exchanges/binance.svg"
+
 const Strategies = () => {
   const dispatch = useDispatch()
 
@@ -51,13 +55,22 @@ const Strategies = () => {
   })
 
   const transformToView = (data) => {
+    const getDuration = (start, end) => {
+      const end_ = end || (Date.now() / 1000)
+      return moment.utc((end_ - start) * 1000).format('HH:mm:ss')
+    }
     return data.map((strategy) => ({
       ...strategy,
       state_label: capitalize(strategy.state),
+      duration: getDuration(strategy.start_timestamp - strategy.end_timestamp)
     }))
   }
 
-  const list_ = () => {
+  const getStrategies = () => {
+    stateFunc(prevState => ({
+      ...prevState,
+      loading: true,
+    }))
     list()
       .then((response) => {
         stateFunc({
@@ -73,7 +86,12 @@ const Strategies = () => {
   }
 
   useEffect(() => {
-    list_()
+    const interval = setInterval(getStrategies, 10000)
+    getStrategies()
+
+    return () => {
+      clearInterval(interval)
+    }
   }, []) // eslint-disable-line
 
   const headers = [
@@ -94,19 +112,34 @@ const Strategies = () => {
       width: 10,
     },
     {
+      value: "profit_and_loss",
+      label: "Profit and Loss",
+      width: 10,
+    },
+    {
       value: "timeframe",
       label: "Timeframe",
       width: 10,
     },
     {
+      value: "duration",
+      label: "Duration",
+      width: 10,
+    },
+    {
+      value: "exchange",
+      label: "Exchange",
+      width: 10,
+    },
+    {
       value: "indicators",
       label: "Indicators",
-      width: 20,
+      width: 10,
     },
     {
       value: "currencies",
       label: "Currencies",
-      width: 20,
+      width: 10,
     },
     {
       value: "actions",
@@ -125,7 +158,7 @@ const Strategies = () => {
             message: "Strategy remove Success",
           },
         })
-        list_()
+        getStrategies()
       })
       .catch((_) => {
         dispatch({
@@ -148,7 +181,7 @@ const Strategies = () => {
             message: "Strategy start Success",
           },
         })
-        list_()
+        getStrategies()
       })
       .catch((_) => {
         dispatch({
@@ -171,7 +204,7 @@ const Strategies = () => {
             message: "Strategy Stop Success",
           },
         })
-        list_()
+        getStrategies()
       })
       .catch((_) => {
         dispatch({
@@ -201,6 +234,15 @@ const Strategies = () => {
   }
 
   const buildRow = (row) => {
+    const getPL = (row) => {
+      const profitAndLoss = (row.current_balance - row.initial_balance).toFixed(2)
+      const profitAndLossPercentaje = (
+        (row.current_balance / row.initial_balance - 1) *
+        100
+      ).toFixed(2)
+      return `${profitAndLoss} (${profitAndLossPercentaje}%)`
+    }
+
     return [
       <div className="state">
         <p>{capitalize(row.state)}</p>
@@ -208,7 +250,10 @@ const Strategies = () => {
       </div>,
       row.initial_balance,
       row.current_balance,
+      getPL(row),
       row.timeframe,
+      row.duration,
+      row.exchange === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />,
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (
@@ -293,7 +338,7 @@ const Strategies = () => {
   }
 
   const onAdd = () => {
-    list_()
+    getStrategies()
   }
 
   return (
@@ -313,6 +358,7 @@ const Strategies = () => {
       />
       <View
         title="Strategies"
+        loading={state.loading}
         buttons={[
           {
             icon: <i className="material-icons">add_circle</i>,

@@ -309,6 +309,41 @@ func GetRunningStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetStrategyIsRunning(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+	strategy, err := strategyservice.GetInstance().Get(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not get strategy")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	isRunning := strategy.State == "running"
+	bytes, err := json.Marshal(isRunning)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
 func GetStrategy(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -606,6 +641,41 @@ func GetBinanceBalance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetCandleticks(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+
+	symbol := params["symbol"][0]
+	start, _ := strconv.Atoi(params["start"][0])
+	end, _ := strconv.Atoi(params["end"][0])
+	timeframe := params["timeframe"][0]
+
+	candlesticks, err := binanceservice.GetInstance().GetCandleticks(symbol, start, end, timeframe)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"symbol":    symbol,
+			"start":     start,
+			"end":       end,
+			"timeframe": timeframe,
+		}).Error("Could not get candleticks")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	bytes, err := json.Marshal(candlesticks)
+	if err != nil {
+		logrus.Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
@@ -616,6 +686,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", RemoveTrades).Methods("DELETE")
 
 	router.HandleFunc("/strategy/running", GetRunningStrategy).Methods("GET")
+	router.HandleFunc("/strategy/{id}/is_running", GetStrategyIsRunning).Methods("GET")
 	router.HandleFunc("/strategy/{id}/initial_balance", SetStrategyInitialBalance).Methods("PUT")
 	router.HandleFunc("/strategy/{id}/balance", SetStrategyBalance).Methods("PUT")
 	router.HandleFunc("/strategy/{id}/start", StartStrategy).Methods("PUT")
@@ -630,6 +701,8 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
+
+	router.HandleFunc("/candleticks", GetCandleticks).Methods("GET")
 }
 
 func main() {

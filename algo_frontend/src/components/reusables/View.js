@@ -1,4 +1,6 @@
 import styled from "styled-components"
+import BounceLoader from "react-spinners/BounceLoader"
+import { theme } from "../../utils/theme"
 
 const ViewStyle = styled.div`
   display: flex;
@@ -15,22 +17,36 @@ const ViewStyle = styled.div`
     margin: 0;
     width: 100%;
     height: 80px;
-    border-top: 2px solid white;
-    border-bottom: 2px solid white;
-    background: #2d2d2d;
+    border-top: 2px solid ${theme.white};
+    border-bottom: 2px solid ${theme.white};
+    background: ${theme.black};
+    color: ${theme.white};
+
+    & h1 {
+      display: flex;
+      align-items: center;
+
+      & .loader {
+        margin-left: 10px;
+      }
+    }
 
     & .header-button {
       display: flex;
       justify-content: center;
       align-items: center;
-      border: 1px solid white;
+      border: 1px solid ${theme.white};
       width: 100px;
       height: 30px;
       margin-right: 20px;
 
+      & p {
+        margin-left: 5px;
+      }
+
       &:hover {
-        background: white;
-        color: #282c34;
+        background: ${theme.white};
+        color: ${theme.grayDark};
         cursor: pointer;
       }
 
@@ -48,15 +64,15 @@ const ViewStyle = styled.div`
   }
 `
 
-const View = ({ title, content, buttons }) => {
+const View = ({ title, content, buttons, loading }) => {
   return (
     <ViewStyle>
       <div className="header">
-        <h1>{title}</h1>
+        <h1>{title} {loading && <div className="loader"><BounceLoader color="white" size={32} /></div>}</h1>
         {buttons?.map((button) => (
           <div className="header-button" onClick={button.onClick}>
             {button.icon}
-            {button.label}
+            <p>{button.label}</p>
           </div>
         ))}
       </div>

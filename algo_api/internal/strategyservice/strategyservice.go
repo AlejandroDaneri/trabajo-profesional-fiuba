@@ -217,7 +217,9 @@ func (s *StrategyService) Create(strategy map[string]interface{}) (string, error
 		return "", err
 	}
 	strategy["pvt_type"] = "strategy"
+	strategy["type"] = "basic"
 	strategy["state"] = database.StrategyStateCreated
+	strategy["exchange"] = "binance"
 	id, _, err := db.Save(strategy, nil)
 	if err != nil {
 		return "", err
@@ -256,7 +258,7 @@ func (s *StrategyService) Start(id string) error {
 		return err
 	}
 	strategy.State = database.StrategyStateRunning
-	strategy.EndTimestamp = time.Now().Unix()
+	strategy.StartTimestamp = time.Now().Unix()
 
 	balance, err := s.binanceservice.GetBalance()
 	if err != nil {

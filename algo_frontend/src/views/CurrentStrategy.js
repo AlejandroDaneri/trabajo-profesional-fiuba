@@ -1,3 +1,4 @@
+/* Import Libs */
 import {
   Bar,
   BarChart,
@@ -10,111 +11,123 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import { useEffect, useState } from "react";
+} from "recharts"
+import { useEffect, useState } from "react"
+import moment from 'moment'
 
-import CurrencyLogo from "../components/CurrencyLogo";
-import { CurrentStrategyStyle } from "../styles/CurrentStrategy";
-import Trades from "../components/Trades";
-import View from "../components/reusables/View";
-import { capitalize } from "../utils/string";
-import { get } from "../webapi/strategy";
+/* Import Components */
+import CurrencyLogo from "../components/CurrencyLogo"
+import Trades from "../components/Trades"
+import View from "../components/reusables/View"
+
+/* Import Styled Components */
+import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
+
+/* Import Utils */
+import { capitalize } from "../utils/string"
+
+/* Import WebApi */
+import { get } from "../webapi/strategy"
+import { get as getCandleticks } from "../webapi/candleticks"
+
+/* Import Images */
+import logoBinance from "../images/logos/exchanges/binance.svg"
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
-    loading: true,
+    loading: false,
     data: {
       currencies: [],
     },
-  });
+  })
+
+  const [candleticks, candleticksFunc] = useState({
+    loading: false,
+    data: []
+  })
 
   //Here we should fetch the actual information from the database.
   const generateStockPerformanceData = () => {
-    const startDate = new Date(2024, 2, 20);
-    const endDate = new Date(2024, 4, 1);
-    const weeks = Math.ceil((endDate - startDate) / (7 * 24 * 60 * 60 * 1000));
+    const startDate = new Date(2024, 2, 20)
+    const endDate = new Date(2024, 4, 1)
+    const weeks = Math.ceil((endDate - startDate) / (7 * 24 * 60 * 60 * 1000))
 
-    const stockData = [];
+    const stockData = []
 
     for (let i = 0; i < weeks; i++) {
-      const weekStartDate = new Date(startDate);
-      weekStartDate.setDate(startDate.getDate() + i * 7);
+      const weekStartDate = new Date(startDate)
+      weekStartDate.setDate(startDate.getDate() + i * 7)
 
-      const weekEndDate = new Date(weekStartDate);
-      weekEndDate.setDate(weekStartDate.getDate() + 6);
+      const weekEndDate = new Date(weekStartDate)
+      weekEndDate.setDate(weekStartDate.getDate() + 6)
 
-      const pv = Math.random() * 10000 - 5000;
-      const uv = Math.random() * 10000 - 5000;
+      const pv = Math.random() * 10000 - 5000
+      const uv = Math.random() * 10000 - 5000
 
       stockData.push({
         name: `${weekStartDate.toLocaleDateString()} - ${weekEndDate.toLocaleDateString()}`,
         pv,
         uv,
-      });
+      })
     }
 
-    return stockData;
-  };
+    return stockData
+  }
 
   //Here we should fetch the actual information from the database.
   const generateTradingData = () => {
-    const startDate = new Date(2023, 0, 1);
-    const endDate = new Date(2023, 0, 20);
-    const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000));
+    const startDate = new Date(2023, 0, 1)
+    const endDate = new Date(2023, 0, 20)
+    const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000))
 
-    const tradingData = [];
+    const tradingData = []
 
     for (let i = 0; i <= days; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+      const date = new Date(startDate)
+      date.setDate(startDate.getDate() + i)
 
       tradingData.push({
         date: date.toLocaleDateString(),
         strategy: Math.random() * 100 + 500,
         buyAndHold: Math.random() * 100 + 500,
-      });
+      })
     }
 
-    return tradingData;
-  };
+    return tradingData
+  }
 
-  const tradingChartData = generateTradingData();
+  const tradingChartData = generateTradingData()
 
-  const stockPerformanceChartData = generateStockPerformanceData();
+  const stockPerformanceChartData = generateStockPerformanceData()
 
   const getStrategy = () => {
     const transformToView = (data) => {
-      const transformDuration = (start) => {
-        const currentTime = Math.floor(Date.now() / 1000);
-
-        const durationInSeconds = currentTime - start;
-
-        const days = Math.floor(durationInSeconds / (3600 * 24));
-        const hours = Math.floor((durationInSeconds % (3600 * 24)) / 3600);
-
-        return `${days} days, ${hours} hours`;
-      };
+      const getDuration = (start) => {
+        const end = Date.now() / 1000
+        return moment.utc((end - start) * 1000).format('HH:mm:ss')
+      }
 
       const transformTimeframe = (timeframe) => {
         switch (timeframe) {
           case "1M":
-            return "1 minute";
+            return "1 minute"
+          case "5M":
+            return "5 minute"
           case "1H":
-            return "1 hour";
+            return "1 hour"
           default:
-            return "";
+            return ""
         }
-      };
+      }
 
-      const initialBalance = data.initial_balance;
-      const currentBalance = parseFloat(data.current_balance).toFixed(2);
-      const profitAndLoss = (currentBalance - initialBalance).toFixed(2);
+      const initialBalance = data.initial_balance
+      const currentBalance = parseFloat(data.current_balance).toFixed(2)
+      const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
       const profitAndLossPercentaje = (
         (currentBalance / initialBalance - 1) *
         100
-      ).toFixed(2);
-      const duration = transformDuration(data.start_timestamp);
-      const timeframe = transformTimeframe(data.timeframe);
+      ).toFixed(2)
+      const duration = getDuration(data.start_timestamp)
 
       return {
         ...data,
@@ -139,27 +152,82 @@ const CurrentStrategy = () => {
           })),
         })),
         duration,
-        timeframe,
-      };
-    };
+        timeframe_label: transformTimeframe(data.timeframe),
+      }
+    }
+    strategyFunc((prevState) => ({
+      ...prevState,
+      loading: true,
+    }))
     get()
       .then((response) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
           data: transformToView(response.data),
-        }));
+        }))
       })
-      .catch((_) => {});
-  };
+      .catch((_) => {
+      })
+  }
+
+  const getCandleticks_ = (symbol, start, end, timeframe) => {
+    const params = {
+      symbol,
+      start,
+      end,
+      timeframe
+    }
+
+    getCandleticks(params)
+      .then(response => {
+        const amount = strategy.data.initial_balance / response.data[0].close
+
+        candleticksFunc(prevState => ({
+          ...prevState,
+          loading: true,
+          data: (response.data || []).map(candletick => {
+            return {
+              closeTime: new Date(candletick.close_time * 1000),
+              close: (candletick.close  * amount).toFixed(2)
+            }
+          })
+        }))
+      })
+      .catch(err => {
+        console.info('err', err)
+      })
+  }
 
   useEffect(() => {
-    getStrategy();
-  }, []);
+    if (strategy.data.currencies[0] && strategy.data.start_timestamp && strategy.data.timeframe) {
+      getCandleticks_(
+        strategy.data.currencies[0],
+        strategy.data.start_timestamp,
+        parseInt(Date.now() / 1000),
+        strategy.data.timeframe.toLowerCase(),
+      )
+    }
+  }, [
+    strategy.data.currencies,
+    strategy.data.start_timestamp,
+    strategy.data.end_timestamp,
+    strategy.data.timeframe
+  ])
+
+  useEffect(() => {
+    const interval = setInterval(getStrategy, 10000)
+    getStrategy()
+
+    return () => {
+      clearInterval(interval)
+    }
+  }, [])
 
   return (
     <View
       title="Current Strategy"
+      loading={strategy.loading}
       content={
         <CurrentStrategyStyle>
           <div className="summary">
@@ -180,6 +248,12 @@ const CurrentStrategy = () => {
                 </div>
               </div>
               <div className="box">
+                <div className="label">Exchange</div>
+                <div className="value">
+                  {strategy.data.exchange === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
+                </div>
+              </div>
+              <div className="box">
                 <div className="label">Currencies</div>
                 <div className="value">
                   {strategy.data.currencies.map((currency) => (
@@ -195,7 +269,7 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Timeframe</div>
-                <div>{strategy.data.timeframe}</div>
+                <div>{strategy.data.timeframe_label}</div>
               </div>
             </div>
           </div>
@@ -211,7 +285,7 @@ const CurrentStrategy = () => {
                 <LineChart
                   width={500}
                   height={300}
-                  data={tradingChartData}
+                  data={candleticks.data}
                   margin={{
                     top: 5,
                     right: 30,
@@ -240,13 +314,13 @@ const CurrentStrategy = () => {
                   <Line
                     type="monotone"
                     name="Buy And Hold"
-                    dataKey="buyAndHold"
+                    dataKey="close"
                     stroke="#82ca9d"
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <div className="graph-item">
+            {false && <div className="graph-item">
               <h3>Weekly Stock Performance</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart
@@ -288,12 +362,12 @@ const CurrentStrategy = () => {
                   />
                 </BarChart>
               </ResponsiveContainer>
-            </div>
+            </div>}
           </div>
         </CurrentStrategyStyle>
       }
     />
-  );
-};
+  )
+}
 
-export default CurrentStrategy;
+export default CurrentStrategy

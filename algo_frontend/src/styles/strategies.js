@@ -1,4 +1,5 @@
 import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 const StrategiesStyle = styled.div`
   display: flex;
@@ -22,7 +23,7 @@ const StrategiesStyle = styled.div`
 
   & .indicator-content {
     width: 200px;
-    background: #282c34;
+    background: ${theme.grayDark};
 
     & .parameter {
       display: flex;
@@ -36,8 +37,8 @@ const StrategiesStyle = styled.div`
     justify-content: center;
 
     & .indicator-button {
-      background: white;
-      color: #282c34;
+      background: ${theme.white};
+      color: ${theme.grayDark};
       padding: 3px;
       cursor: pointer;
       font-size: 12px;

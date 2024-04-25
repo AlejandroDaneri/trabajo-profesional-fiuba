@@ -10,7 +10,7 @@ from tensorflow import keras
 
 
 class RL(Strategy):
-    def __init__(self, indicators: List[Indicator]):
+    def __init__(self, indicators: List[Indicator], timeframe: str, id: str):
         print(tf.__version__)
         self.name = "RL"
 
@@ -23,7 +23,7 @@ class RL(Strategy):
 
         self.features.extend(["r"])
         self.n_features = len(self.features)
-        super().__init__(indicators)
+        super().__init__(indicators, timeframe, id)
 
     def standarize(self, data):
         data = data.copy()

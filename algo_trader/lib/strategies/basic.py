@@ -8,9 +8,9 @@ from typing import List, Tuple
 
 
 class Basic(Strategy):
-    def __init__(self, indicators: List[Indicator]):
+    def __init__(self, indicators: List[Indicator], timeframe: str, id: str):
         self.name = "BASIC"
-        super().__init__(indicators)
+        super().__init__(indicators, timeframe, id)
 
     def prepare_data(self, historical_data):
         for indicator in self.indicators:
