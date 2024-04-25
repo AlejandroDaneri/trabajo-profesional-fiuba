@@ -21,7 +21,7 @@ jobs:
           echo "EXCHANGE_BINANCE_API_SECRET=${{ secrets.EXCHANGE_BINANCE_API_SECRET }}" >> .env
 
       - name: Build Docker Image
-        run: docker build -t adaneri/backtester:latest algo_trader/backtester
+        run: docker build -f algo_trader/backtester/Dockerfile -t adaneri/backtester:latest algo_trader
 
       - name: Login to Docker Hub
         run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
