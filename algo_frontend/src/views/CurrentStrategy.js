@@ -70,8 +70,8 @@ const CurrentStrategy = () => {
 
       tradingData.push({
         date: date.toLocaleDateString(),
-        strategy: Math.random() * 100 + 500,
-        buyAndHold: Math.random() * 100 + 500,
+        strategy: (Math.random() * 100 + 500).toFixed(1),
+        buyAndHold: (Math.random() * 100 + 500).toFixed(1),
       });
     }
 
@@ -219,7 +219,7 @@ const CurrentStrategy = () => {
                     bottom: 5,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid stroke="none" strokeDasharray="3 3" />
                   <XAxis dataKey="date" />
                   <YAxis
                     label={{
@@ -227,6 +227,14 @@ const CurrentStrategy = () => {
                       angle: -90,
                       position: "insideLeft",
                     }}
+                    domain={[
+                      Math.min(
+                        ...tradingChartData.map((item) => item.strategy)
+                      ),
+                      Math.max(
+                        ...tradingChartData.map((item) => item.strategy)
+                      ),
+                    ]}
                   />
                   <Tooltip />
                   <Legend />
@@ -261,7 +269,7 @@ const CurrentStrategy = () => {
                     bottom: 5,
                   }}
                 >
-                  <CartesianGrid strokeDasharray="3 3" />
+                  <CartesianGrid stroke="none" strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis
                     label={{
@@ -273,7 +281,7 @@ const CurrentStrategy = () => {
                   />
                   <Tooltip />
                   <Legend />
-                  <ReferenceLine y={0} stroke="#000" />
+                  <ReferenceLine y={0} stroke="#484a4d" />
                   <Bar
                     dataKey="pv"
                     name="Current Strategy"
