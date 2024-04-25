@@ -702,7 +702,9 @@ func GetBacktesting(w http.ResponseWriter, r *http.Request) {
 
 	bytes, err := json.Marshal(backtesting)
 	if err != nil {
-		logrus.Error("Could not marshal")
+		logrus.WithFields(logrus.Fields{
+			"backtesting": backtesting,
+		}).Error("Could not marshal backtesting")
 		return
 	}
 

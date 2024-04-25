@@ -49,8 +49,8 @@ const BacktestingStyle = styled.div`
 `
 
 const Backtesting = () => {
-
     const [state, stateFunc] = useState({})
+    const [backtesting, backtestingFunc] = useState({})
 
     const onChange = (key, value) => {
         stateFunc(prevState => ({
@@ -61,14 +61,18 @@ const Backtesting = () => {
 
     const transformToSend = (data) => {
         return {
-            ...data,
-            coin: data.coin.value
+            symbol: data.coin.value,
+            initial_balance: data.initial_balance,
+            start: 1672542000,
+            end: 1706756400
         }
     }
 
     const onSubmit = () => {
         getBacktesting(transformToSend(state))
-            .then(_ => {})
+            .then(response => {
+                backtestingFunc(response?.data)
+            })
             .catch(_ => {})
     }
 
@@ -119,6 +123,7 @@ const Backtesting = () => {
                             <Button text="Submit" onClick={onSubmit} />
                         </div>
                     </div>
+                    <div>Final Balance: {backtesting.final_balance}</div>
                 </BacktestingStyle>}
         />
     )
