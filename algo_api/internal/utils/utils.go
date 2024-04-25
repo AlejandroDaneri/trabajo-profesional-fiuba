@@ -38,3 +38,7 @@ func String2float(number string) float64 {
 	float, _ := strconv.ParseFloat(strings.TrimSpace(number), 64)
 	return float
 }
+
+func Int2String(number int) string {
+	return strconv.Itoa(number)
+}

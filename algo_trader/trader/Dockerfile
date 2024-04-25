@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY . .
 
+COPY ../lib /app/lib
+
 RUN pip install -r requirements.txt
 
 ENV BOT_TOKEN="6575277104:AAGLL8gGGT65SU_gIX5KBdkV47fLVbTO9mI"
