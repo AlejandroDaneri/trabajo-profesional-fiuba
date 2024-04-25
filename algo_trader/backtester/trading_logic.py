@@ -5,48 +5,48 @@ import yfinance as yf
 def getActions(data, features, trig_buy_cross=0, trig_buy_rsi=65, trig_buy_sigma=0.01,
                trig_sell_cross=-0.01, trig_sell_rsi=55, trig_sell_obv=0):
     
-    gatillos_compra = pd.DataFrame(index=features.index)
-    gatillos_compra['cruce'] = features['cruce'] > trig_buy_cross
-    gatillos_compra['rsi'] = features['rsi'] > trig_buy_rsi
-    gatillos_compra['sigma'] = features['sigma'] > trig_buy_sigma
-    mascara_compra = gatillos_compra.all(axis=1)
+    buy_triggers = pd.DataFrame(index=features.index)
+    buy_triggers['cross'] = features['cross'] > trig_buy_cross
+    buy_triggers['rsi'] = features['rsi'] > trig_buy_rsi
+    buy_triggers['sigma'] = features['sigma'] > trig_buy_sigma
+    buy_mask = buy_triggers.all(axis=1)
 
-    gatillos_venta = pd.DataFrame(index=features.index)
-    gatillos_venta['cruce'] = features['cruce'] < trig_sell_cross
-    gatillos_venta['rsi'] = features['rsi'] < trig_sell_rsi
-    gatillos_venta['obv'] = features['OBV_osc'] > trig_sell_obv
-    mascara_venta = gatillos_venta.all(axis=1)
+    sell_triggers = pd.DataFrame(index=features.index)
+    sell_triggers['cross'] = features['cross'] < trig_sell_cross
+    sell_triggers['rsi'] = features['rsi'] < trig_sell_rsi
+    sell_triggers['obv'] = features['OBV_osc'] > trig_sell_obv
+    sell_mask = sell_triggers.all(axis=1)
 
     data.dropna(inplace=True)
 
-    data['gatillo'] = np.where(mascara_compra, 'compra', np.where(mascara_venta, 'venta', ''))
-    actions = data.loc[data['gatillo'] != ''].copy()
+    data['signal'] = np.where(buy_mask, 'buy', np.where(sell_mask, 'sell', ''))
+    actions = data.loc[data['signal'] != ''].copy()
 
-    actions['gatillo'] = np.where(actions['gatillo'] != actions['gatillo'].shift(), actions['gatillo'], "")
-    actions = actions.loc[actions['gatillo'] != ''].copy()
+    actions['signal'] = np.where(actions['signal'] != actions['signal'].shift(), actions['signal'], "")
+    actions = actions.loc[actions['signal'] != ''].copy()
 
-    if actions.iloc[0]['gatillo'] == 'venta':
+    if actions.iloc[0]['signal'] == 'sell':
         actions = actions.iloc[1:]
-    if actions.iloc[-1]['gatillo'] == 'compra':
+    if actions.iloc[-1]['signal'] == 'buy':
         actions = actions.iloc[:-1]
     
     return actions
 
 def getTrades(actions):
-    pares = actions.iloc[::2][['Close']].reset_index()
-    impares = actions.iloc[1::2][['Close']].reset_index()
-    trades = pd.concat([pares, impares], axis=1)
+    evens = actions.iloc[::2][['Close']].reset_index()
+    odds = actions.iloc[1::2][['Close']].reset_index()
+    trades = pd.concat([evens, odds], axis=1)
 
-    CT = 0
-    trades.columns = ['fecha_compra', 'px_compra', 'fecha_venta', 'px_venta'] 
-    trades['rendimiento'] = trades['px_venta'] / trades['px_compra'] - 1
+    transaction_cost =0
+    trades.columns = ['buy_date', 'buy_price', 'sell_date', 'sell_price'] 
+    trades['return'] = trades['sell_price'] / trades['buy_price'] - 1
 
-    trades['rendimiento'] -= CT
-    trades['dias'] = (trades['fecha_venta'] - trades['fecha_compra']).dt.days
+    trades['return'] -= transaction_cost
+    trades['days'] = (trades['sell_date'] - trades['buy_date']).dt.days
 
     if len(trades) > 0:
-        trades['resultado'] = np.where(trades['rendimiento'] > 0, 'Ganador', 'Perdedor')
-        trades['rendimientoAcumulado'] = (trades['rendimiento'] + 1).cumprod() - 1
+        trades['result'] = np.where(trades['return'] > 0, 'Winner', 'Loser')
+        trades['cumulative_return'] = (trades['return'] + 1).cumprod() - 1
 
     return trades
 
@@ -66,7 +66,7 @@ def getFeatures(data, n_obv=100, n_sigma=40, n_rsi=15, fast=20, slow=60):
     ema_loss = loss.ewm(alpha=1/n_rsi).mean()
     rs = ema_win / ema_loss
 
-    data['cruce'] = data['Close'].rolling(fast).mean() / data['Close'].rolling(slow).mean() - 1
+    data['cross'] = data['Close'].rolling(fast).mean() / data['Close'].rolling(slow).mean() - 1
     data['rsi'] = 100 - (100 / (1 + rs))
     data['sigma'] = data['Close'].pct_change().rolling(n_sigma).std()
     data['OBV_osc'] = (data['OBV'] - data['OBV'].rolling(n_obv).mean()) / data['OBV'].rolling(n_obv).std()
@@ -76,7 +76,7 @@ def getFeatures(data, n_obv=100, n_sigma=40, n_rsi=15, fast=20, slow=60):
 
 def eventDriveLong(df): 
     df["pct_change"]=df['Close'].pct_change() 
-    signals=df['gatillo'].tolist()
+    signals=df['signal'].tolist()
     pct_changes =df['pct_change'].tolist()
 
     total = len(signals) 
@@ -84,17 +84,17 @@ def eventDriveLong(df):
 
     while i<total:
 
-        if signals[i-1] == 'compra':
+        if signals[i-1] == 'buy':
             j=i
             while j<total:
                 results.append(pct_changes[j])
                 j +=1
-                if signals[j-1]=="venta":
+                if signals[j-1]=="sell":
                     i=j
                     break
                 if j == total:
                     i=j
-                    print("Compra abierta")
+                    print("Open buy")
                     break
 
         else:
