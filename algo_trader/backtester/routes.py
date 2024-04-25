@@ -40,8 +40,8 @@ def backtest():
     results_dict = results.to_dict(orient='records') #comparing vs buy and hold
 
     response_dict = {
-        'trades': trades_dict, # comento por ahora nomas para que no me rompa golang
-        'results_dict': results_dict, # comento por ahora nomas para que no me rompa golang
+        #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
+        #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang
         'final_balance' : str(initial_balance * (1 + trades['rendimientoAcumulado']).iloc[-1]) if len(trades)>0 else "no trades, WIP"
 
     }
