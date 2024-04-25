@@ -1,6 +1,7 @@
 package pythonservice
 
 import (
+	"algo_api/internal/utils"
 	"encoding/json"
 	"io"
 	"net/http"
@@ -28,22 +29,22 @@ func NewService() IService {
 }
 
 type IService interface {
-	GetBacktesting(coin string, initial_balance string, start string, end string) (Backtesting, error)
+	GetBacktesting(coin string, initial_balance string, start int, end int) (Backtesting, error)
 }
 
 type Backtesting struct {
 	FinalBalance string `json:"final_balance"`
 }
 
-func (s *PythonService) GetBacktesting(coin string, initial_balance string, start string, end string) (Backtesting, error) {
+func (s *PythonService) GetBacktesting(coin string, initial_balance string, start int, end int) (Backtesting, error) {
 	baseURL := "http://backtester:5000"
 	endpoint := "backtest"
 
 	params := url.Values{}
 	params.Add("coin", coin)
 	params.Add("initial_balance", initial_balance)
-	params.Add("data_from", start)
-	params.Add("data_to", end)
+	params.Add("data_from", utils.Int2String(start))
+	params.Add("data_to", utils.Int2String(end))
 
 	url := baseURL + "/" + endpoint + "?" + params.Encode()
 
