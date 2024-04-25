@@ -2,9 +2,9 @@ FROM python:3.10.2
 
 WORKDIR /app
 
-COPY . .
+COPY trader .
 
-COPY ../lib /app/lib
+COPY lib /app/lib
 
 RUN pip install -r requirements.txt
 
