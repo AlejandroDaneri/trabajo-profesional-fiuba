@@ -39,28 +39,27 @@ class MACD(Indicator):
         df = df.dropna().round(2)
 
         # Rename the 'histogram' column with the indicator name for convenience (notation abuse)
-        df[self.name] = df["histogram"]
-        self.output = df[self.name]
+        self.output = df
         return super().calculate(data, normalize)
 
     def calc_buy_signals(self):
-        return self._calc_buy_signals((self.output.shift(1) < 0) & (0 < self.output))
+        return self._calc_buy_signals((self.output["histogram"].shift(1) < 0) & (0 < self.output["histogram"]))
 
     def calc_sell_signals(self):
-        return self._calc_sell_signals((self.output.shift(1) > 0) & (0 >= self.output))
+        return self._calc_sell_signals((self.output["histogram"].shift(1) > 0) & (0 >= self.output["histogram"]))
 
     def plot(self):
         data = pd.DataFrame(self.output, index=self.dates)
         fig = plt.figure()
         fig.set_size_inches(30, 5)
-        plt.plot(self.output)
+        plt.plot(data["histogram"])
         plt.grid()
         plt.axhline(0, linestyle="--", linewidth=1.5, color="black")
         plt.fill_between(
-            data.index, self.output, 0, where=self.output > 0, alpha=0.5, color="green"
+            data.index, data["histogram"], 0, where=data["histogram"] > 0, alpha=0.5, color="green"
         )
         plt.fill_between(
-            data.index, self.output, 0, where=self.output < 0, alpha=0.5, color="red"
+            data.index, data["histogram"], 0, where=data["histogram"] < 0, alpha=0.5, color="red"
         )
         plt.show()
 
