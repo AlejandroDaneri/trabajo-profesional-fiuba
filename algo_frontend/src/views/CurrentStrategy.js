@@ -226,7 +226,7 @@ const CurrentStrategy = () => {
 
   return (
     <View
-      title="Current Strategy"
+      title="Running Strategy"
       loading={strategy.loading}
       content={
         <CurrentStrategyStyle>
