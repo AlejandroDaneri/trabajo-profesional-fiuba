@@ -59,10 +59,11 @@ const Strategies = () => {
       const end_ = end || (Date.now() / 1000)
       return moment.utc((end_ - start) * 1000).format('HH:mm:ss')
     }
+
     return data.map((strategy) => ({
       ...strategy,
       state_label: capitalize(strategy.state),
-      duration: getDuration(strategy.start_timestamp - strategy.end_timestamp)
+      duration: getDuration(strategy.start_timestamp, strategy.end_timestamp)
     }))
   }
 
