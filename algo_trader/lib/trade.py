@@ -4,10 +4,10 @@ class Order:
         self.timestamp: int = timestamp
 
 class Trade:
-    def __init__(self, symbol: str, amount: int, price: float, timestamp: int):
+    def __init__(self, symbol: str, amount: float, price: float, timestamp: int):
         self.symbol: str = symbol
-        self.amount: int = amount
-
+        self.amount: float = amount
+        print(f"[Trade] amount: {amount}")
         self.buy_order = Order(price, timestamp)
         self.sell_order = None
     
