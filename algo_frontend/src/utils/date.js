@@ -1,5 +1,5 @@
 export const unixToDate = (unix) => {
-  const date = new Date(unix)
+  const date = new Date(unix * 1000)
 
   const yyyy = date.getFullYear()
   const MM = padding(date.getMonth() + 1)
