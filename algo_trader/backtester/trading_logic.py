@@ -104,3 +104,22 @@ def eventDriveLong(df):
     result = pd.concat([df,pd.Series(data=results,index=df.index)],axis=1)
     result.columns.values[-1] ="strategy"
     return result
+
+def calculateFinalBalance(data, trades, starting_capital=10000):
+    if len(trades) == 0:
+        return starting_capital
+
+    cumulative_return = trades['cumulative_return'].iloc[-1]
+
+    last_signal = data['signal'].iloc[-1]
+    if last_signal == 'buy':
+        
+        current_price = data['Close'].iloc[-1]
+        open_trade_price = data['Close'].iloc[-2]  
+        unrealized_pnl = (current_price / open_trade_price) - 1
+    else:
+        unrealized_pnl = 0  
+
+    final_balance = starting_capital * (1 + cumulative_return + unrealized_pnl)
+
+    return final_balance

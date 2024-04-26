@@ -33,7 +33,7 @@ type IService interface {
 }
 
 type Backtesting struct {
-	FinalBalance string `json:"final_balance"`
+	FinalBalance float64 `json:"final_balance"`
 }
 
 func (s *PythonService) GetBacktesting(coin string, initial_balance string, start int, end int) (Backtesting, error) {

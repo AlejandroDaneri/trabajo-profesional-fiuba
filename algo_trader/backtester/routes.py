@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
-from trading_logic import getData, getFeatures, getActions, getTrades, eventDriveLong
-
+from trading_logic import calculateFinalBalance, getData, getFeatures, getActions, getTrades, eventDriveLong
+import logging
 app = Flask(__name__)
 
 @app.errorhandler(400)
@@ -35,14 +35,14 @@ def backtest():
     trades = getTrades(actions)
     payoff = eventDriveLong(data)
     results = payoff.iloc[:,-2:].add(1).cumprod()
-
+    final_balance = calculateFinalBalance(data,trades,initial_balance)
     trades_dict = trades.to_dict(orient='records')
     results_dict = results.to_dict(orient='records') #comparing vs buy and hold
 
     response_dict = {
         #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
         #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang
-        'final_balance' : initial_balance * (1 + trades['cumulative_return']).iloc[-1] if len(trades)>0 else 0
+        'final_balance' : final_balance
 
     }
 
