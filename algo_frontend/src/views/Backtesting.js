@@ -1,6 +1,7 @@
 /* Import Libs */
-import React, { useState } from "react"
+import React, { useRef, useState } from "react"
 import styled from "styled-components"
+import BounceLoader from "react-spinners/BounceLoader"
 import "react-day-picker/dist/style.css"
 
 /* Import Reusables Components */
@@ -22,6 +23,8 @@ const BacktestingStyle = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
+  height: calc(100vh - 40px - 84px);
+  overflow: hidden;
 
   & .form {
     display: flex;
@@ -31,7 +34,6 @@ const BacktestingStyle = styled.div`
     width: ${({ view }) => view === VIEW_FORM ? '600px' : '10px'};
     transition: width .5s;
     padding-right: 20px;
-    min-height: calc(100vh - 104px - 40px);
     background: ${theme.dark};
 
     & .sections {
@@ -80,7 +82,6 @@ const BacktestingStyle = styled.div`
     width: 2px;
     background: white;
     z-index: 2;
-    min-height: 1000px;
   }
 
   & .button-back {
@@ -89,11 +90,24 @@ const BacktestingStyle = styled.div`
     top: 20px;
     z-index: 2;
   }
+
+  & .backtesting {
+    display: flex;
+    align-items: center;
+  }
 `
 
 const Backtesting = () => {
   const [view, viewFunc] = useState(VIEW_FORM)
-  const [state, stateFunc] = useState({})
+  const [state, stateFunc] = useState({
+    start: '2023-01-01',
+    end: '2024-01-01',
+    coin: {
+      value: 'BTC',
+      label: 'BTC'
+    },
+    initial_balance: 1000
+  })
   const [backtesting, backtestingFunc] = useState({
     loading: false,
     data: {}
@@ -243,18 +257,16 @@ const Backtesting = () => {
             />
           </div>
           {view === VIEW_BACKTESTING && (
-            <>
-              {backtesting.loading && 'loading'}
-              <div>
+            <div className="backtesting">
+              {backtesting.loading ? <BounceLoader color='white' size='48px' /> : <div>
                 Final Balance: {backtesting.data.final_balance}
-              </div>
-              </>
+              </div>}
+            </div>
           )}
-            
         </BacktestingStyle>
       }
     />
-  );
-};
+  )
+}
 
 export default Backtesting;
