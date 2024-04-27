@@ -1,3 +1,5 @@
+import "react-datepicker/dist/react-datepicker.css";
+
 import {
   Bar,
   BarChart,
@@ -15,6 +17,7 @@ import { useEffect, useState } from "react";
 
 import CurrencyLogo from "../components/CurrencyLogo";
 import { CurrentStrategyStyle } from "../styles/CurrentStrategy";
+import DatePicker from "react-datepicker";
 import Trades from "../components/Trades";
 import View from "../components/reusables/View";
 import { capitalize } from "../utils/string";
@@ -28,10 +31,13 @@ const CurrentStrategy = () => {
     },
   });
 
+  const [minSelectedDate, setMinSelectedDate] = useState(new Date(2024, 0, 1));
+  const [maxSelectedDate, setMaxSelectedDate] = useState(new Date());
+
   //Here we should fetch the actual information from the database.
   const generateStockPerformanceData = () => {
-    const startDate = new Date(2024, 2, 20);
-    const endDate = new Date(2024, 4, 1);
+    const startDate = new Date(2024, 0, 1);
+    const endDate = new Date(2024, 0, 20);
     const weeks = Math.ceil((endDate - startDate) / (7 * 24 * 60 * 60 * 1000));
 
     const stockData = [];
@@ -48,6 +54,7 @@ const CurrentStrategy = () => {
 
       stockData.push({
         name: `${weekStartDate.toLocaleDateString()} - ${weekEndDate.toLocaleDateString()}`,
+        startDate: weekStartDate,
         pv,
         uv,
       });
@@ -58,8 +65,8 @@ const CurrentStrategy = () => {
 
   //Here we should fetch the actual information from the database.
   const generateTradingData = () => {
-    const startDate = new Date(2023, 0, 1);
-    const endDate = new Date(2023, 0, 20);
+    const startDate = new Date(2024, 0, 1);
+    const endDate = new Date(2024, 0, 20);
     const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000));
 
     const tradingData = [];
@@ -69,7 +76,7 @@ const CurrentStrategy = () => {
       date.setDate(startDate.getDate() + i);
 
       tradingData.push({
-        date: date.toLocaleDateString(),
+        date: date,
         strategy: (Math.random() * 100 + 500).toFixed(1),
         buyAndHold: (Math.random() * 100 + 500).toFixed(1),
       });
@@ -81,6 +88,24 @@ const CurrentStrategy = () => {
   const tradingChartData = generateTradingData();
 
   const stockPerformanceChartData = generateStockPerformanceData();
+
+  const filteredStockPerformanceData = stockPerformanceChartData
+    .filter(
+      (item) =>
+        item.startDate >= minSelectedDate && item.startDate <= maxSelectedDate
+    )
+    .map((entry) => ({
+      ...entry,
+    }));
+
+  const filteredTradingChartData = tradingChartData
+    .filter(
+      (item) => item.date >= minSelectedDate && item.date <= maxSelectedDate
+    )
+    .map((entry) => ({
+      ...entry,
+      date: entry.date.toLocaleDateString(),
+    }));
 
   const getStrategy = () => {
     const transformToView = (data) => {
@@ -205,13 +230,40 @@ const CurrentStrategy = () => {
           </div>
           <div>
             <h2>Graphs</h2>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <div style={{ marginRight: "10px" }}>
+                <label
+                  style={{ marginRight: "10px" }}
+                  htmlFor="startDatePicker"
+                >
+                  Select the start date:
+                </label>
+                <DatePicker
+                  id="startDatePicker"
+                  selected={minSelectedDate}
+                  onChange={(date) => setMinSelectedDate(date)}
+                  className="input-strategy"
+                />
+              </div>
+              <div>
+                <label style={{ marginRight: "10px" }} htmlFor="endDatePicker">
+                  Select the end date:
+                </label>
+                <DatePicker
+                  id="endDatePicker"
+                  selected={maxSelectedDate}
+                  onChange={(date) => setMaxSelectedDate(date)}
+                  className="input-strategy"
+                />
+              </div>
+            </div>
             <div>
               <h3>Comparison of Strategies</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart
                   width={500}
                   height={300}
-                  data={tradingChartData}
+                  data={filteredTradingChartData}
                   margin={{
                     top: 5,
                     right: 30,
@@ -260,7 +312,7 @@ const CurrentStrategy = () => {
                 <BarChart
                   width={500}
                   height={300}
-                  data={stockPerformanceChartData}
+                  data={filteredStockPerformanceData}
                   stackOffset="sign"
                   margin={{
                     top: 5,

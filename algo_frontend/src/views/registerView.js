@@ -68,6 +68,7 @@ const RegisterView = () => {
         <form>
           <label className="register-labels">Email</label>
           <input
+            className="input-register-view"
             type="email"
             name="email"
             placeholder="Enter your email"
@@ -76,6 +77,7 @@ const RegisterView = () => {
 
           <label className="register-labels">Password</label>
           <input
+            className="input-register-view"
             type="password"
             name="password"
             placeholder="Enter your password"
@@ -84,6 +86,7 @@ const RegisterView = () => {
 
           <label className="register-labels">Confirm Password</label>
           <input
+            className="input-register-view"
             type="password"
             name="confirmPassword"
             placeholder="Confirm your password"

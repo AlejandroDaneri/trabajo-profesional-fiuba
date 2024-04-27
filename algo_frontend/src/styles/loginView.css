@@ -53,7 +53,7 @@
   text-align: center;
 }
 
-input {
+.input-login-view {
   padding: 12px;
   margin-bottom: 15px;
   border: 1px solid var(--text-dark);

@@ -78,7 +78,7 @@ form {
   color: var(--text-dark);
 }
 
-input {
+.input-register-view {
   padding: 12px;
   margin-bottom: 15px;
   border: 1px solid var(--text-dark);
