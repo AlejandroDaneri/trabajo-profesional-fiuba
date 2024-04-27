@@ -5,29 +5,39 @@ import { DayPicker as DayPickerLib } from 'react-day-picker'
 
 /* Import Reusables Compontens */
 import Input from './Input'
-import Button from '../Button'
 import styled from 'styled-components'
 import { theme } from '../../utils/theme'
 
-const DatePickerStyle = styled.div`
+const FieldDatePickerStyle = styled.div`
     display: flex;
     align-items: center;
     flex-direction: column;
 
+    & p {
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
+      color: ${theme.white};
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
     & .my-day-picker {
-        background-color: ${theme.black};
-        padding: 10px;
-        --rdp-accent-color: ${theme.btc};
-        --rdp-background-color: ${theme.btc};
-        box-shadow: 0 1px 10px rgba(0, 0, 0, .2), 0 4px 5px rgba(0, 0, 0, .3), 0 2px 4px -1px rgba(0, 0, 0, .4)
+      background-color: ${theme.black};
+      padding: 10px;
+      --rdp-accent-color: ${theme.btc};
+      --rdp-background-color: ${theme.btc};
+      box-shadow: 0 1px 10px rgba(0, 0, 0, .2), 0 4px 5px rgba(0, 0, 0, .3), 0 2px 4px -1px rgba(0, 0, 0, .4)
     }
 
     & .day-picker-container-1 {
-        position: relative;
+      position: relative;
+      right: 105px;
+      z-index: 1;
 
-        & .day-picker-container-2 {
-            position: absolute;
-        }
+      & .day-picker-container-2 {
+        position: absolute;
+      }
     }
 
     & .row {
@@ -49,7 +59,7 @@ const DatePickerStyle = styled.div`
     }
 `
 
-const DatePicker = ({ onChange, name }) => {
+const FieldDatePicker = ({ onChange, name, label, width }) => {
   const [selected, setSelected] = useState()
   const [inputValue, setInputValue] = useState('')
   const [selectorOpened, selectorOpenedFunc] = useState(true)
@@ -80,14 +90,15 @@ const DatePicker = ({ onChange, name }) => {
   const onToggle = () => {
     selectorOpenedFunc(prevState => !prevState)
   }
-  
 
   return (
-    <DatePickerStyle>
+    <FieldDatePickerStyle>
+        <p>{label}</p>
         <div className="row">
             <Input
                 value={inputValue}
                 onChange={handleInputChange}
+                width={width}
             />
             <i className="material-icons" onClick={onToggle}>event</i>
         </div>
@@ -101,13 +112,12 @@ const DatePicker = ({ onChange, name }) => {
                         selected={selected}
                         onSelect={handleDaySelect}
                         className="my-day-picker"
-                      
                     />
                 </div>
             </div>
         }
-    </DatePickerStyle>
+    </FieldDatePickerStyle>
   )
 }
 
-export default DatePicker
+export default FieldDatePicker
