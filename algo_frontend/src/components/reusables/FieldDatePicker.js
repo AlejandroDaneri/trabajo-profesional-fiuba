@@ -1,5 +1,5 @@
 /* Import Libs */
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { format, isValid, parse } from 'date-fns'
 import { DayPicker as DayPickerLib } from 'react-day-picker'
 
@@ -32,7 +32,7 @@ const FieldDatePickerStyle = styled.div`
 
     & .day-picker-container-1 {
       position: relative;
-      right: 105px;
+      right: 125px;
       z-index: 1;
 
       & .day-picker-container-2 {
@@ -59,13 +59,14 @@ const FieldDatePickerStyle = styled.div`
     }
 `
 
-const FieldDatePicker = ({ onChange, name, label, width }) => {
+const FieldDatePicker = ({ onChange, name, value, label, width }) => {
+  const ref = useRef()
+
   const [selected, setSelected] = useState()
-  const [inputValue, setInputValue] = useState('')
-  const [selectorOpened, selectorOpenedFunc] = useState(true)
+  const [selectorOpened, selectorOpenedFunc] = useState(false)
 
   const handleInputChange = (e) => {
-    setInputValue(e.currentTarget.value);
+    onChange(name, e.currentTarget.value)
     const date = parse(e.currentTarget.value, 'y-MM-dd', new Date());
     if (isValid(date)) {
       setSelected(date)
@@ -77,33 +78,42 @@ const FieldDatePicker = ({ onChange, name, label, width }) => {
   const handleDaySelect = (date) => {
     setSelected(date)
     if (date) {
-      setInputValue(format(date, 'y-MM-dd'))
+      onChange(name, format(date, 'y-MM-dd'))
     } else {
-      setInputValue('')
+      onChange(name, '')
     }
   }
-
-  useEffect(() => {
-    onChange(name, inputValue)
-  }, [inputValue]) // eslint-disable-line
 
   const onToggle = () => {
     selectorOpenedFunc(prevState => !prevState)
   }
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        selectorOpenedFunc(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [])
 
   return (
     <FieldDatePickerStyle>
         <p>{label}</p>
         <div className="row">
             <Input
-                value={inputValue}
+                value={value}
                 onChange={handleInputChange}
                 width={width}
             />
             <i className="material-icons" onClick={onToggle}>event</i>
         </div>
         {selectorOpened && 
-            <div className='day-picker-container-1'>
+            <div className='day-picker-container-1' ref={ref}>
                 <div className='day-picker-container-2'>
                     <DayPickerLib
                         initialFocus={true}
