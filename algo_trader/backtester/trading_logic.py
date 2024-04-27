@@ -50,8 +50,8 @@ def getTrades(actions):
 
     return trades
 
-def getData(ticker, data_from, data_to):
-    data = yf.download(ticker, auto_adjust=True, progress=False, start=data_from, end=data_to)
+def getData(ticker, data_from, data_to,timeframe):
+    data = yf.download(ticker,interval=timeframe, auto_adjust=True, progress=False, start=data_from, end=data_to)
     return data
 
 def getFeatures(data, n_obv=100, n_sigma=40, n_rsi=15, fast=20, slow=60):
