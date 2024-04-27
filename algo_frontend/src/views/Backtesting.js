@@ -1,16 +1,20 @@
 /* Import Libs */
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, { useState } from "react"
+import styled from "styled-components"
+import "react-day-picker/dist/style.css"
 
 /* Import Reusables Components */
-import View from "../components/reusables/View";
-import FieldInput from "../components/reusables/FieldInput";
-import FieldSelect from "../components/reusables/FieldSelect";
-import FieldSwitch from "../components/reusables/FieldSwitch";
-import Button from "../components/Button";
+import View from "../components/reusables/View"
+import FieldInput from "../components/reusables/FieldInput"
+import FieldSelect from "../components/reusables/FieldSelect"
+import FieldSwitch from "../components/reusables/FieldSwitch"
+import Button from "../components/Button"
+
 
 /* Impor WebApi */
-import { get as getBacktesting } from "../webapi/backtesting";
+import { get as getBacktesting } from "../webapi/backtesting"
+import Datepicker from "../components/reusables/DatePicker"
+import DatePicker from "../components/reusables/DatePicker"
 
 const BacktestingStyle = styled.div`
   display: flex;
@@ -22,7 +26,7 @@ const BacktestingStyle = styled.div`
     margin-left: 20px;
     margin-top: 20px;
 
-    width: 200px;
+    width: 400px;
     border-right: 0.5px solid white;
     padding-right: 40px;
 
@@ -49,22 +53,25 @@ const BacktestingStyle = styled.div`
 `;
 
 const Backtesting = () => {
-  const [state, stateFunc] = useState({});
-  const [backtesting, backtestingFunc] = useState({});
+  const [state, stateFunc] = useState({})
+  const [backtesting, backtestingFunc] = useState({})
 
   const onChange = (key, value) => {
     stateFunc((prevState) => ({
       ...prevState,
       [key]: value,
-    }));
-  };
+    }))
+  }
 
   const transformToSend = (data) => {
+    const start = new Date(`${data.start}T00:00:00Z`)
+    const end = new Date(`${data.end}T00:00:00Z`)
+
     return {
       symbol: data.coin.value,
       initial_balance: data.initial_balance,
-      start: 1672542000,
-      end: 1706756400,
+      start: Math.floor(start.getTime() / 1000),
+      end: Math.floor(end.getTime() / 1000),
     };
   };
 
@@ -74,7 +81,7 @@ const Backtesting = () => {
         backtestingFunc(response?.data);
       })
       .catch((_) => {});
-  };
+  }
 
   return (
     <View
@@ -85,6 +92,7 @@ const Backtesting = () => {
             <div className="section">
               <h3>Basic</h3>
               <div className="section-content">
+                <DatePicker name="start" onChange={onChange} />
                 <FieldInput
                   label="Initial Balance"
                   name="initial_balance"
