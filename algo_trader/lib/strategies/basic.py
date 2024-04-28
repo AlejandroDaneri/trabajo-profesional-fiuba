@@ -36,7 +36,7 @@ class Basic(Strategy):
 
         return most_common_signal
 
-    def backtest(self, historical_data: pd.DataFrame) -> None:
+    def backtest(self, historical_data: pd.DataFrame, initial_balance) -> None:
         # Entrenar la estrategia con datos históricos
         self.prepare_data(historical_data)
 
@@ -45,11 +45,11 @@ class Basic(Strategy):
 
         # Obtener acciones a partir de las señales
         actions = self.get_actions(buy_signals, sell_signals)
-
+        historical_data['signal'] = actions['signal'] #FIXME
         # get trades from actions
         trades = self.get_trades(actions)
-
-        return trades
+        final_balance = self.calculate_final_balance(historical_data, trades, initial_balance)
+        return trades,final_balance
 
         # Realizar análisis de backtesting
         # self.analyze_backtesting(trades)
@@ -97,8 +97,6 @@ class Basic(Strategy):
 
         # Filter out rows with no signal
         trades = trades.loc[trades.signal != ""].copy()
-
-        # Handle cases where the first trade is sell or the last trade is buy
         if trades.iloc[0].loc["signal"] == "sell":
             trades = trades.iloc[1:]
         if trades.iloc[-1].loc["signal"] == "buy":
@@ -119,3 +117,23 @@ class Basic(Strategy):
         trades["result"] = np.where(trades["return"] > 0, "Winner", "Loser")
 
         return trades
+    
+
+    def calculate_final_balance(self, data, trades, starting_capital=10000):
+        if len(trades) == 0:
+            return starting_capital
+
+        cumulative_return = trades['cumulative_return'].iloc[-1]
+
+        last_signal = data['signal'].iloc[-1]
+        if last_signal == 'buy':
+            
+            current_price = data['Close'].iloc[-1]
+            open_trade_price = data['Close'].iloc[-2]  
+            unrealized_pnl = (current_price / open_trade_price) - 1
+        else:
+            unrealized_pnl = 0  
+
+        final_balance = starting_capital * (1 + cumulative_return + unrealized_pnl)
+
+        return final_balance

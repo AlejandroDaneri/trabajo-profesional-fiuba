@@ -1,9 +1,13 @@
 from lib.utils.utils_backtest import hydrate_strategy
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
-from trading_logic import calculateFinalBalance, getData, getFeatures, getActions, getTrades, eventDriveLong
-import logging
+import yfinance as yf
+
 app = Flask(__name__)
+
+def getData(ticker, data_from, data_to,timeframe):
+    data = yf.download(ticker,interval=timeframe, auto_adjust=True, progress=False, start=data_from, end=data_to)
+    return data
 
 @app.errorhandler(400)
 def bad_request(error):
@@ -66,31 +70,16 @@ def backtest():
             abort(500, description=f"Failed request to YFinance for {coin}")
         
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
-        trades = strategy[coin].backtest(data)
+        trades, final_balance = strategy[coin].backtest(data,initial_balance)
+        
+        # trades_dict = trades.to_dict(orient='records')
+        # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
 
-        final_balance = initial_balance * (1 + trades['cumulative_return']).iloc[-1] if len(trades) > 0 else 0
-        results[coin] = {'final_balance': final_balance}
-    # data = getData(ticker=coin +'-USD', data_from=data_from, data_to=data_to,timeframe = timeframe_mapping[timeframe])
-    # if(data.empty):
-    #     abort(500, description="Failed request to YFinance")   
-    # strategy = hydrate_strategy([coin], indicators, timeframe, 123) ## FIXME
-
-    # trades = strategy[coin].backtest(data)
-    # features = getFeatures(data, n_obv=100, n_sigma=40, n_rsi=15, fast=20, slow=60)
-    # actions = getActions(data, features, 0, 65, 0.01, -0.01, 55, 0)
-    # trades = getTrades(actions)
-    # payoff = eventDriveLong(data)
-    # results = payoff.iloc[:,-2:].add(1).cumprod()
-    # final_balance = calculateFinalBalance(data,trades,initial_balance)
-    # trades_dict = trades.to_dict(orient='records')
-    # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
-
-    response_dict = {
-        #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
-        #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang
-        'final_balance' : initial_balance * (1 + trades['cumulative_return']).iloc[-1] if len(trades)>0 else 0
-
-    }
+        results[coin] = { 
+            #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
+            #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
+            'final_balance': final_balance
+        }
 
     return jsonify(results)
     
