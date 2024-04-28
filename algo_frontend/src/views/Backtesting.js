@@ -106,6 +106,10 @@ const Backtesting = () => {
       value: 'BTC',
       label: 'BTC'
     },
+    timeframe: {
+      value: '1m',
+      label: '1min'
+    },
     initial_balance: 1000
   })
   const [backtesting, backtestingFunc] = useState({
@@ -197,6 +201,25 @@ const Backtesting = () => {
                       </div>
                       <div className="field">
                         <FieldSelect
+                          label="Timeframe"
+                          name="timeframe"
+                          value={state.timeframe}
+                          onChange={onChange}
+                          width={140}
+                          options={[
+                            {
+                              value: '1m',
+                              label: '1 min'
+                            },
+                            {
+                              value: '5m',
+                              label: '5 min'
+                            }
+                          ]}
+                        />
+                      </div>
+                      <div className="field">
+                        <FieldSelect
                           label="Cryptocurrency"
                           name="coin"
                           value={state.coin}
@@ -219,24 +242,92 @@ const Backtesting = () => {
                 <div className="section">
                     <h3>Indicators</h3>
                     <div className="section-content">
-                      <FieldSwitch
-                        name="rsi"
-                        label="RSI"
-                        value={state.rsi}
-                        onChange={onChange}
-                      />
-                      <FieldSwitch
-                        name="macd"
-                        label="MACD"
-                        value={state.macd}
-                        onChange={onChange}
-                      />
-                      <FieldSwitch
-                        name="ema"
-                        label="EMA"
-                        value={state.ema}
-                        onChange={onChange}
-                      />
+                      <div className="row">
+                        <div className="field">
+                          <FieldSwitch
+                            name="rsi"
+                            label="RSI"
+                            value={state.rsi}
+                            onChange={onChange}
+                          />
+                        </div>
+                        <div className="field">
+                          <FieldInput
+                            name="rsi_threshold_buy"
+                            label="Threshold Buy"
+                            value={state.rsi_threshold_buy}
+                            onChange={onChange}
+                          />
+                        </div>
+                        <div className="field">
+                          <FieldInput
+                            name="rsi_threshold_sell"
+                            label="Threshold Sell"
+                            value={state.rsi_threshold_sell}
+                            onChange={onChange}
+                          />
+                        </div>
+                        <div className="field">
+                          <FieldInput
+                            name="rsi_rounds"
+                            label="Rounds"
+                            value={state.rsi_rounds}
+                            onChange={onChange}
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="field">
+                          <FieldSwitch
+                            name="macd"
+                            label="MACD"
+                            value={state.macd}
+                            onChange={onChange}
+                          />
+                        </div>
+                        <div className="field">
+                          <FieldInput
+                            name="macd_ema_fast"
+                            label="EMA Fast"
+                            value={state.macd_ema_fast}
+                            onChange={onChange}
+                          />
+                        </div>
+                        <div className="field">
+                          <FieldInput
+                            name="macd_ema_slow"
+                            label="EMA Slow"
+                            value={state.macd_ema_slow}
+                            onChange={onChange}
+                          />
+                        </div>
+                        <div className="field">
+                          <FieldInput
+                            name="macd_signal"
+                            label="Signal"
+                            value={state.macd_signal}
+                            onChange={onChange}
+                          />
+                        </div>
+                      </div>
+                      <div className="row">
+                        <div className="field">
+                          <FieldSwitch
+                            name="ema"
+                            label="EMA"
+                            value={state.ema}
+                            onChange={onChange}
+                          />
+                        </div>
+                        <div className="field">
+                          <FieldInput
+                            name="ema_rounds"
+                            label="Rounds"
+                            value={state.ema_rounds}
+                            onChange={onChange}
+                          />
+                        </div>
+                      </div>
                     </div>
                 </div>
               </div>
