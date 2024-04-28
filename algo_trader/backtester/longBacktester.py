@@ -1,9 +1,7 @@
 from lib.strategies.strategy import Strategy
-from lib.indicators.indicator import Indicator
 import pandas as pd
 import numpy as np
-from typing import List, Tuple
-from collections import Counter
+from typing import Tuple
 
 class LongBacktester:
     def __init__(self, strategy: Strategy, initial_balance: float):
