@@ -3,7 +3,7 @@ from lib.trade import Trade
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance as BinanceProvider
 from lib.strategies.strategy import Strategy
-from utils import hydrate_strategy, timeframe_2_seconds
+from lib.utils.utils import hydrate_strategy, timeframe_2_seconds
 #from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
 from api_client import ApiClient
 import time

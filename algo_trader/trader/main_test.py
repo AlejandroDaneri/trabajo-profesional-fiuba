@@ -1,7 +1,7 @@
 from lib.trade_bot import TradeBot
 from lib.exchanges.dummy import Dummy
 from lib.providers.binance import Binance as BinanceProvider
-from utils import hydrate_strategy
+from lib.utils.utils import hydrate_strategy
 from api_client import ApiClient
 
 api = ApiClient()
