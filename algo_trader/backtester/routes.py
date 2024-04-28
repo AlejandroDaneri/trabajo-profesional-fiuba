@@ -1,3 +1,4 @@
+from longBacktester import LongBacktester
 from lib.utils.utils_backtest import hydrate_strategy
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
@@ -70,7 +71,8 @@ def backtest():
             abort(500, description=f"Failed request to YFinance for {coin}")
         
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
-        trades, final_balance = strategy[coin].backtest(data,initial_balance)
+        backtester = LongBacktester(strategy[coin], initial_balance)
+        trades, final_balance = backtester.backtest(data)
         
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
