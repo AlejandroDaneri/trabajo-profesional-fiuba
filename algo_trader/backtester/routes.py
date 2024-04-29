@@ -1,8 +1,14 @@
+from longBacktester import LongBacktester
+from lib.utils.utils_backtest import hydrate_strategy
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
-from trading_logic import calculateFinalBalance, getData, getFeatures, getActions, getTrades, eventDriveLong
-import logging
+import yfinance as yf
+
 app = Flask(__name__)
+
+def getData(ticker, data_from, data_to,timeframe):
+    data = yf.download(ticker,interval=timeframe, auto_adjust=True, progress=False, start=data_from, end=data_to)
+    return data
 
 @app.errorhandler(400)
 def bad_request(error):
@@ -16,16 +22,24 @@ def internal_error(error):
 def ping():
     return "ok", 200
 
-@app.route('/backtest')
+@app.route('/backtest', methods=['POST'])
 def backtest():
-    coin = request.args.get('coin')
-    initial_balance = request.args.get('initial_balance')
-    data_from_ts = request.args.get('data_from')
-    data_to_ts = request.args.get('data_to')
-    timeframe = request.args.get('timeframe')
+    req_data = request.get_json()
+    if not req_data:
+        abort(400, description="JSON data is missing in the request body.")
 
-    if not (coin and initial_balance and data_from_ts and data_to_ts and timeframe):
-        abort(400, description="Required parameters 'coin', 'initial_balance', 'data_from','timeframe' or 'data_to' are missing in the URL.")    
+    required_params = ['coins', 'initial_balance', 'data_from', 'data_to', 'timeframe', 'indicators']
+    missing_params = [param for param in required_params if param not in req_data]
+    if missing_params:
+        abort(400, description=f"Required parameters {missing_params} are missing in the JSON data.")
+
+    coins = req_data['coins']
+    initial_balance = req_data['initial_balance']
+    data_from_ts = req_data['data_from']
+    data_to_ts = req_data['data_to']
+    timeframe = req_data['timeframe']
+    indicators = req_data['indicators']
+
     data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime('%Y-%m-%d')
     data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime('%Y-%m-%d')
 
@@ -50,26 +64,24 @@ def backtest():
     }
     if timeframe not in timeframe_mapping:
         return abort(400, description="Invalida timeframe.")
+    results = {}
+    for coin in coins:
+        data = getData(ticker=coin + '-USD', data_from=data_from, data_to=data_to, timeframe=timeframe_mapping[timeframe])
+        if data.empty:
+            abort(500, description=f"Failed request to YFinance for {coin}")
+        
+        strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
+        backtester = LongBacktester(strategy[coin], initial_balance)
+        trades, final_balance = backtester.backtest(data)
+        
+        # trades_dict = trades.to_dict(orient='records')
+        # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
 
-    data = getData(ticker=coin +'-USD', data_from=data_from, data_to=data_to,timeframe = timeframe_mapping[timeframe])
-    if(data.empty):
-        abort(500, description="Failed request to YFinance")   
+        results[coin] = { 
+            #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
+            #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
+            'final_balance': final_balance
+        }
 
-    features = getFeatures(data, n_obv=100, n_sigma=40, n_rsi=15, fast=20, slow=60)
-    actions = getActions(data, features, 0, 65, 0.01, -0.01, 55, 0)
-    trades = getTrades(actions)
-    payoff = eventDriveLong(data)
-    results = payoff.iloc[:,-2:].add(1).cumprod()
-    final_balance = calculateFinalBalance(data,trades,initial_balance)
-    trades_dict = trades.to_dict(orient='records')
-    results_dict = results.to_dict(orient='records') #comparing vs buy and hold
-
-    response_dict = {
-        #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
-        #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang
-        'final_balance' : final_balance
-
-    }
-
-    return jsonify(response_dict)
+    return jsonify(results)
     
