@@ -32,6 +32,7 @@ def hydrate_strategy(type, currencies, indicators, timeframe, id) -> Dict[str, S
 
     return strategy
 
+
 def timeframe_2_seconds(timeframe) -> int:
     if timeframe == "1M":
         return 60

@@ -11,7 +11,7 @@ def get_all_chat_ids(bot_token):
     base_url = 'https://api.telegram.org/bot{}'.format(bot_token)
     get_updates_url = '{}/getUpdates'.format(base_url)
 
-    response_algo_api = api.get('api/telegram/chats')
+    response_algo_api = api.get('telegram/chats')
     if response_algo_api.status_code // 100 == 2:
         print("ChatIds retrieved successfully")
     else:
@@ -42,7 +42,7 @@ def get_all_chat_ids(bot_token):
     return list(chat_ids)
 
 def post_telegram_chat(chat_id):
-    response_telegram_api = api.post('api/telegram/chat', json={"chat_id": chat_id})
+    response_telegram_api = api.post('telegram/chat', json={"chat_id": chat_id})
     if response_telegram_api.status_code // 100 == 2:
         print("Chat ID posted successfully:", chat_id)
     else:

@@ -22,13 +22,21 @@ import Trades from "../components/Trades";
 import View from "../components/reusables/View";
 import { capitalize } from "../utils/string";
 import { get } from "../webapi/strategy";
+import { get as getCandleticks } from "../webapi/candleticks";
+import logoBinance from "../images/logos/exchanges/binance.svg";
+import moment from "moment";
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
-    loading: true,
+    loading: false,
     data: {
       currencies: [],
     },
+  });
+
+  const [candleticks, candleticksFunc] = useState({
+    loading: false,
+    data: [],
   });
 
   const [minSelectedDate, setMinSelectedDate] = useState(new Date(2024, 0, 1));
@@ -109,21 +117,17 @@ const CurrentStrategy = () => {
 
   const getStrategy = () => {
     const transformToView = (data) => {
-      const transformDuration = (start) => {
-        const currentTime = Math.floor(Date.now() / 1000);
-
-        const durationInSeconds = currentTime - start;
-
-        const days = Math.floor(durationInSeconds / (3600 * 24));
-        const hours = Math.floor((durationInSeconds % (3600 * 24)) / 3600);
-
-        return `${days} days, ${hours} hours`;
+      const getDuration = (start) => {
+        const end = Date.now() / 1000;
+        return moment.utc((end - start) * 1000).format("HH:mm:ss");
       };
 
       const transformTimeframe = (timeframe) => {
         switch (timeframe) {
           case "1M":
             return "1 minute";
+          case "5M":
+            return "5 minute";
           case "1H":
             return "1 hour";
           default:
@@ -138,8 +142,7 @@ const CurrentStrategy = () => {
         (currentBalance / initialBalance - 1) *
         100
       ).toFixed(2);
-      const duration = transformDuration(data.start_timestamp);
-      const timeframe = transformTimeframe(data.timeframe);
+      const duration = getDuration(data.start_timestamp);
 
       return {
         ...data,
@@ -164,9 +167,13 @@ const CurrentStrategy = () => {
           })),
         })),
         duration,
-        timeframe,
+        timeframe_label: transformTimeframe(data.timeframe),
       };
     };
+    strategyFunc((prevState) => ({
+      ...prevState,
+      loading: true,
+    }));
     get()
       .then((response) => {
         strategyFunc((prevState) => ({
@@ -178,13 +185,67 @@ const CurrentStrategy = () => {
       .catch((_) => {});
   };
 
+  const getCandleticks_ = (symbol, start, end, timeframe) => {
+    const params = {
+      symbol,
+      start,
+      end,
+      timeframe,
+    };
+
+    getCandleticks(params)
+      .then((response) => {
+        const amount = strategy.data.initial_balance / response.data[0].close;
+
+        candleticksFunc((prevState) => ({
+          ...prevState,
+          loading: true,
+          data: (response.data || []).map((candletick) => {
+            return {
+              closeTime: new Date(candletick.close_time * 1000),
+              close: (candletick.close * amount).toFixed(2),
+            };
+          }),
+        }));
+      })
+      .catch((err) => {
+        console.info("err", err);
+      });
+  };
+
   useEffect(() => {
+    if (
+      strategy.data.currencies[0] &&
+      strategy.data.start_timestamp &&
+      strategy.data.timeframe
+    ) {
+      getCandleticks_(
+        strategy.data.currencies[0],
+        strategy.data.start_timestamp,
+        parseInt(Date.now() / 1000),
+        strategy.data.timeframe.toLowerCase()
+      );
+    }
+  }, [
+    strategy.data.currencies,
+    strategy.data.start_timestamp,
+    strategy.data.end_timestamp,
+    strategy.data.timeframe,
+  ]);
+
+  useEffect(() => {
+    const interval = setInterval(getStrategy, 10000);
     getStrategy();
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   return (
     <View
-      title="Current Strategy"
+      title="Running Strategy"
+      loading={strategy.loading}
       content={
         <CurrentStrategyStyle>
           <div className="summary">
@@ -205,6 +266,14 @@ const CurrentStrategy = () => {
                 </div>
               </div>
               <div className="box">
+                <div className="label">Exchange</div>
+                <div className="value">
+                  {strategy.data.exchange === "binance" && (
+                    <img alt="Binance" src={logoBinance} width="24px" />
+                  )}
+                </div>
+              </div>
+              <div className="box">
                 <div className="label">Currencies</div>
                 <div className="value">
                   {strategy.data.currencies.map((currency) => (
@@ -220,7 +289,7 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Timeframe</div>
-                <div>{strategy.data.timeframe}</div>
+                <div>{strategy.data.timeframe_label}</div>
               </div>
             </div>
           </div>
@@ -300,55 +369,57 @@ const CurrentStrategy = () => {
                   <Line
                     type="monotone"
                     name="Buy And Hold"
-                    dataKey="buyAndHold"
+                    dataKey="close"
                     stroke="#82ca9d"
                   />
                 </LineChart>
               </ResponsiveContainer>
             </div>
-            <div className="graph-item">
-              <h3>Weekly Stock Performance</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  width={500}
-                  height={300}
-                  data={filteredStockPerformanceData}
-                  stackOffset="sign"
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid stroke="none" strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis
-                    label={{
-                      value: "Profit/Loss",
-                      angle: -90,
-                      position: "insideLeft",
-                      style: { textAnchor: "middle" },
+            {false && (
+              <div className="graph-item">
+                <h3>Weekly Stock Performance</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    width={500}
+                    height={300}
+                    data={filteredStockPerformanceData}
+                    stackOffset="sign"
+                    margin={{
+                      top: 5,
+                      right: 30,
+                      left: 20,
+                      bottom: 5,
                     }}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <ReferenceLine y={0} stroke="#484a4d" />
-                  <Bar
-                    dataKey="pv"
-                    name="Current Strategy"
-                    fill="#8884d8"
-                    stackId="stack"
-                  />
-                  <Bar
-                    dataKey="uv"
-                    name="Buy and Hold"
-                    fill="#82ca9d"
-                    stackId="stack"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
+                  >
+                    <CartesianGrid stroke="none" strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis
+                      label={{
+                        value: "Profit/Loss",
+                        angle: -90,
+                        position: "insideLeft",
+                        style: { textAnchor: "middle" },
+                      }}
+                    />
+                    <Tooltip />
+                    <Legend />
+                    <ReferenceLine y={0} stroke="#484a4d" />
+                    <Bar
+                      dataKey="pv"
+                      name="Current Strategy"
+                      fill="#8884d8"
+                      stackId="stack"
+                    />
+                    <Bar
+                      dataKey="uv"
+                      name="Buy and Hold"
+                      fill="#82ca9d"
+                      stackId="stack"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
           </div>
         </CurrentStrategyStyle>
       }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"algo_api/internal/binanceservice"
+	"algo_api/internal/pythonservice"
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/telegramservice"
 	"algo_api/internal/tradeservice"
@@ -641,6 +642,76 @@ func GetBinanceBalance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetCandleticks(w http.ResponseWriter, r *http.Request) {
+	params := r.URL.Query()
+
+	symbol := params["symbol"][0]
+	start, _ := strconv.Atoi(params["start"][0])
+	end, _ := strconv.Atoi(params["end"][0])
+	timeframe := params["timeframe"][0]
+
+	candlesticks, err := binanceservice.GetInstance().GetCandleticks(symbol, start, end, timeframe)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"symbol":    symbol,
+			"start":     start,
+			"end":       end,
+			"timeframe": timeframe,
+		}).Error("Could not get candleticks")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	bytes, err := json.Marshal(candlesticks)
+	if err != nil {
+		logrus.Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
+func RunBacktesting(w http.ResponseWriter, r *http.Request) {
+	var body pythonservice.BacktestingQuery
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	backtesting, err := pythonservice.GetInstance().RunBacktesting(body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Could not get backtesting")
+		return
+	}
+
+	bytes, err := json.Marshal(backtesting)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"backtesting": backtesting,
+		}).Error("Could not marshal backtesting")
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.Error("Could not write response")
+		return
+	}
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
@@ -666,6 +737,10 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
+
+	router.HandleFunc("/candleticks", GetCandleticks).Methods("GET")
+
+	router.HandleFunc("/backtesting", RunBacktesting).Methods("POST")
 }
 
 func main() {

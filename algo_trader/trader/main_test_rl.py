@@ -1,19 +1,15 @@
 from lib.trade_bot import TradeBot
-from lib.exchanges.dummy import Dummy
+from lib.exchanges.dummy import Dummy as DummyExchange
 from lib.providers.binance import Binance as BinanceProvider
-from utils import hydrate_strategy
+from lib.utils.utils import hydrate_strategy
 from api_client import ApiClient
 
 api = ApiClient()
 
 def main():
-    api.delete('api/trade')
+    api.delete('trade')
 
-    response = api.get('api/strategy/running')
-    if response.status_code != 200:
-        print("[main test] could not find any running strategy")
-        return
-
+    response = api.get('strategy/running')
     strategy = response.json()
     print(strategy)
 
@@ -24,16 +20,16 @@ def main():
     timeframe = strategy["timeframe"]
 
     provider = BinanceProvider()
-    exchange = Dummy()
+    exchange = DummyExchange()
 
     exchange.convert_all_to_usdt()
     print("Balance: ", exchange.get_balance())
 
-    api.put(f'api/strategy/{id}/initial_balance', json={
+    api.put(f'strategy/{id}/initial_balance', json={
         "initial_balance": str(exchange.get_balance())
     })
 
-    api.put(f'api/strategy/{id}/balance', json={
+    api.put(f'strategy/{id}/balance', json={
         "current_balance": str(exchange.get_balance())
     })
 
@@ -44,7 +40,7 @@ def main():
     simulation_data = {}
     
     n_train = 200
-    n_simulate = 800
+    n_simulate = 300
     n_total = n_train + n_simulate
 
     for currency in currencies:
@@ -62,7 +58,6 @@ def main():
             trade = trade_bot.run_strategy(currency, row)
             if trade is not None:
                 if trade.is_closed():
-                    print(trade)
                     data = {
                         "pair": trade.symbol,
                         "amount": str(trade.amount),
@@ -75,12 +70,13 @@ def main():
                             "timestamp": int(trade.sell_order.timestamp)
                         }
                     }
-                    response = api.post('api/trade', json=data)
+                    response = api.post('trade', json=data)
 
                     current_balance = trade_bot.get_balance()
-                    api.put(f'api/strategy/{id}/balance', json={
+                    api.put(f'strategy/{id}/balance', json={
                         "current_balance": str(current_balance)
                     })
+
         print("\n")
     
     exchange.convert_all_to_usdt()

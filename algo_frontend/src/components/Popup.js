@@ -2,6 +2,7 @@
 import React from "react"
 import { Snackbar, SnackbarContent } from "@material-ui/core"
 import { useSelector, useDispatch } from "react-redux"
+import { theme } from "../utils/theme"
 
 const POPUP_POSITION_Y = "bottom"
 const POPUP_POSITION_X = "right"
@@ -41,9 +42,9 @@ const Popup = () => {
       <SnackbarContent
         message={message?.message}
         style={{
-          color: "black",
+          color: theme.white,
           backgroundColor:
-            message?.type === POPUP_TYPE_SUCCESS ? "#00FF00" : "#FF0000",
+            message?.type === POPUP_TYPE_SUCCESS ? theme.green : theme.red,
           fontSize: POPUP_TEXT_SIZE,
           fontWeight: 600,
         }}

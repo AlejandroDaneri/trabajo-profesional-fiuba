@@ -1,10 +1,11 @@
 import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 const ButtonStyle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid white;
+  border: 1px solid ${theme.white};
   width: ${({ width }) => width || 100}px;
   height: ${({ height }) => height || 26}px;
   cursor: pointer;
@@ -16,11 +17,11 @@ const ButtonStyle = styled.div`
   }
 
   &:hover {
-    background: white;
-    color: #282c34;
+    background: ${theme.white};
+    color: ${theme.grayDark};
 
     & i {
-      color: #282c34;
+      color: ${theme.grayDark};
     }
   }
 `

@@ -1,11 +1,11 @@
 import Button from "../components/Button";
-import { Checkbox } from "@material-ui/core";
 /* Import Components */
 import CurrencyLogo from "../components/CurrencyLogo";
 /* Import Reusables Components */
 import FieldSelect from "../components/reusables/FieldSelect";
 import { add } from "../webapi/strategy";
 import styled from "styled-components";
+import { theme } from "../utils/theme";
 /* Import Libs */
 import { useState } from "react";
 
@@ -31,6 +31,11 @@ const OptionStyle = styled.div`
   align-items: center;
   width: 60px;
   max-height: 20px;
+
+  & p {
+    margin: 0;
+    color: ${theme.black};
+  }
 
   & img {
     width: 20px;
@@ -136,39 +141,28 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           value: currency,
           label: <Currency currency={currency} />,
         }))}
+        width={800}
         multiple
       />
-      <div
-        style={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-      >
-        <p style={{ marginRight: "10px" }}>Indicators:</p>
-        {INDICATORS.map((indicator) => (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              marginRight: "20px",
-            }}
-            key={indicator}
-          >
-            <Checkbox
-              color="success"
-              style={{
-                color: "#FFFFFF",
-              }}
-            />
-            <label style={{ color: "white", marginLeft: "5px" }}>
-              {indicator}
-            </label>
-          </div>
-        ))}
-      </div>
+      <FieldSelect
+        name="indicators"
+        label="Indicators"
+        value={strategy.indicators}
+        onChange={onChange}
+        options={INDICATORS.map((indicator) => ({
+          value: indicator,
+          label: indicator,
+        }))}
+        width={800}
+        multiple
+      />
       <FieldSelect
         name="timeframe"
         label="Timeframe"
         value={strategy.timeframe}
         onChange={onChange}
         options={TIMEFRAMES}
+        width={800}
       />
       <div className="actions">
         <div className="cancel">

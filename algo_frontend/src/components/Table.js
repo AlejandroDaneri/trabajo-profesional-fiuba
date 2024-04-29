@@ -1,5 +1,6 @@
 import styled, { css } from "styled-components"
 import { useState } from "react"
+import { theme } from "../utils/theme"
 
 const TableWrapper = styled.div`
   max-height: calc(100vh - ${({ top }) => top}px);
@@ -56,7 +57,7 @@ const TableStyle = styled.table`
   }
 
   & th {
-    border: 1px solid white;
+    border: 1px solid ${theme.white};
     text-align: center;
     padding-left: 10px;
     padding-right: 10px;
@@ -64,7 +65,7 @@ const TableStyle = styled.table`
   }
 
   & td {
-    border: 0.5px solid white;
+    border: 0.5px solid ${theme.white};
     text-align: center;
     padding-left: 10px;
     padding-right: 10px;

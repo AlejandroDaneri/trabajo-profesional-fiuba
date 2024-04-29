@@ -16,32 +16,47 @@ services:
     container_name: trader
     build:
       context: ./algo_trader
+      dockerfile: trader/Dockerfile
     env_file:
       - .env
     working_dir: /app
     volumes:
-      - ./algo_trader:/app
+      - ./algo_trader/trader:/app
       - ~/satoshibot/cache_binance:/data/cache_binance
+      - ./algo_trader/lib:/app/lib
     # Unit Tests
     # command: ["pytest"]
     # Backtesting
     # command: ["python3", "-u", "main_test.py"]
     # Production
-    command: ["python3", "-u", "main.py"]
+    command: ["python3", "-u", "main_test.py"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  telegram_bot:
-    container_name: telegram_bot
+  # telegram_bot:
+  #   container_name: telegram_bot
+  #   build:
+  #     context: ./telegram_bot
+  #   working_dir: /app
+  #   volumes:
+  #     - ./telegram_bot:/app
+  #   command: ["python3", "-u", "main.py"]
+
+  backtester:
+    container_name: backtester
     build:
-      context: ./telegram_bot
+      context: ./algo_trader
+      dockerfile: backtester/Dockerfile
     working_dir: /app
     volumes:
-      - ./telegram_bot:/app
-    command: ["python3", "-u", "main.py"]
+      - ./algo_trader/backtester:/app
+      - ./algo_trader/lib:/app/lib
+    ports:
+      - "5001:5000"
+    command: gunicorn --bind 0.0.0.0:5000 --reload app:app
 
   algo_api:
     container_name: api

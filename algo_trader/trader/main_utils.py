@@ -3,8 +3,8 @@ from lib.trade import Trade
 from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance as BinanceProvider
 from lib.strategies.strategy import Strategy
-from utils import hydrate_strategy, timeframe_2_seconds
-from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
+from lib.utils.utils import hydrate_strategy, timeframe_2_seconds
+#from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
 from api_client import ApiClient
 import time
 import sentry_sdk
@@ -26,9 +26,11 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict
 
     strategy = None
     while strategy is None:
-        response = api.get('api/strategy/running')
+        response = api.get('strategy/running')
         if response.status_code == 200:
+            print("[main] strategy found")
             strategy = response.json()
+            print(f"[main] strategy: {strategy}")
         else:
             print("[main] zero running strategies")
             time.sleep(WAIT_TIME_TO_CHECK_NEW_STRATEGY_IN_SECONDS)
@@ -79,18 +81,18 @@ def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: Trade
                         "timestamp": int(trade.sell_order.timestamp)
                     }
                 }
-                response = api.post('api/trade', json=data)
+                response = api.post('trade', json=data)
 
                 # remove tmp current trade
-                api.delete('api/trade/current')
+                api.delete('trade/current')
 
-                notify_telegram_users(data)
-                response = api.post('api/trade/current', json=data)
+                # notify_telegram_users(data)
+                response = api.post('trade/current', json=data)
                             
                 # update balance to strategy doc in the db
                 current_balance = trade_bot.get_balance()
                 print(f"Current balance: {current_balance}")
-                api.put(f'api/strategy/{id}/balance', json={
+                api.put(f'strategy/{id}/balance', json={
                     "current_balance": str(current_balance)
                 })
             else:
@@ -103,7 +105,7 @@ def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: Trade
                         "timestamp": int(trade.buy_order.timestamp)
                     }
                 }
-                response = api.post('api/trade/current', json=data)
+                response = api.post('trade/current', json=data)
 
     time.sleep(timeframe_2_seconds(strategy[currency].get_timeframe()))                  
     print("\n")

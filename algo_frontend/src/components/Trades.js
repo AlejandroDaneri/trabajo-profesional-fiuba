@@ -40,11 +40,11 @@ const Trades = ({ strategyID }) => {
         return {
           ...trade,
           amount: parseFloat(trade.amount).toFixed(4),
+          sell_timestamp: trade.orders.sell.timestamp,
           buy_timestamp: trade.orders.buy.timestamp,
+          sell_timestamp_label: unixToDate(trade.orders.sell.timestamp),
           buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
           buy_price: trade.orders.buy.price,
-          sell_timestamp: trade.orders.sell.timestamp,
-          sell_timestamp_label: unixToDate(trade.orders.sell.timestamp),
           sell_price: trade.orders.sell.price,
           duration: (trade.orders.sell.timestamp / 1000 - trade.orders.buy.timestamp / 1000) / 60,
           pl: ((trade.orders.sell.price / trade.orders.buy.price - 1) * 100).toFixed(3),

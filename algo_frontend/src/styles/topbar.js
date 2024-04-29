@@ -1,6 +1,7 @@
 import styled from "styled-components"
+import { theme } from "../utils/theme"
 
-export const TOPBAR_HEIGHT = "60px"
+export const TOPBAR_HEIGHT = "40px"
 
 const TopbarStyle = styled.div`
   display: flex;
@@ -8,9 +9,9 @@ const TopbarStyle = styled.div`
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.3s;
-  background: black;
-  color: white;
-  text-color: white;
+  background: ${theme.dark};
+  color: ${theme.white};
+  text-color: ${theme.white};
   width: 100%;
   height: ${TOPBAR_HEIGHT};
 
@@ -22,29 +23,30 @@ const TopbarStyle = styled.div`
     cursor: pointer;
 
     &:hover {
-      background: red;
+      background: ${theme.red};
     }
   }
 
   & button {
-    color: white;
+    color: ${theme.white};
   }
 
   & .logo {
     display: flex;
     align-items: center;
-    justify-content: space-around;
-    border: 1px solid white;
+    justify-content: center;
+    border: 1px solid ${theme.white};
     border-radius: 10px;
     width: 160px;
-    height: 40px;
-    box-shadow: white 0px 2px 8px 0px;
+    height: 25px;
+    box-shadow: ${theme.white} 0px 0px 2px 1px;
     margin: 5px;
     margin-left: 20px;
 
     & img {
-      width: 24px;
-      height: 24px;
+      width: 18px;
+      height: 18px;
+      margin-right: 10px;
     }
 
     & p {
