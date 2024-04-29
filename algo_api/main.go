@@ -677,22 +677,19 @@ func GetCandleticks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetBacktesting(w http.ResponseWriter, r *http.Request) {
-	params := r.URL.Query()
+func RunBacktesting(w http.ResponseWriter, r *http.Request) {
+	var body pythonservice.BacktestingQuery
 
-	symbol := params["symbol"][0]
-	initial_balance := params["initial_balance"][0]
-	start, _ := strconv.Atoi(params["start"][0])
-	end, _ := strconv.Atoi(params["end"][0])
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
 
-	logrus.WithFields(logrus.Fields{
-		"symbol":          symbol,
-		"initial_balance": initial_balance,
-		"start":           start,
-		"end":             end,
-	}).Info("Running Backtesting")
-
-	backtesting, err := pythonservice.GetInstance().GetBacktesting(symbol, initial_balance, start, end)
+	backtesting, err := pythonservice.GetInstance().RunBacktesting(body)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
@@ -743,7 +740,7 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/candleticks", GetCandleticks).Methods("GET")
 
-	router.HandleFunc("/backtesting", GetBacktesting).Methods("GET")
+	router.HandleFunc("/backtesting", RunBacktesting).Methods("POST")
 }
 
 func main() {

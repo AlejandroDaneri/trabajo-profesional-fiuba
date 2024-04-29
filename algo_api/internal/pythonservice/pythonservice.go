@@ -1,11 +1,10 @@
 package pythonservice
 
 import (
-	"algo_api/internal/utils"
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
-	"net/url"
 	"sync"
 
 	"github.com/sirupsen/logrus"
@@ -29,43 +28,57 @@ func NewService() IService {
 }
 
 type IService interface {
-	GetBacktesting(coin string, initial_balance string, start int, end int) (Backtesting, error)
+	RunBacktesting(query BacktestingQuery) (BacktestingResponse, error)
 }
 
-type Backtesting struct {
+type BacktestingResponse map[string]struct {
 	FinalBalance float64 `json:"final_balance"`
 }
 
-func (s *PythonService) GetBacktesting(coin string, initial_balance string, start int, end int) (Backtesting, error) {
+type BacktestingQuery struct {
+	Coins          []string `json:"coins"`
+	InitialBalance int      `json:"initial_balance"`
+	DataFrom       int64    `json:"data_from"`
+	DataTo         int64    `json:"data_to"`
+	Timeframe      string   `json:"timeframe"`
+	Indicators     []struct {
+		Name       string      `json:"name"`
+		Parameters interface{} `json:"parameters"`
+	} `json:"indicators"`
+}
+
+func (s *PythonService) RunBacktesting(query BacktestingQuery) (BacktestingResponse, error) {
 	baseURL := "http://backtester:5000"
 	endpoint := "backtest"
 
-	params := url.Values{}
-	params.Add("coin", coin)
-	params.Add("initial_balance", initial_balance)
-	params.Add("data_from", utils.Int2String(start))
-	params.Add("data_to", utils.Int2String(end))
+	url := baseURL + "/" + endpoint
 
-	url := baseURL + "/" + endpoint + "?" + params.Encode()
-
-	response, err := http.Get(url)
+	q, err := json.Marshal(query)
 	if err != nil {
-		return Backtesting{}, err
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not unmarshal")
+		return BacktestingResponse{}, err
+	}
+
+	response, err := http.Post(url, "application/json", bytes.NewBuffer(q))
+	if err != nil {
+		return BacktestingResponse{}, err
 	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return Backtesting{}, err
+		return BacktestingResponse{}, err
 	}
 
-	var backtesting Backtesting
+	var backtesting BacktestingResponse
 	err = json.Unmarshal(body, &backtesting)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
 		}).Error("Could not unmarshal")
-		return Backtesting{}, err
+		return BacktestingResponse{}, err
 	}
 	return backtesting, nil
 }
