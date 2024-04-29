@@ -62,7 +62,9 @@ func (s *PythonService) GetBacktesting(coin string, initial_balance string, star
 	var backtesting Backtesting
 	err = json.Unmarshal(body, &backtesting)
 	if err != nil {
-		logrus.Error("Could not unmarshal")
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not unmarshal")
 		return Backtesting{}, err
 	}
 	return backtesting, nil
