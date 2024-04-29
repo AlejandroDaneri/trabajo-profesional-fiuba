@@ -4,7 +4,7 @@ from lib.trade_bot import TradeBot
 from lib.providers.binance import Binance as BinanceProvider
 from lib.strategies.strategy import Strategy
 from lib.utils.utils import hydrate_strategy, timeframe_2_seconds
-#from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
+from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
 from api_client import ApiClient
 import time
 import sentry_sdk
@@ -86,7 +86,7 @@ def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: Trade
                 # remove tmp current trade
                 api.delete('trade/current')
 
-                # notify_telegram_users(data)
+                notify_telegram_users(data)
                 response = api.post('trade/current', json=data)
                             
                 # update balance to strategy doc in the db
