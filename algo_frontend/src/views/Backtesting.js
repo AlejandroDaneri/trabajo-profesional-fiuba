@@ -1,5 +1,5 @@
 /* Import Libs */
-import React, { useRef, useState } from "react"
+import React, { useState } from "react"
 import styled from "styled-components"
 import BounceLoader from "react-spinners/BounceLoader"
 import "react-day-picker/dist/style.css"
@@ -13,7 +13,7 @@ import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Button from "../components/Button"
 
 /* Impor WebApi */
-import { get as getBacktesting } from "../webapi/backtesting"
+import { run as runBacktesting } from "../webapi/backtesting"
 import { theme } from "../utils/theme"
 
 const VIEW_FORM = 0
@@ -107,8 +107,8 @@ const Backtesting = () => {
       label: 'BTC'
     },
     timeframe: {
-      value: '1m',
-      label: '1min'
+      value: '1H',
+      label: '1 hour'
     },
     initial_balance: 1000
   })
@@ -129,11 +129,22 @@ const Backtesting = () => {
     const end = new Date(`${data.end}T00:00:00Z`)
 
     return {
-      symbol: data.coin.value,
-      initial_balance: data.initial_balance,
-      start: Math.floor(start.getTime() / 1000),
-      end: Math.floor(end.getTime() / 1000),
-    };
+      coins: [data.coin.value],
+      initial_balance: parseInt(data.initial_balance),
+      data_from: Math.floor(start.getTime() / 1000),
+      data_to: Math.floor(end.getTime() / 1000),
+      timeframe: data.timeframe.value.toUpperCase(),
+      indicators: [
+        {
+          name: "RSI",
+          parameters: {
+            buy_threshold: 30,
+            rounds: 14,
+            sell_threshold: 70
+        }
+        }
+      ]
+    }
   }
 
   const onSubmit = () => {
@@ -142,7 +153,7 @@ const Backtesting = () => {
       data: {}
     })
     viewFunc(VIEW_BACKTESTING)
-    getBacktesting(transformToSend(state))
+    runBacktesting(transformToSend(state))
       .then((response) => {
         backtestingFunc({
           loading: false,
@@ -208,12 +219,16 @@ const Backtesting = () => {
                           width={140}
                           options={[
                             {
-                              value: '1m',
+                              value: '1M',
                               label: '1 min'
                             },
                             {
-                              value: '5m',
+                              value: '5M',
                               label: '5 min'
+                            },
+                            {
+                              value: '1H',
+                              label: '1 hour'
                             }
                           ]}
                         />
@@ -349,8 +364,10 @@ const Backtesting = () => {
           </div>
           {view === VIEW_BACKTESTING && (
             <div className="backtesting">
-              {backtesting.loading ? <BounceLoader color='white' size='48px' /> : <div>
-                Final Balance: {backtesting.data.final_balance}
+              {backtesting.loading && <BounceLoader color='white' size='48px' />}
+              {backtesting.error && 'error'}
+              {backtesting.data[state.coin.value] && <div>
+                Final Balance: {backtesting.data[state.coin.value].final_balance}
               </div>}
             </div>
           )}
