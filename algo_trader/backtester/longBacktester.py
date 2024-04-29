@@ -4,27 +4,25 @@ import numpy as np
 from typing import Tuple
 
 class LongBacktester:
-    def __init__(self, strategy: Strategy, initial_balance: float):
+    def __init__(self, strategy: Strategy, initial_balance: float, fixed_commission: float=0.005, variable_commission_rate: float=0.005):        
         self.strategy = strategy
         self.initial_balance = initial_balance
+        self.fixed_commission = fixed_commission
+        self.variable_commission_rate = variable_commission_rate
 
     def backtest(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
         trades, final_balance = self._execute_backtest(historical_data)
-        # Aquí puedes realizar cualquier análisis adicional del backtesting
+
         return trades, final_balance
 
     def _execute_backtest(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
-        # Obtener señales de compra y venta
         buy_signals, sell_signals = self._get_buy_sell_signals(historical_data)
 
-        # Obtener acciones a partir de las señales
         actions = self._get_actions(buy_signals, sell_signals)
         historical_data['signal'] = actions['signal'] #FIXME
 
-        # Obtener trades
         trades = self._get_trades(actions)
 
-        # Calcular balance final
         final_balance = self._calculate_final_balance(historical_data, trades, self.initial_balance)
 
         return trades, final_balance
@@ -68,6 +66,13 @@ class LongBacktester:
         odds = actions.iloc[1::2].loc[:, ["Close"]].reset_index()
         trades = pd.concat([pairs, odds], axis=1)
         trades.columns = ["buy_date", "buy_price", "sell_date", "sell_price"]
+
+        trades["fixed_commission"] = self.fixed_commission
+        trades["variable_commission"] = trades["buy_price"] * self.variable_commission_rate
+
+        trades["buy_price"] += trades["fixed_commission"] + trades["variable_commission"]
+        trades["sell_price"] -= trades["fixed_commission"] + trades["variable_commission"]
+
         trades["return"] = trades.sell_price / trades.buy_price - 1
 
         cumulative_return = (1 + trades["return"]).cumprod() - 1
