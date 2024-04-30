@@ -94,23 +94,51 @@ const BacktestingStyle = styled.div`
   & .backtesting {
     display: flex;
     align-items: center;
+
+    & .box {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 50px;
+      border: 1px solid white;
+      padding: 10px;
+      border-radius: 4px;
+
+      & .label {
+        color: #a5a8b6;
+      }
+
+      & .value {
+        display: flex;
+        font-weight: 800;
+
+        & .currency-wrapper {
+          margin-right: 5px;
+        }
+      }
+    }
   }
 `
 
 const Backtesting = () => {
   const [view, viewFunc] = useState(VIEW_FORM)
   const [state, stateFunc] = useState({
-    start: '2023-01-01',
+    start: '2015-01-01',
     end: '2024-01-01',
     coin: {
       value: 'BTC',
       label: 'BTC'
     },
     timeframe: {
-      value: '1H',
-      label: '1 hour'
+      value: '1D',
+      label: '1 day'
     },
-    initial_balance: 1000
+    initial_balance: 1000,
+
+    macd_enabled: true,
+    macd_ema_slow: 26,
+    macd_ema_fast: 12,
+    macd_signal: 20
   })
 
   const [backtesting, backtestingFunc] = useState({
@@ -381,6 +409,7 @@ const Backtesting = () => {
                               label="Rounds"
                               value={state.ema_rounds}
                               onChange={onChange}
+                              initial={100}
                             />
                           </div>
                         </>}
@@ -408,9 +437,12 @@ const Backtesting = () => {
             <div className="backtesting">
               {backtesting.loading && <BounceLoader color='white' size='48px' />}
               {backtesting.error && 'error'}
-              {backtesting.data[state.coin.value] && <div>
-                Final Balance: {backtesting.data[state.coin.value].final_balance}
-              </div>}
+              {backtesting.data[state.coin.value] && (
+                <div className="box">
+                  <div className="label">Final Balance</div>
+                  <div className="value">{backtesting.data[state.coin.value].final_balance.toFixed(2)}$</div>
+                </div>
+              )}
             </div>
           )}
         </BacktestingStyle>
