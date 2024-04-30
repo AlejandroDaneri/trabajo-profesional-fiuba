@@ -2,6 +2,7 @@ from lib.indicators import *
 from lib.strategies.strategy import Strategy
 from lib.strategies.RLstrategy import RL
 from lib.strategies.LSTMstrategy import LSTM
+from lib.strategies.TDstrategy import TDstrategy
 from lib.strategies.basic import Basic
 from typing import Dict
 
@@ -29,6 +30,8 @@ def hydrate_strategy(type, currencies, indicators, timeframe, id) -> Dict[str, S
             strategy[currency] = RL(indicators_builded, timeframe, id)
         elif type == "lstm":
             strategy[currency] = LSTM(indicators_builded, timeframe, id)
+        elif type == "td":
+            strategy[currency] = TDstrategy(indicators_builded, timeframe, id)
 
     return strategy
 
