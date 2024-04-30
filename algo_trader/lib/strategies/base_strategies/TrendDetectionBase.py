@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd
 
 class TrendDetectionBase():
-    def __init__(self, rounds_ema, rounds_dmi, threshold_adx, period_slope):
+    def __init__(self, rounds_ema, rounds_dmi, rounds_adx, threshold_adx, period_slope):
         self.rounds_ema = rounds_ema
         self.rounds_dmi = rounds_dmi
+        self.rounds_adx = rounds_adx
         self.threshold_adx = threshold_adx
         self.period_slope = period_slope
-        super().__init__(rounds_ema, rounds_dmi, threshold_adx, period_slope)
 
     def get_confirmed_signals(self, data):
         df = pd.DataFrame(index=data.index)
@@ -24,10 +24,10 @@ class TrendDetectionBase():
         ema = EMA(self.rounds_ema)
         ema_df = ema.calculate(df)
         df['EMA'] = ema_df.EMA
-        df['Slope'] = self.calculate_slope(df['EMA'], self.period_slope)
+        df['Slope'] = self.calculate_slope(df['EMA'])
 
         # Trend Confirmation
-        dmi = DMI(self.rounds_dmi, self.rounds_dmi, self.threshold_adx)
+        dmi = DMI(self.rounds_dmi, self.rounds_adx, self.threshold_adx)
         dmi_df = dmi.calculate(df)
 
         df['ADX'] = dmi_df['ADX']
@@ -35,8 +35,8 @@ class TrendDetectionBase():
         df['-di'] = dmi_df['-di']
 
         # Define the trend signals based on ADX
-        df['TrendSignal+'] = np.where((self.threshold < df.ADX) & (df['-di'] < df['+di']), 1, 0)
-        df['TrendSignal-'] = np.where((self.threshold < df.ADX) & (df['-di'] > df['+di']), -1, 0)
+        df['TrendSignal+'] = np.where((self.threshold_adx < df.ADX) & (df['-di'] < df['+di']), 1, 0)
+        df['TrendSignal-'] = np.where((self.threshold_adx < df.ADX) & (df['-di'] > df['+di']), -1, 0)
         df['TrendSignal'] = df['TrendSignal+'] + df['TrendSignal-']
 
         confirmedEntrySignals = np.where((0 < df.Slope) & (df['TrendSignal'] == 1), 1, 0)
