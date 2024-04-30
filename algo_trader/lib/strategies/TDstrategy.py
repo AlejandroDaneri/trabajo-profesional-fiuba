@@ -44,13 +44,16 @@ class TDstrategy(Strategy):
 
         self.data = pd.concat([self.data, new_record])
 
-        confirmed_signals = self.tdb.get_confirmed_signals(self.data)
+        confirmed_signals_df = self.tdb.get_confirmed_signals(self.data)
 
         signals = []
         
         for indicator in self.indicators:
             indicator.calculate(self.data, False)
-            signal = np.where(indicator.generate_signals() == confirmed_signals, confirmed_signals, 0)
+            indicator_signals = indicator.generate_signals()
+            PointEntry = np.where((indicator_signals == 1) & (confirmed_signals_df["ConfirmedEntrySignal"] != np.nan), 1, 0)
+            PointExit = np.where((indicator_signals == -1) & (confirmed_signals_df["ConfirmedOutputSignal"] != np.nan), -1, 0)
+            signal = PointEntry + PointExit
             signals.append(signal[signal.size -1])
 
         signal_counter = Counter(signals)

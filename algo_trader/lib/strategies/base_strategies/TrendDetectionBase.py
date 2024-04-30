@@ -39,10 +39,10 @@ class TrendDetectionBase():
         df['TrendSignal-'] = np.where((self.threshold_adx < df.ADX) & (df['-di'] > df['+di']), -1, 0)
         df['TrendSignal'] = df['TrendSignal+'] + df['TrendSignal-']
 
-        confirmedEntrySignals = np.where((0 < df.Slope) & (df['TrendSignal'] == 1), 1, 0)
-        confirmedOutputSignals = np.where((0 > df.Slope) & (df['TrendSignal'] == -1), -1, 0)
+        df['ConfirmedEntrySignal'] = np.where((0 < df.Slope) & (df["TrendSignal"] == 1), True, np.nan)
+        df['ConfirmedOutputSignal'] = np.where((0 > df.Slope) & (df["TrendSignal"] == -1), True, np.nan)
 
-        return confirmedEntrySignals + confirmedOutputSignals
+        return df[['ConfirmedEntrySignal', 'ConfirmedOutputSignal']]
 
     def calculate_slope(self, series):
         slopes = [0 for _ in range(self.period_slope-1)]
