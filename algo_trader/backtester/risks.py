@@ -10,9 +10,9 @@ def calculate_rachev_ratio(trades):
     rachev_ratio = mean_return / downside_deviation
     return rachev_ratio
 
-def calculate_kelly_criterion(trades):
-    winners = trades[trades["result"] == "Winner"]["return"]
-    losers = trades[trades["result"] == "Loser"]["return"]
+def calculate_kelly_criterion(results):
+    winners = results[results>0]
+    losers = results[results<0]
     totals = len(winners) + len(losers)
     b = -winners.mean() / losers.mean()
     win_prob = len(winners)/ totals
@@ -25,8 +25,8 @@ def calculate_drawdowns(trades):
     drawdowns = cumulative_return - previous_peaks
     return drawdowns
 
-def calculate_profit_factor(trades):
-    winners = trades[trades["result"] == "Winner"]["return"].sum()
-    losers = trades[trades["result"] == "Loser"]["return"].sum()
-    profit_factor = abs(winners / losers)
+def calculate_profit_factor(returns):
+    losers = returns[returns<0]
+    winners = returns[returns>0]
+    profit_factor = - winners.sum()/losers.sum()
     return profit_factor
