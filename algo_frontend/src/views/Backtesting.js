@@ -183,7 +183,12 @@ const Backtesting = () => {
     bbands_rounds: 9,
     bbands_factor: 2.1,
     crossing_ema_fast_rounds: 50,
-    crossing_ema_slow_rounds: 200
+    crossing_ema_slow_rounds: 200,
+    crossing_sma_fast_rounds: 50,
+    crossing_sma_slow_rounds: 200,
+    dmi_di_rounds: 10,
+    dmi_adx_rounds: 6,
+    dmi_adx_threshold: 20
   })
 
   const [backtesting, backtestingFunc] = useState({
@@ -250,6 +255,27 @@ const Backtesting = () => {
           parameters: {
             fast_rounds: data.crossing_ema_fast_rounds,
             slow_rounds: data.crossing_ema_slow_rounds
+          }
+        }]
+      }
+
+      if (data.crossing_sma_enabled) {
+        indicators = [...indicators, {
+          name: "CrossingSMA",
+          parameters: {
+            fast_rounds: data.crossing_sma_fast_rounds,
+            slow_rounds: data.crossing_sma_slow_rounds
+          }
+        }]
+      }
+
+      if (data.dmi_enabled) {
+        indicators = [...indicators, {
+          name: "DMI",
+          parameters: {
+            di_rounds: data.dmi_di_rounds,
+            adx_rounds: data.dmi_adx_rounds,
+            adx_threshold: data.dmi_adx_threshold
           }
         }]
       }
@@ -487,6 +513,52 @@ const Backtesting = () => {
                             value: state.crossing_ema_slow_rounds,
                             label: 'Slow Rounds',
                             name: 'crossing_ema_slow_rounds',
+                          }
+                        ]}
+                      />
+                      <Indicator
+                        name="crossing_sma_enabled"
+                        label="Crossing SMA"
+                        enabled={state.crossing_sma_enabled}
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.crossing_sma_fast_rounds,
+                            label: 'Fast Rounds',
+                            name: 'crossing_sma_fast_rounds',
+                          },
+                          {
+                            type: 'number',
+                            value: state.crossing_sma_slow_rounds,
+                            label: 'Slow Rounds',
+                            name: 'crossing_sma_slow_rounds',
+                          }
+                        ]}
+                      />
+                      <Indicator
+                        name="dmi_enabled"
+                        label="DMI"
+                        enabled={state.dmi_enabled}
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.dmi_di_rounds,
+                            label: 'DI Rounds',
+                            name: 'dmi_di_rounds',
+                          },
+                          {
+                            type: 'number',
+                            value: state.dmi_adx_rounds,
+                            label: 'ADX Rounds',
+                            name: 'dmi_adx_rounds',
+                          },
+                          {
+                            type: 'number',
+                            value: state.dmi_adx_threshold,
+                            label: 'ADX Threshold',
+                            name: 'dmi_adx_threshold',
                           }
                         ]}
                       />
