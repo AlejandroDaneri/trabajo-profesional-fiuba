@@ -54,10 +54,15 @@ class LongBacktester:
             trades.signal != trades.signal.shift(), trades.signal, ""
         )
         trades = trades.loc[trades.signal != ""].copy()
-        if trades.iloc[0].loc["signal"] == "sell":
-            trades = trades.iloc[1:]
-        if trades.iloc[-1].loc["signal"] == "buy":
-            trades = trades.iloc[:-1]
+        if not trades.empty: 
+            if len(trades) > 1:
+                if trades.iloc[0].loc["signal"] == "sell":
+                    trades = trades.iloc[1:]
+                if trades.iloc[-1].loc["signal"] == "buy":
+                    trades = trades.iloc[:-1]
+            else:
+                if trades.iloc[0].loc["signal"] == "sell":
+                    trades = trades.iloc[1:]
 
         return trades
 
