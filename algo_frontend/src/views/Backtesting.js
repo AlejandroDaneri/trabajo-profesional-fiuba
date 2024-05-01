@@ -127,6 +127,36 @@ const BacktestingStyle = styled.div`
   }
 `
 
+const Indicator = ({ enabled, label, name, onChange, parameters }) => {
+  return (
+    <div className="section-content-row">
+      <div className="field">
+        <FieldSwitch
+          name={name}
+          label={label}
+          value={enabled}
+          onChange={onChange}
+        />
+      </div>
+      {enabled &&
+        <>
+          {parameters.map(parameter => (
+            <div className="field">
+              <FieldInput
+                name={parameter.name}
+                label={parameter.label}
+                value={parameter.value}
+                onChange={onChange}
+                type={parameter.type}
+              />
+            </div>
+          ))}
+        </>
+      }
+    </div>
+  )
+}
+
 const Backtesting = () => {
   const [view, viewFunc] = useState(VIEW_FORM)
   const [state, stateFunc] = useState({
@@ -149,7 +179,9 @@ const Backtesting = () => {
     macd_ema_slow: 26,
     macd_ema_fast: 12,
     macd_signal: 20,
-    ema_rounds: 100
+    ema_rounds: 100,
+    bbands_rounds: 9,
+    bbands_factor: 2.1
   })
 
   const [backtesting, backtestingFunc] = useState({
@@ -196,6 +228,16 @@ const Backtesting = () => {
           name: "EMA",
           parameters: {
             rounds: data.ema_rounds
+          }
+        }]
+      }
+
+      if (data.bbands_enabled) {
+        indicators = [...indicators, {
+          name: "BBANDS",
+          parameters: {
+            rounds: data.bbands_rounds,
+            factor: parseFloat(data.bbands_factor)
           }
         }]
       }
@@ -330,106 +372,92 @@ const Backtesting = () => {
                 <div className="section">
                     <h3>Indicators</h3>
                     <div className="section-content">
-                      <div className="section-content-row">
-                        <div className="field">
-                          <FieldSwitch
-                            name="rsi_enabled"
-                            label="RSI"
-                            value={state.rsi_enabled}
-                            onChange={onChange}
-                          />
-                        </div>
-                        {state.rsi_enabled &&
-                          <>
-                            <div className="field">
-                              <FieldInput
-                                name="rsi_threshold_buy"
-                                label="Threshold Buy"
-                                value={state.rsi_buy_threshold}
-                                onChange={onChange}
-                                type='number'
-                              />
-                            </div>
-                            <div className="field">
-                              <FieldInput
-                                name="rsi_threshold_sell"
-                                label="Threshold Sell"
-                                value={state.rsi_sell_threshold}
-                                onChange={onChange}
-                                type='number'
-                              />
-                            </div>
-                            <div className="field">
-                              <FieldInput
-                                name="rsi_rounds"
-                                label="Rounds"
-                                value={state.rsi_rounds}
-                                onChange={onChange}
-                              />
-                            </div>
-                          </>
-                        }
-                      </div>
-                      <div className="section-content-row">
-                        <div className="field">
-                          <FieldSwitch
-                            name="macd_enabled"
-                            label="MACD"
-                            value={state.macd_enabled}
-                            onChange={onChange}
-                          />
-                        </div>
-                        {state.macd_enabled && <>
-                          <div className="field">
-                            <FieldInput
-                              name="macd_ema_fast"
-                              label="EMA Fast"
-                              value={state.macd_ema_fast}
-                              onChange={onChange}
-                              type='number'
-                            />
-                          </div>
-                          <div className="field">
-                            <FieldInput
-                              name="macd_ema_slow"
-                              label="EMA Slow"
-                              value={state.macd_ema_slow}
-                              onChange={onChange}
-                              type='number'
-                            />
-                          </div>
-                          <div className="field">
-                            <FieldInput
-                              name="macd_signal"
-                              label="Signal"
-                              value={state.macd_signal}
-                              onChange={onChange}
-                              type='number'
-                            />
-                          </div>
-                        </>}
-                      </div>
-                      <div className="section-content-row">
-                        <div className="field">
-                          <FieldSwitch
-                            name="ema_enabled"
-                            label="EMA"
-                            value={state.ema_enabled}
-                            onChange={onChange}
-                          />
-                        </div>
-                        {state.ema_enabled && <>
-                          <div className="field">
-                            <FieldInput
-                              name="ema_rounds"
-                              label="Rounds"
-                              value={state.ema_rounds}
-                              onChange={onChange}
-                              initial={100}
-                            />
-                          </div>
-                        </>}
-                      </div>
+                      <Indicator
+                        name="rsi_enabled"
+                        enabled={state.rsi_enabled}
+                        label='RSI'
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.rsi_buy_threshold,
+                            label: "Threshold Buy",
+                            name: 'rsi_threshold_buy'
+                          },
+                          {
+                            type: 'number',
+                            value: state.rsi_sell_threshold,
+                            label: "Threshold Sell",
+                            name: 'rsi_threshold_sell'
+                          },
+                          {
+                            type: 'number',
+                            value: state.rsi_rounds,
+                            label: "Rounds",
+                            name: 'rsi_rounds'
+                          },
+                        ]}
+                      />
+                      <Indicator
+                        name="macd_enabled"
+                        enabled={state.macd_enabled}
+                        label='MACD'
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.macd_ema_fast,
+                            label: "EMA Fast",
+                            name: 'macd_ema_fast'
+                          },
+                          {
+                            type: 'number',
+                            value: state.macd_ema_slow,
+                            label: "EMA Slow",
+                            name: 'macd_ema_slow'
+                          },
+                          {
+                            type: 'number',
+                            value: state.macd_signal,
+                            label: "Signal",
+                            name: 'macd_signal'
+                          },
+                        ]}
+                      />
+                      <Indicator
+                        name="ema_enabled"
+                        enabled={state.ema_enabled}
+                        label='EMA'
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.ema_rounds,
+                            label: "Rounds",
+                            name: 'ema_rounds'
+                          },
+                        ]}
+                      />
+                      <Indicator
+                        name="bbands_enabled"
+                        label="BBANDS"
+                        enabled={state.bbands_enabled}
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.bbands_rounds,
+                            label: "Rounds",
+                            name: 'bbands_rounds'
+                          },
+                          {
+                            type: 'float',
+                            value: state.bbands_factor,
+                            label: "Factor",
+                            name: 'bbands_factor'
+                          }
+                        ]}
+                      />
                     </div>
                 </div>
               </div>
