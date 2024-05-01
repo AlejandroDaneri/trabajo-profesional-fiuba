@@ -3,7 +3,7 @@ from lib.utils.utils_backtest import hydrate_strategy
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
-from risks import calculate_payoff_ratio,calculate_profit_factor,calculate_rachev_ratio,calculate_kelly_criterion,calculate_drawdowns
+from risks import calculate_payoff_ratio,calculate_profit_factor,calculate_rachev_ratio,calculate_kelly_criterion,calculate_max_drawdowns
 import numpy as np
 
 app = Flask(__name__)
@@ -78,11 +78,11 @@ def backtest():
 
 
         risks={}
-        risks["payoff_ratio"] = calculate_payoff_ratio(trades).tolist()
+        risks["payoff_ratio"] = calculate_payoff_ratio(backtester.strat_lin).tolist()
         risks["profit_factor"] = calculate_profit_factor(backtester.strat_log).tolist()
-        risks["rachev_ratio"] = calculate_rachev_ratio(trades).tolist()
+        risks["rachev_ratio"] = calculate_rachev_ratio(backtester.strat_log).tolist()
         risks["kelly_criterion"] = calculate_kelly_criterion(backtester.strat_lin).tolist()
-        risks["drawdowns"] = calculate_drawdowns(trades).tolist()
+        risks["max_drawdown"] = calculate_max_drawdowns(backtester.strat).tolist()
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
 

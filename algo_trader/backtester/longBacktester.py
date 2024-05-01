@@ -9,9 +9,6 @@ class LongBacktester:
         self.initial_balance = initial_balance
         self.fixed_commission = fixed_commission
         self.variable_commission_rate = variable_commission_rate
-        self.payoff = None
-        self.strat = None
-        self.benchmark = None
 
     def backtest(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
         trades, final_balance = self._execute_backtest(historical_data)
@@ -133,7 +130,7 @@ class LongBacktester:
         result = pd.concat([df,pd.Series(data=results,index=df.index)],axis=1)
         result.columns.values[-1] ="strategy"
         result=result.iloc[:,-2:].add(1).cumprod()
-        
+
         self.strat = result['strategy']
         self.benchmark = result['pct_change']
         self.strat_log = np.log(self.strat /self.strat.shift())
