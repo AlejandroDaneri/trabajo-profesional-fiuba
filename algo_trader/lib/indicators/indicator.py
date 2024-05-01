@@ -1,5 +1,5 @@
 from abc import abstractmethod
-
+from inspect import signature
 import numpy as np
 from lib.actions import Action
 
@@ -60,7 +60,9 @@ class Indicator:
 
     @classmethod
     def hydrate(cls, parameters):
-        required_params = cls.__init__.__code__.co_varnames[1:]  # Exclude 'self' parameter
+        sig = signature(cls.__init__)
+        required_params = [param for param, param_info in sig.parameters.items() if param != 'self' and param_info.default == param_info.empty]
+        
         if parameters is None:
             print(f"Indicator {cls.__name__} does not have parameters")
             return None
