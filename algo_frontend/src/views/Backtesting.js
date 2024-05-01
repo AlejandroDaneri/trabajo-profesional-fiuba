@@ -181,7 +181,9 @@ const Backtesting = () => {
     macd_signal: 20,
     ema_rounds: 100,
     bbands_rounds: 9,
-    bbands_factor: 2.1
+    bbands_factor: 2.1,
+    crossing_ema_fast_rounds: 50,
+    crossing_ema_slow_rounds: 200
   })
 
   const [backtesting, backtestingFunc] = useState({
@@ -238,6 +240,16 @@ const Backtesting = () => {
           parameters: {
             rounds: data.bbands_rounds,
             factor: parseFloat(data.bbands_factor)
+          }
+        }]
+      }
+
+      if (data.crossing_ema_enabled) {
+        indicators = [...indicators, {
+          name: "CrossingEMA",
+          parameters: {
+            fast_rounds: data.crossing_ema_fast_rounds,
+            slow_rounds: data.crossing_ema_slow_rounds
           }
         }]
       }
@@ -455,6 +467,26 @@ const Backtesting = () => {
                             value: state.bbands_factor,
                             label: "Factor",
                             name: 'bbands_factor'
+                          }
+                        ]}
+                      />
+                      <Indicator
+                        name="crossing_ema_enabled"
+                        label="Crossing EMA"
+                        enabled={state.crossing_ema_enabled}
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.crossing_ema_fast_rounds,
+                            label: 'Fast Rounds',
+                            name: 'crossing_ema_fast_rounds',
+                          },
+                          {
+                            type: 'number',
+                            value: state.crossing_ema_slow_rounds,
+                            label: 'Slow Rounds',
+                            name: 'crossing_ema_slow_rounds',
                           }
                         ]}
                       />
