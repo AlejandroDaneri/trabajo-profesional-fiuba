@@ -59,7 +59,17 @@ const BacktestingStyle = styled.div`
 
           & .indicators {
             height: 300px;
-            overflow: scroll;
+            overflow-y: scroll;
+
+            &::-webkit-scrollbar {
+              -webkit-appearance: none;
+              width: 8px;
+            }
+
+            &::-webkit-scrollbar-thumb {
+              border-radius: 10px;
+              background-color: ${theme.black};
+            }
           }
   
           & .field {
