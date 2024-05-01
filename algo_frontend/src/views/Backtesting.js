@@ -142,10 +142,14 @@ const Backtesting = () => {
     },
     initial_balance: 1000,
 
+    rsi_buy_threshold: 30,
+    rsi_sell_threshold: 70,
+    rsi_rounds: 30,
     macd_enabled: true,
     macd_ema_slow: 26,
     macd_ema_fast: 12,
-    macd_signal: 20
+    macd_signal: 20,
+    ema_rounds: 100
   })
 
   const [backtesting, backtestingFunc] = useState({
@@ -169,9 +173,9 @@ const Backtesting = () => {
         indicators = [...indicators, {
           name: "RSI",
           parameters: {
-            buy_threshold: parseInt(data.rsi_buy_threshold),
-            sell_threshold: parseInt(data.rsi_sell_threshold),
-            rounds: parseInt(data.rsi_rounds)
+            buy_threshold: data.rsi_buy_threshold,
+            sell_threshold: data.rsi_sell_threshold,
+            rounds: data.rsi_rounds
           }
         }]
       }
@@ -191,7 +195,7 @@ const Backtesting = () => {
         indicators = [...indicators, {
           name: "EMA",
           parameters: {
-            rounds: parseInt(data.ema_rounds)
+            rounds: data.ema_rounds
           }
         }]
       }
@@ -341,16 +345,18 @@ const Backtesting = () => {
                               <FieldInput
                                 name="rsi_threshold_buy"
                                 label="Threshold Buy"
-                                value={state.rsi_threshold_buy}
+                                value={state.rsi_buy_threshold}
                                 onChange={onChange}
+                                type='number'
                               />
                             </div>
                             <div className="field">
                               <FieldInput
                                 name="rsi_threshold_sell"
                                 label="Threshold Sell"
-                                value={state.rsi_threshold_sell}
+                                value={state.rsi_sell_threshold}
                                 onChange={onChange}
+                                type='number'
                               />
                             </div>
                             <div className="field">
