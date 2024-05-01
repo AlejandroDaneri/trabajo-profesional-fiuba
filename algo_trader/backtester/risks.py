@@ -11,11 +11,13 @@ def calculate_rachev_ratio(trades):
     return rachev_ratio
 
 def calculate_kelly_criterion(trades):
-    win_rate = (trades["result"] == "Winner").mean()
-    average_win = trades[trades["result"] == "Winner"]["return"].mean()
-    average_loss = trades[trades["result"] == "Loser"]["return"].mean()
-    kelly_fraction = (win_rate * (average_win / abs(average_loss))) - (1 - win_rate)
-    return kelly_fraction
+    winners = trades[trades["result"] == "Winner"]["return"]
+    losers = trades[trades["result"] == "Loser"]["return"]
+    totals = len(winners) + len(losers)
+    b = -winners.mean() / losers.mean()
+    win_prob = len(winners)/ totals
+    loss_prob = 1 - win_prob
+    return win_prob - loss_prob / b
 
 def calculate_drawdowns(trades):
     cumulative_return = trades["cumulative_return"]
