@@ -190,6 +190,9 @@ const Backtesting = () => {
     dmi_adx_rounds: 6,
     dmi_adx_threshold: 20,
     koncorde_rounds: 14,
+    stochastic_buy_threshold: 80,
+    stochastic_sell_threshold: 20,
+    stochastic_rounds: 14
   })
 
   const [backtesting, backtestingFunc] = useState({
@@ -286,6 +289,17 @@ const Backtesting = () => {
           name: "KONCORDE",
           parameters: {
             rounds: data.koncorde_rounds,
+          }
+        }]
+      }
+
+      if (data.stochastic_enabled) {
+        indicators = [...indicators, {
+          name: "Stochastic",
+          parameters: {
+            rounds: data.stochastic_rounds,
+            buy_threshold: data.stochastic_buy_threshold,
+            sell_threshold: data.stochastic_sell_threshold,
           }
         }]
       }
@@ -583,6 +597,32 @@ const Backtesting = () => {
                             value: state.koncorde_rounds,
                             label: 'Rounds',
                             name: 'koncorde_rounds',
+                          }
+                        ]}
+                      />
+                      <Indicator
+                        name="stochastic_enabled"
+                        label="Stochastic"
+                        enabled={state.stochastic_enabled}
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.stochastic_rounds,
+                            label: 'Rounds',
+                            name: 'stochastic_rounds',
+                          },
+                          {
+                            type: 'number',
+                            value: state.stochastic_buy_threshold,
+                            label: 'Buy threshold',
+                            name: 'stochastic_buy_threshold',
+                          },
+                          {
+                            type: 'number',
+                            value: state.stochastic_sell_threshold,
+                            label: 'Sell threshold',
+                            name: 'stochastic_sell_threshold',
                           }
                         ]}
                       />
