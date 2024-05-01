@@ -5,12 +5,11 @@ import Switch from "./Switch"
 import { theme } from "../../utils/theme"
 
 const FieldSwitchStyle = styled.div`
-    display: flex;
-    flex-direction: column;
-
     & p {
         font-size: 14px;
         color: ${theme.white};
+        padding: 0;
+        margin: 0;
         margin-bottom: 8px;
         font-weight: 600;
     }

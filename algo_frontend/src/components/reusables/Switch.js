@@ -5,6 +5,7 @@ import { theme } from '../../utils/theme'
 
 const SwitchStyle = styled.div`
     cursor: pointer;
+    height: 40px;
 
     & .switch-input {
         position: relative;
@@ -14,6 +15,7 @@ const SwitchStyle = styled.div`
         background-color: transparent;
         border: ${({ value }) => value ? `1px solid ${theme.white}` : '1px solid #E6E6E6'};
         transition: all 0.1s ease-out;
+        
 
         & input[type='checkbox'] {
             visibility: hidden;
@@ -34,6 +36,7 @@ const SwitchStyle = styled.div`
         }
 
         & .thumb {
+            cursor: pointer;
             position: absolute;
             ${({ value }) => {
                 if (value) {
@@ -53,7 +56,7 @@ const SwitchStyle = styled.div`
             background-color: ${({value}) => value ? theme.btc : theme.gray};
             border: 1px solid ${theme.white};
         }
-  } 
+    } 
 `
 
 const Switch = ({
