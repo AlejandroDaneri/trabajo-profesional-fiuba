@@ -18,15 +18,21 @@ const FieldInputStyle = styled.div`
     }
 `
 
-const FieldInput = ({label, name, value, onChange, width}) => {
+const FieldInput = ({label, name, value, onChange, width, type}) => {
     const onChange_ = (e) => {
-        onChange(e.target.name, e.target.value)
+        const key = e.target.name
+        const value = e.target.value
+        if (type === 'number') {
+            onChange(key, parseInt(value))
+        } else {
+            onChange(key, value)
+        }
     }
 
     return (
         <FieldInputStyle>
             <p>{label}</p>
-            <Input value={value} name={name} onChange={onChange_} width={width} />
+            <Input value={value} name={name} onChange={onChange_} width={width} type={type} />
         </FieldInputStyle>
     )
 }

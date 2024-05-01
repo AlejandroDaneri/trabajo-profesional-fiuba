@@ -173,9 +173,9 @@ const Backtesting = () => {
         indicators = [...indicators, {
           name: "MACD",
           parameters: {
-            slow: parseInt(data.macd_ema_slow),
-            fast: parseInt(data.macd_ema_fast),
-            smoothed: parseInt(data.macd_signal)
+            slow: data.macd_ema_slow,
+            fast: data.macd_ema_fast,
+            smoothed: data.macd_signal
           }
         }]
       }
@@ -373,6 +373,7 @@ const Backtesting = () => {
                               label="EMA Fast"
                               value={state.macd_ema_fast}
                               onChange={onChange}
+                              type='number'
                             />
                           </div>
                           <div className="field">
@@ -381,6 +382,7 @@ const Backtesting = () => {
                               label="EMA Slow"
                               value={state.macd_ema_slow}
                               onChange={onChange}
+                              type='number'
                             />
                           </div>
                           <div className="field">
@@ -389,6 +391,7 @@ const Backtesting = () => {
                               label="Signal"
                               value={state.macd_signal}
                               onChange={onChange}
+                              type='number'
                             />
                           </div>
                         </>}

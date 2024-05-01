@@ -18,8 +18,8 @@ const InputStyle = styled.input`
     }
 `
 
-const Input = ({width, onChange, value, name}) => {
-    return <InputStyle name={name} value={value} width={width} onChange={onChange} /> 
+const Input = ({width, onChange, value, name, type}) => {
+    return <InputStyle name={name} value={value} width={width} onChange={onChange} type={type} /> 
 }
 
 export default Input
