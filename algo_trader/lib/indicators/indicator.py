@@ -2,10 +2,10 @@ from abc import abstractmethod
 from inspect import signature
 import numpy as np
 from lib.actions import Action
-
+from typing import get_type_hints
 
 class Indicator:
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
         return
 
@@ -79,4 +79,24 @@ class Indicator:
         return {
             "name": self.__class__.__name__,
             "parameters": params
+        }
+    
+    @classmethod
+    def to_dict_class(cls):
+        params = {}
+        init_params = signature(cls.__init__).parameters.values()
+
+        for param in init_params:
+            param_name = param.name
+            if (param_name=="self"):  
+                continue
+            default_value = param.default
+            params[param_name] = {
+                'type': param.annotation.__name__,
+                'default': default_value if default_value is not param.empty else 'required'
+            }
+        
+        return {
+            'name': cls.__name__,
+            'parameters': params
         }

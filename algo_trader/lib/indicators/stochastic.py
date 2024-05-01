@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class Stochastic(Indicator):
-    def __init__(self, buy_threshold, sell_threshold, rounds, d_period=3):
+    def __init__(self, buy_threshold: float, sell_threshold: float, rounds: int, d_period:int=3):
         self.buy_threshold = buy_threshold
         self.sell_threshold = sell_threshold
         self.rounds = rounds

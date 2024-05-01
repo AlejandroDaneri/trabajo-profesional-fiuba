@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class SAR(Indicator):
-    def __init__(self, initial_af=0.02, max_af=0.20, af_increment=0.02):
+    def __init__(self, initial_af: float = 0.02, max_af: float = 0.20, af_increment: float = 0.02):
         self.initial_af = initial_af
         self.max_af = max_af
         self.af_increment = af_increment

@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class ROC(Indicator):
-    def __init__(self, periods):
+    def __init__(self, periods: int):
         self.periods = periods
         super().__init__("ROC")
 

@@ -1,5 +1,7 @@
 from longBacktester import LongBacktester
 from lib.utils.utils_backtest import hydrate_strategy
+from lib.indicators import __all__ as indicators_list
+from lib.indicators import *
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
@@ -84,4 +86,14 @@ def backtest():
         }
 
     return jsonify(results)
+
+@app.route('/indicators', methods=['GET'])
+def get_indicators():
+    indicators_params = []
+    for indicator_name in indicators_list:
+        indicator_cls = globals()[indicator_name]
+        indicators_params.append(indicator_cls.to_dict_class())
+    return jsonify(indicators_params)
+
+
     

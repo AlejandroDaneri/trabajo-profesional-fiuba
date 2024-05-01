@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class MFI(Indicator):
-    def __init__(self, buy_threshold, sell_threshold, rounds):
+    def __init__(self, buy_threshold: float, sell_threshold: float, rounds: int):
         self.buy_threshold = buy_threshold
         self.sell_threshold = sell_threshold
         self.rounds = rounds
