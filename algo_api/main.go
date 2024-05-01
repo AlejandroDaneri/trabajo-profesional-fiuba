@@ -712,6 +712,31 @@ func RunBacktesting(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetIndicators(w http.ResponseWriter, r *http.Request) {
+	backtesting, err := pythonservice.GetInstance().GetIndicators()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"error": err,
+		}).Error("Could not get backtesting")
+		return
+	}
+
+	bytes, err := json.Marshal(backtesting)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"backtesting": backtesting,
+		}).Error("Could not marshal backtesting")
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.Error("Could not write response")
+		return
+	}
+
+}
+
 func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/trade", CreateTrade).Methods("POST")
 	router.HandleFunc("/trade/current", GetCurrentTrade).Methods("GET")
@@ -740,7 +765,10 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/candleticks", GetCandleticks).Methods("GET")
 
+	// redirect to python
 	router.HandleFunc("/backtesting", RunBacktesting).Methods("POST")
+	router.HandleFunc("/indicators", GetIndicators).Methods("GET")
+
 }
 
 func main() {

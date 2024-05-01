@@ -1,5 +1,5 @@
 /* Import Libs */
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import BounceLoader from "react-spinners/BounceLoader"
 import "react-day-picker/dist/style.css"
@@ -13,7 +13,7 @@ import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Button from "../components/Button"
 
 /* Impor WebApi */
-import { run as runBacktesting } from "../webapi/backtesting"
+import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
 import { theme } from "../utils/theme"
 
 const VIEW_FORM = 0
@@ -214,6 +214,15 @@ const Backtesting = () => {
     loading: false,
     data: {}
   })
+
+  useEffect(() => {
+    getIndicators()
+      .then(response => {
+        console.info(response.data)
+      })
+      .catch(err => {
+      })
+  }, [])
 
   const onChange = (key, value) => {
     stateFunc((prevState) => ({
