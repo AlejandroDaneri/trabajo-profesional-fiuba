@@ -56,6 +56,11 @@ const BacktestingStyle = styled.div`
         & .section-content {
           display: flex;
           flex-direction: column;
+
+          & .indicators {
+            height: 300px;
+            overflow: scroll;
+          }
   
           & .field {
             display: flex;
@@ -434,6 +439,7 @@ const Backtesting = () => {
                 <div className="section">
                     <h3>Indicators</h3>
                     <div className="section-content">
+                      <div className='indicators'>
                       <Indicator
                         name="rsi_enabled"
                         enabled={state.rsi_enabled}
@@ -626,6 +632,7 @@ const Backtesting = () => {
                           }
                         ]}
                       />
+                      </div>
                     </div>
                 </div>
               </div>
