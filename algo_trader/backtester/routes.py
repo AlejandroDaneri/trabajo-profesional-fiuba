@@ -3,8 +3,7 @@ from lib.utils.utils_backtest import hydrate_strategy
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
-from risks import calculate_payoff_ratio,calculate_profit_factor,calculate_rachev_ratio,calculate_kelly_criterion,calculate_max_drawdowns
-import numpy as np
+from risks import RiskMetrics
 
 app = Flask(__name__)
 
@@ -78,18 +77,18 @@ def backtest():
 
 
         risks={}
-        risks["payoff_ratio"] = calculate_payoff_ratio(backtester.strat_lin).tolist()
-        risks["profit_factor"] = calculate_profit_factor(backtester.strat_log).tolist()
-        risks["rachev_ratio"] = calculate_rachev_ratio(backtester.strat_log).tolist()
-        risks["kelly_criterion"] = calculate_kelly_criterion(backtester.strat_lin).tolist()
-        risks["max_drawdown"] = calculate_max_drawdowns(backtester.strat).tolist()
+        risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin).tolist()
+        risks["profit_factor"] = RiskMetrics.profit_factor(backtester.strat_log).tolist()
+        risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strat_log).tolist()
+        risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strat_lin).tolist()
+        risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strat).tolist()
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
 
         results[coin] = { 
             #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
             #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
-            'risks':risks,
+            # 'risks':risks,  comento por ahora nomas para que no me rompa golang,
             'final_balance': final_balance
         }
 
