@@ -188,7 +188,8 @@ const Backtesting = () => {
     crossing_sma_slow_rounds: 200,
     dmi_di_rounds: 10,
     dmi_adx_rounds: 6,
-    dmi_adx_threshold: 20
+    dmi_adx_threshold: 20,
+    koncorde_rounds: 14,
   })
 
   const [backtesting, backtestingFunc] = useState({
@@ -276,6 +277,15 @@ const Backtesting = () => {
             di_rounds: data.dmi_di_rounds,
             adx_rounds: data.dmi_adx_rounds,
             adx_threshold: data.dmi_adx_threshold
+          }
+        }]
+      }
+
+      if (data.koncorde_enabled) {
+        indicators = [...indicators, {
+          name: "KONCORDE",
+          parameters: {
+            rounds: data.koncorde_rounds,
           }
         }]
       }
@@ -559,6 +569,20 @@ const Backtesting = () => {
                             value: state.dmi_adx_threshold,
                             label: 'ADX Threshold',
                             name: 'dmi_adx_threshold',
+                          }
+                        ]}
+                      />
+                      <Indicator
+                        name="koncorde_enabled"
+                        label="Koncorde"
+                        enabled={state.koncorde_enabled}
+                        onChange={onChange}
+                        parameters={[
+                          {
+                            type: 'number',
+                            value: state.koncorde_rounds,
+                            label: 'Rounds',
+                            name: 'koncorde_rounds',
                           }
                         ]}
                       />
