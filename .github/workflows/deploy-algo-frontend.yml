@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - "algo_frontend/**"
+  workflow_dispatch:
 
 jobs:
   build:
