@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class EWO(Indicator):
-    def __init__(self, short_period, long_period):
+    def __init__(self, short_period: int, long_period: int):
         self.short_period = short_period
         self.long_period = long_period
         super().__init__("EWO")

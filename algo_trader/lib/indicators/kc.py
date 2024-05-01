@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class KC(Indicator):
-    def __init__(self, periods, atr_length, atr_ma, factor):
+    def __init__(self, periods: int, atr_length: int, atr_ma: float, factor: float):
         self.periods = periods
         self.atr_length = atr_length
         self.atr_ma = atr_ma

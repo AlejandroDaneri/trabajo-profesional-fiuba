@@ -4,7 +4,7 @@ import pandas as pd
 
 
 class Sigma(Indicator):
-    def __init__(self, rounds=14):
+    def __init__(self, rounds:int =14):
         self.rounds = rounds
         super().__init__("Sigma")
 

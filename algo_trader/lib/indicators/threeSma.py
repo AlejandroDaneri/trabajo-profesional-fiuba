@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class ThreeSMA(Indicator):
-    def __init__(self, fast_rounds, slow_rounds, support_rounds):
+    def __init__(self, fast_rounds: int, slow_rounds: int, support_rounds: int):
         self.fast_rounds = fast_rounds
         self.slow_rounds = slow_rounds
         self.support_rounds = support_rounds

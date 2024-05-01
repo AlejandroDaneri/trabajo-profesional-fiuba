@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class OBV(Indicator):
-    def __init__(self, rounds):
+    def __init__(self, rounds:int):
         self.rounds = rounds
         super().__init__("OBV")
 

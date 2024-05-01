@@ -7,7 +7,7 @@ from lib.indicators.atr import ATR
 
 
 class DMI(Indicator):
-    def __init__(self, di_rounds, adx_rounds, adx_threshold):
+    def __init__(self, di_rounds: int, adx_rounds: int, adx_threshold: float):
         self.di_rounds = di_rounds
         self.adx_rounds = adx_rounds
         self.adx_threshold = adx_threshold
