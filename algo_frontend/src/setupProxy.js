@@ -4,7 +4,7 @@ module.exports = function (app) {
   app.use(
     "/api",
     createProxyMiddleware({
-      target: "https://api.satoshibot.tech",
+      target: "http://algo_api:8080",
       changeOrigin: true,
     })
   )
