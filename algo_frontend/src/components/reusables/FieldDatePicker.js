@@ -18,8 +18,10 @@ const FieldDatePickerStyle = styled.div`
       text-align: left;
       font-size: 14px;
       color: ${theme.white};
-      margin-bottom: 8px;
       font-weight: 600;
+      padding: 0;
+      margin: 0;
+      margin-bottom: 8px;
     }
 
     & .my-day-picker {

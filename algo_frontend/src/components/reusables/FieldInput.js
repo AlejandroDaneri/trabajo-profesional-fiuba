@@ -13,8 +13,10 @@ const FieldInputStyle = styled.div`
     & p {
         font-size: 14px;
         color: ${theme.white};
-        margin-bottom: 8px;
         font-weight: 600;
+        padding: 0;
+        margin: 0;
+        margin-bottom: 8px;
     }
 `
 

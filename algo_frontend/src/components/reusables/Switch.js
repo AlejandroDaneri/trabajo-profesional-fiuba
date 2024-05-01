@@ -5,6 +5,7 @@ import { theme } from '../../utils/theme'
 
 const SwitchStyle = styled.div`
     cursor: pointer;
+    height: 40px;
 
     & .switch-input {
         position: relative;

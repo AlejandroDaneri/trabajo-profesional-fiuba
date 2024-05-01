@@ -46,7 +46,7 @@ const BacktestingStyle = styled.div`
         & h3 {
           border-bottom: 0.5px solid white;
           padding-bottom: 5px;
-          margin: 0;
+          margin-bottom: 10px;
         }
   
         & .section-content.row {
@@ -58,12 +58,19 @@ const BacktestingStyle = styled.div`
           flex-direction: column;
   
           & .field {
+            display: flex;
+            align-items: center;
             margin-right: 20px;
           }
   
-          & .row {
+          & .section-content-row {
             display: flex;
             flex-direction: row;
+            align-items: center;
+            border-left: 5px solid ${theme.gray};
+            padding-left: 10px;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
           }
         }
       }
@@ -319,7 +326,7 @@ const Backtesting = () => {
                 <div className="section">
                     <h3>Indicators</h3>
                     <div className="section-content">
-                      <div className="row">
+                      <div className="section-content-row">
                         <div className="field">
                           <FieldSwitch
                             name="rsi_enabled"
@@ -357,7 +364,7 @@ const Backtesting = () => {
                           </>
                         }
                       </div>
-                      <div className="row">
+                      <div className="section-content-row">
                         <div className="field">
                           <FieldSwitch
                             name="macd_enabled"
@@ -396,7 +403,7 @@ const Backtesting = () => {
                           </div>
                         </>}
                       </div>
-                      <div className="row">
+                      <div className="section-content-row">
                         <div className="field">
                           <FieldSwitch
                             name="ema_enabled"
