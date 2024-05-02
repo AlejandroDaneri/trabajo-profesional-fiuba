@@ -15,6 +15,7 @@ import Button from "../components/Button"
 /* Impor WebApi */
 import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
 import { theme } from "../utils/theme"
+import { capitalize } from "../utils/string"
 
 const VIEW_FORM = 0
 const VIEW_BACKTESTING = 1
@@ -167,13 +168,18 @@ const Backtesting = () => {
   useEffect(() => {
     getIndicators()
       .then(response => {
-        console.info(response.data)
         const indicators = response.data.reduce((indicators, indicator) => {
           return {
             ...indicators,
             [indicator.name]: {
-              ...indicator,
-              enabled: false
+              enabled: false,
+              name: indicator.name,
+              parameters: Object.keys(indicator.parameters).reduce((parameters, parameter) => {
+                return {
+                  ...parameters,
+                  [parameter]: ''
+                }
+              }, {})
             }
           }
         }, {})
@@ -198,97 +204,7 @@ const Backtesting = () => {
     const transformToSendIndicators = (data) => {
       let indicators = []
 
-      if (data.rsi_enabled) {
-        indicators = [...indicators, {
-          name: "RSI",
-          parameters: {
-            buy_threshold: data.rsi_buy_threshold,
-            sell_threshold: data.rsi_sell_threshold,
-            rounds: data.rsi_rounds
-          }
-        }]
-      }
-
-      if (data.macd_enabled) {
-        indicators = [...indicators, {
-          name: "MACD",
-          parameters: {
-            slow: data.macd_ema_slow,
-            fast: data.macd_ema_fast,
-            smoothed: data.macd_signal
-          }
-        }]
-      }
-
-      if (data.ema_enabled) {
-        indicators = [...indicators, {
-          name: "EMA",
-          parameters: {
-            rounds: data.ema_rounds
-          }
-        }]
-      }
-
-      if (data.bbands_enabled) {
-        indicators = [...indicators, {
-          name: "BBANDS",
-          parameters: {
-            rounds: data.bbands_rounds,
-            factor: parseFloat(data.bbands_factor)
-          }
-        }]
-      }
-
-      if (data.crossing_ema_enabled) {
-        indicators = [...indicators, {
-          name: "CrossingEMA",
-          parameters: {
-            fast_rounds: data.crossing_ema_fast_rounds,
-            slow_rounds: data.crossing_ema_slow_rounds
-          }
-        }]
-      }
-
-      if (data.crossing_sma_enabled) {
-        indicators = [...indicators, {
-          name: "CrossingSMA",
-          parameters: {
-            fast_rounds: data.crossing_sma_fast_rounds,
-            slow_rounds: data.crossing_sma_slow_rounds
-          }
-        }]
-      }
-
-      if (data.dmi_enabled) {
-        indicators = [...indicators, {
-          name: "DMI",
-          parameters: {
-            di_rounds: data.dmi_di_rounds,
-            adx_rounds: data.dmi_adx_rounds,
-            adx_threshold: data.dmi_adx_threshold
-          }
-        }]
-      }
-
-      if (data.koncorde_enabled) {
-        indicators = [...indicators, {
-          name: "KONCORDE",
-          parameters: {
-            rounds: data.koncorde_rounds,
-          }
-        }]
-      }
-
-      if (data.stochastic_enabled) {
-        indicators = [...indicators, {
-          name: "Stochastic",
-          parameters: {
-            rounds: data.stochastic_rounds,
-            buy_threshold: data.stochastic_buy_threshold,
-            sell_threshold: data.stochastic_sell_threshold,
-          }
-        }]
-      }
+      console.info(Object.values(data.indicators).filter(indicator => indicator.enabled))
 
       return indicators
     }
@@ -326,9 +242,8 @@ const Backtesting = () => {
     viewFunc(prevState => prevState === VIEW_FORM ? VIEW_BACKTESTING : VIEW_FORM)
   }
 
-  const onChangeIndicator = (key, value) => {
+  const onChangeIndicatorEnabled = (key, value) => {
     const indicator = key.split('.')[0]
-    const field = key.split('.')[1]
 
     stateFunc(prevState => ({
       ...prevState,
@@ -336,13 +251,30 @@ const Backtesting = () => {
         ...prevState.indicators,
         [indicator]: {
           ...prevState.indicators[indicator],
-          [field]: value
+          enabled: value
         }
       }
     }))
   }
 
-  console.info(state.indicators)
+  const onChangeIndicatorParameter = (key, value) => {
+    const indicator = key.split('.')[0]
+    const parameter = key.split('.')[1]
+
+    stateFunc(prevState => ({
+      ...prevState,
+      indicators: {
+        ...prevState.indicators,
+        [indicator]: {
+          ...prevState.indicators[indicator],
+          parameters: {
+            ...prevState.indicators[indicator].parameters,
+            [parameter]: value
+          }
+        }
+      }
+    }))
+  }
 
   return (
     <View
@@ -443,10 +375,10 @@ const Backtesting = () => {
                           <div className="section-content-row">
                             <div className="field">
                               <FieldSwitch
-                                name={`${indicator}.enabled`}
+                                name={indicator}
                                 label={indicator}
                                 value={state.indicators[indicator].enabled}
-                                onChange={onChangeIndicator}
+                                onChange={onChangeIndicatorEnabled}
                               />
                             </div>
                             {state.indicators[indicator].enabled &&
@@ -454,11 +386,11 @@ const Backtesting = () => {
                                 {Object.keys(state.indicators[indicator].parameters).map(parameter => (
                                   <div className="field">
                                     <FieldInput
-                                      name={parameter}
-                                      label={parameter}
+                                      name={`${indicator}.${parameter}`}
+                                      label={parameter.split('_').map(word => capitalize(word)).join(' ')}
                                       value={state.indicators[indicator].parameters[parameter].value}
                                       type={state.indicators[indicator].parameters[parameter].type}
-                                      onChange={onChange}
+                                      onChange={onChangeIndicatorParameter}
                                     />
                                   </div>
                                 ))}
