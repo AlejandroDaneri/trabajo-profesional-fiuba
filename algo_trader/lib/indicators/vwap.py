@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class VWAP(Indicator):
-    def __init__(self, periods: int):
+    def __init__(self, periods: int=14):
         self.periods = periods
         super().__init__("VWAP")
 

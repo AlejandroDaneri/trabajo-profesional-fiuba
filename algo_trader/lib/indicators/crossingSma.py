@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class CrossingSMA(Indicator):
-    def __init__(self, fast_rounds:int, slow_rounds:int):
+    def __init__(self, fast_rounds:int=50, slow_rounds:int=200):
         self.fast_rounds = fast_rounds
         self.slow_rounds = slow_rounds
         super().__init__("CrossingSMA")
