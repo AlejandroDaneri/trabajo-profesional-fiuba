@@ -177,7 +177,10 @@ const Backtesting = () => {
               parameters: Object.keys(indicator.parameters).reduce((parameters, parameter) => {
                 return {
                   ...parameters,
-                  [parameter]: ''
+                  [parameter]: {
+                    type: indicator.parameters[parameter].type,
+                    value: indicator.parameters[parameter].default === 'required' ? '' : indicator.parameters[parameter].default
+                  }
                 }
               }, {})
             }
@@ -202,11 +205,23 @@ const Backtesting = () => {
   const transformToSend = (data) => {
 
     const transformToSendIndicators = (data) => {
-      let indicators = []
+      const convert2type = (value, type) => {
+        if (type === 'int') {
+          return parseInt(value)
+        }
+        if (type === 'float') {
+          return parseFloat(value)
+        }
+        return value
+      }
 
-      console.info(Object.values(data.indicators).filter(indicator => indicator.enabled))
-
-      return indicators
+      return Object.values(data.indicators).filter(indicator => indicator.enabled).map(indicator => ({
+        ...indicator,
+        parameters: Object.keys(indicator.parameters).reduce((parameters, parameter) => ({
+          ...parameters,
+          [parameter]: convert2type(indicator.parameters[parameter].value, indicator.parameters[parameter].type)
+        }), {})
+      }))
     }
 
     const start = new Date(`${data.start}T00:00:00Z`)
@@ -269,7 +284,10 @@ const Backtesting = () => {
           ...prevState.indicators[indicator],
           parameters: {
             ...prevState.indicators[indicator].parameters,
-            [parameter]: value
+            [parameter]: {
+              ...prevState.indicators[indicator].parameters[parameter],
+              value: value
+            }
           }
         }
       }
@@ -389,7 +407,6 @@ const Backtesting = () => {
                                       name={`${indicator}.${parameter}`}
                                       label={parameter.split('_').map(word => capitalize(word)).join(' ')}
                                       value={state.indicators[indicator].parameters[parameter].value}
-                                      type={state.indicators[indicator].parameters[parameter].type}
                                       onChange={onChangeIndicatorParameter}
                                     />
                                   </div>
