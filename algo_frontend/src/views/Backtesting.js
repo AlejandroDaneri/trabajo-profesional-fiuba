@@ -1,5 +1,5 @@
 /* Import Libs */
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import BounceLoader from "react-spinners/BounceLoader"
 import "react-day-picker/dist/style.css"
@@ -13,8 +13,9 @@ import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Button from "../components/Button"
 
 /* Impor WebApi */
-import { run as runBacktesting } from "../webapi/backtesting"
+import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
 import { theme } from "../utils/theme"
+import { capitalize } from "../utils/string"
 
 const VIEW_FORM = 0
 const VIEW_BACKTESTING = 1
@@ -142,36 +143,6 @@ const BacktestingStyle = styled.div`
   }
 `
 
-const Indicator = ({ enabled, label, name, onChange, parameters }) => {
-  return (
-    <div className="section-content-row">
-      <div className="field">
-        <FieldSwitch
-          name={name}
-          label={label}
-          value={enabled}
-          onChange={onChange}
-        />
-      </div>
-      {enabled &&
-        <>
-          {parameters.map(parameter => (
-            <div className="field">
-              <FieldInput
-                name={parameter.name}
-                label={parameter.label}
-                value={parameter.value}
-                onChange={onChange}
-                type={parameter.type}
-              />
-            </div>
-          ))}
-        </>
-      }
-    </div>
-  )
-}
-
 const Backtesting = () => {
   const [view, viewFunc] = useState(VIEW_FORM)
   const [state, stateFunc] = useState({
@@ -186,34 +157,43 @@ const Backtesting = () => {
       label: '1 day'
     },
     initial_balance: 1000,
-
-    rsi_buy_threshold: 30,
-    rsi_sell_threshold: 70,
-    rsi_rounds: 30,
-    macd_enabled: true,
-    macd_ema_slow: 26,
-    macd_ema_fast: 12,
-    macd_signal: 20,
-    ema_rounds: 100,
-    bbands_rounds: 9,
-    bbands_factor: 2.1,
-    crossing_ema_fast_rounds: 50,
-    crossing_ema_slow_rounds: 200,
-    crossing_sma_fast_rounds: 50,
-    crossing_sma_slow_rounds: 200,
-    dmi_di_rounds: 10,
-    dmi_adx_rounds: 6,
-    dmi_adx_threshold: 20,
-    koncorde_rounds: 14,
-    stochastic_buy_threshold: 80,
-    stochastic_sell_threshold: 20,
-    stochastic_rounds: 14
+    indicators: {}
   })
 
   const [backtesting, backtestingFunc] = useState({
     loading: false,
     data: {}
   })
+
+  useEffect(() => {
+    getIndicators()
+      .then(response => {
+        const indicators = response.data.reduce((indicators, indicator) => {
+          return {
+            ...indicators,
+            [indicator.name]: {
+              enabled: false,
+              name: indicator.name,
+              parameters: Object.keys(indicator.parameters).reduce((parameters, parameter) => {
+                return {
+                  ...parameters,
+                  [parameter]: {
+                    type: indicator.parameters[parameter].type,
+                    value: indicator.parameters[parameter].default === 'required' ? '' : indicator.parameters[parameter].default
+                  }
+                }
+              }, {})
+            }
+          }
+        }, {})
+        stateFunc(prevState => ({
+          ...prevState,
+          indicators
+        }))
+      })
+      .catch(err => {
+      })
+  }, [])
 
   const onChange = (key, value) => {
     stateFunc((prevState) => ({
@@ -225,101 +205,23 @@ const Backtesting = () => {
   const transformToSend = (data) => {
 
     const transformToSendIndicators = (data) => {
-      let indicators = []
-
-      if (data.rsi_enabled) {
-        indicators = [...indicators, {
-          name: "RSI",
-          parameters: {
-            buy_threshold: data.rsi_buy_threshold,
-            sell_threshold: data.rsi_sell_threshold,
-            rounds: data.rsi_rounds
-          }
-        }]
+      const convert2type = (value, type) => {
+        if (type === 'int') {
+          return parseInt(value)
+        }
+        if (type === 'float') {
+          return parseFloat(value)
+        }
+        return value
       }
 
-      if (data.macd_enabled) {
-        indicators = [...indicators, {
-          name: "MACD",
-          parameters: {
-            slow: data.macd_ema_slow,
-            fast: data.macd_ema_fast,
-            smoothed: data.macd_signal
-          }
-        }]
-      }
-
-      if (data.ema_enabled) {
-        indicators = [...indicators, {
-          name: "EMA",
-          parameters: {
-            rounds: data.ema_rounds
-          }
-        }]
-      }
-
-      if (data.bbands_enabled) {
-        indicators = [...indicators, {
-          name: "BBANDS",
-          parameters: {
-            rounds: data.bbands_rounds,
-            factor: parseFloat(data.bbands_factor)
-          }
-        }]
-      }
-
-      if (data.crossing_ema_enabled) {
-        indicators = [...indicators, {
-          name: "CrossingEMA",
-          parameters: {
-            fast_rounds: data.crossing_ema_fast_rounds,
-            slow_rounds: data.crossing_ema_slow_rounds
-          }
-        }]
-      }
-
-      if (data.crossing_sma_enabled) {
-        indicators = [...indicators, {
-          name: "CrossingSMA",
-          parameters: {
-            fast_rounds: data.crossing_sma_fast_rounds,
-            slow_rounds: data.crossing_sma_slow_rounds
-          }
-        }]
-      }
-
-      if (data.dmi_enabled) {
-        indicators = [...indicators, {
-          name: "DMI",
-          parameters: {
-            di_rounds: data.dmi_di_rounds,
-            adx_rounds: data.dmi_adx_rounds,
-            adx_threshold: data.dmi_adx_threshold
-          }
-        }]
-      }
-
-      if (data.koncorde_enabled) {
-        indicators = [...indicators, {
-          name: "KONCORDE",
-          parameters: {
-            rounds: data.koncorde_rounds,
-          }
-        }]
-      }
-
-      if (data.stochastic_enabled) {
-        indicators = [...indicators, {
-          name: "Stochastic",
-          parameters: {
-            rounds: data.stochastic_rounds,
-            buy_threshold: data.stochastic_buy_threshold,
-            sell_threshold: data.stochastic_sell_threshold,
-          }
-        }]
-      }
-
-      return indicators
+      return Object.values(data.indicators).filter(indicator => indicator.enabled).map(indicator => ({
+        ...indicator,
+        parameters: Object.keys(indicator.parameters).reduce((parameters, parameter) => ({
+          ...parameters,
+          [parameter]: convert2type(indicator.parameters[parameter].value, indicator.parameters[parameter].type)
+        }), {})
+      }))
     }
 
     const start = new Date(`${data.start}T00:00:00Z`)
@@ -353,6 +255,43 @@ const Backtesting = () => {
 
   const onToggleView = () => {
     viewFunc(prevState => prevState === VIEW_FORM ? VIEW_BACKTESTING : VIEW_FORM)
+  }
+
+  const onChangeIndicatorEnabled = (key, value) => {
+    const indicator = key.split('.')[0]
+
+    stateFunc(prevState => ({
+      ...prevState,
+      indicators: {
+        ...prevState.indicators,
+        [indicator]: {
+          ...prevState.indicators[indicator],
+          enabled: value
+        }
+      }
+    }))
+  }
+
+  const onChangeIndicatorParameter = (key, value) => {
+    const indicator = key.split('.')[0]
+    const parameter = key.split('.')[1]
+
+    stateFunc(prevState => ({
+      ...prevState,
+      indicators: {
+        ...prevState.indicators,
+        [indicator]: {
+          ...prevState.indicators[indicator],
+          parameters: {
+            ...prevState.indicators[indicator].parameters,
+            [parameter]: {
+              ...prevState.indicators[indicator].parameters[parameter],
+              value: value
+            }
+          }
+        }
+      }
+    }))
   }
 
   return (
@@ -450,198 +389,32 @@ const Backtesting = () => {
                     <h3>Indicators</h3>
                     <div className="section-content">
                       <div className='indicators'>
-                      <Indicator
-                        name="rsi_enabled"
-                        enabled={state.rsi_enabled}
-                        label='RSI'
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.rsi_buy_threshold,
-                            label: "Threshold Buy",
-                            name: 'rsi_threshold_buy'
-                          },
-                          {
-                            type: 'number',
-                            value: state.rsi_sell_threshold,
-                            label: "Threshold Sell",
-                            name: 'rsi_threshold_sell'
-                          },
-                          {
-                            type: 'number',
-                            value: state.rsi_rounds,
-                            label: "Rounds",
-                            name: 'rsi_rounds'
-                          },
-                        ]}
-                      />
-                      <Indicator
-                        name="macd_enabled"
-                        enabled={state.macd_enabled}
-                        label='MACD'
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.macd_ema_fast,
-                            label: "EMA Fast",
-                            name: 'macd_ema_fast'
-                          },
-                          {
-                            type: 'number',
-                            value: state.macd_ema_slow,
-                            label: "EMA Slow",
-                            name: 'macd_ema_slow'
-                          },
-                          {
-                            type: 'number',
-                            value: state.macd_signal,
-                            label: "Signal",
-                            name: 'macd_signal'
-                          },
-                        ]}
-                      />
-                      <Indicator
-                        name="ema_enabled"
-                        enabled={state.ema_enabled}
-                        label='EMA'
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.ema_rounds,
-                            label: "Rounds",
-                            name: 'ema_rounds'
-                          },
-                        ]}
-                      />
-                      <Indicator
-                        name="bbands_enabled"
-                        label="BBANDS"
-                        enabled={state.bbands_enabled}
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.bbands_rounds,
-                            label: "Rounds",
-                            name: 'bbands_rounds'
-                          },
-                          {
-                            type: 'float',
-                            value: state.bbands_factor,
-                            label: "Factor",
-                            name: 'bbands_factor'
-                          }
-                        ]}
-                      />
-                      <Indicator
-                        name="crossing_ema_enabled"
-                        label="Crossing EMA"
-                        enabled={state.crossing_ema_enabled}
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.crossing_ema_fast_rounds,
-                            label: 'Fast Rounds',
-                            name: 'crossing_ema_fast_rounds',
-                          },
-                          {
-                            type: 'number',
-                            value: state.crossing_ema_slow_rounds,
-                            label: 'Slow Rounds',
-                            name: 'crossing_ema_slow_rounds',
-                          }
-                        ]}
-                      />
-                      <Indicator
-                        name="crossing_sma_enabled"
-                        label="Crossing SMA"
-                        enabled={state.crossing_sma_enabled}
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.crossing_sma_fast_rounds,
-                            label: 'Fast Rounds',
-                            name: 'crossing_sma_fast_rounds',
-                          },
-                          {
-                            type: 'number',
-                            value: state.crossing_sma_slow_rounds,
-                            label: 'Slow Rounds',
-                            name: 'crossing_sma_slow_rounds',
-                          }
-                        ]}
-                      />
-                      <Indicator
-                        name="dmi_enabled"
-                        label="DMI"
-                        enabled={state.dmi_enabled}
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.dmi_di_rounds,
-                            label: 'DI Rounds',
-                            name: 'dmi_di_rounds',
-                          },
-                          {
-                            type: 'number',
-                            value: state.dmi_adx_rounds,
-                            label: 'ADX Rounds',
-                            name: 'dmi_adx_rounds',
-                          },
-                          {
-                            type: 'number',
-                            value: state.dmi_adx_threshold,
-                            label: 'ADX Threshold',
-                            name: 'dmi_adx_threshold',
-                          }
-                        ]}
-                      />
-                      <Indicator
-                        name="koncorde_enabled"
-                        label="Koncorde"
-                        enabled={state.koncorde_enabled}
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.koncorde_rounds,
-                            label: 'Rounds',
-                            name: 'koncorde_rounds',
-                          }
-                        ]}
-                      />
-                      <Indicator
-                        name="stochastic_enabled"
-                        label="Stochastic"
-                        enabled={state.stochastic_enabled}
-                        onChange={onChange}
-                        parameters={[
-                          {
-                            type: 'number',
-                            value: state.stochastic_rounds,
-                            label: 'Rounds',
-                            name: 'stochastic_rounds',
-                          },
-                          {
-                            type: 'number',
-                            value: state.stochastic_buy_threshold,
-                            label: 'Buy threshold',
-                            name: 'stochastic_buy_threshold',
-                          },
-                          {
-                            type: 'number',
-                            value: state.stochastic_sell_threshold,
-                            label: 'Sell threshold',
-                            name: 'stochastic_sell_threshold',
-                          }
-                        ]}
-                      />
+                        {Object.keys(state.indicators).map(indicator => (
+                          <div className="section-content-row">
+                            <div className="field">
+                              <FieldSwitch
+                                name={indicator}
+                                label={indicator}
+                                value={state.indicators[indicator].enabled}
+                                onChange={onChangeIndicatorEnabled}
+                              />
+                            </div>
+                            {state.indicators[indicator].enabled &&
+                              <>
+                                {Object.keys(state.indicators[indicator].parameters).map(parameter => (
+                                  <div className="field">
+                                    <FieldInput
+                                      name={`${indicator}.${parameter}`}
+                                      label={parameter.split('_').map(word => capitalize(word)).join(' ')}
+                                      value={state.indicators[indicator].parameters[parameter].value}
+                                      onChange={onChangeIndicatorParameter}
+                                    />
+                                  </div>
+                                ))}
+                              </>
+                            }
+                          </div>
+                        ))}
                       </div>
                     </div>
                 </div>
