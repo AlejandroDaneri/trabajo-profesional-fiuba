@@ -713,19 +713,19 @@ func RunBacktesting(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetIndicators(w http.ResponseWriter, r *http.Request) {
-	backtesting, err := pythonservice.GetInstance().GetIndicators()
+	indicators, err := pythonservice.GetInstance().GetIndicators()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
-		}).Error("Could not get backtesting")
+		}).Error("Could not get indicators")
 		return
 	}
 
-	bytes, err := json.Marshal(backtesting)
+	bytes, err := json.Marshal(indicators)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
-			"backtesting": backtesting,
-		}).Error("Could not marshal backtesting")
+			"backtesting": indicators,
+		}).Error("Could not marshal indicators")
 		return
 	}
 
