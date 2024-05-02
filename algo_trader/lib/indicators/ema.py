@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class EMA(Indicator):
-    def __init__(self, rounds:int):
+    def __init__(self, rounds:int=20):
         self.rounds = rounds
         super().__init__("EMA")
 
