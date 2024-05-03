@@ -24,90 +24,8 @@ const BacktestingStyle = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: calc(100vh - 40px - 84px);
   overflow: hidden;
-
-  & .form {
-    display: flex;
-    flex-direction: column;
-    padding-left: 20px;
-    padding-top: 20px;
-    width: ${({ view }) => view === VIEW_FORM ? '600px' : '10px'};
-    transition: width .5s;
-    padding-right: 20px;
-    background: ${theme.dark};
-
-    & .sections {
-      display: flex;
-      flex-direction: column;
-
-      & .section {
-        margin-bottom: 20px;
-  
-        & h3 {
-          border-bottom: 0.5px solid white;
-          padding-bottom: 5px;
-          margin-bottom: 10px;
-        }
-  
-        & .section-content.row {
-          flex-direction: row;
-        }
-  
-        & .section-content {
-          display: flex;
-          flex-direction: column;
-
-          & .indicators {
-            height: 300px;
-            overflow-y: scroll;
-
-            & .loading {
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              height: 100%;
-              width: 100%;
-            }
-
-            &::-webkit-scrollbar {
-              -webkit-appearance: none;
-              width: 8px;
-            }
-
-            &::-webkit-scrollbar-thumb {
-              border-radius: 10px;
-              background-color: ${theme.black};
-            }
-          }
-  
-          & .field {
-            display: flex;
-            align-items: center;
-            margin-right: 20px;
-          }
-  
-          & .section-content-row {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            border-left: 5px solid ${theme.gray};
-            padding-left: 10px;
-            padding-bottom: 8px;
-            margin-bottom: 8px;
-          }
-        }
-      }
-    }
-
-    & .actions {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      height: 60px;
-      border-top: 0.5px solid white;
-    }
-  }
+  height: 100%;
 
   & .divider {
     width: 2px;
@@ -148,6 +66,92 @@ const BacktestingStyle = styled.div`
         }
       }
     }
+  }
+`
+
+const BacktestingFormStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  padding-left: 20px;
+  padding-top: 20px;
+  padding-right: 20px;
+  background: ${theme.dark};
+  width: ${({ show }) => show ? '600px' : '10px'};
+  overflow: hidden;
+  transition: width .5s;
+  height: calc(100vh - 40px - 84px);
+
+  & .sections {
+    display: flex;
+    flex-direction: column;
+    z-index: ${({ show }) => show ? '5' : '-1'};
+
+    & .section {
+      margin-bottom: 20px;
+
+      & h3 {
+        border-bottom: 0.5px solid white;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+      }
+
+      & .section-content.row {
+        flex-direction: row;
+      }
+
+      & .section-content {
+        display: flex;
+        flex-direction: column;
+
+        & .indicators {
+          height: 300px;
+          overflow-y: scroll;
+
+          & .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+          }
+
+          &::-webkit-scrollbar {
+            -webkit-appearance: none;
+            width: 8px;
+          }
+
+          &::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+            background-color: ${theme.black};
+          }
+        }
+
+        & .field {
+          display: flex;
+          align-items: center;
+          margin-right: 20px;
+        }
+
+        & .section-content-row {
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          border-left: 5px solid ${theme.gray};
+          padding-left: 10px;
+          padding-bottom: 8px;
+          margin-bottom: 8px;
+        }
+      }
+    }
+  }
+
+  & .actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 60px;
+    border-top: 0.5px solid white;
+    z-index: ${({ show }) => show ? '5' : '-1'};
   }
 `
 
@@ -255,7 +259,6 @@ const Backtesting = () => {
       loading: true,
       data: {}
     })
-    viewFunc(VIEW_BACKTESTING)
     runBacktesting(transformToSend(state))
       .then((response) => {
         backtestingFunc({
@@ -312,8 +315,7 @@ const Backtesting = () => {
       title="Backtesting"
       content={
         <BacktestingStyle view={view}>
-          <div className="form">
-            {view === VIEW_FORM && <>
+          <BacktestingFormStyle show={view === VIEW_FORM}>
               <div className="sections">
                 <div className="section">
                     <h3>Date Range</h3>
@@ -436,8 +438,7 @@ const Backtesting = () => {
               <div className="actions">
                 <Button text="Submit" onClick={onSubmit} />
               </div>
-            </>}
-          </div>
+          </BacktestingFormStyle>
           <div className="divider"></div>
           <div className="button-back">
             <Button
@@ -449,18 +450,16 @@ const Backtesting = () => {
               circle
             />
           </div>
-          {view === VIEW_BACKTESTING && (
             <div className="backtesting">
               {backtesting.loading && <BounceLoader color='white' size='48px' />}
               {backtesting.error && 'error'}
-              {backtesting.data[state.coin.value] && (
+              {!backtesting.loading && backtesting.data[state.coin.value] && (
                 <div className="box">
                   <div className="label">Final Balance</div>
-                  <div className="value">{backtesting.data[state.coin.value].final_balance.toFixed(2)}$</div>
+                  <div className="value">{backtesting.data[state.coin.value]?.final_balance.toFixed(2)}$</div>
                 </div>
               )}
             </div>
-          )}
         </BacktestingStyle>
       }
     />
