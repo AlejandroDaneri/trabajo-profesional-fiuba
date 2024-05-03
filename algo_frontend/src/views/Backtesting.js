@@ -62,6 +62,14 @@ const BacktestingStyle = styled.div`
             height: 300px;
             overflow-y: scroll;
 
+            & .loading {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              height: 100%;
+              width: 100%;
+            }
+
             &::-webkit-scrollbar {
               -webkit-appearance: none;
               width: 8px;
@@ -160,12 +168,15 @@ const Backtesting = () => {
     indicators: {}
   })
 
+  const [loadingIndicators, loadingIndicatorsFunc] = useState(false)
+
   const [backtesting, backtestingFunc] = useState({
     loading: false,
     data: {}
   })
 
   useEffect(() => {
+    loadingIndicatorsFunc(true)
     getIndicators()
       .then(response => {
         const indicators = response.data.reduce((indicators, indicator) => {
@@ -190,8 +201,10 @@ const Backtesting = () => {
           ...prevState,
           indicators
         }))
+        loadingIndicatorsFunc(false)
       })
-      .catch(err => {
+      .catch(_ => {
+        loadingIndicatorsFunc(false)
       })
   }, [])
 
@@ -389,7 +402,8 @@ const Backtesting = () => {
                     <h3>Indicators</h3>
                     <div className="section-content">
                       <div className='indicators'>
-                        {Object.keys(state.indicators).map(indicator => (
+                        {loadingIndicators ?
+                          <div className="loading"><BounceLoader color="white" size={32} /></div> : Object.keys(state.indicators).map(indicator => (
                           <div className="section-content-row">
                             <div className="field">
                               <FieldSwitch
