@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 
-def expand_trades(data, trades, initial_balance):
+def trades_2_balance_series(data, trades, initial_balance):
     def generate_range_sell(start, end, balance):
       df = pd.DataFrame(columns=['date', 'balance'])
 
@@ -95,7 +95,7 @@ def generate_dates(start, end):
 
 def plot_strategy_and_buy_and_hold(data, trades, initial_balance=1000, log_scale=False):
   df_hold = generate_dataframe_buy_and_hold(data, initial_balance)
-  df_strategy = expand_trades(data, trades, initial_balance)
+  df_strategy = trades_2_balance_series(data, trades, initial_balance)
 
   fig = plt.figure()
   fig.set_size_inches(30, 5)
@@ -112,7 +112,7 @@ def plot_buy_and_hold(data, initial_balance=1000, log_scale=False):
   plot(df.index, df.balance, log_scale, color='orange')
 
 def plot_strategy(data, trades, initial_balance=1000, log_scale=False):
-  df = expand_trades(data, trades, initial_balance)
+  df = trades_2_balance_series(data, trades, initial_balance)
   plot(df.index, df.balance, log_scale)
 
 def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):

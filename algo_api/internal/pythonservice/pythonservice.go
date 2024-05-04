@@ -33,11 +33,15 @@ type IService interface {
 }
 
 type BacktestingResponse map[string]struct {
-	FinalBalance  float64 `json:"final_balance"`
-	StrategySerie []struct {
+	FinalBalance          float64 `json:"final_balance"`
+	StrategyBalanceSeries []struct {
 		Date    string  `json:"date"`
 		Balance float64 `json:"balance"`
-	} `json:"strategy_serie"`
+	} `json:"strategy_balance_series"`
+	BuyAndHoldBalanceSeries []struct {
+		Date    string  `json:"date"`
+		Balance float64 `json:"balance"`
+	} `json:"buy_and_hold_balance_series"`
 }
 
 type IndicatorsResponse []struct {
