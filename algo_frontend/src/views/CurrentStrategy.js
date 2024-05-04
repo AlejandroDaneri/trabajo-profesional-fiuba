@@ -224,6 +224,8 @@ const CurrentStrategy = () => {
     }
   }, [])
 
+  console.info('candleticks.data', candleticks.data)
+
   return (
     <View
       title="Running Strategy"

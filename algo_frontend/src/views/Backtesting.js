@@ -11,6 +11,7 @@ import FieldSelect from "../components/reusables/FieldSelect"
 import FieldSwitch from "../components/reusables/FieldSwitch"
 import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Button from "../components/Button"
+import Chart from "../components/reusables/Chart"
 
 /* Impor WebApi */
 import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
@@ -28,7 +29,6 @@ const BacktestingStyle = styled.div`
   height: 100%;
   height: calc(100vh - 40px - 84px);
 
-
   & .divider {
     width: 2px;
     background: white;
@@ -44,7 +44,31 @@ const BacktestingStyle = styled.div`
 
   & .backtesting {
     display: flex;
+    justify-content: center;
     align-items: center;
+
+    
+  }
+`
+
+const BacktestingOutputStyle = styled.div`
+  display: flex;
+  width: calc(100% - ${({ show }) => !show ? '600px' : '10px'});
+  padding: 20px;
+  flex-direction: column;
+
+  & .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  & .boxes {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 20px;
 
     & .box {
       display: flex;
@@ -54,15 +78,17 @@ const BacktestingStyle = styled.div`
       border: 1px solid white;
       padding: 10px;
       border-radius: 4px;
-
+      width: 100px;
+      margin-right: 20px;
+  
       & .label {
         color: #a5a8b6;
       }
-
+  
       & .value {
         display: flex;
         font-weight: 800;
-
+  
         & .currency-wrapper {
           margin-right: 5px;
         }
@@ -256,6 +282,19 @@ const Backtesting = () => {
   }
 
   const onSubmit = () => {
+    const transformToView = (data) => {
+      return {
+        ...data,
+        [state.coin.value]: {
+          ...data[state.coin.value],
+          strategy_balance_series: data[[state.coin.value]].strategy_balance_series.map(row => ({
+            ...row,
+            balance: parseFloat(row.balance.toFixed(2))
+          }))
+        }
+      }
+    }
+
     backtestingFunc({
       loading: true,
       data: {}
@@ -264,10 +303,12 @@ const Backtesting = () => {
       .then((response) => {
         backtestingFunc({
           loading: false,
-          data: response?.data
+          data: transformToView(response?.data)
         })
       })
-      .catch((_) => {})
+      .catch((err) => {
+        console.info(err)
+      })
   }
 
   const onToggleView = () => {
@@ -451,16 +492,27 @@ const Backtesting = () => {
               circle
             />
           </div>
-            <div className="backtesting">
-              {backtesting.loading && <BounceLoader color='white' size='48px' />}
-              {backtesting.error && 'error'}
-              {!backtesting.loading && backtesting.data[state.coin.value] && (
-                <div className="box">
-                  <div className="label">Final Balance</div>
-                  <div className="value">{backtesting.data[state.coin.value]?.final_balance.toFixed(2)}$</div>
+          <BacktestingOutputStyle>
+            {backtesting.loading && <div className='loading'><BounceLoader color='white' size='48px' /></div>}
+            {backtesting.error && 'error'}
+            {backtesting.data[state.coin.value] && (
+              <>
+                <div className="boxes">
+                  <div className="box">
+                    <div className="label">Final Balance</div>
+                    <div className="value">{backtesting.data[state.coin.value]?.final_balance.toFixed(2)}$</div>
+                  </div>
+
+                  <div className="box">
+                    <div className="label">Profit/Loss</div>
+                    <div className="value">TO-DO</div>
+                  </div>
                 </div>
-              )}
-            </div>
+
+                <Chart data={backtesting.data[state.coin.value]?.strategy_balance_series} />
+              </>
+            )}
+            </BacktestingOutputStyle>
         </BacktestingStyle>
       }
     />
