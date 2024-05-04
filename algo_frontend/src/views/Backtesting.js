@@ -26,6 +26,8 @@ const BacktestingStyle = styled.div`
   width: 100%;
   overflow: hidden;
   height: 100%;
+  height: calc(100vh - 40px - 84px);
+
 
   & .divider {
     width: 2px;
@@ -79,7 +81,6 @@ const BacktestingFormStyle = styled.div`
   width: ${({ show }) => show ? '600px' : '10px'};
   overflow: hidden;
   transition: width .5s;
-  height: calc(100vh - 40px - 84px);
 
   & .sections {
     display: flex;
