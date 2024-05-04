@@ -166,7 +166,7 @@ const Backtesting = () => {
       label: 'BTC'
     },
     timeframe: {
-      value: '1D',
+      value: '1d',
       label: '1 day'
     },
     initial_balance: 1000,
