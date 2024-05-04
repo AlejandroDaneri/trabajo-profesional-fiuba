@@ -9,27 +9,29 @@ class YahooFinance:
     #  end: '2024-03-15'
     def get(self, ticker: str, timeframe: str, start: str, end: str):
         timeframes = {
-            '1M': '1mo',
-            '1w': '1wk',
-            '5d': '5d',
-            '1d': '1d',
-            '4h': '4h',
-            '1h': '1h',
-            '90m': '90m',
-            '30m': '30m',
-            '15m': '15m',
-            '5m': '5m',
-            '2m': '2m',
             '1m': '1m',
+            '5m': '5m',
+            '15m': '15m',
+            '30m': '30m',
+            '45m': '45m',
+            '90m': '90m',
+            '1h': '1h',
+            '4h': '4h',
+            '1d': '1d',
+            '1w': '1wk',
+            '1M': '1mo'
         }
         dates = {
             "1m": "%Y-%m-%d %H:%M",
             "5m": "%Y-%m-%d %H:%M",
             "15m": "%Y-%m-%d %H:%M",
             "30m": "%Y-%m-%d %H:%M",
+            "45m": "%Y-%m-%d %H:%M",
             "1h": "%Y-%m-%d %H",
             "4h": "%Y-%m-%d %H",
-            "1d": "%Y-%m-%d"
+            "1d": "%Y-%m-%d",
+            '1w': "%Y-%m-%d",
+            '1M': "%Y-%m-%d"
         }
         data = yf.download(f'{ticker}-USD',interval=timeframes[timeframe], auto_adjust=True, progress=False, start=start, end=end)
         data['Date'] = data.index
