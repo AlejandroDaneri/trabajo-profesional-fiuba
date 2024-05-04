@@ -361,19 +361,19 @@ const Backtesting = () => {
                           width={140}
                           options={[
                             {
-                              value: '1M',
+                              value: '1m',
                               label: '1 min'
                             },
                             {
-                              value: '5M',
+                              value: '5m',
                               label: '5 min'
                             },
                             {
-                              value: '1H',
+                              value: '1h',
                               label: '1 hour'
                             },
                             {
-                              value: '1D',
+                              value: '1d',
                               label: '1 day'
                             }
                           ]}
