@@ -34,7 +34,6 @@ def expand_trades(data, trades, initial_balance):
     df = pd.DataFrame(columns=['balance'])
     balance = initial_balance
     amount = 0
-
     start = data.index[0]
 
     for index, trade in trades.iterrows():
