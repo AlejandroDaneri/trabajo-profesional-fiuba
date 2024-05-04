@@ -47,6 +47,8 @@ services:
 
   backtester:
     container_name: backtester
+    environment:
+      - PYTHONUNBUFFERED=1
     build:
       context: ./algo_trader
       dockerfile: backtester/Dockerfile
