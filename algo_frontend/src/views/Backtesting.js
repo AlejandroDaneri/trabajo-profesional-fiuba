@@ -249,7 +249,7 @@ const Backtesting = () => {
       initial_balance: parseInt(data.initial_balance),
       data_from: Math.floor(start.getTime() / 1000),
       data_to: Math.floor(end.getTime() / 1000),
-      timeframe: data.timeframe.value.toUpperCase(),
+      timeframe: data.timeframe.value,
       indicators: transformToSendIndicators(data) 
     }
   }
