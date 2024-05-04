@@ -58,17 +58,18 @@ def backtest():
         data = provider.get(coin, timeframe, data_from, data_to)
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
-        
+
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
         backtester = LongBacktester(strategy[coin], initial_balance)
         trades, final_balance = backtester.backtest(data)
-        
+
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
 
         results[coin] = { 
             #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
             #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
+            'strategy_serie': expand_trades(data, trades, initial_balance).to_dict(orient='records'), 
             'final_balance': final_balance
         }
 

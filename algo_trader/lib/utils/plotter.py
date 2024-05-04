@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 def expand_trades(data, trades, initial_balance):
     def generate_range_sell(start, end, balance):
-      df = pd.DataFrame(columns=['balance'])
+      df = pd.DataFrame(columns=['date', 'balance'])
 
       start_date = datetime.strptime(start, '%Y-%m-%d')
       end_date = datetime.strptime(end, '%Y-%m-%d')
@@ -12,13 +12,14 @@ def expand_trades(data, trades, initial_balance):
       for n in range(int((end_date - start_date).days + 1)):
         current = (start_date + timedelta(days=n)).strftime('%Y-%m-%d')
         df.loc[current] = {
+          'date': current,
           'balance': balance
         }
 
       return df
 
     def generate_range_buy(start, end, amount):
-      df = pd.DataFrame(columns=['balance'])
+      df = pd.DataFrame(columns=['date', 'balance'])
 
       start_date = datetime.strptime(start, '%Y-%m-%d')
       end_date = datetime.strptime(end, '%Y-%m-%d')
@@ -26,12 +27,13 @@ def expand_trades(data, trades, initial_balance):
       for n in range(int((end_date - start_date).days + 1)):
         current = (start_date + timedelta(days=n)).strftime('%Y-%m-%d')
         df.loc[current] = {
+          'date': current,
           'balance': amount * data.loc[current].Close
         }
 
       return df
 
-    df = pd.DataFrame(columns=['balance'])
+    df = pd.DataFrame(columns=['date', 'balance'])
     balance = initial_balance
     amount = 0
     start = data.index[0]
