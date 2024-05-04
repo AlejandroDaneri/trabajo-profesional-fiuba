@@ -1,7 +1,9 @@
 from longBacktester import LongBacktester
 from lib.utils.utils_backtest import hydrate_strategy
+from lib.utils.plotter import expand_trades
 from lib.indicators import __all__ as indicators_list
 from lib.indicators import *
+from lib.providers.yahoofinance import YahooFinance
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
@@ -49,26 +51,11 @@ def backtest():
         initial_balance = float(initial_balance)
     except ValueError:
         abort(400, description="'initial_balance' must be a valid number.")
-    timeframe_mapping = {
-        '1M': '1mo',
-        '1D': '1d',
-        '1W': '1wk',
-        '5D': '5d',
-        '1H': '1h',
-        '60m': '60m',
-        '30m': '30m',
-        '15m': '15m',
-        '5m': '5m',
-        '2m': '2m',
-        '1m': '1m',
-        '90m': '90m',
-        '3M': '3mo'
-    }
-    if timeframe not in timeframe_mapping:
-        return abort(400, description="Invalida timeframe.")
+
     results = {}
     for coin in coins:
-        data = getData(ticker=coin + '-USD', data_from=data_from, data_to=data_to, timeframe=timeframe_mapping[timeframe])
+        provider = YahooFinance()
+        data = provider.get(coin, timeframe, data_from, data_to)
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
         
