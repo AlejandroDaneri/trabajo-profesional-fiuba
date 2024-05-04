@@ -502,11 +502,6 @@ const Backtesting = () => {
                     <div className="label">Final Balance</div>
                     <div className="value">{backtesting.data[state.coin.value]?.final_balance.toFixed(2)}$</div>
                   </div>
-
-                  <div className="box">
-                    <div className="label">Profit/Loss</div>
-                    <div className="value">TO-DO</div>
-                  </div>
                 </div>
 
                 <Chart data={backtesting.data[state.coin.value]?.strategy_balance_series} />

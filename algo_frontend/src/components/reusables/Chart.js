@@ -1,4 +1,5 @@
 import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import { theme } from "../../utils/theme"
 
 const Chart = ({ data }) => {
     return (
@@ -23,8 +24,9 @@ const Chart = ({ data }) => {
                     type="monotone"
                     dataKey="balance"
                     name="Balance"
-                    stroke="#8884d8"
+                    stroke={theme.btc}
                     activeDot={{ r: 8 }}
+                    dot={false}
                 />
             </LineChart>
         </ResponsiveContainer>
