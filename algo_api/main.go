@@ -2,6 +2,7 @@ package main
 
 import (
 	"algo_api/internal/binanceservice"
+	"algo_api/internal/exchangesservice"
 	"algo_api/internal/pythonservice"
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/telegramservice"
@@ -565,6 +566,42 @@ func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func addExchange(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ExchangeName string `json:"exchange_name"`
+		APIKey string `json:"api_key"`
+		APISecret string `json:"api_secret"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = exchangesservice.GetInstance().AddExchange(body.ExchangeName, body.APIKey, body.APISecret)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not add Exchange to the database.")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	response := map[string]string{"message": "Exchange added successfully"}
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
 func AddTelegramChat(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		ChatID int64 `json:"chat_id"`
@@ -760,6 +797,8 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
+
+	router.HandleFunc("/exchanges", addExchange).Methods("POST")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 

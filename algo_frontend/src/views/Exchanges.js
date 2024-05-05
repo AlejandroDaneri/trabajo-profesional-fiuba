@@ -4,6 +4,7 @@ import Button from "../components/Button";
 import FieldSelect from "../components/reusables/FieldSelect";
 import Input from "../components/reusables/Input";
 import View from "../components/reusables/View";
+import { add } from "../webapi/exchanges";
 import styled from "styled-components";
 
 const ExchangesStyle = styled.div`
@@ -16,11 +17,27 @@ const ExchangesStyle = styled.div`
 
 const Exchanges = () => {
   const [selectedOption, setSelectedOption] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [apiSecret, setApiSecret] = useState("");
   const options = [{ value: "binance", label: "Binance" }];
 
-  const handleSelectChange = (e) => {
-    setSelectedOption(e.value);
+  const [loading, setLoading] = useState(false);
+
+  const handleSelectChange = (name, value) => {
+    setSelectedOption(value);
   };
+
+  const handleSaveClick = () => {
+    setLoading(true);
+    add({
+      exchange_name: selectedOption.label,
+      api_key: apiKey,
+      api_secret: apiSecret,
+    })
+      .then(() => setLoading(false))
+      .catch(() => console.log("Error while saving exchange in Database!"));
+  };
+
   return (
     <>
       <View
@@ -38,9 +55,16 @@ const Exchanges = () => {
                 width="30rem"
               />
               <h2 style={{ textAlign: "center" }}>Write your API key:</h2>
-              <Input width="30rem" />
+              <Input
+                width="30rem"
+                onChange={(e) => setApiKey(e.target.value)}
+              />
               <h2 style={{ textAlign: "center" }}>Write your API secret:</h2>
-              <Input width="30rem" type={"password"} />
+              <Input
+                width="30rem"
+                type={"password"}
+                onChange={(e) => setApiSecret(e.target.value)}
+              />
               <div
                 style={{
                   marginTop: "2rem",
@@ -48,7 +72,13 @@ const Exchanges = () => {
                   justifyContent: "center",
                 }}
               >
-                <Button text={"SAVE"} height={40} width={100} />
+                <Button
+                  text={"SAVE"}
+                  height={40}
+                  width={100}
+                  onClick={handleSaveClick}
+                  loading={loading}
+                />
               </div>
             </form>
           </ExchangesStyle>
