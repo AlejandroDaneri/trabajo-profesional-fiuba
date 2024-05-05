@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 
 import Button from "../components/Button";
+import ErrorModal from "../components/errorModal";
 import FieldSelect from "../components/reusables/FieldSelect";
 import Input from "../components/reusables/Input";
+import SuccessModal from "../components/successModal";
 import View from "../components/reusables/View";
 import { add } from "../webapi/exchanges";
 import styled from "styled-components";
@@ -17,11 +19,17 @@ const ExchangesStyle = styled.div`
 
 const Exchanges = () => {
   const [selectedOption, setSelectedOption] = useState("");
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [errorModalOpen, setErrorModalOpen] = useState(false)
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const options = [{ value: "binance", label: "Binance" }];
 
   const [loading, setLoading] = useState(false);
+
+  const handleCloseSuccessModal = () => {
+    setSuccessModalOpen(false);
+  }
 
   const handleSelectChange = (name, value) => {
     setSelectedOption(value);
@@ -34,8 +42,8 @@ const Exchanges = () => {
       api_key: apiKey,
       api_secret: apiSecret,
     })
-      .then(() => setLoading(false))
-      .catch(() => console.log("Error while saving exchange in Database!"));
+      .then(() => {setLoading(false); setSuccessModalOpen(true);})
+      .catch(() => {setLoading(false); setErrorModalOpen(true)});
   };
 
   return (
@@ -78,6 +86,16 @@ const Exchanges = () => {
                   width={100}
                   onClick={handleSaveClick}
                   loading={loading}
+                />
+                <SuccessModal
+                  isOpen={successModalOpen}
+                  message="Provider saved correctly!"
+                  onClose={handleCloseSuccessModal}
+                />
+                <ErrorModal
+                  isOpen={errorModalOpen}
+                  message={"An error has occured. Please try again later!"}
+                  onClose={() => setErrorModalOpen(false)}
                 />
               </div>
             </form>
