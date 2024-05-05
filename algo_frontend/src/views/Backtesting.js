@@ -45,9 +45,7 @@ const BacktestingStyle = styled.div`
   & .backtesting {
     display: flex;
     justify-content: center;
-    align-items: center;
-
-    
+    align-items: center;    
   }
 `
 
@@ -56,6 +54,13 @@ const BacktestingOutputStyle = styled.div`
   width: calc(100% - ${({ show }) => !show ? '600px' : '10px'});
   padding: 20px;
   flex-direction: column;
+
+  & .chart-container {
+    & h3 {
+      border-bottom: 1px solid white;
+      padding-bottom: 5px;
+    } 
+  }
 
   & .loading {
     display: flex;
@@ -439,6 +444,10 @@ const Backtesting = () => {
                               value: "ETH",
                               label: "ETH",
                             },
+                            {
+                              value: "SOL",
+                              label: "SOL"
+                            }
                           ]}
                         />
                       </div>
@@ -506,7 +515,10 @@ const Backtesting = () => {
                   </div>
                 </div>
 
-                <Chart data={backtesting.data[state.coin.value]?.series} />
+                <div className='chart-container'>
+                  <h3>Strategy vs Buy and Hold</h3>
+                  <Chart data={backtesting.data[state.coin.value]?.series} />
+                </div>
               </>
             )}
             </BacktestingOutputStyle>
