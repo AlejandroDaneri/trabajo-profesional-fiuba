@@ -22,9 +22,18 @@ const Chart = ({ data }) => {
 
                 <Line
                     type="monotone"
-                    dataKey="balance"
-                    name="Balance"
-                    stroke={theme.btc}
+                    dataKey="balance_buy_and_hold"
+                    name="Balance Buy and Hold"
+                    stroke="#3FA054"
+                    activeDot={{ r: 8 }}
+                    dot={false}
+                />
+
+                <Line
+                    type="monotone"
+                    dataKey="balance_strategy"
+                    name="Balance Strategy"
+                    stroke="#0FF541"
                     activeDot={{ r: 8 }}
                     dot={false}
                 />

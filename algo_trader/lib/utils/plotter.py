@@ -66,10 +66,10 @@ def trades_2_balance_series(data, trades, initial_balance):
 
     return df
 
-def generate_dataframe_buy_and_hold(data, initial_balance):
+def buy_and_hold_balance_series(data, initial_balance):
   amount = initial_balance / data.iloc[0].Close
 
-  df = pd.DataFrame(columns=['balance'])
+  df = pd.DataFrame(columns=['date', 'balance'])
 
   start = data.index[0]
   end = data.index[-1]
@@ -80,6 +80,7 @@ def generate_dataframe_buy_and_hold(data, initial_balance):
   for n in range(int((end_date - start_date).days + 1)):
     current = (start_date + timedelta(days=n)).strftime('%Y-%m-%d')
     df.loc[current] = {
+      'date': current,
       'balance': amount * data.loc[current].Close
     }
 
@@ -94,7 +95,7 @@ def generate_dates(start, end):
   return dates
 
 def plot_strategy_and_buy_and_hold(data, trades, initial_balance=1000, log_scale=False):
-  df_hold = generate_dataframe_buy_and_hold(data, initial_balance)
+  df_hold = buy_and_hold_balance_series(data, initial_balance)
   df_strategy = trades_2_balance_series(data, trades, initial_balance)
 
   fig = plt.figure()
@@ -107,7 +108,7 @@ def plot_strategy_and_buy_and_hold(data, trades, initial_balance=1000, log_scale
   plt.show()
 
 def plot_buy_and_hold(data, initial_balance=1000, log_scale=False):
-  df = generate_dataframe_buy_and_hold(data, initial_balance)
+  df = buy_and_hold_balance_series(data, initial_balance)
 
   plot(df.index, df.balance, log_scale, color='orange')
 
