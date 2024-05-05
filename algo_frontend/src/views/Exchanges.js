@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Button from "../components/Button";
 import ErrorModal from "../components/errorModal";
 import FieldSelect from "../components/reusables/FieldSelect";
+import FieldSwitch from "../components/reusables/FieldSwitch";
 import Input from "../components/reusables/Input";
 import SuccessModal from "../components/successModal";
 import View from "../components/reusables/View";
@@ -21,6 +22,7 @@ const Exchanges = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [successModalOpen, setSuccessModalOpen] = useState(false)
   const [errorModalOpen, setErrorModalOpen] = useState(false)
+  const [testingNetwork, setTestingNetwork] = useState(false)
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
   const options = [{ value: "binance", label: "Binance" }];
@@ -41,6 +43,7 @@ const Exchanges = () => {
       exchange_name: selectedOption.label,
       api_key: apiKey,
       api_secret: apiSecret,
+      testing_network: testingNetwork,
     })
       .then(() => {setLoading(false); setSuccessModalOpen(true);})
       .catch(() => {setLoading(false); setErrorModalOpen(true)});
@@ -73,9 +76,22 @@ const Exchanges = () => {
                 type={"password"}
                 onChange={(e) => setApiSecret(e.target.value)}
               />
+              <h2 style={{ textAlign: "center" }}>Testing Network</h2>
               <div
                 style={{
-                  marginTop: "2rem",
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+              >
+              <FieldSwitch
+                name={"TestingNetworkSwitch"}
+                value={testingNetwork}
+                onChange={()=> setTestingNetwork(!testingNetwork)}
+              />
+              </div>
+              <div
+                style={{
+                  marginTop: "1rem",
                   display: "flex",
                   justifyContent: "center",
                 }}

@@ -26,10 +26,10 @@ func NewService() IService {
 }
 
 type IService interface {
-    AddExchange(exchangeName string, apiKey string, apiSecret string) (error)
+    AddExchange(exchangeName string, apiKey string, apiSecret string, testingNetwork bool) (error)
 }
 
-func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSecret string) (error) {
+func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSecret string, testingNetwork bool) (error) {
     exchange := make(map[string]interface{})
     dbName := "exchanges"
     db, err := t.databaseservice.GetDB(dbName)
@@ -39,6 +39,7 @@ func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSe
     exchange["type"] = exchangeName
 	exchange["api_key"] = apiKey
 	exchange["api_secret"] = apiSecret
+    exchange["testing_network"] = testingNetwork
 	exchange["pvt_type"] = "exchange"
     _, _, err = db.Save(exchange, nil)
     if err != nil {

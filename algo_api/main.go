@@ -571,6 +571,7 @@ func addExchange(w http.ResponseWriter, r *http.Request) {
 		ExchangeName string `json:"exchange_name"`
 		APIKey string `json:"api_key"`
 		APISecret string `json:"api_secret"`
+		TestingNetwork bool `json:"testing_network"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -582,7 +583,7 @@ func addExchange(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = exchangesservice.GetInstance().AddExchange(body.ExchangeName, body.APIKey, body.APISecret)
+	err = exchangesservice.GetInstance().AddExchange(body.ExchangeName, body.APIKey, body.APISecret, body.TestingNetwork)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
