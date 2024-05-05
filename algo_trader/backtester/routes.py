@@ -1,6 +1,6 @@
 from longBacktester import LongBacktester
 from lib.utils.utils_backtest import hydrate_strategy
-from lib.utils.plotter import trades_2_balance_series
+from lib.utils.plotter import trades_2_balance_series, buy_and_hold_balance_series
 from lib.indicators import __all__ as indicators_list
 from lib.indicators import *
 from lib.providers.yahoofinance import YahooFinance
@@ -8,6 +8,7 @@ from lib.providers.yahoofinance import YahooFinance
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -66,12 +67,18 @@ def backtest():
 
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
+        
+        strategy_balance_series = trades_2_balance_series(data, trades, initial_balance)
+        hold_balance_series = buy_and_hold_balance_series(data, initial_balance)
+        df_series = pd.DataFrame(columns=['date', 'balance_strategy', 'balance_buy_and_hold'])
+        df_series['date'] = strategy_balance_series['date']
+        df_series['balance_strategy'] = strategy_balance_series['balance']
+        df_series['balance_buy_and_hold'] = hold_balance_series['balance']
 
         results[coin] = { 
             #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
             #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
-            'strategy_balance_series': trades_2_balance_series(data, trades, initial_balance).to_dict(orient='records'), 
-            'buy_and_hold_balance_series': [],
+            'series': df_series.to_dict(orient='records'),
             'final_balance': final_balance
         }
 

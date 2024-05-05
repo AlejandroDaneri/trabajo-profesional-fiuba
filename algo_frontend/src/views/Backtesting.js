@@ -283,14 +283,16 @@ const Backtesting = () => {
 
   const onSubmit = () => {
     const transformToView = (data) => {
+
       return {
         ...data,
         [state.coin.value]: {
           ...data[state.coin.value],
-          strategy_balance_series: data[[state.coin.value]].strategy_balance_series.map(row => ({
+          serie: data[[state.coin.value]].series.map(row => ({
             ...row,
-            balance: parseFloat(row.balance.toFixed(2))
-          }))
+            balance_strategy: parseFloat(row.balance_strategy.toFixed(2)),
+            balance_buy_and_hold: parseFloat(row.balance_buy_and_hold.toFixed(2)),
+          })),
         }
       }
     }
@@ -504,7 +506,7 @@ const Backtesting = () => {
                   </div>
                 </div>
 
-                <Chart data={backtesting.data[state.coin.value]?.strategy_balance_series} />
+                <Chart data={backtesting.data[state.coin.value]?.series} />
               </>
             )}
             </BacktestingOutputStyle>
