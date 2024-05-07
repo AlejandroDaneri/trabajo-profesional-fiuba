@@ -19,10 +19,10 @@ class LongBacktester:
         buy_signals, sell_signals = self._get_buy_sell_signals(historical_data)
 
         actions = self._get_actions(buy_signals, sell_signals)
-        historical_data['signal'] = actions['signal'] #FIXME
+        historical_data['signal'] = actions['signal'] 
 
         trades = self._get_trades(actions)
-
+        self.payoff= self._event_drive(historical_data)
         final_balance = self._calculate_final_balance(historical_data, trades, self.initial_balance)
 
         return trades, final_balance
@@ -104,3 +104,43 @@ class LongBacktester:
         final_balance = starting_capital * (1 + cumulative_return + unrealized_pnl)
 
         return final_balance
+    
+    def _event_drive(self,df): 
+        df["pct_change"]=df['Close'].pct_change() 
+        signals=df['signal'].tolist()
+        pct_changes =df['pct_change'].tolist()
+
+        total = len(signals) 
+        i, results = 1, [0]
+
+        while i<total:
+
+            if signals[i-1] == 'buy':
+                j=i
+                while j<total:
+                    results.append(pct_changes[j])
+                    j +=1
+                    if signals[j-1]=="sell":
+                        i=j
+                        break
+                    if j == total:
+                        i=j
+                        print("Compra abierta")
+                        break
+
+            else:
+                results.append(0)
+                i +=1
+
+        result = pd.concat([df,pd.Series(data=results,index=df.index)],axis=1)
+        result.columns.values[-1] ="strategy"
+        result=result.iloc[:,-2:].add(1).cumprod()
+
+        self.strat = result['strategy']
+        self.benchmark = result['pct_change']
+        self.strat_log = np.log(self.strat /self.strat.shift())
+        self.benchmark_log = np.log(self.benchmark /self.benchmark.shift())
+
+        self.strat_lin = self.strat.pct_change()
+        self.benchmark_lin = self.benchmark.pct_change()
+        return result

@@ -8,6 +8,7 @@ from lib.providers.yahoofinance import YahooFinance
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
+from risks import RiskMetrics
 import pandas as pd
 
 app = Flask(__name__)
@@ -65,6 +66,13 @@ def backtest():
         backtester = LongBacktester(strategy[coin], initial_balance)
         trades, final_balance = backtester.backtest(data)
 
+
+        risks={}
+        risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin).tolist()
+        risks["profit_factor"] = RiskMetrics.profit_factor(backtester.strat_log).tolist()
+        risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strat_log).tolist()
+        risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strat_lin).tolist()
+        risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strat).tolist()
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
         
@@ -78,6 +86,7 @@ def backtest():
         results[coin] = { 
             #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
             #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
+            # 'risks':risks,  comento por ahora nomas para que no me rompa golang,
             'series': df_series.to_dict(orient='records'),
             'final_balance': final_balance
         }
