@@ -12,6 +12,7 @@ import FieldSwitch from "../components/reusables/FieldSwitch"
 import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Button from "../components/Button"
 import Chart from "../components/reusables/Chart"
+import RiskComparisonChart from "../components/RiskComparisonChart"
 
 /* Impor WebApi */
 import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
@@ -54,6 +55,8 @@ const BacktestingOutputStyle = styled.div`
   width: calc(100% - ${({ show }) => !show ? '600px' : '10px'});
   padding: 20px;
   flex-direction: column;
+  height: calc(100vh - 40px - 84px);
+  overflow-y: auto;
 
   & .chart-container {
     & h3 {
@@ -519,7 +522,8 @@ const Backtesting = () => {
                   <h3>Strategy vs Buy and Hold</h3>
                   <Chart data={backtesting.data[state.coin.value]?.series} />
                 </div>
-              </>
+                <RiskComparisonChart risks={backtesting.data[state.coin.value]?.risks} />
+              </>       
             )}
             </BacktestingOutputStyle>
         </BacktestingStyle>
