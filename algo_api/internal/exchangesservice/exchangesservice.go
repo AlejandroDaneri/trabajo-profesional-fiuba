@@ -29,6 +29,7 @@ func NewService() IService {
 
 type IService interface {
     AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) (error)
+    GetExchanges() ([]string, error)
     DeleteExchange(exchangeName string, apiKey string, testingNetwork bool) (error)
 }
 
@@ -50,6 +51,34 @@ func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSe
         return err
     }
     return nil
+}
+
+func (t *ExchangesService) GetExchanges() ([]string, error) {
+    dbName := "exchanges"
+    db, err := t.databaseservice.GetDB(dbName)
+    if err != nil {
+        return nil, err
+    }
+    q := `
+    {
+        "selector": {
+            "pvt_type": "exchange"
+        }
+    }
+    `
+    docs, err := db.QueryJSON(q)
+    if err != nil {
+        return nil, err
+    }
+    var exchangesAliases []string
+    for _, doc := range docs {
+        exchangeAlias, ok := doc["alias"].(string)
+        if !ok {
+            return nil, fmt.Errorf("unexpected type for alias")
+        }
+        exchangesAliases = append(exchangesAliases, exchangeAlias)
+    }
+    return exchangesAliases, nil
 }
 
 func (t *ExchangesService) DeleteExchange(exchangeName string, apiKey string, testingNetwork bool) error {

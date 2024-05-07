@@ -632,6 +632,29 @@ func DeleteExchange(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetExchanges(w http.ResponseWriter, r *http.Request) {
+	exchanges, err := exchangesservice.GetInstance().GetExchanges()
+	if err != nil {
+		logrus.WithError(err).Error("Failed to get Exchanges")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(exchanges)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to marshal response")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(response)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to write response")
+	}
+}
+
 func AddTelegramChat(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		ChatID int64 `json:"chat_id"`
@@ -830,6 +853,7 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/exchanges", AddExchange).Methods("POST")
 	router.HandleFunc("/exchanges", DeleteExchange).Methods("DELETE")
+	router.HandleFunc("/exchanges", GetExchanges).Methods("GET")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 
