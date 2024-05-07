@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { add, remove } from "../webapi/exchanges";
 
 import Button from "../components/Button";
 import ErrorModal from "../components/errorModal";
@@ -7,7 +8,6 @@ import FieldSwitch from "../components/reusables/FieldSwitch";
 import Input from "../components/reusables/Input";
 import SuccessModal from "../components/successModal";
 import View from "../components/reusables/View";
-import { add } from "../webapi/exchanges";
 import styled from "styled-components";
 
 const ExchangesStyle = styled.div`
@@ -21,6 +21,8 @@ const ExchangesStyle = styled.div`
 const Exchanges = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [errorModalMessage, setErrorModalMessage] = useState("")
+  const [successModalMessage, setSuccessModalMessage] = useState("")
   const [errorModalOpen, setErrorModalOpen] = useState(false)
   const [testingNetwork, setTestingNetwork] = useState(false)
   const [apiKey, setApiKey] = useState("");
@@ -38,7 +40,7 @@ const Exchanges = () => {
     setSelectedOption(value);
   };
 
-  const handleSaveClick = () => {
+  const handleAddClick = () => {
     setLoading(true);
     add({
       exchange_name: selectedOption.label,
@@ -47,8 +49,21 @@ const Exchanges = () => {
       alias: alias,
       testing_network: testingNetwork,
     })
-      .then(() => {setLoading(false); setSuccessModalOpen(true);})
-      .catch(() => {setLoading(false); setErrorModalOpen(true)});
+      .then(() => {setLoading(false); setSuccessModalMessage("Provider saved correctly!"); setSuccessModalOpen(true);})
+      .catch(() => {setLoading(false); setErrorModalMessage("An error has occured while adding the provider. Please try again later!"); setErrorModalOpen(true)});
+  };
+
+  const handleDeleteClick = () => {
+    setLoading(true);
+    remove({
+      exchange_name: selectedOption.label,
+      api_key: apiKey,
+      api_secret: apiSecret,
+      alias: alias,
+      testing_network: testingNetwork,
+    })
+      .then(() => {setLoading(false); setSuccessModalMessage("Provider deleted correctly!"); setSuccessModalOpen(true);})
+      .catch(() => {setLoading(false); setErrorModalMessage("The provider you are trying to delete does not exist!"); setErrorModalOpen(true)});
   };
 
   return (
@@ -100,24 +115,33 @@ const Exchanges = () => {
                 style={{
                   marginTop: "1rem",
                   display: "flex",
-                  justifyContent: "center",
+                  justifyContent: "space-between",
+                  paddingRight: "2rem",
+                  paddingLeft: "2rem",
                 }}
               >
                 <Button
-                  text={"SAVE"}
+                  text={"DELETE"}
                   height={40}
                   width={100}
-                  onClick={handleSaveClick}
+                  onClick={handleDeleteClick}
+                  loading={loading}
+                />
+                <Button
+                  text={"ADD"}
+                  height={40}
+                  width={100}
+                  onClick={handleAddClick}
                   loading={loading}
                 />
                 <SuccessModal
                   isOpen={successModalOpen}
-                  message="Provider saved correctly!"
+                  message={successModalMessage}
                   onClose={handleCloseSuccessModal}
                 />
                 <ErrorModal
                   isOpen={errorModalOpen}
-                  message={"An error has occured. Please try again later!"}
+                  message={errorModalMessage}
                   onClose={() => setErrorModalOpen(false)}
                 />
               </div>

@@ -2,6 +2,7 @@ package exchangesservice
 
 import (
 	"algo_api/internal/databaseservice"
+	"errors"
 	"fmt"
 	"sync"
 )
@@ -72,6 +73,10 @@ func (t *ExchangesService) DeleteExchange(exchangeName string, apiKey string, te
     docs, err := db.QueryJSON(q)
     if err != nil {
         return err
+    }
+
+    if len(docs) == 0 {
+        return errors.New("desired exchange not found")
     }
 
     for _, doc := range docs {
