@@ -25,6 +25,7 @@ const Exchanges = () => {
   const [testingNetwork, setTestingNetwork] = useState(false)
   const [apiKey, setApiKey] = useState("");
   const [apiSecret, setApiSecret] = useState("");
+  const [alias, setAlias] = useState("");
   const options = [{ value: "binance", label: "Binance" }];
 
   const [loading, setLoading] = useState(false);
@@ -43,6 +44,7 @@ const Exchanges = () => {
       exchange_name: selectedOption.label,
       api_key: apiKey,
       api_secret: apiSecret,
+      alias: alias,
       testing_network: testingNetwork,
     })
       .then(() => {setLoading(false); setSuccessModalOpen(true);})
@@ -75,6 +77,11 @@ const Exchanges = () => {
                 width="30rem"
                 type={"password"}
                 onChange={(e) => setApiSecret(e.target.value)}
+              />
+              <h2 style={{ textAlign: "center" }}>Write the Alias of your provider:</h2>
+              <Input
+                width="30rem"
+                onChange={(e) => setAlias(e.target.value)}
               />
               <h2 style={{ textAlign: "center" }}>Testing Network</h2>
               <div
