@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 class BBANDS(Indicator):
-    def __init__(self, rounds, factor):
+    def __init__(self, rounds:int = 9, factor:float=2.1):
         # Moving Average periods
         self.rounds = rounds
         # Factor to shift the bands

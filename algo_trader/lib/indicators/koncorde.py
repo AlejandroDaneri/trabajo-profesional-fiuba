@@ -12,14 +12,7 @@ from lib.indicators.stochastic import Stochastic
 
 
 class KONCORDE(Indicator):
-    def __init__(
-        self,
-        rounds,
-        rsi_mfi_length=14,
-        bbands_length=25,
-        bbands_factor=2.0,
-        stoch_length=21,
-    ):
+    def __init__(self, rounds: int, rsi_mfi_length: int = 14, bbands_length: int = 25, bbands_factor: float = 2.0, stoch_length: int = 21):
         self.rounds = rounds
         self.rsi_mfi_length = rsi_mfi_length
         self.bbands_length = bbands_length

@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class RSI(Indicator):
-    def __init__(self, buy_threshold, sell_threshold, rounds):
+    def __init__(self, buy_threshold: float=30, sell_threshold: float=70, rounds: int=14):
         self.buy_threshold = buy_threshold
         self.sell_threshold = sell_threshold
         self.rounds = rounds

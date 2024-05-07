@@ -55,6 +55,20 @@ const Strategies = () => {
   })
 
   const transformToView = (data) => {
+
+    const transformState = (state) => {
+      switch (state) {
+        case 'created':
+          return 0
+        case 'running':
+          return 1
+        case 'finished':
+          return 2
+        default:
+          return 0
+      }
+    }
+
     const getDuration = (start, end) => {
       const end_ = end || (Date.now() / 1000)
       return moment.utc((end_ - start) * 1000).format('HH:mm:ss')
@@ -62,6 +76,7 @@ const Strategies = () => {
 
     return data.map((strategy) => ({
       ...strategy,
+      state_value: transformState(strategy.state),
       state_label: capitalize(strategy.state),
       duration: getDuration(strategy.start_timestamp, strategy.end_timestamp)
     }))
@@ -97,7 +112,7 @@ const Strategies = () => {
 
   const headers = [
     {
-      value: "state",
+      value: "state_value",
       label: "State",
       default: true,
       width: 10,

@@ -5,7 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 class DONCHIAN(Indicator):
-    def __init__(self, periods, factor):
+    def __init__(self, periods: int=20, factor: float=0.05):
         self.periods = periods
         self.factor = factor
         super().__init__("DONCHIAN")

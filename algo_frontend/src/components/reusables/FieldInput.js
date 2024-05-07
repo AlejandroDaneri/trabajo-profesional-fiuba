@@ -13,16 +13,23 @@ const FieldInputStyle = styled.div`
     & p {
         font-size: 14px;
         color: ${theme.white};
-        margin-bottom: 8px;
         font-weight: 600;
+        padding: 0;
+        margin: 0;
+        margin-bottom: 8px;
     }
 `
 
-const FieldInput = ({label, name, value, onChange, width}) => {
+const FieldInput = ({label, name, value, onChange, width, type}) => {
+
+    const onChange_ = (e) => {
+        onChange(e.target.name, e.target.value)
+    }
+
     return (
         <FieldInputStyle>
             <p>{label}</p>
-            <Input value={value} name={name} onChange={onChange} width={width} />
+            <Input value={value} name={name} onChange={onChange_} width={width} type={type} />
         </FieldInputStyle>
     )
 }

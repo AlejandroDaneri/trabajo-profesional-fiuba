@@ -9,7 +9,9 @@ const ButtonStyle = styled.div`
   width: ${({ width }) => width || 100}px;
   height: ${({ height }) => height || 26}px;
   cursor: pointer;
-  border-radius: ${({ circle }) => circle && "30px"};
+  border-radius: ${({ circle }) => circle ? "30px" : "4px"};
+  font-size: 14px; 
+  background-color: ${({ background }) => background};
 
   & i {
     color: white;
@@ -26,7 +28,7 @@ const ButtonStyle = styled.div`
   }
 `
 
-const Button = ({ text, onClick, loading, width, height, circle, tooltip }) => {
+const Button = ({ text, onClick, loading, width, height, circle, tooltip, background }) => {
   return (
     <ButtonStyle
       onClick={onClick}
@@ -34,6 +36,7 @@ const Button = ({ text, onClick, loading, width, height, circle, tooltip }) => {
       height={height}
       circle={circle}
       title={tooltip}
+      background={background}
     >
       {loading ? "loading" : text}
     </ButtonStyle>

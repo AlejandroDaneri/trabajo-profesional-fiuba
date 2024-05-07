@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class MACD(Indicator):
-    def __init__(self, slow, fast, smoothed):
+    def __init__(self, slow: int=26, fast: int=12, smoothed: int=20):
         self.slow = slow
         self.fast = fast
         self.smoothed = smoothed

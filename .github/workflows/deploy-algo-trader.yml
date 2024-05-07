@@ -6,6 +6,8 @@ on:
       - master
     paths:
       - "algo_trader/trader/**"
+      - "algo_trader/lib/**"
+  workflow_dispatch:
 
 jobs:
   build:

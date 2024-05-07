@@ -1,9 +1,15 @@
 from longBacktester import LongBacktester
 from lib.utils.utils_backtest import hydrate_strategy
+from lib.utils.plotter import trades_2_balance_series, buy_and_hold_balance_series
+from lib.indicators import __all__ as indicators_list
+from lib.indicators import *
+from lib.providers.yahoofinance import YahooFinance
+
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
 from risks import RiskMetrics
+import pandas as pd
 
 app = Flask(__name__)
 
@@ -48,29 +54,14 @@ def backtest():
         initial_balance = float(initial_balance)
     except ValueError:
         abort(400, description="'initial_balance' must be a valid number.")
-    timeframe_mapping = {
-        '1M': '1mo',
-        '1D': '1d',
-        '1W': '1wk',
-        '5D': '5d',
-        '1H': '1h',
-        '60m': '60m',
-        '30m': '30m',
-        '15m': '15m',
-        '5m': '5m',
-        '2m': '2m',
-        '1m': '1m',
-        '90m': '90m',
-        '3M': '3mo'
-    }
-    if timeframe not in timeframe_mapping:
-        return abort(400, description="Invalida timeframe.")
+
     results = {}
     for coin in coins:
-        data = getData(ticker=coin + '-USD', data_from=data_from, data_to=data_to, timeframe=timeframe_mapping[timeframe])
+        provider = YahooFinance()
+        data = provider.get(coin, timeframe, data_from, data_to)
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
-        
+
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
         backtester = LongBacktester(strategy[coin], initial_balance)
         trades, final_balance = backtester.backtest(data)
@@ -84,13 +75,31 @@ def backtest():
         risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strat).tolist()
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
+        
+        strategy_balance_series = trades_2_balance_series(data, trades, initial_balance)
+        hold_balance_series = buy_and_hold_balance_series(data, initial_balance)
+        df_series = pd.DataFrame(columns=['date', 'balance_strategy', 'balance_buy_and_hold'])
+        df_series['date'] = strategy_balance_series['date']
+        df_series['balance_strategy'] = strategy_balance_series['balance']
+        df_series['balance_buy_and_hold'] = hold_balance_series['balance']
 
         results[coin] = { 
             #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
             #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
             # 'risks':risks,  comento por ahora nomas para que no me rompa golang,
+            'series': df_series.to_dict(orient='records'),
             'final_balance': final_balance
         }
 
     return jsonify(results)
+
+@app.route('/indicators', methods=['GET'])
+def get_indicators():
+    indicators_params = []
+    for indicator_name in indicators_list:
+        indicator_cls = globals()[indicator_name]
+        indicators_params.append(indicator_cls.to_dict_class())
+    return jsonify(indicators_params)
+
+
     
