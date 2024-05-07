@@ -30,7 +30,14 @@ class RiskMetrics:
 
     @staticmethod
     def profit_factor(returns):
-        losers = returns[returns<0]
-        winners = returns[returns>0]
-        profit_factor = - winners.sum()/losers.sum()
+        if len(returns) == 0:
+            return 1
+
+        losers = returns[returns < 0]
+        winners = returns[returns > 0]
+
+        if len(losers) == 0: 
+            return None
+
+        profit_factor = - winners.sum() / losers.sum()
         return profit_factor
