@@ -566,7 +566,7 @@ func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func addExchange(w http.ResponseWriter, r *http.Request) {
+func AddExchange(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		ExchangeName string `json:"exchange_name"`
 		APIKey string `json:"api_key"`
@@ -601,6 +601,33 @@ func addExchange(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write(bytes)
+}
+
+func DeleteExchange(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ExchangeName string `json:"exchange_name"`
+		APIKey string `json:"api_key"`
+		APISecret string `json:"api_secret"`
+		TestingNetwork bool `json:"testing_network"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = exchangesservice.GetInstance().DeleteExchange(body.ExchangeName, body.APIKey, body.TestingNetwork)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete exchange")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
 }
 
 func AddTelegramChat(w http.ResponseWriter, r *http.Request) {
@@ -799,7 +826,8 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
 
-	router.HandleFunc("/exchanges", addExchange).Methods("POST")
+	router.HandleFunc("/exchanges", AddExchange).Methods("POST")
+	router.HandleFunc("/exchanges", DeleteExchange).Methods("DELETE")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 

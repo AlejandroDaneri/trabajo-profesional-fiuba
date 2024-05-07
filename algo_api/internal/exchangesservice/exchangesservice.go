@@ -2,6 +2,7 @@ package exchangesservice
 
 import (
 	"algo_api/internal/databaseservice"
+	"fmt"
 	"sync"
 )
 
@@ -27,6 +28,7 @@ func NewService() IService {
 
 type IService interface {
     AddExchange(exchangeName string, apiKey string, apiSecret string, testingNetwork bool) (error)
+    DeleteExchange(exchangeName string, apiKey string, testingNetwork bool) (error)
 }
 
 func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSecret string, testingNetwork bool) (error) {
@@ -48,3 +50,36 @@ func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSe
     return nil
 }
 
+func (t *ExchangesService) DeleteExchange(exchangeName string, apiKey string, testingNetwork bool) error {
+    dbName := "exchanges"
+    db, err := t.databaseservice.GetDB(dbName)
+    if err != nil {
+        return err
+    }
+
+    q := fmt.Sprintf(`
+        {
+            "selector": {
+                "type": "%s",
+                "api_key": "%s",
+                "testing_network": %t,
+                "pvt_type": "exchange"
+            }
+        }
+    `, exchangeName, apiKey, testingNetwork)
+
+    docs, err := db.QueryJSON(q)
+    if err != nil {
+        return err
+    }
+
+    for _, doc := range docs {
+        id := doc["_id"].(string)
+        err := db.Delete(id)
+        if err != nil {
+            return err
+        }
+    }
+
+    return nil
+}
