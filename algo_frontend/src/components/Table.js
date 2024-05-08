@@ -85,7 +85,7 @@ const Table = ({ headers, data, buildRow }) => {
 
   const [sort, sortFunc] = useState({
     field: headers.find((header) => header.default).value,
-    direction: "desc",
+    direction: "asc",
   })
 
   const onSort = (field) => {

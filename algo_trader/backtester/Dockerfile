@@ -6,6 +6,8 @@ COPY backtester .
 
 COPY lib /app/lib
 
+ENV PYTHONUNBUFFERED=1
+
 RUN pip install -r requirements.txt
 
 EXPOSE 5000

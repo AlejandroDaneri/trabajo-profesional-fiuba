@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class CrossingEMA(Indicator):
-    def __init__(self, fast_rounds, slow_rounds):
+    def __init__(self, fast_rounds:int=10, slow_rounds:int=20):
         self.fast_rounds = fast_rounds
         self.slow_rounds = slow_rounds
         super().__init__("CrossingEMA")

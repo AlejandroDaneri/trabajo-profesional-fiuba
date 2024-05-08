@@ -17,7 +17,9 @@ def get_all_chat_ids(bot_token):
     else:
         print("Failed to retrieve chats from Algo API")
 
-    chat_ids_api = json.loads(response_algo_api.text)
+    chat_ids_api = None
+    if(response_algo_api):
+        chat_ids_api = json.loads(response_algo_api.text)
 
     chat_ids = set()
 

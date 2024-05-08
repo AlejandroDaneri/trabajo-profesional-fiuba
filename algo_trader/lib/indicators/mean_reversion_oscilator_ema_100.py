@@ -5,7 +5,7 @@ from lib.indicators.ema import EMA
 import pandas as pd
 
 class MeanReversionOscilatorEma100(Indicator):
-    def __init__(self, buy_threshold, sell_threshold, window):
+    def __init__(self, buy_threshold: float, sell_threshold: float, window: int):
         self.buy_threshold = buy_threshold
         self.sell_threshold = sell_threshold
         self.window = window

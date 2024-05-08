@@ -36,17 +36,19 @@ services:
       timeout: 5s
       retries: 5
 
-  # telegram_bot:
-  #   container_name: telegram_bot
-  #   build:
-  #     context: ./telegram_bot
-  #   working_dir: /app
-  #   volumes:
-  #     - ./telegram_bot:/app
-  #   command: ["python3", "-u", "main.py"]
+  telegram_bot:
+    container_name: telegram_bot
+    build:
+      context: ./telegram_bot
+    working_dir: /app
+    volumes:
+      - ./telegram_bot:/app
+    command: ["python3", "-u", "main.py"]
 
   backtester:
     container_name: backtester
+    environment:
+      - PYTHONUNBUFFERED=1
     build:
       context: ./algo_trader
       dockerfile: backtester/Dockerfile
