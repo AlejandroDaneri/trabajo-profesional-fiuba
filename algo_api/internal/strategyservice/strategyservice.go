@@ -103,6 +103,13 @@ func (s *StrategyService) GetRunning() (*database.StrategyResponseFields, error)
 		return nil, err
 	}
 
+	balance, err := s.binanceservice.GetBalance()
+	if err != nil {
+		return nil, err
+	}
+
+	strategy.CurrentBalance = balance
+
 	return &database.StrategyResponseFields{
 		StrategyPublicFields: strategy.StrategyPublicFields,
 		ID:                   strategy.ID,
