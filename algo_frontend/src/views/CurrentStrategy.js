@@ -33,6 +33,9 @@ import { get as getCandleticks } from "../webapi/candleticks"
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
 
+/* Import Constants */
+import { TIMEFRAMES } from "../constants"
+
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
     loading: false,
@@ -108,16 +111,7 @@ const CurrentStrategy = () => {
       }
 
       const transformTimeframe = (timeframe) => {
-        switch (timeframe) {
-          case "1M":
-            return "1 minute"
-          case "5M":
-            return "5 minute"
-          case "1H":
-            return "1 hour"
-          default:
-            return ""
-        }
+        return TIMEFRAMES.find(timeframe_ => timeframe_.value === timeframe)?.label
       }
 
       const initialBalance = data.initial_balance
@@ -223,8 +217,6 @@ const CurrentStrategy = () => {
       clearInterval(interval)
     }
   }, [])
-
-  console.info('candleticks.data', candleticks.data)
 
   return (
     <View
