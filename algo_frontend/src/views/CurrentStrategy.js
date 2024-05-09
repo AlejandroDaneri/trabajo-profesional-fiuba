@@ -332,7 +332,7 @@ const CurrentStrategy = () => {
                 <LineChart
                   width={500}
                   height={300}
-                  data={filteredTradingChartData}
+                  data={candleticks.data}
                   margin={{
                     top: 5,
                     right: 30,
