@@ -3,6 +3,8 @@ import Button from "../components/Button";
 import CurrencyLogo from "../components/CurrencyLogo";
 /* Import Reusables Components */
 import FieldSelect from "../components/reusables/FieldSelect";
+/* Import Constants */
+import { TIMEFRAMES } from "../constants";
 import { add } from "../webapi/strategy";
 import styled from "styled-components";
 import { theme } from "../utils/theme";
@@ -13,8 +15,6 @@ import { useState } from "react";
 
 /* Import Utils */
 
-/* Import Constants */
-import { TIMEFRAMES } from "../constants";
 
 const StrategyStyle = styled.div`
   display: flex;
@@ -61,15 +61,6 @@ const Currency = ({ currency }) => {
 
 const CURRENCIES = ["BTC", "ETH", "SOL"];
 const INDICATORS = ["EMA", "RSI", "MACD"];
-const TIMEFRAMES = [
-  { value: "1M", label: "1 minute" },
-  { value: "5M", label: "5 minutes" },
-  { value: "15M", label: "15 minutes" },
-  { value: "30M", label: "30 minutes" },
-  { value: "1H", label: "1 hour" },
-  { value: "4H", label: "4 hour" },
-  { value: "1D", label: "1 day" },
-];
 
 const Strategy = ({ onCloseModal, onAdd }) => {
   const [strategy, strategyFunc] = useState({
