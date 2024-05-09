@@ -10,7 +10,7 @@ FORMAT = {
   '4h': '%Y-%m-%d %H',
   '1d': '%Y-%m-%d'
 }
-        
+
 FACTOR = {
   '1m': 60,
   '5m': 60 * 5,
@@ -19,7 +19,7 @@ FACTOR = {
   '4h': 60 * 60 * 4,
   '1d': 60 * 60 * 24
 }
-          
+
 def get_delta(timeframe: str, n):
   DELTA = {
     '1m': timedelta(minutes=n),
@@ -31,8 +31,6 @@ def get_delta(timeframe: str, n):
   }
   return DELTA[timeframe]
 
-
-    
 def trades_2_balance_series(data, trades, timeframe, initial_balance):
 
   def generate_range_sell(start: str, end: str, timeframe: str, balance: str):
@@ -73,6 +71,10 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
   balance = initial_balance
   amount = 0
   start = data.index[0]
+
+  if len(trades) == 0:
+    end = data.index[-1]
+    return generate_range_sell(start, end, timeframe, balance)
 
   for index, trade in trades.iterrows():
     trade = trades.iloc[index]
