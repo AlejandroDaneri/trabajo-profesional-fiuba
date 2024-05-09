@@ -37,21 +37,21 @@ def hydrate_strategy(type, currencies, indicators, timeframe, id) -> Dict[str, S
 
 
 def timeframe_2_seconds(timeframe) -> int:
-    if timeframe == "1M":
+    if timeframe == "1m":
         return 60
-    elif timeframe == "5M":
+    elif timeframe == "5m":
         return 60 * 5
-    elif timeframe == "15M":
+    elif timeframe == "15m":
         return 60 * 15
-    elif timeframe == "30M":
+    elif timeframe == "30m":
         return 60 * 30
-    elif timeframe == "1H":
+    elif timeframe == "1h":
         return 60 * 60
-    elif timeframe == "4H":
+    elif timeframe == "4h":
         return 60 * 60 * 4
-    elif timeframe == "1D":
+    elif timeframe == "1d":
         return 60 * 60 * 24
     else:
-        # default 1M
+        # default 1m
         print("[utils] invalid timeframe, using default => 1 minute")
         return 60

@@ -16,6 +16,8 @@ import { useEffect, useState } from "react";
 import CurrencyLogo from "../components/CurrencyLogo";
 import { CurrentStrategyStyle } from "../styles/CurrentStrategy";
 import FieldDatePicker from "../components/reusables/FieldDatePicker";
+/* Import Constants */
+import { TIMEFRAMES } from "../constants";
 import Trades from "../components/Trades";
 import View from "../components/reusables/View";
 import { capitalize } from "../utils/string";
@@ -130,17 +132,8 @@ const CurrentStrategy = () => {
       };
 
       const transformTimeframe = (timeframe) => {
-        switch (timeframe) {
-          case "1M":
-            return "1 minute";
-          case "5M":
-            return "5 minute";
-          case "1H":
-            return "1 hour";
-          default:
-            return "";
-        }
-      };
+        return TIMEFRAMES.find(timeframe_ => timeframe_.value === timeframe)?.label
+      }
 
       const initialBalance = data.initial_balance;
       const currentBalance = parseFloat(data.current_balance).toFixed(2);
@@ -248,8 +241,6 @@ const CurrentStrategy = () => {
       clearInterval(interval);
     };
   }, []);
-
-  console.info('candleticks.data', candleticks.data)
 
   return (
     <View

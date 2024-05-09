@@ -9,6 +9,13 @@ import { theme } from "../utils/theme";
 /* Import Libs */
 import { useState } from "react";
 
+/* Import WebApi */
+
+/* Import Utils */
+
+/* Import Constants */
+import { TIMEFRAMES } from "../constants";
+
 const StrategyStyle = styled.div`
   display: flex;
   flex-direction: column;

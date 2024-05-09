@@ -11,14 +11,14 @@ class Binance:
 
     def binance_get(self, ticker: str, timeframe: str, start=None, end=None, n=1000):
         timeframes = {
-            "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
-            "5M": BinanceProvider.KLINE_INTERVAL_5MINUTE,
-            "15M": BinanceProvider.KLINE_INTERVAL_15MINUTE,
-            "30M": BinanceProvider.KLINE_INTERVAL_30MINUTE,
-            "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
-            "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
-            "1D": BinanceProvider.KLINE_INTERVAL_1DAY,
-            "1W": BinanceProvider.KLINE_INTERVAL_1WEEK
+            "1m": BinanceProvider.KLINE_INTERVAL_1MINUTE,
+            "5m": BinanceProvider.KLINE_INTERVAL_5MINUTE,
+            "15m": BinanceProvider.KLINE_INTERVAL_15MINUTE,
+            "30m": BinanceProvider.KLINE_INTERVAL_30MINUTE,
+            "1h": BinanceProvider.KLINE_INTERVAL_1HOUR,
+            "4h": BinanceProvider.KLINE_INTERVAL_4HOUR,
+            "1d": BinanceProvider.KLINE_INTERVAL_1DAY,
+            "1w": BinanceProvider.KLINE_INTERVAL_1WEEK
         }
         klines = self.provider.get_historical_klines(ticker, timeframes[timeframe], start_str=start, end_str=end, limit=n)
         data = pd.DataFrame(klines, columns = ["Timestamp", "Open", "High", "Low", "Close", "Volume", "Close time", "Quote asset volume"," Number of trades"," Taker buy base asset volume", "Taker buy quote asset volume", "Ignore"])
@@ -37,24 +37,24 @@ class Binance:
         timeframe_ = timeframe or '1D'
 
         timeframes = {
-            "1M": BinanceProvider.KLINE_INTERVAL_1MINUTE,
-            "5M": BinanceProvider.KLINE_INTERVAL_5MINUTE,
-            "15M": BinanceProvider.KLINE_INTERVAL_15MINUTE,
-            "30M": BinanceProvider.KLINE_INTERVAL_30MINUTE,
-            "1H": BinanceProvider.KLINE_INTERVAL_1HOUR,
-            "4H": BinanceProvider.KLINE_INTERVAL_4HOUR,
-            "1D": BinanceProvider.KLINE_INTERVAL_1DAY,
-            "1W": BinanceProvider.KLINE_INTERVAL_1WEEK
+            "1m": BinanceProvider.KLINE_INTERVAL_1MINUTE,
+            "5m": BinanceProvider.KLINE_INTERVAL_5MINUTE,
+            "15m": BinanceProvider.KLINE_INTERVAL_15MINUTE,
+            "30m": BinanceProvider.KLINE_INTERVAL_30MINUTE,
+            "1h": BinanceProvider.KLINE_INTERVAL_1HOUR,
+            "4h": BinanceProvider.KLINE_INTERVAL_4HOUR,
+            "1d": BinanceProvider.KLINE_INTERVAL_1DAY,
+            "1w": BinanceProvider.KLINE_INTERVAL_1WEEK
         }
 
         dates = {
-            "1M": "%Y-%m-%d %H:%M",
-            "5M": "%Y-%m-%d %H:%M",
-            "15M": "%Y-%m-%d %H:%M",
-            "30M": "%Y-%m-%d %H:%M",
-            "1H": "%Y-%m-%d %H",
-            "4H": "%Y-%m-%d %H",
-            "1D": "%Y-%m-%d"
+            "1m": "%Y-%m-%d %H:%M",
+            "5m": "%Y-%m-%d %H:%M",
+            "15m": "%Y-%m-%d %H:%M",
+            "30m": "%Y-%m-%d %H:%M",
+            "1h": "%Y-%m-%d %H",
+            "4h": "%Y-%m-%d %H",
+            "1d": "%Y-%m-%d"
         }
 
         if n is None:
