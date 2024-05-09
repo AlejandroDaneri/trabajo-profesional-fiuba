@@ -1,3 +1,4 @@
+/* Import Libs */
 import {
   Bar,
   BarChart,
@@ -11,20 +12,30 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
+import moment from "moment"
 
-import CurrencyLogo from "../components/CurrencyLogo";
-import { CurrentStrategyStyle } from "../styles/CurrentStrategy";
-import FieldDatePicker from "../components/reusables/FieldDatePicker";
 /* Import Constants */
-import { TIMEFRAMES } from "../constants";
-import Trades from "../components/Trades";
-import View from "../components/reusables/View";
-import { capitalize } from "../utils/string";
-import { get } from "../webapi/strategy";
-import { get as getCandleticks } from "../webapi/candleticks";
-import logoBinance from "../images/logos/exchanges/binance.svg";
-import moment from "moment";
+import { TIMEFRAMES } from "../constants"
+
+/* Import Components */
+import CurrencyLogo from "../components/CurrencyLogo"
+import FieldDatePicker from "../components/reusables/FieldDatePicker"
+import Trades from "../components/Trades"
+import View from "../components/reusables/View"
+
+/* Import Styles */
+import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
+
+/* Import Utils */
+import { capitalize } from "../utils/string"
+
+/* Import WebApi */
+import { get } from "../webapi/strategy"
+import { get as getCandleticks } from "../webapi/candleticks"
+
+/* Import Images */
+import logoBinance from "../images/logos/exchanges/binance.svg"
 
 const CurrentStrategy = () => {
   const [strategy, strategyFunc] = useState({
@@ -32,7 +43,7 @@ const CurrentStrategy = () => {
     data: {
       currencies: [],
     },
-  });
+  })
 
   const [selectedDates, setSelectedDates] = useState({
     start: '2024-01-01',
@@ -42,7 +53,7 @@ const CurrentStrategy = () => {
   const [candleticks, candleticksFunc] = useState({
     loading: false,
     data: [],
-  });
+  })
 
   const onChange = (key, value) => {
     setSelectedDates((prevState) => ({
@@ -53,58 +64,58 @@ const CurrentStrategy = () => {
 
   //Here we should fetch the actual information from the database.
   const generateStockPerformanceData = () => {
-    const startDate = new Date(2024, 0, 1);
-    const endDate = new Date(2024, 0, 20);
-    const weeks = Math.ceil((endDate - startDate) / (7 * 24 * 60 * 60 * 1000));
+    const startDate = new Date(2024, 0, 1)
+    const endDate = new Date(2024, 0, 20)
+    const weeks = Math.ceil((endDate - startDate) / (7 * 24 * 60 * 60 * 1000))
 
-    const stockData = [];
+    const stockData = []
 
     for (let i = 0; i < weeks; i++) {
-      const weekStartDate = new Date(startDate);
-      weekStartDate.setDate(startDate.getDate() + i * 7);
+      const weekStartDate = new Date(startDate)
+      weekStartDate.setDate(startDate.getDate() + i * 7)
 
       const weekEndDate = new Date(weekStartDate);
-      weekEndDate.setDate(weekStartDate.getDate() + 6);
+      weekEndDate.setDate(weekStartDate.getDate() + 6)
 
-      const pv = Math.random() * 10000 - 5000;
-      const uv = Math.random() * 10000 - 5000;
+      const pv = Math.random() * 10000 - 5000
+      const uv = Math.random() * 10000 - 5000
 
       stockData.push({
         name: `${weekStartDate.toLocaleDateString()} - ${weekEndDate.toLocaleDateString()}`,
         startDate: weekStartDate,
         pv,
         uv,
-      });
+      })
     }
 
-    return stockData;
-  };
+    return stockData
+  }
 
   //Here we should fetch the actual information from the database.
   const generateTradingData = () => {
-    const startDate = new Date(2024, 0, 1);
-    const endDate = new Date(2024, 0, 20);
-    const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000));
+    const startDate = new Date(2024, 0, 1)
+    const endDate = new Date(2024, 0, 20)
+    const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000))
 
-    const tradingData = [];
+    const tradingData = []
 
     for (let i = 0; i <= days; i++) {
-      const date = new Date(startDate);
-      date.setDate(startDate.getDate() + i);
+      const date = new Date(startDate)
+      date.setDate(startDate.getDate() + i)
 
       tradingData.push({
         date: date,
         strategy: (Math.random() * 100 + 500).toFixed(1),
         buyAndHold: (Math.random() * 100 + 500).toFixed(1),
-      });
+      })
     }
 
-    return tradingData;
-  };
+    return tradingData
+  }
 
-  const tradingChartData = generateTradingData();
+  const tradingChartData = generateTradingData()
 
-  const stockPerformanceChartData = generateStockPerformanceData();
+  const stockPerformanceChartData = generateStockPerformanceData()
 
   const filteredStockPerformanceData = stockPerformanceChartData
     .filter(
@@ -113,7 +124,7 @@ const CurrentStrategy = () => {
     )
     .map((entry) => ({
       ...entry,
-    }));
+    }))
 
   const filteredTradingChartData = tradingChartData
     .filter(
@@ -122,14 +133,14 @@ const CurrentStrategy = () => {
     .map((entry) => ({
       ...entry,
       date: entry.date.toLocaleDateString(),
-    }));
+    }))
 
   const getStrategy = () => {
     const transformToView = (data) => {
       const getDuration = (start) => {
         const end = Date.now() / 1000;
-        return moment.utc((end - start) * 1000).format("HH:mm:ss");
-      };
+        return moment.utc((end - start) * 1000).format("HH:mm:ss")
+      }
 
       const transformTimeframe = (timeframe) => {
         return TIMEFRAMES.find(timeframe_ => timeframe_.value === timeframe)?.label
@@ -141,8 +152,8 @@ const CurrentStrategy = () => {
       const profitAndLossPercentaje = (
         (currentBalance / initialBalance - 1) *
         100
-      ).toFixed(2);
-      const duration = getDuration(data.start_timestamp);
+      ).toFixed(2)
+      const duration = getDuration(data.start_timestamp)
 
       return {
         ...data,
@@ -168,12 +179,12 @@ const CurrentStrategy = () => {
         })),
         duration,
         timeframe_label: transformTimeframe(data.timeframe),
-      };
-    };
+      }
+    }
     strategyFunc((prevState) => ({
       ...prevState,
       loading: true,
-    }));
+    }))
     get()
       .then((response) => {
         strategyFunc((prevState) => ({
@@ -182,8 +193,8 @@ const CurrentStrategy = () => {
           data: transformToView(response.data),
         }));
       })
-      .catch((_) => {});
-  };
+      .catch((_) => {})
+  }
 
   const getCandleticks_ = (symbol, start, end, timeframe) => {
     const params = {
@@ -191,7 +202,7 @@ const CurrentStrategy = () => {
       start,
       end,
       timeframe,
-    };
+    }
 
     getCandleticks(params)
       .then((response) => {
@@ -204,14 +215,14 @@ const CurrentStrategy = () => {
             return {
               closeTime: new Date(candletick.close_time * 1000),
               close: (candletick.close * amount).toFixed(2),
-            };
+            }
           }),
-        }));
+        }))
       })
       .catch((err) => {
-        console.info("err", err);
-      });
-  };
+        console.info("err", err)
+      })
+  }
 
   useEffect(() => {
     if (
@@ -224,23 +235,23 @@ const CurrentStrategy = () => {
         strategy.data.start_timestamp,
         parseInt(Date.now() / 1000),
         strategy.data.timeframe.toLowerCase()
-      );
+      )
     }
-  }, [
-    strategy.data.currencies,
+  }, [ // eslint-disable-line
+    strategy.data.currencies, 
     strategy.data.start_timestamp,
     strategy.data.end_timestamp,
     strategy.data.timeframe,
-  ]);
+  ]) 
 
   useEffect(() => {
-    const interval = setInterval(getStrategy, 10000);
+    const interval = setInterval(getStrategy, 10000)
     getStrategy();
 
     return () => {
-      clearInterval(interval);
-    };
-  }, []);
+      clearInterval(interval)
+    }
+  }, [])
 
   return (
     <View
@@ -415,7 +426,7 @@ const CurrentStrategy = () => {
         </CurrentStrategyStyle>
       }
     />
-  );
-};
+  )
+}
 
-export default CurrentStrategy;
+export default CurrentStrategy
