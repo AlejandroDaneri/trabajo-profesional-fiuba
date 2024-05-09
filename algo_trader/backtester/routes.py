@@ -32,6 +32,8 @@ def ping():
 
 @app.route('/backtest', methods=['POST'])
 def backtest():
+    print("[Backtester] a new backtest was requested")
+
     req_data = request.get_json()
     if not req_data:
         abort(400, description="JSON data is missing in the request body.")
@@ -63,15 +65,16 @@ def backtest():
             provider = YahooFinance()
         else:
             provider = Binance()
-    
+
+        print("[Backtester] getting data")
         data = provider.get(coin, timeframe, data_from, data_to)
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
 
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
         backtester = LongBacktester(strategy[coin], initial_balance)
+        print("[Backtester] doing backtest")
         trades, final_balance = backtester.backtest(data)
-
 
         risks={}
         risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin).tolist()
