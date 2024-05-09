@@ -12,10 +12,10 @@ class Binance:
     
     # example:
     #  ticker: 'BTC'
-    #  start: yyyy-mm-dd
-    #  start: '2014-01-15'
-    #  end: yyyy-mm-dd
-    #  end: '2024-03-15'
+    #  start: yyyy-mm-dd hh:mm
+    #  start: '2014-01-15 12:23'
+    #  end: yyyy-mm-dd hh:mm
+    #  end: '2024-03-15 14:33'
     def get(self, ticker: str, timeframe: str, start = None, end = None, n = None):
         timeframe_ = timeframe or TIMEFRAME_1_DAY
 
@@ -31,10 +31,19 @@ class Binance:
         }
 
         if n is None:
-            start_ = datetime.strptime(start, '%Y-%m-%d')
+            def string_2_datetime(s):
+                date_formats = ['%Y-%m-%d %H:%M', '%Y-%m-%d %H', '%Y-%m-%d']
+
+                for date_format in date_formats:
+                    try:
+                        return datetime.strptime(s, date_format)
+                    except ValueError:
+                        continue
+
+            start_ = string_2_datetime(start)
             start_unix = int(datetime.timestamp(start_)) * 1000
 
-            end_ = datetime.strptime(end, '%Y-%m-%d')
+            end_ = string_2_datetime(end)
             end_unix = int(datetime.timestamp(end_)) * 1000
 
             klines = self.provider.get_historical_klines(f"{ticker}USDT", timeframes[timeframe_], start_str=start_unix, end_str=end_unix)

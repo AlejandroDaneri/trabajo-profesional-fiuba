@@ -5,6 +5,7 @@ from lib.providers.yahoofinance import YahooFinance
 from lib.providers.binance import Binance
 from lib.indicators import __all__ as indicators_list
 from lib.indicators import *
+from lib.constants.timeframe import DATE_FORMAT, TIMEFRAME_1_DAY
 
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
@@ -49,9 +50,8 @@ def backtest():
     data_to_ts = req_data['data_to']
     timeframe = req_data['timeframe']
     indicators = req_data['indicators']
-
-    data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime('%Y-%m-%d')
-    data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime('%Y-%m-%d')
+    data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime(DATE_FORMAT[timeframe])
+    data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime(DATE_FORMAT[timeframe])
 
     try:
         initial_balance = float(initial_balance)
@@ -61,20 +61,22 @@ def backtest():
     results = {}
     for coin in coins:
 
-        if timeframe == '1d':
+        if timeframe == TIMEFRAME_1_DAY:
             provider = YahooFinance()
         else:
             provider = Binance()
 
-        print("[Backtester] getting data")
+        print("[Backtester] getting data: started")
         data = provider.get(coin, timeframe, data_from, data_to)
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
+        print("[Backtester] getting data: finished")
 
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
         backtester = LongBacktester(strategy[coin], initial_balance)
-        print("[Backtester] doing backtest")
+        print("[Backtester] backtest: started")
         trades, final_balance = backtester.backtest(data)
+        print("[Backtester] backtest: finished")
 
         risks={}
         risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin).tolist()

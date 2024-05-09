@@ -4,8 +4,6 @@ import {
   BarChart,
   CartesianGrid,
   Legend,
-  Line,
-  LineChart,
   ReferenceLine,
   ResponsiveContainer,
   Tooltip,
@@ -23,6 +21,7 @@ import CurrencyLogo from "../components/CurrencyLogo"
 import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Trades from "../components/Trades"
 import View from "../components/reusables/View"
+import Chart from "../components/reusables/Chart"
 
 /* Import Styles */
 import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
@@ -32,7 +31,7 @@ import { capitalize } from "../utils/string"
 
 /* Import WebApi */
 import { get } from "../webapi/strategy"
-import { get as getCandleticks } from "../webapi/candleticks"
+import { run } from "../webapi/backtesting"
 
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
@@ -197,26 +196,30 @@ const CurrentStrategy = () => {
   }
 
   const getCandleticks_ = (symbol, start, end, timeframe) => {
-    const params = {
-      symbol,
-      start,
-      end,
-      timeframe,
+    const body = {
+      coins: [symbol],
+      initial_balance: 1000,
+      data_from: start,
+      data_to: end,
+      timeframe: timeframe,
+      indicators:[
+        {
+          "name": "MACD",
+          "parameters": {
+            "fast":12,
+            "slow":26,
+            "smoothed":20
+          }
+        }
+      ]
     }
 
-    getCandleticks(params)
+    run(body)
       .then((response) => {
-        const amount = strategy.data.initial_balance / response.data[0].close;
-
         candleticksFunc((prevState) => ({
           ...prevState,
           loading: true,
-          data: (response.data || []).map((candletick) => {
-            return {
-              closeTime: new Date(candletick.close_time * 1000),
-              close: (candletick.close * amount).toFixed(2),
-            }
-          }),
+          data: response.data || []
         }))
       })
       .catch((err) => {
@@ -246,7 +249,7 @@ const CurrentStrategy = () => {
 
   useEffect(() => {
     const interval = setInterval(getStrategy, 10000)
-    getStrategy();
+    getStrategy()
 
     return () => {
       clearInterval(interval)
@@ -330,52 +333,7 @@ const CurrentStrategy = () => {
             </div>
             <div>
               <h3>Comparison of Strategies</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart
-                  width={500}
-                  height={300}
-                  data={candleticks.data}
-                  margin={{
-                    top: 5,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid stroke="none" strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis
-                    label={{
-                      value: "Balance",
-                      angle: -90,
-                      position: "insideLeft",
-                    }}
-                    domain={[
-                      Math.min(
-                        ...tradingChartData.map((item) => item.strategy)
-                      ),
-                      Math.max(
-                        ...tradingChartData.map((item) => item.strategy)
-                      ),
-                    ]}
-                  />
-                  <Tooltip />
-                  <Legend />
-                  <Line
-                    type="monotone"
-                    dataKey="strategy"
-                    name="Current Strategy"
-                    stroke="#8884d8"
-                    activeDot={{ r: 8 }}
-                  />
-                  <Line
-                    type="monotone"
-                    name="Buy And Hold"
-                    dataKey="close"
-                    stroke="#82ca9d"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <Chart data={candleticks.data} />
             </div>
             {false && (
               <div className="graph-item">
