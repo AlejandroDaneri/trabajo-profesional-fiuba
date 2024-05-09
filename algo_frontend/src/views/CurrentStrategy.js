@@ -1,5 +1,3 @@
-import "react-datepicker/dist/react-datepicker.css";
-
 import {
   Bar,
   BarChart,
@@ -17,7 +15,7 @@ import { useEffect, useState } from "react";
 
 import CurrencyLogo from "../components/CurrencyLogo";
 import { CurrentStrategyStyle } from "../styles/CurrentStrategy";
-import DatePicker from "react-datepicker";
+import FieldDatePicker from "../components/reusables/FieldDatePicker";
 import Trades from "../components/Trades";
 import View from "../components/reusables/View";
 import { capitalize } from "../utils/string";
@@ -34,13 +32,22 @@ const CurrentStrategy = () => {
     },
   });
 
+  const [selectedDates, setSelectedDates] = useState({
+    start: '2024-01-01',
+    end: '2024-01-21',
+  })
+
   const [candleticks, candleticksFunc] = useState({
     loading: false,
     data: [],
   });
 
-  const [minSelectedDate, setMinSelectedDate] = useState(new Date(2024, 0, 1));
-  const [maxSelectedDate, setMaxSelectedDate] = useState(new Date());
+  const onChange = (key, value) => {
+    setSelectedDates((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }))
+  }
 
   //Here we should fetch the actual information from the database.
   const generateStockPerformanceData = () => {
@@ -100,7 +107,7 @@ const CurrentStrategy = () => {
   const filteredStockPerformanceData = stockPerformanceChartData
     .filter(
       (item) =>
-        item.startDate >= minSelectedDate && item.startDate <= maxSelectedDate
+        item.startDate >= new Date(selectedDates.start) && item.startDate <= new Date(selectedDates.end)
     )
     .map((entry) => ({
       ...entry,
@@ -108,7 +115,7 @@ const CurrentStrategy = () => {
 
   const filteredTradingChartData = tradingChartData
     .filter(
-      (item) => item.date >= minSelectedDate && item.date <= maxSelectedDate
+      (item) => item.date >= new Date(selectedDates.start) && item.date <= new Date(selectedDates.end)
     )
     .map((entry) => ({
       ...entry,
@@ -302,31 +309,22 @@ const CurrentStrategy = () => {
           <div>
             <h2>Graphs</h2>
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ marginRight: "10px" }}>
-                <label
-                  style={{ marginRight: "10px" }}
-                  htmlFor="startDatePicker"
-                >
-                  Select the start date:
-                </label>
-                <DatePicker
-                  id="startDatePicker"
-                  selected={minSelectedDate}
-                  onChange={(date) => setMinSelectedDate(date)}
-                  className="input-strategy"
+              <div style={{marginRight:"3rem"}}>
+                <FieldDatePicker
+                  label="Select the start date"
+                  name="start"
+                  value={selectedDates.start}
+                  onChange={onChange}
+                  width={140}
                 />
               </div>
-              <div>
-                <label style={{ marginRight: "10px" }} htmlFor="endDatePicker">
-                  Select the end date:
-                </label>
-                <DatePicker
-                  id="endDatePicker"
-                  selected={maxSelectedDate}
-                  onChange={(date) => setMaxSelectedDate(date)}
-                  className="input-strategy"
-                />
-              </div>
+              <FieldDatePicker
+                label="Select the end date"
+                name="end"
+                value={selectedDates.end}
+                onChange={onChange}
+                width={140}
+              />
             </div>
             <div>
               <h3>Comparison of Strategies</h3>
