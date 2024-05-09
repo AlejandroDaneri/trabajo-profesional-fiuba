@@ -1,9 +1,10 @@
 from longBacktester import LongBacktester
 from lib.utils.utils_backtest import hydrate_strategy
 from lib.utils.plotter import trades_2_balance_series, buy_and_hold_balance_series
+from lib.providers.yahoofinance import YahooFinance
+from lib.providers.binance import Binance
 from lib.indicators import __all__ as indicators_list
 from lib.indicators import *
-from lib.providers.yahoofinance import YahooFinance
 
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
@@ -57,7 +58,12 @@ def backtest():
 
     results = {}
     for coin in coins:
-        provider = YahooFinance()
+
+        if timeframe == '1d':
+            provider = YahooFinance()
+        else:
+            provider = Binance()
+    
         data = provider.get(coin, timeframe, data_from, data_to)
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
@@ -76,8 +82,8 @@ def backtest():
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
         
-        strategy_balance_series = trades_2_balance_series(data, trades, initial_balance)
-        hold_balance_series = buy_and_hold_balance_series(data, initial_balance)
+        strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
+        hold_balance_series = buy_and_hold_balance_series(data, timeframe, initial_balance)
         df_series = pd.DataFrame(columns=['date', 'balance_strategy', 'balance_buy_and_hold'])
         df_series['date'] = strategy_balance_series['date']
         df_series['balance_strategy'] = strategy_balance_series['balance']

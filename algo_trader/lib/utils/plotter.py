@@ -1,15 +1,8 @@
+from lib.constants.timeframe import *
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
-
-FORMAT = {
-  '1m': '%Y-%m-%d %H:%M',
-  '5m': '%Y-%m-%d %H:%M',
-  '15m': '%Y-%m-%d %H:%M',
-  '1h': '%Y-%m-%d %H',
-  '4h': '%Y-%m-%d %H',
-  '1d': '%Y-%m-%d'
-}
 
 FACTOR = {
   '1m': 60,
@@ -36,13 +29,13 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
   def generate_range_sell(start: str, end: str, timeframe: str, balance: str):
     df = pd.DataFrame(columns=['date', 'balance'])
           
-    start_date = datetime.strptime(start, FORMAT[timeframe])
-    end_date = datetime.strptime(end, FORMAT[timeframe])
+    start_date = datetime.strptime(start, DATE_FORMAT[timeframe])
+    end_date = datetime.strptime(end, DATE_FORMAT[timeframe])
 
     n_range = int(((end_date - start_date).total_seconds()) // FACTOR[timeframe] + 1)
 
     for n in range(n_range):
-      current = (start_date + get_delta(timeframe, n)).strftime(FORMAT[timeframe])
+      current = (start_date + get_delta(timeframe, n)).strftime(DATE_FORMAT[timeframe])
       df.loc[current] = {
         'date': current,
         'balance': balance
@@ -53,13 +46,13 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
   def generate_range_buy(start: str, end: str, timeframe: str, amount: str):
     df = pd.DataFrame(columns=['date', 'balance'])
 
-    start_date = datetime.strptime(start, FORMAT[timeframe])
-    end_date = datetime.strptime(end, FORMAT[timeframe])
+    start_date = datetime.strptime(start, DATE_FORMAT[timeframe])
+    end_date = datetime.strptime(end, DATE_FORMAT[timeframe])
 
     n_range = int(((end_date - start_date).total_seconds()) // FACTOR[timeframe] + 1)
 
     for n in range(n_range):
-      current = (start_date + get_delta(timeframe, n)).strftime(FORMAT[timeframe])
+      current = (start_date + get_delta(timeframe, n)).strftime(DATE_FORMAT[timeframe])
       df.loc[current] = {
         'date': current,
         'balance': amount * data.loc[current].Close
@@ -104,7 +97,7 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
 
   return df
 
-def buy_and_hold_balance_series(data, initial_balance):
+def buy_and_hold_balance_series(data, timeframe, initial_balance):
   amount = initial_balance / data.iloc[0].Close
 
   df = pd.DataFrame(columns=['date', 'balance'])
@@ -112,11 +105,13 @@ def buy_and_hold_balance_series(data, initial_balance):
   start = data.index[0]
   end = data.index[-1]
 
-  start_date = datetime.strptime(start, '%Y-%m-%d')
-  end_date = datetime.strptime(end, '%Y-%m-%d')
+  start_date = datetime.strptime(start, DATE_FORMAT[timeframe])
+  end_date = datetime.strptime(end, DATE_FORMAT[timeframe])
 
-  for n in range(int((end_date - start_date).days + 1)):
-    current = (start_date + timedelta(days=n)).strftime('%Y-%m-%d')
+  n_range = int(((end_date - start_date).total_seconds()) // FACTOR[timeframe] + 1)
+
+  for n in range(n_range):
+    current = (start_date + get_delta(timeframe, n)).strftime(DATE_FORMAT[timeframe])
     df.loc[current] = {
       'date': current,
       'balance': amount * data.loc[current].Close
@@ -132,9 +127,9 @@ def generate_dates(start, end):
     dates.append(start + timedelta(days=n))
   return dates
 
-def plot_strategy_and_buy_and_hold(data, trades, initial_balance=1000, log_scale=False):
-  df_hold = buy_and_hold_balance_series(data, initial_balance)
-  df_strategy = trades_2_balance_series(data, trades, initial_balance)
+def plot_strategy_and_buy_and_hold(data, trades, timeframe, initial_balance=1000, log_scale=False):
+  df_hold = buy_and_hold_balance_series(data, timeframe, initial_balance)
+  df_strategy = trades_2_balance_series(data, trades, timeframe, initial_balance)
 
   fig = plt.figure()
   fig.set_size_inches(30, 5)
