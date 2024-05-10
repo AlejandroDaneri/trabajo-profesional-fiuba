@@ -25,4 +25,9 @@ func main() {
 	if err != nil {
 		logrus.Error("Could not create DB")
 	}
+
+	err = databaseservice.GetInstance().CreateDB("exchanges")
+	if err != nil {
+		logrus.Error("Could not create DB")
+	}
 }
