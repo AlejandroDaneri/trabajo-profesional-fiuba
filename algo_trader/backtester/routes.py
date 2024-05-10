@@ -82,22 +82,23 @@ def backtest():
         byh_backtester.backtest()
 
         risks = {}
-        buy_and_hold={}
-        buy_and_hold["payoff_ratio"] = RiskMetrics.payoff_ratio(byh_backtester.strat_lin)
-        buy_and_hold["rachev_ratio"] = RiskMetrics.rachev_ratio(byh_backtester.strat_log)
-        buy_and_hold["kelly_criterion"] = RiskMetrics.kelly_criterion(byh_backtester.strat_log)
-        buy_and_hold["max_drawdown"] = RiskMetrics.max_drawdowns(byh_backtester.strat_lin)
-        buy_and_hold["profit_factor"] = RiskMetrics.profit_factor(byh_backtester.strat)
+        buy_and_hold = {}
+        buy_and_hold["payoff_ratio"] = RiskMetrics.payoff_ratio(byh_backtester.strategy_linear_returns)
+        buy_and_hold["rachev_ratio"] = RiskMetrics.rachev_ratio(byh_backtester.strategy_log_returns)
+        buy_and_hold["kelly_criterion"] = RiskMetrics.kelly_criterion(byh_backtester.strategy_log_returns)
+        buy_and_hold["max_drawdown"] = RiskMetrics.max_drawdowns(byh_backtester.strategy_linear_returns)
+        buy_and_hold["profit_factor"] = RiskMetrics.profit_factor(byh_backtester.strategy_returns)
         
-        strat={}
-        strat["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin)
-        strat["profit_factor"] = RiskMetrics.profit_factor(backtester.strat_log)
-        strat["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strat_log)
-        strat["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strat_lin)
-        strat["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strat)
+        strategy_risks = {}
+        strategy_risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strategy_linear_returns)
+        strategy_risks["profit_factor"] = RiskMetrics.profit_factor(backtester.strategy_log_returns)
+        strategy_risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strategy_log_returns)
+        strategy_risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strategy_linear_returns)
+        strategy_risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strategy_returns)
+        
         risks["buy_and_hold"]=buy_and_hold
-        risks["strategy"]=strat
-
+        risks["strategy"]=strategy_risks
+        
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
         
@@ -107,7 +108,7 @@ def backtest():
         df_series['date'] = strategy_balance_series['date']
         df_series['balance_strategy'] = strategy_balance_series['balance']
         df_series['balance_buy_and_hold'] = hold_balance_series['balance']
-        print(risks)
+
         results[coin] = { 
             #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
             #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,

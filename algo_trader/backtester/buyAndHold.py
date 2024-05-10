@@ -8,11 +8,11 @@ class BuyAndHoldBacktester:
         self.historical_data = historical_data
         self.fixed_commission = fixed_commission
         self.variable_commission_rate = variable_commission_rate
-        self.strat_lin = None
-        self.strat = None
-        self.benchmark = None
-        self.strat_log = None
-        self.benchmark_log = None
+        self.strategy_linear_returns = None
+        self.strategy_returns = None
+        self.benchmark_returns = None
+        self.strategy_log_returns = None
+        self.benchmark_log_returns = None
 
     def backtest(self) -> Tuple[pd.DataFrame, float]:
         trades, final_balance = self._execute_backtest()
@@ -23,14 +23,13 @@ class BuyAndHoldBacktester:
         sell_price = self.historical_data.iloc[-1]["Close"]
         final_balance = (sell_price / buy_price) * self.initial_balance
 
-        # Calcula las variables estratégicas y guárdalas en self
         pct_change = self.historical_data['Close'].pct_change()
-        self.strat_lin = pct_change
-        self.strat = (1 + self.strat_lin).cumprod()
-        self.benchmark = pct_change.add(1).cumprod()
+        self.strategy_linear_returns = pct_change
+        self.strategy_returns = (1 + self.strategy_linear_returns).cumprod()
+        self.benchmark_returns = pct_change.add(1).cumprod()
 
-        self.strat_log = np.log(self.strat / self.strat.shift())
-        self.benchmark_log = np.log(self.benchmark / self.benchmark.shift())
+        self.strategy_log_returns = np.log(self.strategy_returns / self.strategy_returns.shift())
+        self.benchmark_log_returns = np.log(self.benchmark_returns / self.benchmark_returns.shift())
 
         trades = pd.DataFrame({
             "buy_date": [self.historical_data.index[0]],
