@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 import BounceLoader from "react-spinners/BounceLoader"
+import { useDispatch } from "react-redux"
 import "react-day-picker/dist/style.css"
 
 /* Import Reusables Components */
@@ -12,6 +13,7 @@ import FieldSwitch from "../components/reusables/FieldSwitch"
 import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Button from "../components/Button"
 import Chart from "../components/reusables/Chart"
+import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../components/Popup"
 
 /* Impor WebApi */
 import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
@@ -188,6 +190,9 @@ const BacktestingFormStyle = styled.div`
 `
 
 const Backtesting = () => {
+
+  const dispatch = useDispatch()
+
   const [view, viewFunc] = useState(VIEW_FORM)
   const [state, stateFunc] = useState({
     start: '2015-01-01',
@@ -314,7 +319,17 @@ const Backtesting = () => {
         })
       })
       .catch((err) => {
-        console.info(err)
+        backtestingFunc(prevState => ({
+          ...prevState,
+          loading: false,
+        }))
+        dispatch({
+          type: POPUP_ACTION_OPEN,
+          payload: {
+            type: POPUP_TYPE_ERROR,
+            message: "Could not execute backtesting",
+          },
+        })
       })
   }
 

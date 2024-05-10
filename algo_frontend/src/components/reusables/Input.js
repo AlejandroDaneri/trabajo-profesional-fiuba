@@ -9,9 +9,11 @@ const InputStyle = styled.input`
     border-radius: 4px;
     color: ${theme.white};
     outline: none;
+    padding: 10px;
     max-height: 40px;
     margin: 0;
     width: ${({width}) => width || 100}px;
+    font-size: 14px;
 
     &:hover {
         border: 1px solid ${theme.btc}

@@ -15,7 +15,8 @@ const styles = {
       outline: 'none',
       '&:hover': {
         borderColor: theme.btc
-      } 
+      },
+      fontSize: '14px'
     }
   },
   option: (styles, state) => ({

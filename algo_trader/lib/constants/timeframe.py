@@ -1,0 +1,19 @@
+TIMEFRAME_1_MIN = '1m'
+TIMEFRAME_5_MIN = '5m'
+TIMEFRAME_15_MIN = '15m'
+TIMEFRAME_30_MIN = '30m'
+TIMEFRAME_1_HOUR = '1h'
+TIMEFRAME_4_HOUR = '4h'
+TIMEFRAME_1_DAY = '1d'
+TIMEFRAME_1_WEEK = '1w'
+
+DATE_FORMAT = {
+    TIMEFRAME_1_MIN: "%Y-%m-%d %H:%M",
+    TIMEFRAME_5_MIN: "%Y-%m-%d %H:%M",
+    TIMEFRAME_15_MIN: "%Y-%m-%d %H:%M",
+    TIMEFRAME_30_MIN: "%Y-%m-%d %H:%M",
+    TIMEFRAME_1_HOUR: "%Y-%m-%d %H",
+    TIMEFRAME_4_HOUR: "%Y-%m-%d %H",
+    TIMEFRAME_1_DAY: "%Y-%m-%d",
+    TIMEFRAME_1_WEEK: "%Y-%m-%d"
+}

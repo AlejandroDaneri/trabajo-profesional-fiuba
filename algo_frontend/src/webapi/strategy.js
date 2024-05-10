@@ -1,5 +1,5 @@
 import axios from "axios"
-import { getBackend } from "./trade"
+import { getBackend } from "./env"
 
 export const get = () => {
   return axios.get(`${getBackend()}/api/strategy/running`)
