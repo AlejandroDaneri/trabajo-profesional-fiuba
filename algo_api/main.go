@@ -2,6 +2,7 @@ package main
 
 import (
 	"algo_api/internal/binanceservice"
+	"algo_api/internal/exchangesservice"
 	"algo_api/internal/pythonservice"
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/telegramservice"
@@ -565,6 +566,95 @@ func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func AddExchange(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ExchangeName string `json:"exchange_name"`
+		APIKey string `json:"api_key"`
+		APISecret string `json:"api_secret"`
+		Alias string `json:"alias"`
+		TestingNetwork bool `json:"testing_network"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = exchangesservice.GetInstance().AddExchange(body.ExchangeName, body.APIKey, body.APISecret, body.Alias, body.TestingNetwork)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not add Exchange to the database.")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	response := map[string]string{"message": "Exchange added successfully"}
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
+func DeleteExchange(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ExchangeName string `json:"exchange_name"`
+		APIKey string `json:"api_key"`
+		APISecret string `json:"api_secret"`
+		Alias string `json:"alias"`
+		TestingNetwork bool `json:"testing_network"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = exchangesservice.GetInstance().DeleteExchange(body.ExchangeName, body.APIKey, body.TestingNetwork)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete exchange")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
+func GetExchanges(w http.ResponseWriter, r *http.Request) {
+	exchanges, err := exchangesservice.GetInstance().GetExchanges()
+	if err != nil {
+		logrus.WithError(err).Error("Failed to get Exchanges")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(exchanges)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to marshal response")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(response)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to write response")
+	}
+}
+
 func AddTelegramChat(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		ChatID int64 `json:"chat_id"`
@@ -761,6 +851,10 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
+
+	router.HandleFunc("/exchanges", AddExchange).Methods("POST")
+	router.HandleFunc("/exchanges", DeleteExchange).Methods("DELETE")
+	router.HandleFunc("/exchanges", GetExchanges).Methods("GET")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 
