@@ -63,7 +63,7 @@ def backtest():
     for coin in coins:
 
         if timeframe == TIMEFRAME_1_DAY:
-            provider = Binance()
+            provider = YahooFinance()
         else:
             provider = Binance()
 
@@ -77,6 +77,7 @@ def backtest():
         backtester = LongBacktester(strategy[coin], initial_balance)
         print("[Backtester] backtest: started")
         trades, final_balance = backtester.backtest(data)
+        print("[Backtester] backtest: finished")
 
         byh_backtester = BuyAndHoldBacktester(initial_balance, data)
         byh_backtester.backtest()
@@ -102,7 +103,9 @@ def backtest():
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
         
+        print("[Backtester] build strategy series: started")
         strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
+        print("[Backtester] build strategy series: finished")
         hold_balance_series = buy_and_hold_balance_series(data, timeframe, initial_balance)
         df_series = pd.DataFrame(columns=['date', 'balance_strategy', 'balance_buy_and_hold'])
         df_series['date'] = strategy_balance_series['date']
