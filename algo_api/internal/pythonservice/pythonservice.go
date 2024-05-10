@@ -32,8 +32,26 @@ type IService interface {
 	GetIndicators() (IndicatorsResponse, error)
 }
 
+type Risk struct {
+    BuyAndHold struct {
+        KellyCriterion float64 `json:"kelly_criterion"`
+        MaxDrawdown    float64 `json:"max_drawdown"`
+        PayoffRatio    float64 `json:"payoff_ratio"`
+        ProfitFactor   float64 `json:"profit_factor,omitempty"`
+        RachevRatio    float64 `json:"rachev_ratio"`
+    } `json:"buy_and_hold"`
+    Strategy struct {
+        KellyCriterion float64 `json:"kelly_criterion"`
+        MaxDrawdown    float64 `json:"max_drawdown"`
+        PayoffRatio    float64 `json:"payoff_ratio"`
+        ProfitFactor   float64 `json:"profit_factor,omitempty"`
+        RachevRatio    float64 `json:"rachev_ratio"`
+    } `json:"strategy"`
+}
+
 type BacktestingResponse map[string]struct {
 	FinalBalance float64 `json:"final_balance"`
+	Risks        Risk    `json:"risks"`
 	Series       []struct {
 		Date              string  `json:"date"`
 		BalanceStrategy   float64 `json:"balance_strategy"`
