@@ -1,15 +1,20 @@
-/* Import Libs */
-import { useState } from "react"
-import styled from "styled-components"
-
+import Button from "../components/Button";
 /* Import Components */
-import CurrencyLogo from "../components/CurrencyLogo"
-
+import CurrencyLogo from "../components/CurrencyLogo";
 /* Import Reusables Components */
-import FieldSelect from "../components/reusables/FieldSelect"
-import Button from "../components/Button"
-import { add } from "../webapi/strategy"
-import { theme } from "../utils/theme"
+import FieldSelect from "../components/reusables/FieldSelect";
+/* Import Constants */
+import { TIMEFRAMES } from "../constants";
+import { add } from "../webapi/strategy";
+import styled from "styled-components";
+import { theme } from "../utils/theme";
+/* Import Libs */
+import { useState } from "react";
+
+/* Import WebApi */
+
+/* Import Utils */
+
 
 const StrategyStyle = styled.div`
   display: flex;
@@ -25,7 +30,7 @@ const StrategyStyle = styled.div`
       margin-right: 10px;
     }
   }
-`
+`;
 
 const OptionStyle = styled.div`
   display: flex;
@@ -33,7 +38,7 @@ const OptionStyle = styled.div`
   align-items: center;
   width: 60px;
   max-height: 20px;
-  
+
   & p {
     margin: 0;
     color: ${theme.black};
@@ -43,7 +48,7 @@ const OptionStyle = styled.div`
     width: 20px;
     height: 20px;
   }
-`
+`;
 
 const Currency = ({ currency }) => {
   return (
@@ -51,26 +56,17 @@ const Currency = ({ currency }) => {
       <p>{currency}</p>
       <CurrencyLogo currency={currency} />
     </OptionStyle>
-  )
-}
+  );
+};
 
-const CURRENCIES = ["BTC", "ETH", "SOL"]
-const INDICATORS = ["EMA", "RSI", "MACD"]
-const TIMEFRAMES = [
-  { value: "1M", label: "1 minute" },
-  { value: "5M", label: "5 minutes" },
-  { value: "15M", label: "15 minutes" },
-  { value: "30M", label: "30 minutes" },
-  { value: "1H", label: "1 hour" },
-  { value: "4H", label: "4 hour" },
-  { value: "1D", label: "1 day" },
-]
+const CURRENCIES = ["BTC", "ETH", "SOL"];
+const INDICATORS = ["EMA", "RSI", "MACD"];
 
 const Strategy = ({ onCloseModal, onAdd }) => {
   const [strategy, strategyFunc] = useState({
     loading: false,
     data: {},
-  })
+  });
 
   const onChange = (key, value) => {
     strategyFunc((prevState) => ({
@@ -79,23 +75,23 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         ...prevState.data,
         [key]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const transformToSend = (data) => {
     const createParameters = (indicator) => {
       // to-do: able to set this parameters in the ui
       switch (indicator) {
         case "RSI":
-          return { buy_threshold: 30, rounds: 14, sell_threshold: 71 }
+          return { buy_threshold: 30, rounds: 14, sell_threshold: 71 };
         case "MACD":
-          return { slow: 26, fast: 12, smoothed: 20 }
+          return { slow: 26, fast: 12, smoothed: 20 };
         case "EMA":
-          return { rounds: 100 }
+          return { rounds: 100 };
         default:
-          return {}
+          return {};
       }
-    }
+    };
 
     return {
       currencies: strategy.data.currencies.map((row) => row.value),
@@ -103,34 +99,34 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         return {
           name: row.value,
           parameters: createParameters(row.value),
-        }
+        };
       }),
       timeframe: strategy.data.timeframe.value,
-    }
-  }
+    };
+  };
 
   const onSave = () => {
     strategyFunc((prevState) => ({
       ...prevState,
       loading: true,
-    }))
+    }));
 
     add(transformToSend(strategy.data))
       .then((_) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
-        }))
-        onCloseModal()
-        onAdd()
+        }));
+        onCloseModal();
+        onAdd();
       })
       .catch((_) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
-        }))
-      })
-  }
+        }));
+      });
+  };
 
   return (
     <StrategyStyle>
@@ -173,7 +169,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         <Button text="Save" onClick={onSave} loading={strategy.loading} />
       </div>
     </StrategyStyle>
-  )
-}
+  );
+};
 
-export default Strategy
+export default Strategy;

@@ -2,9 +2,11 @@ from buyAndHold import BuyAndHoldBacktester
 from longBacktester import LongBacktester
 from lib.utils.utils_backtest import hydrate_strategy
 from lib.utils.plotter import trades_2_balance_series, buy_and_hold_balance_series
+from lib.providers.yahoofinance import YahooFinance
+from lib.providers.binance import Binance
 from lib.indicators import __all__ as indicators_list
 from lib.indicators import *
-from lib.providers.yahoofinance import YahooFinance
+from lib.constants.timeframe import DATE_FORMAT, TIMEFRAME_1_DAY
 
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
@@ -32,6 +34,8 @@ def ping():
 
 @app.route('/backtest', methods=['POST'])
 def backtest():
+    print("[Backtester] a new backtest was requested")
+
     req_data = request.get_json()
     if not req_data:
         abort(400, description="JSON data is missing in the request body.")
@@ -47,9 +51,8 @@ def backtest():
     data_to_ts = req_data['data_to']
     timeframe = req_data['timeframe']
     indicators = req_data['indicators']
-
-    data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime('%Y-%m-%d')
-    data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime('%Y-%m-%d')
+    data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime(DATE_FORMAT[timeframe])
+    data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime(DATE_FORMAT[timeframe])
 
     try:
         initial_balance = float(initial_balance)
@@ -58,40 +61,49 @@ def backtest():
 
     results = {}
     for coin in coins:
-        provider = YahooFinance()
+
+        if timeframe == TIMEFRAME_1_DAY:
+            provider = Binance()
+        else:
+            provider = Binance()
+
+        print("[Backtester] getting data: started")
         data = provider.get(coin, timeframe, data_from, data_to)
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
+        print("[Backtester] getting data: finished")
 
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
         backtester = LongBacktester(strategy[coin], initial_balance)
+        print("[Backtester] backtest: started")
         trades, final_balance = backtester.backtest(data)
 
         byh_backtester = BuyAndHoldBacktester(initial_balance, data)
         byh_backtester.backtest()
 
         risks = {}
-        buy_and_hold={}
-        buy_and_hold["payoff_ratio"] = RiskMetrics.payoff_ratio(byh_backtester.strat_lin)
-        buy_and_hold["rachev_ratio"] = RiskMetrics.rachev_ratio(byh_backtester.strat_log)
-        buy_and_hold["kelly_criterion"] = RiskMetrics.kelly_criterion(byh_backtester.strat_log)
-        buy_and_hold["max_drawdown"] = RiskMetrics.max_drawdowns(byh_backtester.strat_lin)
-        buy_and_hold["profit_factor"] = RiskMetrics.profit_factor(byh_backtester.strat)
+        buy_and_hold = {}
+        buy_and_hold["payoff_ratio"] = RiskMetrics.payoff_ratio(byh_backtester.strategy_linear_returns)
+        buy_and_hold["rachev_ratio"] = RiskMetrics.rachev_ratio(byh_backtester.strategy_log_returns)
+        buy_and_hold["kelly_criterion"] = RiskMetrics.kelly_criterion(byh_backtester.strategy_log_returns)
+        buy_and_hold["max_drawdown"] = RiskMetrics.max_drawdowns(byh_backtester.strategy_linear_returns)
+        buy_and_hold["profit_factor"] = RiskMetrics.profit_factor(byh_backtester.strategy_returns)
         
-        strat={}
-        strat["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin).tolist()
-        strat["profit_factor"] = RiskMetrics.profit_factor(backtester.strat_log).tolist()
-        strat["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strat_log).tolist()
-        strat["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strat_lin).tolist()
-        strat["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strat).tolist()
+        strategy_risks = {}
+        strategy_risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strategy_linear_returns)
+        strategy_risks["profit_factor"] = RiskMetrics.profit_factor(backtester.strategy_log_returns)
+        strategy_risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strategy_log_returns)
+        strategy_risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strategy_linear_returns)
+        strategy_risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strategy_returns)
+        
         risks["buy_and_hold"]=buy_and_hold
-        risks["strategy"]=strat
-
+        risks["strategy"]=strategy_risks
+        
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
         
-        strategy_balance_series = trades_2_balance_series(data, trades, initial_balance)
-        hold_balance_series = buy_and_hold_balance_series(data, initial_balance)
+        strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
+        hold_balance_series = buy_and_hold_balance_series(data, timeframe, initial_balance)
         df_series = pd.DataFrame(columns=['date', 'balance_strategy', 'balance_buy_and_hold'])
         df_series['date'] = strategy_balance_series['date']
         df_series['balance_strategy'] = strategy_balance_series['balance']

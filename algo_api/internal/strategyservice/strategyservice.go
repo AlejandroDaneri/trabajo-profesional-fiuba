@@ -103,6 +103,13 @@ func (s *StrategyService) GetRunning() (*database.StrategyResponseFields, error)
 		return nil, err
 	}
 
+	balance, err := s.binanceservice.GetBalance()
+	if err != nil {
+		return nil, err
+	}
+
+	strategy.CurrentBalance = balance
+
 	return &database.StrategyResponseFields{
 		StrategyPublicFields: strategy.StrategyPublicFields,
 		ID:                   strategy.ID,
@@ -149,6 +156,12 @@ func (s *StrategyService) List() ([]*database.StrategyResponseFields, error) {
 		err = json.Unmarshal(bytes, &strategy)
 		if err != nil {
 			continue
+		}
+		if strategy.State == database.StrategyStateRunning {
+			balance, err := s.binanceservice.GetBalance()
+			if err == nil {
+				strategy.CurrentBalance = balance
+			}
 		}
 		strategies = append(strategies, &database.StrategyResponseFields{
 			StrategyPublicFields: strategy.StrategyPublicFields,

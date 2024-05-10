@@ -694,6 +694,7 @@ func RunBacktesting(w http.ResponseWriter, r *http.Request) {
 		logrus.WithFields(logrus.Fields{
 			"error": err,
 		}).Error("Could not get backtesting")
+		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 

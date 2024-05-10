@@ -35,6 +35,9 @@ import Strategy from "./Strategy"
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
 
+/* Import Constants */
+import { TIMEFRAMES } from "../constants"
+
 const Strategies = () => {
   const dispatch = useDispatch()
 
@@ -74,11 +77,16 @@ const Strategies = () => {
       return moment.utc((end_ - start) * 1000).format('HH:mm:ss')
     }
 
+    const transformTimeframe = (timeframe) => {
+      return TIMEFRAMES.find(timeframe_ => timeframe_.value === timeframe)?.label
+    }
+
     return data.map((strategy) => ({
       ...strategy,
       state_value: transformState(strategy.state),
       state_label: capitalize(strategy.state),
-      duration: getDuration(strategy.start_timestamp, strategy.end_timestamp)
+      duration: getDuration(strategy.start_timestamp, strategy.end_timestamp),
+      timeframet: transformTimeframe(strategy.timeframe)
     }))
   }
 

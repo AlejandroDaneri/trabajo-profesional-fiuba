@@ -136,11 +136,11 @@ class LongBacktester:
         result.columns.values[-1] ="strategy"
         result=result.iloc[:,-2:].add(1).cumprod()
 
-        self.strat = result['strategy']
+        self.strategy_linear_returns = result['strategy']
         self.benchmark = result['pct_change']
-        self.strat_log = np.log(self.strat /self.strat.shift())
-        self.benchmark_log = np.log(self.benchmark /self.benchmark.shift())
+        self.strategy_log_returns = np.log(self.strategy_linear_returns /self.strategy_linear_returns.shift())
+        self.benchmark_log_returns = np.log(self.benchmark /self.benchmark.shift())
 
-        self.strat_lin = self.strat.pct_change()
-        self.benchmark_lin = self.benchmark.pct_change()
+        self.strategy_returns = self.strategy_linear_returns.pct_change()
+        self.benchmark_returns = self.benchmark.pct_change()
         return result
