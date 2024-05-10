@@ -62,7 +62,7 @@ def backtest():
     for coin in coins:
 
         if timeframe == TIMEFRAME_1_DAY:
-            provider = YahooFinance()
+            provider = Binance()
         else:
             provider = Binance()
 
@@ -79,11 +79,12 @@ def backtest():
         print("[Backtester] backtest: finished")
 
         risks={}
-        risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin).tolist()
-        risks["profit_factor"] = RiskMetrics.profit_factor(backtester.strat_log).tolist()
-        risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strat_log).tolist()
-        risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strat_lin).tolist()
-        risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strat).tolist()
+
+        risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strat_lin)
+        risks["profit_factor"] = RiskMetrics.profit_factor(backtester.strat_log)
+        risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strat_log)
+        risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strat_lin)
+        risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strat)
         # trades_dict = trades.to_dict(orient='records')
         # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
         
@@ -93,7 +94,7 @@ def backtest():
         df_series['date'] = strategy_balance_series['date']
         df_series['balance_strategy'] = strategy_balance_series['balance']
         df_series['balance_buy_and_hold'] = hold_balance_series['balance']
-
+        print(risks)
         results[coin] = { 
             #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
             #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
