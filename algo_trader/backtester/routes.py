@@ -106,7 +106,11 @@ def backtest():
         print("[Backtester] build strategy series: started")
         strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
         print("[Backtester] build strategy series: finished")
+
+        print("[Backtester] build buy and hold series: started")
         hold_balance_series = buy_and_hold_balance_series(data, timeframe, initial_balance)
+        print("[Backtester] build buy and hold series: finished")
+
         df_series = pd.DataFrame(columns=['date', 'balance_strategy', 'balance_buy_and_hold'])
         df_series['date'] = strategy_balance_series['date']
         df_series['balance_strategy'] = strategy_balance_series['balance']
