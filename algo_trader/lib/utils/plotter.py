@@ -52,10 +52,12 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
     n_range = int(((end_date - start_date).total_seconds()) // FACTOR[timeframe] + 1)
 
     for n in range(n_range):
-      current = (start_date + get_delta(timeframe, n)).strftime(DATE_FORMAT[timeframe])
-      df.loc[current] = {
-        'date': current,
-        'balance': amount * data.loc[current].Close
+      date = start_date + get_delta(timeframe, n)
+      date, close = loc(data, date, timeframe)
+
+      df.loc[date] = {
+        'date': date,
+        'balance': amount * close
       }
 
     return df
@@ -97,6 +99,18 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
 
   return df
 
+def loc(data: pd.DataFrame, date: datetime, timeframe: str) -> [str, float]: # type: ignore
+  n = 0
+  current_date = date
+  current = current_date.strftime(DATE_FORMAT[timeframe])
+  while True:
+    if current in data.index:
+      return current, data.loc[current].Close
+    else:
+      n = n + 1
+      current_date = current_date + get_delta(timeframe, n)
+      current = current_date.strftime(DATE_FORMAT[timeframe])
+
 def buy_and_hold_balance_series(data, timeframe, initial_balance):
   amount = initial_balance / data.iloc[0].Close
 
@@ -111,10 +125,12 @@ def buy_and_hold_balance_series(data, timeframe, initial_balance):
   n_range = int(((end_date - start_date).total_seconds()) // FACTOR[timeframe] + 1)
 
   for n in range(n_range):
-    current = (start_date + get_delta(timeframe, n)).strftime(DATE_FORMAT[timeframe])
-    df.loc[current] = {
-      'date': current,
-      'balance': amount * data.loc[current].Close
+    date = start_date + get_delta(timeframe, n)
+    date, close = loc(data, date, timeframe)
+  
+    df.loc[date] = {
+      'date': date,
+      'balance': amount * close
     }
 
   return df
