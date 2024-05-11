@@ -1,151 +1,122 @@
-import React, { useState } from "react";
-import { add, remove } from "../webapi/exchanges";
+/* Import Libs */
+import React, { useEffect, useState } from "react"
+import styled from "styled-components"
+import Modal from "../components/reusables/Modal"
 
-import Button from "../components/Button";
-import ErrorModal from "../components/errorModal";
-import FieldSelect from "../components/reusables/FieldSelect";
-import FieldSwitch from "../components/reusables/FieldSwitch";
-import Input from "../components/reusables/Input";
-import SuccessModal from "../components/successModal";
-import View from "../components/reusables/View";
-import styled from "styled-components";
+/* Import Reusables Components */
+import View from "../components/reusables/View"
+import Exchange from "./Exchange"
+import { list } from "../webapi/exchanges"
+import Table from "../components/Table"
+import Button from "../components/Button"
 
 const ExchangesStyle = styled.div`
-  border: 1px solid #ccc;
-  border-radius: 10px;
   padding: 20px;
-  margin-top: 40px;
-  margin-bottom: 40px;
-`;
+
+  & .actions {
+    display: flex;
+
+    & .button-container {
+      cursor: pointer;
+      margin-right: 10px;
+      color: white;
+    }
+  }
+`
 
 const Exchanges = () => {
-  const [selectedOption, setSelectedOption] = useState("");
-  const [successModalOpen, setSuccessModalOpen] = useState(false)
-  const [errorModalMessage, setErrorModalMessage] = useState("")
-  const [successModalMessage, setSuccessModalMessage] = useState("")
-  const [errorModalOpen, setErrorModalOpen] = useState(false)
-  const [testingNetwork, setTestingNetwork] = useState(false)
-  const [apiKey, setApiKey] = useState("");
-  const [apiSecret, setApiSecret] = useState("");
-  const [alias, setAlias] = useState("");
-  const options = [{ value: "binance", label: "Binance" }];
+  const [state, stateFunc] = useState({
+    data: []
+  })
 
-  const [loading, setLoading] = useState(false);
+  const [addModal, addModalFunc] = useState({
+    show: false,
+  })
 
-  const handleCloseSuccessModal = () => {
-    setSuccessModalOpen(false);
+  const onToggleAddModal = () => {
+    addModalFunc((prevState) => ({
+      ...prevState,
+      show: !prevState.show,
+    }))
   }
 
-  const handleSelectChange = (name, value) => {
-    setSelectedOption(value);
-  };
+  const onAdd = () => {
+  }
 
-  const handleAddClick = () => {
-    setLoading(true);
-    add({
-      exchange_name: selectedOption.label,
-      api_key: apiKey,
-      api_secret: apiSecret,
-      alias: alias,
-      testing_network: testingNetwork,
-    })
-      .then(() => {setLoading(false); setSuccessModalMessage("Provider saved correctly!"); setSuccessModalOpen(true);})
-      .catch(() => {setLoading(false); setErrorModalMessage("An error has occured while adding the provider. Please try again later!"); setErrorModalOpen(true)});
-  };
+  useEffect(() => {
+    list()
+      .then(response => {
+        stateFunc(prevState => ({
+          ...prevState,
+          data: response?.data || []
+        }))
+      })
+  }, [])
 
-  const handleDeleteClick = () => {
-    setLoading(true);
-    remove({
-      exchange_name: selectedOption.label,
-      api_key: apiKey,
-      api_secret: apiSecret,
-      alias: alias,
-      testing_network: testingNetwork,
-    })
-      .then(() => {setLoading(false); setSuccessModalMessage("Provider deleted correctly!"); setSuccessModalOpen(true);})
-      .catch(() => {setLoading(false); setErrorModalMessage("The provider you are trying to delete does not exist!"); setErrorModalOpen(true)});
-  };
+  const headers = [
+    {
+      value: "alias",
+      label: "Alias",
+      default: true
+    },
+    {
+      value: "provider",
+      label: "Provider",
+    },
+    {
+      value: "actions",
+      label: "Actions",
+    }
+  ]
+
+  const buildRow = (row) => {
+    return [
+      row.alias,
+      'Binance',
+      <div className="actions">
+        <div className="button-container">
+            <Button
+              width={25}
+              height={25}
+              text={<i className="material-icons">edit</i>}
+              tooltip="Edit"
+              circle
+            />
+          </div>
+          <div className="button-container">
+            <Button
+              width={25}
+              height={25}
+              text={<i className="material-icons">delete</i>}
+              tooltip="Delete"
+              circle
+            />
+          </div>
+      </div>
+    ]
+  }
 
   return (
     <>
+      <Modal
+        title="Exchange"
+        content={<Exchange onCloseModal={onToggleAddModal} onAdd={onAdd} />}
+        open={addModal.show}
+        onToggleOpen={onToggleAddModal}
+        width="900px"
+      />
       <View
         title="Exchanges"
+        buttons={[
+          {
+            icon: <i className="material-icons">add_circle</i>,
+            label: "Add",
+            onClick: onToggleAddModal,
+          },
+        ]}
         content={
           <ExchangesStyle>
-            <form>
-              <h2 style={{ textAlign: "center" }}>Select your provider:</h2>
-              <FieldSelect
-                value={selectedOption}
-                name="selectProvider"
-                onChange={handleSelectChange}
-                options={options}
-                multiple={false}
-                width="30rem"
-              />
-              <h2 style={{ textAlign: "center" }}>Write your API key:</h2>
-              <Input
-                width="30rem"
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-              <h2 style={{ textAlign: "center" }}>Write your API secret:</h2>
-              <Input
-                width="30rem"
-                type={"password"}
-                onChange={(e) => setApiSecret(e.target.value)}
-              />
-              <h2 style={{ textAlign: "center" }}>Write the Alias of your provider:</h2>
-              <Input
-                width="30rem"
-                onChange={(e) => setAlias(e.target.value)}
-              />
-              <h2 style={{ textAlign: "center" }}>Testing Network</h2>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                }}
-              >
-              <FieldSwitch
-                name={"TestingNetworkSwitch"}
-                value={testingNetwork}
-                onChange={()=> setTestingNetwork(!testingNetwork)}
-              />
-              </div>
-              <div
-                style={{
-                  marginTop: "1rem",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  paddingRight: "2rem",
-                  paddingLeft: "2rem",
-                }}
-              >
-                <Button
-                  text={"DELETE"}
-                  height={40}
-                  width={100}
-                  onClick={handleDeleteClick}
-                  loading={loading}
-                />
-                <Button
-                  text={"ADD"}
-                  height={40}
-                  width={100}
-                  onClick={handleAddClick}
-                  loading={loading}
-                />
-                <SuccessModal
-                  isOpen={successModalOpen}
-                  message={successModalMessage}
-                  onClose={handleCloseSuccessModal}
-                />
-                <ErrorModal
-                  isOpen={errorModalOpen}
-                  message={errorModalMessage}
-                  onClose={() => setErrorModalOpen(false)}
-                />
-              </div>
-            </form>
+            <Table headers={headers} data={state.data} buildRow={buildRow} />
           </ExchangesStyle>
         }
       />
