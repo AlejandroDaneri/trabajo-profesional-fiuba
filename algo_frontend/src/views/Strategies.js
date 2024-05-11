@@ -86,7 +86,8 @@ const Strategies = () => {
       state_value: transformState(strategy.state),
       state_label: capitalize(strategy.state),
       duration: getDuration(strategy.start_timestamp, strategy.end_timestamp),
-      timeframet: transformTimeframe(strategy.timeframe)
+      timeframe: transformTimeframe(strategy.timeframe),
+      current_balance: parseInt(strategy.current_balance).toFixed(2)
     }))
   }
 
