@@ -7,7 +7,7 @@ const styles = {
   control: (base, state) => {
     return {
       ...base,
-      width: state.selectProps.width,
+      width: state.selectProps.width + 'px',
       height: state.selectProps.height,
       background: "transparent",
       border: `1px solid ${state.isFocused ? theme.btc : theme.gray}`,
