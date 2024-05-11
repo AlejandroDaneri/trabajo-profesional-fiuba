@@ -1,5 +1,5 @@
 /* Import Libs */
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
 /* Import Reusables Components */
@@ -9,7 +9,7 @@ import FieldInput from "../components/reusables/FieldInput"
 import Button from "../components/Button"
 
 /* Import WebApi */
-import { add } from "../webapi/exchanges"
+import { add, get } from "../webapi/exchanges"
 
 const ExchangeStyle = styled.div`
     display: flex;
@@ -41,7 +41,7 @@ const ExchangeStyle = styled.div`
     }
 `
 
-const Exchange = ({ onCloseModal, onAdd }) => {
+const Exchange = ({ id, open, onCloseModal, onAdd }) => {
     const [loading, setLoading] = useState(false)
 
     const [state, stateFunc] = useState({
@@ -50,6 +50,24 @@ const Exchange = ({ onCloseModal, onAdd }) => {
         testing_network: true,
         alias: ''
     })
+
+    useEffect(() => {
+        if (open) {
+            if (id) {
+                get(id)
+                    .then(response => {
+                        stateFunc(response?.data)
+                    })
+            } else {
+                stateFunc({
+                    api_key: '',
+                    api_secret: '',
+                    testing_network: true,
+                    alias: ''
+                })
+            }
+        }
+    }, [open]) // eslint-disable-line
 
     const transformToSend = (data) => {
         return {
@@ -66,6 +84,7 @@ const Exchange = ({ onCloseModal, onAdd }) => {
             .then(() => {
                 setLoading(false)
                 onCloseModal()
+                onAdd()
             })
             .catch(() => {
                 setLoading(false)

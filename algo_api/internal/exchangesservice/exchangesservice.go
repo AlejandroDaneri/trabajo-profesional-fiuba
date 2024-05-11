@@ -3,8 +3,13 @@ package exchangesservice
 import (
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
+	"algo_api/internal/utils"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"sync"
+
+	"github.com/sirupsen/logrus"
 )
 
 var instance IService
@@ -30,6 +35,7 @@ func NewService() IService {
 type IService interface {
 	AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
 	GetExchanges() ([]*database.ExchangeResponseFields, error)
+	GetExchange(id string) (*database.Exchange, error)
 	DeleteExchange(id string) error
 }
 
@@ -51,6 +57,43 @@ func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSe
 		return err
 	}
 	return nil
+}
+
+func (t *ExchangesService) GetExchange(id string) (*database.Exchange, error) {
+	dbName := "exchanges"
+	db, err := t.databaseservice.GetDB(dbName)
+	if err != nil {
+		return nil, err
+	}
+	q := fmt.Sprintf(`
+		{
+			"selector": {
+				"_id": "%s",
+				"pvt_type": "exchange"
+			},
+			"limit": 1
+	}`, id)
+	docs, err := db.QueryJSON(q)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"q":   utils.ToPrettyPrint(q),
+		}).Error("Could not run the Mango Query")
+		return nil, err
+	}
+	if len(docs) == 0 {
+		return nil, errors.New("could not find any exchange")
+	}
+	bytes, err := json.Marshal(docs[0])
+	if err != nil {
+		return nil, err
+	}
+	var exchange *database.Exchange
+	err = json.Unmarshal(bytes, &exchange)
+	if err != nil {
+		return nil, err
+	}
+	return exchange, nil
 }
 
 func (t *ExchangesService) GetExchanges() ([]*database.ExchangeResponseFields, error) {
