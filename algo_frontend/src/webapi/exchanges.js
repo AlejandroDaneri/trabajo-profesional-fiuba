@@ -5,6 +5,10 @@ export const add = (exchange) => {
   return axios.post(`${getBackend()}/api/exchanges`, exchange)
 }
 
+export const edit = (id, exchange) => {
+  return axios.put(`${getBackend()}/api/exchanges/${id}`, exchange)
+}
+
 export const remove = (id) => {
   return axios.delete(`${getBackend()}/api/exchanges/${id}`)
 }

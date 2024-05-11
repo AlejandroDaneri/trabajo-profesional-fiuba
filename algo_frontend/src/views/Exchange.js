@@ -9,7 +9,7 @@ import FieldInput from "../components/reusables/FieldInput"
 import Button from "../components/Button"
 
 /* Import WebApi */
-import { add, get } from "../webapi/exchanges"
+import { add, edit, get } from "../webapi/exchanges"
 
 /* Import Utils */
 import { capitalize } from "../utils/string"
@@ -96,15 +96,28 @@ const Exchange = ({ id, open, onCloseModal, onAdd }) => {
 
     const onSubmit = () => {
         setLoading(true)
-        add(transformToSend(state))
-            .then(() => {
-                setLoading(false)
-                onCloseModal()
-                onAdd()
-            })
-            .catch(() => {
-                setLoading(false)
-            })
+        if (id === '') {
+            add(transformToSend(state))
+                .then(() => {
+                    setLoading(false)
+                    onCloseModal()
+                    onAdd()
+                })
+                .catch(() => {
+                    setLoading(false)
+                })
+        } else {
+            edit(id, transformToSend(state))
+                .then(() => {
+                    setLoading(false)
+                    onCloseModal()
+                    onAdd()
+                })
+                .catch(() => {
+                    setLoading(false)
+                })
+        }
+        
     }
 
     const onChange = (key, value) => {

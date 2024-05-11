@@ -604,6 +604,52 @@ func AddExchange(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
+func EditExchange(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ExchangeName   string `json:"exchange_name"`
+		APIKey         string `json:"api_key"`
+		APISecret      string `json:"api_secret"`
+		Alias          string `json:"alias"`
+		TestingNetwork bool   `json:"testing_network"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = exchangesservice.GetInstance().EditExchange(id, body.ExchangeName, body.APIKey, body.APISecret, body.Alias, body.TestingNetwork)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not add Exchange to the database.")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	response := map[string]string{"message": "Exchange edited successfully"}
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
 func DeleteExchange(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -882,6 +928,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/exchanges", AddExchange).Methods("POST")
 	router.HandleFunc("/exchanges/{id}", DeleteExchange).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", GetExchange).Methods("GET")
+	router.HandleFunc("/exchanges/{id}", EditExchange).Methods("PUT")
 	router.HandleFunc("/exchanges", GetExchanges).Methods("GET")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")

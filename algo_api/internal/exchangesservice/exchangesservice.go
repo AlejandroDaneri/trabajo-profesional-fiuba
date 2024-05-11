@@ -36,7 +36,46 @@ type IService interface {
 	AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
 	GetExchanges() ([]*database.ExchangeResponseFields, error)
 	GetExchange(id string) (*database.Exchange, error)
+	EditExchange(id string, exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
 	DeleteExchange(id string) error
+}
+
+func (t *ExchangesService) EditExchange(id string, exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error {
+	dbName := "exchanges"
+	db, err := t.databaseservice.GetDB(dbName)
+	if err != nil {
+		return err
+	}
+
+	currentExchange, err := db.Get(id, nil)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not get exchange")
+		return err
+	}
+
+	exchange := make(map[string]interface{})
+	exchange["_id"] = id
+	exchange["_rev"] = currentExchange["_rev"]
+	exchange["api_key"] = apiKey
+	exchange["api_secret"] = apiSecret
+	exchange["alias"] = alias
+	exchange["testing_network"] = testingNetwork
+	exchange["exchange_name"] = exchangeName
+	exchange["pvt_type"] = "exchange"
+
+	_, _, err = db.Save(exchange, nil)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not save exchange")
+		return err
+	}
+
+	return nil
 }
 
 func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error {
