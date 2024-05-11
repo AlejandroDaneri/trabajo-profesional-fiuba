@@ -17,6 +17,10 @@ export const get = (id) => {
   return axios.get(`${getBackend()}/api/exchanges/${id}`)
 }
 
+export const getBalance = (id) => {
+  return axios.get(`${getBackend()}/api/exchanges/${id}/balance`)
+}
+
 export const list = () => {
   return axios.get(`${getBackend()}/api/exchanges`)
 }

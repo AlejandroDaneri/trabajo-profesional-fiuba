@@ -1,6 +1,7 @@
 package exchangesservice
 
 import (
+	"algo_api/internal/binanceservice"
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
 	"algo_api/internal/utils"
@@ -26,6 +27,13 @@ type ExchangesService struct {
 	databaseservice databaseservice.IService
 }
 
+func NewServiceById(id string) IService {
+
+	return &ExchangesService{
+		databaseservice: databaseservice.GetInstance(),
+	}
+}
+
 func NewService() IService {
 	return &ExchangesService{
 		databaseservice: databaseservice.GetInstance(),
@@ -38,6 +46,7 @@ type IService interface {
 	GetExchange(id string) (*database.Exchange, error)
 	EditExchange(id string, exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
 	DeleteExchange(id string) error
+	GetBalance(id string) (string, error)
 }
 
 func (t *ExchangesService) EditExchange(id string, exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error {
@@ -184,4 +193,16 @@ func (t *ExchangesService) DeleteExchange(id string) error {
 	}
 
 	return nil
+}
+
+func (t *ExchangesService) GetBalance(id string) (string, error) {
+	exchange, err := t.GetExchange(id)
+	if err != nil {
+		return "", err
+	}
+	balance, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetBalance()
+	if err != nil {
+		return "", err
+	}
+	return balance, nil
 }

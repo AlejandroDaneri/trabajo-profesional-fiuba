@@ -1,6 +1,7 @@
 /* Import Libs */
 import React, { useEffect, useState } from "react"
 import styled from "styled-components"
+import Loader from "react-spinners/BeatLoader"
 
 /* Import Reusables Components */
 import View from "../components/reusables/View"
@@ -11,11 +12,17 @@ import Button from "../components/Button"
 import Exchange from "./Exchange"
 
 /* Import WebApi */
-import { list, remove } from "../webapi/exchanges"
+import { list, remove, getBalance } from "../webapi/exchanges"
+import { theme } from "../utils/theme"
 
 const ExchangesStyle = styled.div`
   padding: 20px;
   width: 70%;
+
+  & .loader {
+    display: flex;
+    justify-content: center;
+  }
 
   & .actions {
     display: flex;
@@ -31,7 +38,7 @@ const ExchangesStyle = styled.div`
 
 const Exchanges = () => {
   const [state, stateFunc] = useState({
-    data: []
+    data: {}
   })
 
   const [addModal, addModalFunc] = useState({
@@ -72,19 +79,62 @@ const Exchanges = () => {
       })
   }
 
+
+  const transformToView = (data) => {
+    return data.map(exchange => ({
+      ...exchange,
+      balance: {
+        loading: true,
+        value: ''
+      }
+    })).reduce((exchanges, exchange) => {
+      return {
+        ...exchanges,
+        [exchange.id]: exchange
+      }
+    }, {})
+  }
+
+  const getExchanges = () => {
+    return new Promise((resolve, reject) => {
+      list()
+        .then(response => {
+          stateFunc(prevState => ({
+            ...prevState,
+            data: transformToView(response?.data || [])
+          }))
+          resolve(response.data)
+        })
+    })
+  }
+
   const getState = () => {
-    list()
-      .then(response => {
-        stateFunc(prevState => ({
-          ...prevState,
-          data: response?.data || []
-        }))
+    getExchanges()
+      .then(data => {
+        data.forEach(exchange => {
+          getBalance(exchange.id)
+            .then(response => {
+              stateFunc(prevState => ({
+                ...prevState,
+                data: {
+                  ...prevState.data,
+                  [exchange.id]: {
+                      ...exchange,
+                      balance: {
+                        loading: false,
+                        value: response.data
+                      }
+                    }
+                }
+              }))
+            })
+        })
       })
   }
 
   useEffect(() => {
     getState()
-  }, [])
+  }, []) // eslint-disable-line
 
   const headers = [
     {
@@ -97,6 +147,10 @@ const Exchanges = () => {
       label: "Provider",
     },
     {
+      value: "balance",
+      label: "Balance"
+    },
+    {
       value: "actions",
       label: "Actions",
     }
@@ -106,6 +160,7 @@ const Exchanges = () => {
     return [
       row.alias,
       'Binance',
+      row.balance.loading ? <div className='loader'><Loader size={8} color={theme.white} /></div> : row.balance.value,
       <div className="actions">
         <div className="button-container">
             <Button
@@ -151,7 +206,7 @@ const Exchanges = () => {
         ]}
         content={
           <ExchangesStyle>
-            <Table headers={headers} data={state.data} buildRow={buildRow} />
+            <Table headers={headers} data={Object.values(state.data)} buildRow={buildRow} />
           </ExchangesStyle>
         }
       />

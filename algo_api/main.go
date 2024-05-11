@@ -705,6 +705,42 @@ func GetExchange(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetExchangeBalance(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get exchange id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	balance, err := exchangesservice.GetInstance().GetBalance(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not get exchange balance")
+		return
+	}
+
+	bytes, err := json.Marshal(balance)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
 func GetExchanges(w http.ResponseWriter, r *http.Request) {
 	exchanges, err := exchangesservice.GetInstance().GetExchanges()
 	if err != nil {
@@ -928,6 +964,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/exchanges", AddExchange).Methods("POST")
 	router.HandleFunc("/exchanges/{id}", DeleteExchange).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", GetExchange).Methods("GET")
+	router.HandleFunc("/exchanges/{id}/balance", GetExchangeBalance).Methods("GET")
 	router.HandleFunc("/exchanges/{id}", EditExchange).Methods("PUT")
 	router.HandleFunc("/exchanges", GetExchanges).Methods("GET")
 

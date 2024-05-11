@@ -16,7 +16,7 @@ var once sync.Once
 
 func GetInstance() IService {
 	once.Do(func() {
-		instance = NewService()
+		instance = NewServiceUsingEnvVars()
 	})
 	return instance
 }
@@ -32,7 +32,16 @@ type BinanceService struct {
 	client *binance_connector.Client
 }
 
-func NewService() IService {
+func NewService(APIKey string, APISecret string) IService {
+	baseURL := "https://testnet.binance.vision"
+
+	client := binance_connector.NewClient(APIKey, APISecret, baseURL)
+	return &BinanceService{
+		client: client,
+	}
+}
+
+func NewServiceUsingEnvVars() IService {
 	apiKey := os.Getenv("EXCHANGE_BINANCE_API_KEY")
 	secretKey := os.Getenv("EXCHANGE_BINANCE_API_SECRET")
 	baseURL := "https://testnet.binance.vision"
