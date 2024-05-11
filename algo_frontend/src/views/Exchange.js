@@ -65,6 +65,7 @@ const Exchange = ({ onCloseModal, onAdd }) => {
         add(transformToSend(state))
             .then(() => {
                 setLoading(false)
+                onCloseModal()
             })
             .catch(() => {
                 setLoading(false)

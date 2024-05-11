@@ -9,6 +9,6 @@ export const remove = (exchange) => {
   return axios.delete(`${getBackend()}/api/exchanges`, { data: exchange });
 }
 
-export const get = () => {
+export const list = () => {
   return axios.get(`${getBackend()}/api/exchanges`)
 }
