@@ -9,9 +9,12 @@ type Exchange struct {
 }
 
 type ExchangePublicFields struct {
-	Alias string `json:"alias"`
+	Alias          string `json:"alias"`
+	APISecret      string `json:"api_secret"`
+	APIKey         string `json:"api_key"`
+	TestingNetwork bool   `json:"testing_network"`
+	ExchangeName   string `json:"exchange_name"`
 }
-
 type ExchangeResponseFields struct {
 	ExchangePublicFields
 	ID string `json:"id"`

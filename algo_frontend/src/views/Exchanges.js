@@ -45,6 +45,14 @@ const Exchanges = () => {
     }))
   }
 
+  const onClickAdd = () => {
+    addModalFunc((prevState) => ({
+      ...prevState,
+      show: true,
+      id: ''
+    }))
+  }
+
   const onAdd = () => {
     getState()
   }
@@ -138,7 +146,7 @@ const Exchanges = () => {
           {
             icon: <i className="material-icons">add_circle</i>,
             label: "Add",
-            onClick: onToggleAddModal,
+            onClick: onClickAdd,
           },
         ]}
         content={

@@ -11,6 +11,9 @@ import Button from "../components/Button"
 /* Import WebApi */
 import { add, get } from "../webapi/exchanges"
 
+/* Import Utils */
+import { capitalize } from "../utils/string"
+
 const ExchangeStyle = styled.div`
     display: flex;
     flex-direction: column;
@@ -48,22 +51,34 @@ const Exchange = ({ id, open, onCloseModal, onAdd }) => {
         api_key: '',
         api_secret: '',
         testing_network: true,
-        alias: ''
+        alias: '',
+        exchange_name: {}
     })
+
+    const transformToView = (data) => {
+        return {
+            ...data,
+            exchange_name: {
+                value: data.exchange_name,
+                label: capitalize(data.exchange_name)
+            }
+        }
+    }
 
     useEffect(() => {
         if (open) {
             if (id) {
                 get(id)
                     .then(response => {
-                        stateFunc(response?.data)
+                        stateFunc(transformToView(response?.data))
                     })
             } else {
                 stateFunc({
                     api_key: '',
                     api_secret: '',
                     testing_network: true,
-                    alias: ''
+                    alias: '',
+                    exchange_name: {}
                 })
             }
         }
@@ -74,7 +89,8 @@ const Exchange = ({ id, open, onCloseModal, onAdd }) => {
           api_key: data.api_key,
           api_secret: data.api_secret,
           alias: data.alias,
-          testing_network: data.testing_network
+          testing_network: data.testing_network,
+          exchange_name: data.exchange_name?.value
         }
     }
 
@@ -117,15 +133,15 @@ const Exchange = ({ id, open, onCloseModal, onAdd }) => {
                     </div>
                     <FieldSelect
                         label="Provider"
-                        name="provider"
-                        value={state.provider}
+                        name="exchange_name"
+                        value={state.exchange_name}
                         onChange={onChange}
                         options={[{ value: "binance", label: "Binance" }]}
                         width='300'
                     />
                 </div>
 
-                {state.provider?.value === "binance" && <div className="column">
+                {state.exchange_name?.value === "binance" && <div className="column">
                     <div className="row">
                         <FieldInput
                             label="API Key"

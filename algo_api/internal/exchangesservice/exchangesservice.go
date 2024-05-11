@@ -46,11 +46,11 @@ func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSe
 	if err != nil {
 		return err
 	}
-	exchange["type"] = exchangeName
 	exchange["api_key"] = apiKey
 	exchange["api_secret"] = apiSecret
 	exchange["alias"] = alias
 	exchange["testing_network"] = testingNetwork
+	exchange["exchange_name"] = exchangeName
 	exchange["pvt_type"] = "exchange"
 	_, _, err = db.Save(exchange, nil)
 	if err != nil {
