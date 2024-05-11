@@ -4,8 +4,6 @@ import (
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"sync"
 )
 
@@ -32,7 +30,7 @@ func NewService() IService {
 type IService interface {
 	AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
 	GetExchanges() ([]*database.ExchangeResponseFields, error)
-	DeleteExchange(exchangeName string, apiKey string, testingNetwork bool) error
+	DeleteExchange(id string) error
 }
 
 func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error {
@@ -91,39 +89,16 @@ func (t *ExchangesService) GetExchanges() ([]*database.ExchangeResponseFields, e
 	return exchanges, nil
 }
 
-func (t *ExchangesService) DeleteExchange(exchangeName string, apiKey string, testingNetwork bool) error {
+func (t *ExchangesService) DeleteExchange(id string) error {
 	dbName := "exchanges"
 	db, err := t.databaseservice.GetDB(dbName)
 	if err != nil {
 		return err
 	}
 
-	q := fmt.Sprintf(`
-        {
-            "selector": {
-                "type": "%s",
-                "api_key": "%s",
-                "testing_network": %t,
-                "pvt_type": "exchange"
-            }
-        }
-    `, exchangeName, apiKey, testingNetwork)
-
-	docs, err := db.QueryJSON(q)
+	err = db.Delete(id)
 	if err != nil {
 		return err
-	}
-
-	if len(docs) == 0 {
-		return errors.New("desired exchange not found")
-	}
-
-	for _, doc := range docs {
-		id := doc["_id"].(string)
-		err := db.Delete(id)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil

@@ -6,15 +6,17 @@ import Modal from "../components/reusables/Modal"
 /* Import Reusables Components */
 import View from "../components/reusables/View"
 import Exchange from "./Exchange"
-import { list } from "../webapi/exchanges"
+import { list, remove } from "../webapi/exchanges"
 import Table from "../components/Table"
 import Button from "../components/Button"
 
 const ExchangesStyle = styled.div`
   padding: 20px;
+  width: 70%;
 
   & .actions {
     display: flex;
+    justify-content: center;
 
     & .button-container {
       cursor: pointer;
@@ -43,7 +45,14 @@ const Exchanges = () => {
   const onAdd = () => {
   }
 
-  useEffect(() => {
+  const onDelete = (row) => {
+    remove(row.id)
+      .then(_ => {
+        getState()
+      })
+  }
+
+  const getState = () => {
     list()
       .then(response => {
         stateFunc(prevState => ({
@@ -51,13 +60,17 @@ const Exchanges = () => {
           data: response?.data || []
         }))
       })
+  }
+
+  useEffect(() => {
+    getState()
   }, [])
 
   const headers = [
     {
       value: "alias",
       label: "Alias",
-      default: true
+      default: true,
     },
     {
       value: "provider",
@@ -89,6 +102,7 @@ const Exchanges = () => {
               height={25}
               text={<i className="material-icons">delete</i>}
               tooltip="Delete"
+              onClick={() => onDelete(row)}
               circle
             />
           </div>
