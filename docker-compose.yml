@@ -29,7 +29,7 @@ services:
     # Backtesting
     # command: ["python3", "-u", "main_test.py"]
     # Production
-    command: ["python3", "-u", "main_test.py"]
+    command: ["python3", "-u", "main.py"]
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s
