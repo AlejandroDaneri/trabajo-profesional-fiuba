@@ -552,10 +552,14 @@ const Backtesting = () => {
 
                 <div className="chart-container">
                   <h3>Strategy vs Buy and Hold</h3>
-                  <Chart data={backtesting.data[state.coin.value]?.series} />
+                  <Chart
+                    data={backtesting.data[state.coin.value]?.series}
+                    colors={["#87CEEB", "#00FF00"]}
+                  />
                 </div>
                 <RiskComparisonChart
                   risks={backtesting.data[state.coin.value]?.risks}
+                  colors={["#87CEEB", "#00FF00"]}
                 />
               </>
             )}
