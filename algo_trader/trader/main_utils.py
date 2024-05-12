@@ -5,6 +5,8 @@ from lib.providers.binance import Binance as BinanceProvider
 from lib.strategies.strategy import Strategy
 from lib.utils.utils import hydrate_strategy, timeframe_2_seconds
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
+from lib.exchanges.binance import Binance as BinanceExchange
+from lib.exchanges.exchange import Exchange
 from api_client import ApiClient
 import time
 import sentry_sdk
@@ -21,7 +23,7 @@ def init_sentry():
         )
 
 # get strategy from the db, and hydrate Strategy class with the data
-def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict[str, Strategy]:
+def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dict[str, Strategy], Exchange]:
     WAIT_TIME_TO_CHECK_NEW_STRATEGY_IN_SECONDS = 60
 
     strategy = None
@@ -43,6 +45,7 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict
     timeframe = strategy["timeframe"]
     type = strategy["type"]
     initial_balance = strategy["initial_balance"]
+    exchange_id = strategy["exchange_id"]
 
     print(f"[main] initial balance: {initial_balance}")
 
@@ -57,7 +60,12 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict
         train_data[currency] = data[currency].iloc[0:n_train]
         strategy[currency].prepare_data(train_data[currency])
 
-    return strategy
+    response = api.get(f'exchanges/{exchange_id}')
+    exchange = response.json()
+
+    exchange = BinanceExchange(exchange["api_key"], exchange["api_secret"])
+
+    return strategy, exchange
 
 # inject new tick to trade bot to detect buy and sell signals
 def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: TradeBot, data_provider: BinanceProvider, api: ApiClient):
