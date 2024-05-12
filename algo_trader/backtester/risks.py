@@ -40,7 +40,6 @@ class RiskMetrics:
         if drawdowns.min() == -float('inf'):
             return -99999999  
         result = drawdowns.min()
-        print(result)
         return 0 if np.isnan(result) else result
 
     @staticmethod
