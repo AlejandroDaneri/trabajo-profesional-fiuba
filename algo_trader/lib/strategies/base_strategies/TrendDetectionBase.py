@@ -45,8 +45,11 @@ class TrendDetectionBase():
         return df[['ConfirmedEntrySignal', 'ConfirmedOutputSignal']]
 
     def calculate_slope(self, series):
-        slopes = [0 for _ in range(self.period_slope-1)]
-        for i in range(self.period_slope-1, len(series)):
+        slopes = []
+        for i in range(0, len(series)):
+            if (i < self.period_slope-1):
+                slopes.append(0)
+                continue
             x = np.arange(self.period_slope)
             y = series[i-self.period_slope+1:i+1].values
 
