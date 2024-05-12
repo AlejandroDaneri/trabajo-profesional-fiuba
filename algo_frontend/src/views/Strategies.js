@@ -38,6 +38,8 @@ import logoBinance from "../images/logos/exchanges/binance.svg"
 
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
+import Loader from "react-spinners/BeatLoader"
+import { theme } from "../utils/theme"
 
 const Strategies = () => {
   const dispatch = useDispatch()
@@ -92,7 +94,13 @@ const Strategies = () => {
     })).reduce((strategies, strategy) => {
       return {
         ...strategies,
-        [strategy.id]: strategy
+        [strategy.id]: {
+          ...strategy,
+          exchange: {
+            loading: true,
+            value: {}
+          }
+        }
       }
     }, {})
   }
@@ -131,7 +139,11 @@ const Strategies = () => {
                   ...prevState.data,
                   [strategy.id]: {
                     ...prevState.data[strategy.id],
-                    exchange: response.data
+                    exchange: {
+                      loading: false,
+                      error: false,
+                      value: response?.data
+                    }
                   }
                 }
               }))
@@ -309,7 +321,13 @@ const Strategies = () => {
       getPL(row),
       row.timeframe,
       row.duration,
-      row.exchange === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />,
+      row.exchange.loading ?
+        <div className='loader'><Loader size={8} color={theme.white} /></div>
+      : 
+        <div className='exchange-info'>
+          <p>{row.exchange.value?.alias}</p>
+          {row.exchange.value.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
+        </div>,
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (

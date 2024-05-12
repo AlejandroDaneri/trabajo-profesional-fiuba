@@ -31,6 +31,21 @@ const StrategiesStyle = styled.div`
     }
   }
 
+  & .exchange-info {
+    display: flex;
+    justify-content: center;
+
+    p {
+      margin: 0;
+    }
+
+    & img {
+      margin: 0;
+      margin-left: 5px;
+      padding: 0;
+    }
+  }
+
   & .indicators {
     display: flex;
     flex-direction: row;

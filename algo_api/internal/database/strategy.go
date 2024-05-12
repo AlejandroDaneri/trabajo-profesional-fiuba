@@ -29,7 +29,7 @@ type StrategyPublicFields struct {
 	InitialBalance string      `json:"initial_balance"`
 	CurrentBalance string      `json:"current_balance"`
 	Type           string      `json:"type"`
-	Exchange       string      `json:"exchange"`
+	ExchangeId     string      `json:"exchange_id"`
 }
 
 type StrategyResponseFields struct {
