@@ -6,6 +6,7 @@ import moment from 'moment'
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
+import { get as getExchange } from "../webapi/exchanges"
 
 /* Import Styles */
 import StrategiesStyle from "../styles/strategies"
@@ -37,6 +38,8 @@ import logoBinance from "../images/logos/exchanges/binance.svg"
 
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
+import Loader from "react-spinners/BeatLoader"
+import { theme } from "../utils/theme"
 
 const Strategies = () => {
   const dispatch = useDispatch()
@@ -88,31 +91,85 @@ const Strategies = () => {
       duration: getDuration(strategy.start_timestamp, strategy.end_timestamp),
       timeframe: transformTimeframe(strategy.timeframe),
       current_balance: parseInt(strategy.current_balance).toFixed(2)
-    }))
+    })).reduce((strategies, strategy) => {
+      return {
+        ...strategies,
+        [strategy.id]: {
+          ...strategy,
+          exchange: {
+            loading: true,
+            value: {}
+          }
+        }
+      }
+    }, {})
   }
 
   const getStrategies = () => {
-    stateFunc(prevState => ({
-      ...prevState,
-      loading: true,
-    }))
-    list()
-      .then((response) => {
-        stateFunc({
-          loading: false,
-          data: transformToView(response?.data || []),
+    return new Promise((resolve, reject) => {
+      stateFunc(prevState => ({
+        ...prevState,
+        loading: true,
+      }))
+      list()
+        .then((response) => {
+          stateFunc({
+            loading: false,
+            data: transformToView(response?.data || []),
+          })
+          resolve(response.data)
         })
-      })
-      .catch((_) => {
-        stateFunc({
-          loading: false,
+        .catch((_) => {
+          stateFunc({
+            loading: false,
+          })
+        })
+    })
+  }
+
+  const getState = () => {
+    getStrategies()
+      .then(strategies => {
+        strategies.forEach(strategy => {
+          getExchange(strategy.exchange_id)
+            .then(response => {
+              stateFunc(prevState => ({
+                ...prevState,
+                data: {
+                  ...prevState.data,
+                  [strategy.id]: {
+                    ...prevState.data[strategy.id],
+                    exchange: {
+                      loading: false,
+                      error: false,
+                      value: response?.data
+                    }
+                  }
+                }
+              }))
+            })
+            .catch(_ => {
+              stateFunc(prevState => ({
+                ...prevState,
+                data: {
+                  ...prevState.data,
+                  [strategy.id]: {
+                    ...prevState.data[strategy.id],
+                    exchange: {
+                      loading: false,
+                      error: true,
+                    }
+                  }
+                }
+              }))
+            })
         })
       })
   }
 
   useEffect(() => {
-    const interval = setInterval(getStrategies, 10000)
-    getStrategies()
+    const interval = setInterval(getState, 10000)
+    getState()
 
     return () => {
       clearInterval(interval)
@@ -278,7 +335,13 @@ const Strategies = () => {
       getPL(row),
       row.timeframe,
       row.duration,
-      row.exchange === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />,
+      row.exchange.loading ?
+        <div className='loader'><Loader size={8} color={theme.white} /></div>
+      : 
+        row.exchange.error ? <div className="exchange-error"><i className="material-icons">warning</i></div> : <div className='exchange-info'>
+          <p>{row.exchange.value?.alias}</p>
+          {row.exchange.value.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
+        </div>,
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (
@@ -393,7 +456,7 @@ const Strategies = () => {
         ]}
         content={
           <StrategiesStyle>
-            <Table headers={headers} data={state.data} buildRow={buildRow} />
+            <Table headers={headers} data={Object.values(state.data)} buildRow={buildRow} />
           </StrategiesStyle>
         }
       />
