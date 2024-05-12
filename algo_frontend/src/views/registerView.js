@@ -1,65 +1,63 @@
 /* Import Style */
-import "../styles/registerView.css";
+import "../styles/registerView.css"
 
 /* Import Libs */
-import React, { useState } from "react";
+import React, { useState } from "react"
 
 /* Import Components */
-import ErrorModal from "../components/errorModal";
+import ErrorModal from "../components/errorModal"
 /* Import Utils */
-import { INVALID_EMAIL } from "../utils/interactiveMessages";
-import SuccessModal from "../components/successModal";
-import { createUser } from "../config/firebaseConfig";
-import { useHistory } from "react-router-dom";
+import { INVALID_EMAIL } from "../utils/interactiveMessages"
+import SuccessModal from "../components/successModal"
+import { createUser } from "../config/firebaseConfig"
+import { useHistory } from "react-router-dom"
 
 const RegisterView = () => {
-  const history = useHistory();
+  const history = useHistory()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
 
-  const [successModalOpen, setSuccessModalOpen] = useState(false);
-  const [errorModalOpen, setErrorModalOpen] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [successModalOpen, setSuccessModalOpen] = useState(false)
+  const [errorModalOpen, setErrorModalOpen] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
 
   const handleCreateAccount = async () => {
     if (password.length < 6) {
-      setErrorMessage("Password must be at least 6 characters long.");
-      setErrorModalOpen(true);
-      return;
+      setErrorMessage("Password must be at least 6 characters long.")
+      setErrorModalOpen(true)
+      return
     }
 
     if (password !== confirmPassword) {
-      setErrorMessage("Passwords do not match.");
-      setErrorModalOpen(true);
-      return;
+      setErrorMessage("Passwords do not match.")
+      setErrorModalOpen(true)
+      return
     }
 
     try {
-      await createUser(email, password);
-      setSuccessModalOpen(true);
+      await createUser(email, password)
+      setSuccessModalOpen(true)
     } catch (error) {
       if (error.message === INVALID_EMAIL) {
-        setErrorMessage(
-          "The email you entered is not valid. Please try again."
-        );
-        setErrorModalOpen(true);
-        return;
+        setErrorMessage("The email you entered is not valid. Please try again.")
+        setErrorModalOpen(true)
+        return
       } else {
         setErrorMessage(
           "An error has occurred while registering. Please try again."
-        );
-        setErrorModalOpen(true);
-        return;
+        )
+        setErrorModalOpen(true)
+        return
       }
     }
-  };
+  }
 
   const handleCloseSuccessModal = () => {
-    setSuccessModalOpen(false);
-    history.push("/home/trades");
-  };
+    setSuccessModalOpen(false)
+    history.push("/home/trades")
+  }
 
   return (
     <div className="register-page-container">
@@ -121,7 +119,7 @@ const RegisterView = () => {
         onClose={() => setErrorModalOpen(false)}
       />
     </div>
-  );
-};
+  )
+}
 
-export default RegisterView;
+export default RegisterView

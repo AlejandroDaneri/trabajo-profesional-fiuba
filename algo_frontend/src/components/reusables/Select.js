@@ -7,28 +7,28 @@ const styles = {
   control: (base, state) => {
     return {
       ...base,
-      width: state.selectProps.width + 'px',
+      width: state.selectProps.width + "px",
       height: state.selectProps.height,
       background: "transparent",
       border: `1px solid ${state.isFocused ? theme.btc : theme.gray}`,
-      boxShadow: 'none',
-      outline: 'none',
-      '&:hover': {
-        borderColor: theme.btc
+      boxShadow: "none",
+      outline: "none",
+      "&:hover": {
+        borderColor: theme.btc,
       },
-      fontSize: '14px'
+      fontSize: "14px",
     }
   },
   option: (styles, state) => ({
     ...styles,
     color: theme.black,
     backgroundColor: state.isSelected && theme.gray,
-    '&:active': {
-      backgroundColor: theme.gray
+    "&:active": {
+      backgroundColor: theme.gray,
     },
-    '&:hover': {
-      backgroundColor: theme.gray
-    } 
+    "&:hover": {
+      backgroundColor: theme.gray,
+    },
   }),
   singleValue: (base) => ({
     ...base,

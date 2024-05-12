@@ -1,33 +1,33 @@
 /* Import Libs */
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
-import BounceLoader from "react-spinners/BounceLoader";
-import { useDispatch } from "react-redux";
-import "react-day-picker/dist/style.css";
+import React, { useEffect, useState } from "react"
+import styled from "styled-components"
+import BounceLoader from "react-spinners/BounceLoader"
+import { useDispatch } from "react-redux"
+import "react-day-picker/dist/style.css"
 
 /* Import Reusables Components */
-import View from "../components/reusables/View";
-import FieldInput from "../components/reusables/FieldInput";
-import FieldSelect from "../components/reusables/FieldSelect";
-import FieldSwitch from "../components/reusables/FieldSwitch";
-import FieldDatePicker from "../components/reusables/FieldDatePicker";
-import Button from "../components/Button";
-import Chart from "../components/reusables/Chart";
-import RiskComparisonChart from "../components/RiskComparisonChart";
-import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../components/Popup";
+import View from "../components/reusables/View"
+import FieldInput from "../components/reusables/FieldInput"
+import FieldSelect from "../components/reusables/FieldSelect"
+import FieldSwitch from "../components/reusables/FieldSwitch"
+import FieldDatePicker from "../components/reusables/FieldDatePicker"
+import Button from "../components/Button"
+import Chart from "../components/reusables/Chart"
+import RiskComparisonChart from "../components/RiskComparisonChart"
+import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../components/Popup"
 
 /* Impor WebApi */
-import { getIndicators, run as runBacktesting } from "../webapi/backtesting";
+import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
 
 /* Import Utils */
-import { theme } from "../utils/theme";
-import { capitalize } from "../utils/string";
+import { theme } from "../utils/theme"
+import { capitalize } from "../utils/string"
 
 /* Import Constants */
-import { CRYPTOCURRENCIES, TIMEFRAMES } from "../constants";
+import { CRYPTOCURRENCIES, TIMEFRAMES } from "../constants"
 
-const VIEW_FORM = 0;
-const VIEW_BACKTESTING = 1;
+const VIEW_FORM = 0
+const VIEW_BACKTESTING = 1
 
 const BacktestingStyle = styled.div`
   display: flex;
@@ -55,7 +55,7 @@ const BacktestingStyle = styled.div`
     justify-content: center;
     align-items: center;
   }
-`;
+`
 
 const BacktestingOutputStyle = styled.div`
   display: flex;
@@ -110,7 +110,7 @@ const BacktestingOutputStyle = styled.div`
       }
     }
   }
-`;
+`
 
 const BacktestingFormStyle = styled.div`
   display: flex;
@@ -195,12 +195,12 @@ const BacktestingFormStyle = styled.div`
     border-top: 0.5px solid white;
     z-index: ${({ show }) => (show ? "5" : "-1")};
   }
-`;
+`
 
 const Backtesting = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch()
 
-  const [view, viewFunc] = useState(VIEW_FORM);
+  const [view, viewFunc] = useState(VIEW_FORM)
   const [state, stateFunc] = useState({
     start: "2015-01-01",
     end: "2024-01-01",
@@ -214,17 +214,17 @@ const Backtesting = () => {
     },
     initial_balance: 1000,
     indicators: {},
-  });
+  })
 
-  const [loadingIndicators, loadingIndicatorsFunc] = useState(false);
+  const [loadingIndicators, loadingIndicatorsFunc] = useState(false)
 
   const [backtesting, backtestingFunc] = useState({
     loading: false,
     data: {},
-  });
+  })
 
   useEffect(() => {
-    loadingIndicatorsFunc(true);
+    loadingIndicatorsFunc(true)
     getIndicators()
       .then((response) => {
         const indicators = response.data.reduce((indicators, indicator) => {
@@ -244,42 +244,42 @@ const Backtesting = () => {
                           ? ""
                           : indicator.parameters[parameter].default,
                     },
-                  };
+                  }
                 },
                 {}
               ),
             },
-          };
-        }, {});
+          }
+        }, {})
         stateFunc((prevState) => ({
           ...prevState,
           indicators,
-        }));
-        loadingIndicatorsFunc(false);
+        }))
+        loadingIndicatorsFunc(false)
       })
       .catch((_) => {
-        loadingIndicatorsFunc(false);
-      });
-  }, []);
+        loadingIndicatorsFunc(false)
+      })
+  }, [])
 
   const onChange = (key, value) => {
     stateFunc((prevState) => ({
       ...prevState,
       [key]: value,
-    }));
-  };
+    }))
+  }
 
   const transformToSend = (data) => {
     const transformToSendIndicators = (data) => {
       const convert2type = (value, type) => {
         if (type === "int") {
-          return parseInt(value);
+          return parseInt(value)
         }
         if (type === "float") {
-          return parseFloat(value);
+          return parseFloat(value)
         }
-        return value;
-      };
+        return value
+      }
 
       return Object.values(data.indicators)
         .filter((indicator) => indicator.enabled)
@@ -295,11 +295,11 @@ const Backtesting = () => {
             }),
             {}
           ),
-        }));
-    };
+        }))
+    }
 
-    const start = new Date(`${data.start}T00:00:00Z`);
-    const end = new Date(`${data.end}T00:00:00Z`);
+    const start = new Date(`${data.start}T00:00:00Z`)
+    const end = new Date(`${data.end}T00:00:00Z`)
 
     return {
       coins: [data.coin.value],
@@ -308,8 +308,8 @@ const Backtesting = () => {
       data_to: Math.floor(end.getTime() / 1000),
       timeframe: data.timeframe.value,
       indicators: transformToSendIndicators(data),
-    };
-  };
+    }
+  }
 
   const onSubmit = () => {
     const transformToView = (data) => {
@@ -325,43 +325,43 @@ const Backtesting = () => {
             ),
           })),
         },
-      };
-    };
+      }
+    }
 
     backtestingFunc({
       loading: true,
       data: {},
-    });
+    })
     runBacktesting(transformToSend(state))
       .then((response) => {
         backtestingFunc({
           loading: false,
           data: transformToView(response?.data),
-        });
+        })
       })
       .catch((err) => {
         backtestingFunc((prevState) => ({
           ...prevState,
           loading: false,
-        }));
+        }))
         dispatch({
           type: POPUP_ACTION_OPEN,
           payload: {
             type: POPUP_TYPE_ERROR,
             message: "Could not execute backtesting",
           },
-        });
-      });
-  };
+        })
+      })
+  }
 
   const onToggleView = () => {
     viewFunc((prevState) =>
       prevState === VIEW_FORM ? VIEW_BACKTESTING : VIEW_FORM
-    );
-  };
+    )
+  }
 
   const onChangeIndicatorEnabled = (key, value) => {
-    const indicator = key.split(".")[0];
+    const indicator = key.split(".")[0]
 
     stateFunc((prevState) => ({
       ...prevState,
@@ -372,12 +372,12 @@ const Backtesting = () => {
           enabled: value,
         },
       },
-    }));
-  };
+    }))
+  }
 
   const onChangeIndicatorParameter = (key, value) => {
-    const indicator = key.split(".")[0];
-    const parameter = key.split(".")[1];
+    const indicator = key.split(".")[0]
+    const parameter = key.split(".")[1]
 
     stateFunc((prevState) => ({
       ...prevState,
@@ -394,8 +394,8 @@ const Backtesting = () => {
           },
         },
       },
-    }));
-  };
+    }))
+  }
 
   return (
     <View
@@ -563,7 +563,7 @@ const Backtesting = () => {
         </BacktestingStyle>
       }
     />
-  );
-};
+  )
+}
 
-export default Backtesting;
+export default Backtesting

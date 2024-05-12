@@ -1,10 +1,10 @@
-import styled from "styled-components";
-import { theme } from "../utils/theme";
+import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 export const ResultStyle = styled.div`
   color: ${({ win }) => (win ? theme.green : theme.red)};
   font-weight: 600;
-`;
+`
 
 export const CurrentStrategyStyle = styled.div`
   height: 100%;
@@ -56,4 +56,4 @@ export const CurrentStrategyStyle = styled.div`
     border: 1px solid var(--text-dark);
     border-radius: 8px;
   }
-`;
+`

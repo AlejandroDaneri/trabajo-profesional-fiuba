@@ -9,7 +9,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
+} from "recharts"
 import { useEffect, useState } from "react"
 import moment from "moment"
 
@@ -45,8 +45,8 @@ const CurrentStrategy = () => {
   })
 
   const [selectedDates, setSelectedDates] = useState({
-    start: '2024-01-01',
-    end: '2024-01-21',
+    start: "2024-01-01",
+    end: "2024-01-21",
   })
 
   const [candleticks, candleticksFunc] = useState({
@@ -73,7 +73,7 @@ const CurrentStrategy = () => {
       const weekStartDate = new Date(startDate)
       weekStartDate.setDate(startDate.getDate() + i * 7)
 
-      const weekEndDate = new Date(weekStartDate);
+      const weekEndDate = new Date(weekStartDate)
       weekEndDate.setDate(weekStartDate.getDate() + 6)
 
       const pv = Math.random() * 10000 - 5000
@@ -119,7 +119,8 @@ const CurrentStrategy = () => {
   const filteredStockPerformanceData = stockPerformanceChartData
     .filter(
       (item) =>
-        item.startDate >= new Date(selectedDates.start) && item.startDate <= new Date(selectedDates.end)
+        item.startDate >= new Date(selectedDates.start) &&
+        item.startDate <= new Date(selectedDates.end)
     )
     .map((entry) => ({
       ...entry,
@@ -127,7 +128,9 @@ const CurrentStrategy = () => {
 
   const filteredTradingChartData = tradingChartData
     .filter(
-      (item) => item.date >= new Date(selectedDates.start) && item.date <= new Date(selectedDates.end)
+      (item) =>
+        item.date >= new Date(selectedDates.start) &&
+        item.date <= new Date(selectedDates.end)
     )
     .map((entry) => ({
       ...entry,
@@ -137,17 +140,18 @@ const CurrentStrategy = () => {
   const getStrategy = () => {
     const transformToView = (data) => {
       const getDuration = (start) => {
-        const end = Date.now() / 1000;
+        const end = Date.now() / 1000
         return moment.utc((end - start) * 1000).format("HH:mm:ss")
       }
 
       const transformTimeframe = (timeframe) => {
-        return TIMEFRAMES.find(timeframe_ => timeframe_.value === timeframe)?.label
+        return TIMEFRAMES.find((timeframe_) => timeframe_.value === timeframe)
+          ?.label
       }
 
-      const initialBalance = data.initial_balance;
-      const currentBalance = parseFloat(data.current_balance).toFixed(2);
-      const profitAndLoss = (currentBalance - initialBalance).toFixed(2);
+      const initialBalance = data.initial_balance
+      const currentBalance = parseFloat(data.current_balance).toFixed(2)
+      const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
       const profitAndLossPercentaje = (
         (currentBalance / initialBalance - 1) *
         100
@@ -163,9 +167,9 @@ const CurrentStrategy = () => {
           name: (() => {
             switch (indicator.name) {
               case "rsi":
-                return "RSI";
+                return "RSI"
               default:
-                return capitalize(indicator.name);
+                return capitalize(indicator.name)
             }
           })(),
           parameters: Object.keys(indicator.parameters).map((key) => ({
@@ -190,7 +194,7 @@ const CurrentStrategy = () => {
           ...prevState,
           loading: false,
           data: transformToView(response.data),
-        }));
+        }))
       })
       .catch((_) => {})
   }
@@ -202,16 +206,16 @@ const CurrentStrategy = () => {
       data_from: start,
       data_to: end,
       timeframe: timeframe,
-      indicators:[
+      indicators: [
         {
-          "name": "MACD",
-          "parameters": {
-            "fast":12,
-            "slow":26,
-            "smoothed":20
-          }
-        }
-      ]
+          name: "MACD",
+          parameters: {
+            fast: 12,
+            slow: 26,
+            smoothed: 20,
+          },
+        },
+      ],
     }
 
     run(body)
@@ -219,7 +223,7 @@ const CurrentStrategy = () => {
         candleticksFunc((prevState) => ({
           ...prevState,
           loading: true,
-          data: response.data || []
+          data: response.data || [],
         }))
       })
       .catch((err) => {
@@ -240,12 +244,13 @@ const CurrentStrategy = () => {
         strategy.data.timeframe.toLowerCase()
       )
     }
-  }, [ // eslint-disable-line
-    strategy.data.currencies, 
+  }, [
+    // eslint-disable-line
+    strategy.data.currencies,
     strategy.data.start_timestamp,
     strategy.data.end_timestamp,
     strategy.data.timeframe,
-  ]) 
+  ])
 
   useEffect(() => {
     const interval = setInterval(getStrategy, 10000)
@@ -314,7 +319,7 @@ const CurrentStrategy = () => {
           <div>
             <h2>Graphs</h2>
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{marginRight:"3rem"}}>
+              <div style={{ marginRight: "3rem" }}>
                 <FieldDatePicker
                   label="Select the start date"
                   name="start"

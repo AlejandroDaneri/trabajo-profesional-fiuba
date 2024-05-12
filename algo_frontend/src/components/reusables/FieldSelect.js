@@ -16,7 +16,15 @@ const FieldSelectStyled = styled.div`
   }
 `
 
-const FieldSelect = ({ label, value, name, onChange, options, multiple, width }) => {
+const FieldSelect = ({
+  label,
+  value,
+  name,
+  onChange,
+  options,
+  multiple,
+  width,
+}) => {
   return (
     <FieldSelectStyled>
       <p>{label}</p>

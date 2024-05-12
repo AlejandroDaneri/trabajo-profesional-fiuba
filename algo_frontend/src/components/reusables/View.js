@@ -57,7 +57,14 @@ const View = ({ title, content, buttons, loading }) => {
   return (
     <ViewStyle>
       <div className="header">
-        <h1>{title} {loading && <div className="loader"><BounceLoader color="white" size={32} /></div>}</h1>
+        <h1>
+          {title}{" "}
+          {loading && (
+            <div className="loader">
+              <BounceLoader color="white" size={32} />
+            </div>
+          )}
+        </h1>
         {buttons?.map((button) => (
           <div className="header-button">
             <Button

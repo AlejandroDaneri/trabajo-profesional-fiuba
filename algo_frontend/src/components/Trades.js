@@ -28,8 +28,7 @@ const Trades = ({ strategyID }) => {
 
   const transformToView = (trades) => {
     return trades.map((trade) => {
-
-      if (trade.id === 'current') {
+      if (trade.id === "current") {
         return {
           pair: trade.pair,
           amount: parseFloat(trade.amount).toFixed(4),
@@ -46,8 +45,14 @@ const Trades = ({ strategyID }) => {
           buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
           buy_price: trade.orders.buy.price,
           sell_price: trade.orders.sell.price,
-          duration: (trade.orders.sell.timestamp / 1000 - trade.orders.buy.timestamp / 1000) / 60,
-          pl: ((trade.orders.sell.price / trade.orders.buy.price - 1) * 100).toFixed(3),
+          duration:
+            (trade.orders.sell.timestamp / 1000 -
+              trade.orders.buy.timestamp / 1000) /
+            60,
+          pl: (
+            (trade.orders.sell.price / trade.orders.buy.price - 1) *
+            100
+          ).toFixed(3),
         }
       }
     })
@@ -55,13 +60,12 @@ const Trades = ({ strategyID }) => {
 
   useEffect(() => {
     if (strategyID) {
-      list(strategyID)
-        .then((response) => {
-          stateFunc((prevState) => ({
-            ...prevState,
-            data: transformToView(response.data),
-          }))
-        })
+      list(strategyID).then((response) => {
+        stateFunc((prevState) => ({
+          ...prevState,
+          data: transformToView(response.data),
+        }))
+      })
     }
   }, [strategyID])
 
@@ -73,38 +77,38 @@ const Trades = ({ strategyID }) => {
     {
       value: "amount",
       label: "Amount",
-      sortable: true
+      sortable: true,
     },
     {
       value: "buy_timestamp",
       label: "Date Buy",
       sortable: true,
-      default: true
+      default: true,
     },
     {
       value: "sell_timestamp",
       label: "Date Sell",
-      sortable: true
+      sortable: true,
     },
     {
-      value: 'duration',
+      value: "duration",
       label: "Duration (min)",
-      sortable: true
+      sortable: true,
     },
     {
       value: "buy_price",
       label: "Price Buy ($)",
-      sortable: true
+      sortable: true,
     },
     {
       value: "sell_price",
       label: "Price Sell ($)",
-      sortable: true
+      sortable: true,
     },
     {
       value: "pl",
       label: "Profit/Loss (%)",
-      sortable: true
+      sortable: true,
     },
   ]
 
