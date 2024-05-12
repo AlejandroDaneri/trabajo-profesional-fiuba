@@ -120,7 +120,7 @@ const BacktestingFormStyle = styled.div`
   padding-right: 20px;
   background: ${theme.dark};
   width: ${({ show }) => (show ? "600px" : "10px")};
-  overflow: hidden;
+  overflow-y: auto;
   transition: width 0.5s;
 
   & .sections {
