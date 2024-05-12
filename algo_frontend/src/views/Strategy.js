@@ -1,24 +1,32 @@
-import Button from "../components/Button";
-/* Import Components */
-import CurrencyLogo from "../components/CurrencyLogo";
-/* Import Reusables Components */
-import FieldSelect from "../components/reusables/FieldSelect";
-/* Import Constants */
-import { TIMEFRAMES } from "../constants";
-import { add } from "../webapi/strategy";
-import styled from "styled-components";
-import { theme } from "../utils/theme";
 /* Import Libs */
-import { useState } from "react";
+import { useEffect, useState } from "react"
+import styled from "styled-components"
+
+/* Import Components */
+import Button from "../components/Button"
+import CurrencyLogo from "../components/CurrencyLogo"
+
+/* Import Reusables Components */
+import FieldSelect from "../components/reusables/FieldSelect"
+
+/* Import Constants */
+import { TIMEFRAMES } from "../constants"
 
 /* Import WebApi */
+import { add } from "../webapi/strategy"
 
 /* Import Utils */
-
+import { theme } from "../utils/theme"
+import { list } from "../webapi/exchanges"
 
 const StrategyStyle = styled.div`
   display: flex;
   flex-direction: column;
+  padding: 20px;
+
+  & .field {
+    margin-bottom: 20px;
+  }
 
   & .actions {
     display: flex;
@@ -66,7 +74,19 @@ const Strategy = ({ onCloseModal, onAdd }) => {
   const [strategy, strategyFunc] = useState({
     loading: false,
     data: {},
-  });
+  })
+
+  const [exchanges, exchangesFunc] = useState()
+
+  useEffect(() => {
+    list()
+      .then(response => {
+        exchangesFunc(response.data.map(exchange => ({
+          value: exchange.id,
+          label: exchange.alias
+        })))
+      })
+  }, [])
 
   const onChange = (key, value) => {
     strategyFunc((prevState) => ({
@@ -75,23 +95,23 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         ...prevState.data,
         [key]: value,
       },
-    }));
-  };
+    }))
+  }
 
   const transformToSend = (data) => {
     const createParameters = (indicator) => {
       // to-do: able to set this parameters in the ui
       switch (indicator) {
         case "RSI":
-          return { buy_threshold: 30, rounds: 14, sell_threshold: 71 };
+          return { buy_threshold: 30, rounds: 14, sell_threshold: 71 }
         case "MACD":
-          return { slow: 26, fast: 12, smoothed: 20 };
+          return { slow: 26, fast: 12, smoothed: 20 }
         case "EMA":
-          return { rounds: 100 };
+          return { rounds: 100 }
         default:
-          return {};
+          return {}
       }
-    };
+    }
 
     return {
       currencies: strategy.data.currencies.map((row) => row.value),
@@ -102,14 +122,15 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         };
       }),
       timeframe: strategy.data.timeframe.value,
-    };
-  };
+      exchange_id: strategy.exchange.value
+    }
+  }
 
   const onSave = () => {
     strategyFunc((prevState) => ({
       ...prevState,
       loading: true,
-    }));
+    }))
 
     add(transformToSend(strategy.data))
       .then((_) => {
@@ -130,38 +151,54 @@ const Strategy = ({ onCloseModal, onAdd }) => {
 
   return (
     <StrategyStyle>
-      <FieldSelect
-        name="currencies"
-        label="Currencies"
-        value={strategy.currencies}
-        onChange={onChange}
-        options={CURRENCIES.map((currency) => ({
-          value: currency,
-          label: <Currency currency={currency} />,
-        }))}
-        width={800}
-        multiple
-      />
-      <FieldSelect
-        name="indicators"
-        label="Indicators"
-        value={strategy.indicators}
-        onChange={onChange}
-        options={INDICATORS.map((indicator) => ({
-          value: indicator,
-          label: indicator,
-        }))}
-        width={800}
-        multiple
-      />
-      <FieldSelect
-        name="timeframe"
-        label="Timeframe"
-        value={strategy.timeframe}
-        onChange={onChange}
-        options={TIMEFRAMES}
-        width={800}
-      />
+      <div className="field">
+        <FieldSelect
+          name="currencies"
+          label="Currencies"
+          value={strategy.currencies}
+          onChange={onChange}
+          options={CURRENCIES.map((currency) => ({
+            value: currency,
+            label: <Currency currency={currency} />,
+          }))}
+          width={800}
+          multiple
+        />
+      </div>
+      <div className="field">
+        <FieldSelect
+          name="indicators"
+          label="Indicators"
+          value={strategy.indicators}
+          onChange={onChange}
+          options={INDICATORS.map((indicator) => ({
+            value: indicator,
+            label: indicator,
+          }))}
+          width={800}
+          multiple
+        />
+      </div>
+      <div className="field">
+        <FieldSelect
+          name="timeframe"
+          label="Timeframe"
+          value={strategy.timeframe}
+          onChange={onChange}
+          options={TIMEFRAMES}
+          width={800}
+        />
+      </div>
+      <div className="field">
+        <FieldSelect
+          name="exchange"
+          label="Exchange"
+          value={strategy.exchange}
+          onChange={onChange}
+          options={exchanges}
+          width={800}
+        />
+      </div>
       <div className="actions">
         <div className="cancel">
           <Button text="Cancel" onClick={onCloseModal} />
