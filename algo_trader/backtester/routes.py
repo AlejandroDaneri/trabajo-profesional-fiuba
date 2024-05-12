@@ -100,25 +100,14 @@ def backtest():
         risks["buy_and_hold"]=buy_and_hold
         risks["strategy"]=strategy_risks
         
-        # trades_dict = trades.to_dict(orient='records')
-        # results_dict = results.to_dict(orient='records') #comparing vs buy and hold
         
-        print("[Backtester] build strategy series: started")
         strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
-        print("[Backtester] build strategy series: finished")
-
-        print("[Backtester] build buy and hold series: started")
         hold_balance_series = buy_and_hold_balance_series(data, timeframe, initial_balance)
-        print("[Backtester] build buy and hold series: finished")
 
-        df_series = pd.DataFrame(columns=['date', 'balance_strategy', 'balance_buy_and_hold'])
-        df_series['date'] = strategy_balance_series['date']
-        df_series['balance_strategy'] = strategy_balance_series['balance']
-        df_series['balance_buy_and_hold'] = hold_balance_series['balance']
+        df_series = pd.merge(strategy_balance_series, hold_balance_series, on='date', how='outer', suffixes=('_strategy', '_buy_and_hold'))
 
         results[coin] = { 
-            #'trades': trades_dict,  comento por ahora nomas para que no me rompa golang
-            #'results_dict': results_dict,  comento por ahora nomas para que no me rompa golang,
+            'trades': trades.to_dict(orient='records'), 
             'risks':risks,
             'series': df_series.to_dict(orient='records'),
             'final_balance': final_balance
