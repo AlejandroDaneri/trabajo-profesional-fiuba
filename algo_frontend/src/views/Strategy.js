@@ -122,7 +122,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         };
       }),
       timeframe: strategy.data.timeframe.value,
-      exchange_id: strategy.data.exchange.value
+      exchange_id: strategy.data.exchange?.value
     }
   }
 

@@ -148,7 +148,21 @@ const Strategies = () => {
                 }
               }))
             })
-            .catch(_ => {})
+            .catch(_ => {
+              stateFunc(prevState => ({
+                ...prevState,
+                data: {
+                  ...prevState.data,
+                  [strategy.id]: {
+                    ...prevState.data[strategy.id],
+                    exchange: {
+                      loading: false,
+                      error: true,
+                    }
+                  }
+                }
+              }))
+            })
         })
       })
   }
@@ -324,7 +338,7 @@ const Strategies = () => {
       row.exchange.loading ?
         <div className='loader'><Loader size={8} color={theme.white} /></div>
       : 
-        <div className='exchange-info'>
+        row.exchange.error ? <div className="exchange-error"><i className="material-icons">warning</i></div> : <div className='exchange-info'>
           <p>{row.exchange.value?.alias}</p>
           {row.exchange.value.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
         </div>,

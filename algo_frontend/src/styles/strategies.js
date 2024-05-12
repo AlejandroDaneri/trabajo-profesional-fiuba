@@ -31,9 +31,14 @@ const StrategiesStyle = styled.div`
     }
   }
 
+  & .exchange-error {
+    color: ${theme.red};
+  }
+
   & .exchange-info {
     display: flex;
     justify-content: center;
+    align-items: center;
 
     p {
       margin: 0;
@@ -41,7 +46,7 @@ const StrategiesStyle = styled.div`
 
     & img {
       margin: 0;
-      margin-left: 5px;
+      margin-left: 10px;
       padding: 0;
     }
   }
