@@ -2,6 +2,7 @@ package main
 
 import (
 	"algo_api/internal/binanceservice"
+	"algo_api/internal/exchangesservice"
 	"algo_api/internal/pythonservice"
 	"algo_api/internal/strategyservice"
 	"algo_api/internal/telegramservice"
@@ -475,6 +476,7 @@ func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 		} `json:"indicators"`
 		Currencies []string `json:"currencies"`
 		Timeframe  string   `json:"timeframe"`
+		ExchangeId string   `json:"exchange_id"`
 	}
 
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -562,6 +564,204 @@ func DeleteStrategy(w http.ResponseWriter, r *http.Request) {
 		}).Error("Could not delete strategies")
 		http.Error(w, http.StatusText(500), 500)
 		return
+	}
+}
+
+func AddExchange(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ExchangeName   string `json:"exchange_name"`
+		APIKey         string `json:"api_key"`
+		APISecret      string `json:"api_secret"`
+		Alias          string `json:"alias"`
+		TestingNetwork bool   `json:"testing_network"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = exchangesservice.GetInstance().AddExchange(body.ExchangeName, body.APIKey, body.APISecret, body.Alias, body.TestingNetwork)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not add Exchange to the database.")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	response := map[string]string{"message": "Exchange added successfully"}
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
+func EditExchange(w http.ResponseWriter, r *http.Request) {
+	var body struct {
+		ExchangeName   string `json:"exchange_name"`
+		APIKey         string `json:"api_key"`
+		APISecret      string `json:"api_secret"`
+		Alias          string `json:"alias"`
+		TestingNetwork bool   `json:"testing_network"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not decode body")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get strategy id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err = exchangesservice.GetInstance().EditExchange(id, body.ExchangeName, body.APIKey, body.APISecret, body.Alias, body.TestingNetwork)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not add Exchange to the database.")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	response := map[string]string{"message": "Exchange edited successfully"}
+	bytes, err := json.Marshal(response)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	w.Write(bytes)
+}
+
+func DeleteExchange(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get exchange id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err := exchangesservice.GetInstance().DeleteExchange(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete exchange")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
+func GetExchange(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get exchange id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	exchange, err := exchangesservice.GetInstance().GetExchange(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get exchange")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	bytes, err := json.Marshal(exchange)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func GetExchangeBalance(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get exchange id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	balance, err := exchangesservice.GetInstance().GetBalance(id)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not get exchange balance")
+		return
+	}
+
+	bytes, err := json.Marshal(balance)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func GetExchanges(w http.ResponseWriter, r *http.Request) {
+	exchanges, err := exchangesservice.GetInstance().GetExchanges()
+	if err != nil {
+		logrus.WithError(err).Error("Failed to get Exchanges")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	response, err := json.Marshal(exchanges)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to marshal response")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	_, err = w.Write(response)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to write response")
 	}
 }
 
@@ -761,6 +961,13 @@ func MakeRoutes(router *mux.Router) {
 
 	router.HandleFunc("/telegram/chat", AddTelegramChat).Methods("POST")
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
+
+	router.HandleFunc("/exchanges", AddExchange).Methods("POST")
+	router.HandleFunc("/exchanges/{id}", DeleteExchange).Methods("DELETE")
+	router.HandleFunc("/exchanges/{id}", GetExchange).Methods("GET")
+	router.HandleFunc("/exchanges/{id}/balance", GetExchangeBalance).Methods("GET")
+	router.HandleFunc("/exchanges/{id}", EditExchange).Methods("PUT")
+	router.HandleFunc("/exchanges", GetExchanges).Methods("GET")
 
 	router.HandleFunc("/binance/balance", GetBinanceBalance).Methods("GET")
 

@@ -7,3 +7,18 @@ export const TIMEFRAMES = [
     { value: '1d', label: '1 day' },
     { value: '1w', label: '1 week' }
 ]
+
+export const CRYPTOCURRENCIES = [
+    {
+        value: "BTC",
+        label: "BTC",
+    },
+    {
+        value: "ETH",
+        label: "ETH",
+    },
+    {
+        value: "SOL",
+        label: "SOL"
+    }
+]

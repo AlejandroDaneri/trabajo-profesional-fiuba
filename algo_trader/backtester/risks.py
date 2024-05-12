@@ -1,3 +1,4 @@
+import numpy as np
 class RiskMetrics:
     @staticmethod
     def payoff_ratio(returns):
@@ -12,9 +13,11 @@ class RiskMetrics:
     def rachev_ratio(returns, alpha=0.05):
         tail_right = returns[returns > returns.quantile(1 - alpha)]
         tail_left = returns[returns < returns.quantile(alpha)]
-
+        if(len(tail_left.array) == 0 or len(tail_right.array)== 0):
+            return 0
+        
         if tail_left.abs().mean() == 0:
-            return float('inf') 
+            return 99999999
         return round(tail_right.mean() / tail_left.abs().mean(), 3)
 
     @staticmethod
@@ -34,7 +37,11 @@ class RiskMetrics:
         drawdowns = (strategy / strategy.cummax() - 1)
         if drawdowns.min() == float('inf'):
             return 0  
-        return drawdowns.min()
+        if drawdowns.min() == -float('inf'):
+            return -99999999  
+        result = drawdowns.min()
+        print(result)
+        return 0 if np.isnan(result) else result
 
     @staticmethod
     def profit_factor(returns):
@@ -45,7 +52,7 @@ class RiskMetrics:
         winners = returns[returns > 0]
 
         if len(losers) == 0: 
-            return None
+            return 999999
 
         profit_factor = - winners.sum() / losers.sum()
         return profit_factor

@@ -18,8 +18,13 @@ import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../components/Popup";
 
 /* Impor WebApi */
 import { getIndicators, run as runBacktesting } from "../webapi/backtesting";
+
+/* Import Utils */
 import { theme } from "../utils/theme";
 import { capitalize } from "../utils/string";
+
+/* Import Constants */
+import { CRYPTOCURRENCIES, TIMEFRAMES } from "../constants";
 
 const VIEW_FORM = 0;
 const VIEW_BACKTESTING = 1;
@@ -421,68 +426,38 @@ const Backtesting = () => {
                     />
                   </div>
                 </div>
-              </div>
-              <div className="section">
-                <h3>Basic</h3>
-                <div className="section-content row">
-                  <div className="field">
-                    <FieldInput
-                      label="Initial Balance"
-                      name="initial_balance"
-                      value={state.initial_balance}
-                      onChange={onChange}
-                      width={140}
-                    />
-                  </div>
-                  <div className="field">
-                    <FieldSelect
-                      label="Timeframe"
-                      name="timeframe"
-                      value={state.timeframe}
-                      onChange={onChange}
-                      width={140}
-                      options={[
-                        {
-                          value: "1m",
-                          label: "1 min",
-                        },
-                        {
-                          value: "5m",
-                          label: "5 min",
-                        },
-                        {
-                          value: "1h",
-                          label: "1 hour",
-                        },
-                        {
-                          value: "1d",
-                          label: "1 day",
-                        },
-                      ]}
-                    />
-                  </div>
-                  <div className="field">
-                    <FieldSelect
-                      label="Cryptocurrency"
-                      name="coin"
-                      value={state.coin}
-                      onChange={onChange}
-                      width={165}
-                      options={[
-                        {
-                          value: "BTC",
-                          label: "BTC",
-                        },
-                        {
-                          value: "ETH",
-                          label: "ETH",
-                        },
-                        {
-                          value: "SOL",
-                          label: "SOL",
-                        },
-                      ]}
-                    />
+                <div className="section">
+                  <h3>Basic</h3>
+                  <div className="section-content row">
+                    <div className="field">
+                      <FieldInput
+                        label="Initial Balance"
+                        name="initial_balance"
+                        value={state.initial_balance}
+                        onChange={onChange}
+                        width={140}
+                      />
+                    </div>
+                    <div className="field">
+                      <FieldSelect
+                        label="Timeframe"
+                        name="timeframe"
+                        value={state.timeframe}
+                        onChange={onChange}
+                        width={140}
+                        options={TIMEFRAMES}
+                      />
+                    </div>
+                    <div className="field">
+                      <FieldSelect
+                        label="Cryptocurrency"
+                        name="coin"
+                        value={state.coin}
+                        onChange={onChange}
+                        width={165}
+                        options={CRYPTOCURRENCIES}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
