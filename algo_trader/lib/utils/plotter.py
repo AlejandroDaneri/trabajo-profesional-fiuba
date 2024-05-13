@@ -53,8 +53,9 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
 
     if len(trades) == 0:
         end = data.index[-1]
-        return generate_range_sell(start, end, timeframe, balance)
-
+        df.extend(generate_range_sell(start, end, timeframe, balance))
+        df = pd.DataFrame(df, columns=['date', 'balance']).drop_duplicates('date')
+        return df
     for _, trade in trades.iterrows():
         # INTERVAL: UNTIL ON BUY
         df.extend(generate_range_sell(start, trade.buy_date, timeframe, balance))

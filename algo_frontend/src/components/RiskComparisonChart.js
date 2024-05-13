@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"
 import {
   BarChart,
   Bar,
@@ -8,32 +8,34 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts";
-import styled from "styled-components";
+} from "recharts"
+import styled from "styled-components"
 
 const ChartContainer = styled.div`
   width: 100%;
   display: flex;
   flex-wrap: wrap;
-`;
+`
 
-const RiskComparisonChart = ({ risks }) => {
-  // Convertir los datos de riesgos en un array de objetos para usar con Recharts
+const RiskComparisonChart = ({ risks, colors }) => {
   const data = Object.keys(risks).map((strategy, idx) => ({
     name: strategy,
     ...risks[strategy],
-    fill: idx === 0 ? "#00C853" : "#2979FF",
-  }));
-
-  // Lista de pares de riesgos a comparar
+    fill: colors[idx] || "#2979FF",
+  }))
+  const yAxisTickFormatter = (value) => {
+    if (value == "strategy") {
+      return "Strategy"
+    }
+    return `B&H`
+  }
   const riskPairs = [
     { label: "Kelly Criterion", dataKey: "kelly_criterion" },
     { label: "Max Drawdown", dataKey: "max_drawdown" },
     { label: "Payoff Ratio", dataKey: "payoff_ratio" },
     { label: "Rachev Ratio", dataKey: "rachev_ratio" },
-  ];
+  ]
 
-  // Renderizar los gráficos para cada par de riesgos
   const renderCharts = () => {
     return riskPairs.map((pair, index) => (
       <div key={index} style={{ width: "50%" }}>
@@ -45,19 +47,21 @@ const RiskComparisonChart = ({ risks }) => {
             margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <YAxis dataKey="name" type="category" />
+            <YAxis
+              dataKey="name"
+              type="category"
+              tickFormatter={yAxisTickFormatter}
+            />
             <XAxis type="number" />
             <Tooltip />
-            <Legend />
             <Bar dataKey={pair.dataKey} fill="#8884d8" />
           </BarChart>
         </ResponsiveContainer>
       </div>
-    ));
-  };
+    ))
+  }
 
-  // Renderizar el componente
-  return <ChartContainer>{renderCharts()}</ChartContainer>;
-};
+  return <ChartContainer>{renderCharts()}</ChartContainer>
+}
 
-export default RiskComparisonChart;
+export default RiskComparisonChart

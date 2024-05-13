@@ -100,9 +100,13 @@ def backtest():
         risks["buy_and_hold"]=buy_and_hold
         risks["strategy"]=strategy_risks
         
-        
+        print("[Backtester] building strategy series: started")
         strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
+        print("[Backtester] building strategy series: finished")
+        
+        print("[Backtester] building buy and hold series: started")
         hold_balance_series = buy_and_hold_balance_series(data, timeframe, initial_balance)
+        print("[Backtester] building buy and hold series: finished")
 
         df_series = pd.merge(strategy_balance_series, hold_balance_series, on='date', how='outer', suffixes=('_strategy', '_buy_and_hold'))
 

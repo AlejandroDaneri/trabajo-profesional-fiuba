@@ -120,7 +120,7 @@ const BacktestingFormStyle = styled.div`
   padding-right: 20px;
   background: ${theme.dark};
   width: ${({ show }) => (show ? "600px" : "10px")};
-  overflow: hidden;
+  overflow-y: auto;
   transition: width 0.5s;
 
   & .sections {
@@ -552,10 +552,14 @@ const Backtesting = () => {
 
                 <div className="chart-container">
                   <h3>Strategy vs Buy and Hold</h3>
-                  <Chart data={backtesting.data[state.coin.value]?.series} />
+                  <Chart
+                    data={backtesting.data[state.coin.value]?.series}
+                    colors={["#87CEEB", "#00FF00"]}
+                  />
                 </div>
                 <RiskComparisonChart
                   risks={backtesting.data[state.coin.value]?.risks}
+                  colors={["#87CEEB", "#00FF00"]}
                 />
               </>
             )}
