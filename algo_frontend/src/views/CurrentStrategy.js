@@ -338,7 +338,7 @@ const CurrentStrategy = () => {
             </div>
             <div>
               <h3>Comparison of Strategies</h3>
-              <Chart data={candleticks.data} />
+              {false && <Chart data={candleticks.data} />}
             </div>
             {false && (
               <div className="graph-item">
