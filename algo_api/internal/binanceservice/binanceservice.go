@@ -55,7 +55,10 @@ func NewServiceUsingEnvVars() IService {
 type IService interface {
 	GetPrice(symbol string) (string, error)
 	GetBalance() (string, error)
+	GetAmount(symbol string) (string, error)
 	GetCandleticks(symbol string, start int, end int, timeframe string) ([]Candlestick, error)
+	Buy(symbol string) error
+	Sell(symbol string) error
 }
 
 func (s *BinanceService) GetPrice(symbol string) (string, error) {
@@ -68,6 +71,24 @@ func (s *BinanceService) GetPrice(symbol string) (string, error) {
 		return "", err
 	}
 	return ticker.LastPrice, nil
+}
+
+func (s *BinanceService) GetAmount(symbol string) (string, error) {
+	response, err := s.client.NewGetAccountService().Do(context.Background())
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get coin balances")
+		return "0.0", nil
+	}
+	amount := 0.0
+	for _, balance := range response.Balances {
+		if balance.Asset == symbol {
+			amount = utils.String2float(balance.Free) + utils.String2float(balance.Locked)
+			break
+		}
+	}
+	return utils.Float2String(amount), nil
 }
 
 func (s *BinanceService) GetBalance() (string, error) {
@@ -121,4 +142,24 @@ func (s *BinanceService) GetCandleticks(symbol string, start int, end int, timef
 		})
 	}
 	return candlesticks, nil
+}
+
+func (s *BinanceService) Buy(symbol string) error {
+	_, err := s.client.NewOrderBookService().
+		Symbol(symbol + "USDT").Do(context.Background())
+	if err != nil {
+		logrus.Error("Could not buy")
+		return err
+	}
+	return nil
+}
+
+func (s *BinanceService) Sell(symbol string) error {
+	_, err := s.client.NewCreateOrderService().
+		Symbol(symbol + "USDT").
+		Side("SELL").
+		Type("MARKET").
+		Quantity(0.5).
+		Do(context.Background())
+	return err
 }

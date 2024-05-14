@@ -39,6 +39,10 @@ func String2float(number string) float64 {
 	return float
 }
 
+func Float2String(number float64) string {
+	return strconv.FormatFloat(number, 'f', 6, 64)
+}
+
 func Int2String(number int) string {
 	return strconv.Itoa(number)
 }

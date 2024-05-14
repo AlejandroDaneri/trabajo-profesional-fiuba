@@ -47,6 +47,7 @@ type IService interface {
 	EditExchange(id string, exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
 	DeleteExchange(id string) error
 	GetBalance(id string) (string, error)
+	GetAmount(id string, symbol string) (string, error)
 }
 
 func (t *ExchangesService) EditExchange(id string, exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error {
@@ -205,4 +206,16 @@ func (t *ExchangesService) GetBalance(id string) (string, error) {
 		return "", err
 	}
 	return balance, nil
+}
+
+func (t *ExchangesService) GetAmount(id string, symbol string) (string, error) {
+	exchange, err := t.GetExchange(id)
+	if err != nil {
+		return "", err
+	}
+	amount, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetAmount(symbol)
+	if err != nil {
+		return "", err
+	}
+	return amount, nil
 }

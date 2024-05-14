@@ -517,6 +517,28 @@ func CreateStrategy(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func StrategyBuy(w http.ResponseWriter, r *http.Request) {
+	symbol := "BTC"
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err := strategyservice.GetInstance().Buy(id, symbol)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
+func StrategySell(w http.ResponseWriter, r *http.Request) {
+	symbol := "BTC"
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err := strategyservice.GetInstance().Sell(id, symbol)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+}
+
 func ListStrategy(w http.ResponseWriter, r *http.Request) {
 	strategies, err := strategyservice.GetInstance().List()
 	if err != nil {
@@ -725,6 +747,49 @@ func GetExchangeBalance(w http.ResponseWriter, r *http.Request) {
 	}
 
 	bytes, err := json.Marshal(balance)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
+func GetExchangeAmount(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get exchange id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	symbol := vars["symbol"]
+	if id == "" {
+		logrus.Error("Could not get symbol")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	amount, err := exchangesservice.GetInstance().GetAmount(id, symbol)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not get exchange balance")
+		return
+	}
+
+	bytes, err := json.Marshal(amount)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -954,6 +1019,8 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/strategy/{id}/start", StartStrategy).Methods("PUT")
 	router.HandleFunc("/strategy/{id}/stop", StopStrategy).Methods("PUT")
 	router.HandleFunc("/strategy/{id}", GetStrategy).Methods("GET")
+	router.HandleFunc("/strategy/{id}/buy", StrategyBuy).Methods("PUT")
+	router.HandleFunc("/strategy/{id}/sell", StrategySell).Methods("PUT")
 	router.HandleFunc("/strategy/all", DeleteAllStrategy).Methods("DELETE")
 	router.HandleFunc("/strategy/{id}", DeleteStrategy).Methods("DELETE")
 	router.HandleFunc("/strategy", ListStrategy).Methods("GET")
@@ -966,6 +1033,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/exchanges/{id}", DeleteExchange).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", GetExchange).Methods("GET")
 	router.HandleFunc("/exchanges/{id}/balance", GetExchangeBalance).Methods("GET")
+	router.HandleFunc("/exchanges/{id}/amount/{symbol}", GetExchangeAmount).Methods("GET")
 	router.HandleFunc("/exchanges/{id}", EditExchange).Methods("PUT")
 	router.HandleFunc("/exchanges", GetExchanges).Methods("GET")
 
