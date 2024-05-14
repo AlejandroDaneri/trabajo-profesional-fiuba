@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import BounceLoader from "react-spinners/BounceLoader"
-import moment from "moment"
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
@@ -13,6 +12,8 @@ import StrategiesStyle from "../styles/strategies"
 
 /* Import Utils */
 import { capitalize } from "../utils/string"
+import { theme } from "../utils/theme"
+import { getDuration } from "../utils/date"
 
 /* Import Components */
 import CurrencyLogo from "../components/CurrencyLogo"
@@ -39,7 +40,8 @@ import logoBinance from "../images/logos/exchanges/binance.svg"
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
 import Loader from "react-spinners/BeatLoader"
-import { theme } from "../utils/theme"
+
+
 
 const Strategies = () => {
   const dispatch = useDispatch()
@@ -74,14 +76,22 @@ const Strategies = () => {
       }
     }
 
-    const getDuration = (start, end) => {
-      const end_ = end || Date.now() / 1000
-      return moment.utc((end_ - start) * 1000).format("HH:mm:ss")
-    }
-
     const transformTimeframe = (timeframe) => {
       return TIMEFRAMES.find((timeframe_) => timeframe_.value === timeframe)
         ?.label
+    }
+
+    const transformDuration = (state, start, end) => {
+      switch(state) {
+        case "created":
+          return ""
+        case "running":
+          return getDuration(start, Date.now() / 1000)
+        case "finished":
+          return getDuration(start, end)
+        default:
+          return ""
+      }
     }
 
     return data
@@ -89,7 +99,7 @@ const Strategies = () => {
         ...strategy,
         state_value: transformState(strategy.state),
         state_label: capitalize(strategy.state),
-        duration: getDuration(strategy.start_timestamp, strategy.end_timestamp),
+        duration: transformDuration(strategy.state, strategy.start_timestamp, strategy.end_timestamp),
         timeframe: transformTimeframe(strategy.timeframe),
         current_balance: parseInt(strategy.current_balance).toFixed(2),
       }))

@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts"
 import { useEffect, useState } from "react"
-import moment from "moment"
+
 import BeatLoader from "react-spinners/BeatLoader"
 
 /* Import Constants */
@@ -29,6 +29,7 @@ import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
 
 /* Import Utils */
 import { capitalize } from "../utils/string"
+import { getDuration } from "../utils/date"
 
 /* Import WebApi */
 import { get } from "../webapi/strategy"
@@ -144,10 +145,17 @@ const CurrentStrategy = () => {
     }))
   
   const transformToView = (data) => {
-    
-    const getDuration = (start) => {
-      const end = Date.now() / 1000
-      return moment.utc((end - start) * 1000).format("HH:mm:ss")
+    const transformDuration = (state, start, end) => {
+      switch(state) {
+        case "created":
+          return ""
+        case "running":
+          return getDuration(start, Date.now() / 1000)
+        case "finished":
+          return getDuration(start, end)
+        default:
+          return ""
+      }
     }
 
     const transformTimeframe = (timeframe) => {
@@ -158,7 +166,6 @@ const CurrentStrategy = () => {
     const currentBalance = parseFloat(data.current_balance).toFixed(2)
     const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
     const profitAndLossPercentaje = ((currentBalance / initialBalance - 1) * 100).toFixed(2)
-    const duration = getDuration(data.start_timestamp)
 
     return {
       ...data,
@@ -179,7 +186,7 @@ const CurrentStrategy = () => {
           value: indicator.parameters[key],
         })),
       })),
-      duration,
+      duration: transformDuration(data.state, data.start_timestamp, data.end_timestamp),
       timeframe_label: transformTimeframe(data.timeframe),
     }
   }
@@ -275,6 +282,7 @@ const CurrentStrategy = () => {
             }))
           })
       })
+      .catch(_ => {})
   }
 
   useEffect(() => {
