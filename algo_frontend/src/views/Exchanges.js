@@ -15,6 +15,9 @@ import Exchange from "./Exchange"
 import { list, remove, getBalance } from "../webapi/exchanges"
 import { theme } from "../utils/theme"
 
+/* Import Images */
+import logoBinance from "../images/logos/exchanges/binance.svg"
+
 const ExchangesStyle = styled.div`
   padding: 20px;
   width: 70%;
@@ -22,6 +25,19 @@ const ExchangesStyle = styled.div`
   & .loader {
     display: flex;
     justify-content: center;
+  }
+
+  & .brand {
+    display: flex;
+    justify-content: center;
+
+    & p {
+      margin: 0;
+    }
+
+    & img {
+      margin-left: 5px;
+    }
   }
 
   & .actions {
@@ -156,7 +172,10 @@ const Exchanges = () => {
   const buildRow = (row) => {
     return [
       row.alias,
-      "Binance",
+      <div className="brand">
+        <p>Binance</p>
+        <img alt="Binance" src={logoBinance} width="24px" />
+      </div>,
       row.balance.loading ? (
         <div className="loader">
           <Loader size={8} color={theme.white} />
