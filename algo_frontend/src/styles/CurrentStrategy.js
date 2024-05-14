@@ -37,6 +37,26 @@ export const CurrentStrategyStyle = styled.div`
           display: flex;
           font-weight: 800;
 
+          & .loader {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+          }
+
+          & .exchange-wrapper {
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+
+            & p {
+              margin: 0;
+            }
+
+            & img {
+              margin-left: 5px;
+            }
+          }
+
           & .currency-wrapper {
             margin-right: 5px;
           }

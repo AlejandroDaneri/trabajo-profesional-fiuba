@@ -12,6 +12,7 @@ import {
 } from "recharts"
 import { useEffect, useState } from "react"
 import moment from "moment"
+import BeatLoader from "react-spinners/BeatLoader"
 
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
@@ -32,6 +33,7 @@ import { capitalize } from "../utils/string"
 /* Import WebApi */
 import { get } from "../webapi/strategy"
 import { run } from "../webapi/backtesting"
+import { get as getExchange } from "../webapi/exchanges"
 
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
@@ -42,6 +44,10 @@ const CurrentStrategy = () => {
     data: {
       currencies: [],
     },
+  })
+
+  const [exchange, exchangeFunc] = useState({
+    loading: false,
   })
 
   const [selectedDates, setSelectedDates] = useState({
@@ -136,67 +142,67 @@ const CurrentStrategy = () => {
       ...entry,
       date: entry.date.toLocaleDateString(),
     }))
+  
+  const transformToView = (data) => {
+    
+    const getDuration = (start) => {
+      const end = Date.now() / 1000
+      return moment.utc((end - start) * 1000).format("HH:mm:ss")
+    }
+
+    const transformTimeframe = (timeframe) => {
+      return TIMEFRAMES.find((timeframe_) => timeframe_.value === timeframe)?.label
+    }
+
+    const initialBalance = data.initial_balance
+    const currentBalance = parseFloat(data.current_balance).toFixed(2)
+    const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
+    const profitAndLossPercentaje = ((currentBalance / initialBalance - 1) * 100).toFixed(2)
+    const duration = getDuration(data.start_timestamp)
+
+    return {
+      ...data,
+      current_balance: parseFloat(data.current_balance).toFixed(2),
+      profit_and_loss_label: `${profitAndLoss} (${profitAndLossPercentaje}%)`,
+      indicators: (data.indicators || []).map((indicator) => ({
+        ...indicator,
+        name: (() => {
+          switch (indicator.name) {
+            case "rsi":
+              return "RSI"
+            default:
+              return capitalize(indicator.name)
+          }
+        })(),
+        parameters: Object.keys(indicator.parameters).map((key) => ({
+          key: key.split("_").map((word) => capitalize(word)).join(" "),
+          value: indicator.parameters[key],
+        })),
+      })),
+      duration,
+      timeframe_label: transformTimeframe(data.timeframe),
+    }
+  }
 
   const getStrategy = () => {
-    const transformToView = (data) => {
-      const getDuration = (start) => {
-        const end = Date.now() / 1000
-        return moment.utc((end - start) * 1000).format("HH:mm:ss")
-      }
-
-      const transformTimeframe = (timeframe) => {
-        return TIMEFRAMES.find((timeframe_) => timeframe_.value === timeframe)
-          ?.label
-      }
-
-      const initialBalance = data.initial_balance
-      const currentBalance = parseFloat(data.current_balance).toFixed(2)
-      const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
-      const profitAndLossPercentaje = (
-        (currentBalance / initialBalance - 1) *
-        100
-      ).toFixed(2)
-      const duration = getDuration(data.start_timestamp)
-
-      return {
-        ...data,
-        current_balance: parseFloat(data.current_balance).toFixed(2),
-        profit_and_loss_label: `${profitAndLoss} (${profitAndLossPercentaje}%)`,
-        indicators: (data.indicators || []).map((indicator) => ({
-          ...indicator,
-          name: (() => {
-            switch (indicator.name) {
-              case "rsi":
-                return "RSI"
-              default:
-                return capitalize(indicator.name)
-            }
-          })(),
-          parameters: Object.keys(indicator.parameters).map((key) => ({
-            key: key
-              .split("_")
-              .map((word) => capitalize(word))
-              .join(" "),
-            value: indicator.parameters[key],
-          })),
-        })),
-        duration,
-        timeframe_label: transformTimeframe(data.timeframe),
-      }
-    }
-    strategyFunc((prevState) => ({
-      ...prevState,
-      loading: true,
-    }))
-    get()
-      .then((response) => {
-        strategyFunc((prevState) => ({
-          ...prevState,
-          loading: false,
-          data: transformToView(response.data),
-        }))
-      })
-      .catch((_) => {})
+    return new Promise((resolve, reject) => {
+      strategyFunc((prevState) => ({
+        ...prevState,
+        loading: true,
+      }))
+      get()
+        .then((response) => {
+          strategyFunc((prevState) => ({
+            ...prevState,
+            loading: false,
+            data: transformToView(response.data),
+          }))
+          resolve(response.data)
+        })
+        .catch(err => {
+          reject(err)
+        })
+    })
   }
 
   const getCandleticks_ = (symbol, start, end, timeframe) => {
@@ -252,14 +258,33 @@ const CurrentStrategy = () => {
     strategy.data.timeframe,
   ])
 
-  useEffect(() => {
-    const interval = setInterval(getStrategy, 10000)
+  const getState = () => {
     getStrategy()
+      .then(strategy => {
+        exchangeFunc(prevState => ({
+          ...prevState,
+          loading: true,
+        }))
+
+        getExchange(strategy?.exchange_id)
+          .then(response => {
+            exchangeFunc(prevState => ({
+              ...prevState,
+              loading: false,
+              data: response?.data
+            }))
+          })
+      })
+  }
+
+  useEffect(() => {
+    const interval = setInterval(getState, 10000)
+    getState()
 
     return () => {
       clearInterval(interval)
     }
-  }, [])
+  }, []) // eslint-disable-line
 
   return (
     <View
@@ -287,9 +312,13 @@ const CurrentStrategy = () => {
               <div className="box">
                 <div className="label">Exchange</div>
                 <div className="value">
-                  {strategy.data.exchange === "binance" && (
-                    <img alt="Binance" src={logoBinance} width="24px" />
-                  )}
+                  <>
+                    {exchange.loading && <div className="loader"><BeatLoader size={8} color="white" /></div>}
+                    {exchange.data && <div className="exchange-wrapper">
+                      <p>{exchange.data.alias}</p>
+                      <img alt="Binance" src={logoBinance} width="24px" />
+                    </div>}
+                  </>
                 </div>
               </div>
               <div className="box">
