@@ -31,6 +31,7 @@ func NewService() IService {
 type IService interface {
 	Create(trade map[string]interface{}, strategyID string) (string, error)
 	Get(id string) (*database.TradeResponseFields, error)
+	GetOpen() (*database.TradeResponseFields, error)
 	ListAll() ([]*database.TradeResponseFields, error)
 	ListByStrategy(strategyID string) ([]*database.TradeResponseFields, error)
 	Remove(id string) error
@@ -70,6 +71,48 @@ func (s *TradeService) Get(id string) (*database.TradeResponseFields, error) {
 	err = json.Unmarshal(bytes, &trade)
 	if err != nil {
 		return nil, err
+	}
+	return &database.TradeResponseFields{
+		TradePublicFields: trade.TradePublicFields,
+		ID:                trade.ID,
+	}, nil
+}
+
+func (s *TradeService) GetOpen() (*database.TradeResponseFields, error) {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return nil, err
+	}
+	q := `
+	{
+		"selector": {
+			"pvt_type": "trade",
+			"orders.sell.price": {
+				"$exists": false
+			},
+			"orders.sell.timestamp": {
+				"$exists": false
+			}
+		},
+		"limit": 10000
+	}
+	`
+	docs, err := db.QueryJSON(q)
+	if err != nil {
+		return nil, err
+	}
+	trade := database.Trade{}
+	for _, doc := range docs {
+		bytes, err := json.Marshal(doc)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(bytes, &trade)
+		if err != nil {
+			return nil, err
+		}
+
 	}
 	return &database.TradeResponseFields{
 		TradePublicFields: trade.TradePublicFields,

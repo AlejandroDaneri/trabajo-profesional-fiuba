@@ -529,10 +529,9 @@ func StrategyBuy(w http.ResponseWriter, r *http.Request) {
 }
 
 func StrategySell(w http.ResponseWriter, r *http.Request) {
-	symbol := "BTC"
 	vars := mux.Vars(r)
 	id := vars["id"]
-	err := strategyservice.GetInstance().Sell(id, symbol)
+	err := strategyservice.GetInstance().Sell(id)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return

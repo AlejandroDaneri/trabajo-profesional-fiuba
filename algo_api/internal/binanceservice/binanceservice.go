@@ -86,7 +86,7 @@ func (s *BinanceService) GetAmount(symbol string) (float64, error) {
 	amount := 0.0
 	for _, balance := range response.Balances {
 		if balance.Asset == symbol {
-			amount = utils.String2float(balance.Free) + utils.String2float(balance.Locked)
+			amount = utils.String2Float(balance.Free) + utils.String2Float(balance.Locked)
 			break
 		}
 	}
@@ -104,7 +104,7 @@ func (s *BinanceService) GetBalance() (string, error) {
 	balanceTotal := 0.0
 	for _, balance := range response.Balances {
 		symbol := balance.Asset
-		amount := utils.String2float(balance.Free) + utils.String2float(balance.Locked)
+		amount := utils.String2Float(balance.Free) + utils.String2Float(balance.Locked)
 		if symbol == "USDT" {
 			balanceTotal += amount
 		}
@@ -116,7 +116,7 @@ func (s *BinanceService) GetBalance() (string, error) {
 		if err != nil {
 			continue
 		}
-		balanceTotal += amount * utils.String2float(price)
+		balanceTotal += amount * utils.String2Float(price)
 	}
 
 	return fmt.Sprintf("%.2f", balanceTotal), nil
@@ -156,7 +156,7 @@ func (s *BinanceService) getOrderInfo(symbol string) (minQty, maxQty, stepSize f
 		if s.Symbol == (symbol + "USDT") {
 			for _, filter := range s.Filters {
 				if filter.FilterType == "LOT_SIZE" {
-					return utils.String2float(filter.MinQty), utils.String2float(filter.MaxQty), utils.String2float(filter.StepSize), nil
+					return utils.String2Float(filter.MinQty), utils.String2Float(filter.MaxQty), utils.String2Float(filter.StepSize), nil
 				}
 			}
 		}
@@ -222,7 +222,7 @@ func (s *BinanceService) Buy(symbol string) error {
 
 		// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
 		// TO-DO: use precision here
-		formattedQty := utils.String2float(fmt.Sprintf("%.8f", qty))
+		formattedQty := utils.String2Float(fmt.Sprintf("%.8f", qty))
 
 		logrus.Infof("USDT remaining: %f", usdt)
 
