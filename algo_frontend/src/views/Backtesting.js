@@ -93,16 +93,18 @@ const BacktestingOutputStyle = styled.div`
       border: 1px solid white;
       padding: 10px;
       border-radius: 4px;
-      width: 100px;
+      flex-grow: 1;
       margin-right: 20px;
 
       & .label {
         color: #a5a8b6;
+        text-align: center;
       }
 
       & .value {
         display: flex;
         font-weight: 800;
+        justify-content: center;
 
         & .currency-wrapper {
           margin-right: 5px;
@@ -538,20 +540,52 @@ const Backtesting = () => {
             {backtesting.error && "error"}
             {backtesting.data[state.coin.value] && (
               <>
+                <h3>Benchmark: Buy & Hold </h3>
                 <div className="boxes">
                   <div className="box">
                     <div className="label">Final Balance</div>
                     <div className="value">
+                      US$
                       {backtesting.data[
                         state.coin.value
                       ]?.final_balance.toFixed(2)}
-                      $
                     </div>
                   </div>
+                  <div className="box">
+                    <div className="label">Profit vs. Initial Balance</div>
+                    <div className="value">
+                      {(
+                        ((backtesting.data[state.coin.value]?.final_balance -
+                          state.initial_balance) /
+                          state.initial_balance) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </div>
+                  </div>
+                  <div className="box">
+                    <div className="label"> Profit vs. Benchmark</div>
+                    <div className="value">
+                      {(
+                        ((backtesting.data[state.coin.value]?.final_balance -
+                          backtesting.data[state.coin.value].series[
+                            backtesting.data[state.coin.value].series.length - 1
+                          ]?.balance_buy_and_hold) /
+                          backtesting.data[state.coin.value].series[
+                            backtesting.data[state.coin.value].series.length - 1
+                          ]?.balance_buy_and_hold) *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </div>
+                  </div>
+                  <div className="box">
+                    <div className="label">TP / SL / TSL</div>
+                    <div className="value">2 / 4 / 3</div>
+                  </div>
                 </div>
-
                 <div className="chart-container">
-                  <h3>Strategy vs Buy and Hold</h3>
+                  <h3>Performance Comparison </h3>
                   <StrategyComparisonChart
                     data={backtesting.data[state.coin.value]?.series}
                     colors={["#87CEEB", "#00FF00"]}
