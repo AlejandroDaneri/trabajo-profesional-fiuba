@@ -60,7 +60,16 @@ const StrategyComparisonChart = ({ data, colors }) => {
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
-          <YAxis />
+          {logScale ? (
+            <YAxis
+              label={{ value: "Balance", position: "insideLeft" }}
+              scale={logScale && "log"}
+              domain={logScale && ["auto", "auto"]}
+            />
+          ) : (
+            <YAxis label={{ value: "Balance", position: "insideLeft" }} />
+          )}
+
           <Tooltip />
           <Legend />
           <Area

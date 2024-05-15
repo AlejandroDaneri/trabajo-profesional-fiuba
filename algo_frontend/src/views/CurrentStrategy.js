@@ -22,7 +22,7 @@ import CurrencyLogo from "../components/CurrencyLogo"
 import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Trades from "../components/Trades"
 import View from "../components/reusables/View"
-import Chart from "../components/reusables/Chart"
+import StrategyComparisonChart from "../components/reusables/Chart"
 
 /* Import Styles */
 import { CurrentStrategyStyle } from "../styles/CurrentStrategy"
@@ -143,10 +143,10 @@ const CurrentStrategy = () => {
       ...entry,
       date: entry.date.toLocaleDateString(),
     }))
-  
+
   const transformToView = (data) => {
     const transformDuration = (state, start, end) => {
-      switch(state) {
+      switch (state) {
         case "created":
           return ""
         case "running":
@@ -159,13 +159,17 @@ const CurrentStrategy = () => {
     }
 
     const transformTimeframe = (timeframe) => {
-      return TIMEFRAMES.find((timeframe_) => timeframe_.value === timeframe)?.label
+      return TIMEFRAMES.find((timeframe_) => timeframe_.value === timeframe)
+        ?.label
     }
 
     const initialBalance = data.initial_balance
     const currentBalance = parseFloat(data.current_balance).toFixed(2)
     const profitAndLoss = (currentBalance - initialBalance).toFixed(2)
-    const profitAndLossPercentaje = ((currentBalance / initialBalance - 1) * 100).toFixed(2)
+    const profitAndLossPercentaje = (
+      (currentBalance / initialBalance - 1) *
+      100
+    ).toFixed(2)
 
     return {
       ...data,
@@ -182,11 +186,18 @@ const CurrentStrategy = () => {
           }
         })(),
         parameters: Object.keys(indicator.parameters).map((key) => ({
-          key: key.split("_").map((word) => capitalize(word)).join(" "),
+          key: key
+            .split("_")
+            .map((word) => capitalize(word))
+            .join(" "),
           value: indicator.parameters[key],
         })),
       })),
-      duration: transformDuration(data.state, data.start_timestamp, data.end_timestamp),
+      duration: transformDuration(
+        data.state,
+        data.start_timestamp,
+        data.end_timestamp
+      ),
       timeframe_label: transformTimeframe(data.timeframe),
     }
   }
@@ -206,31 +217,28 @@ const CurrentStrategy = () => {
           }))
           resolve(response.data)
         })
-        .catch(err => {
+        .catch((err) => {
           reject(err)
         })
     })
   }
 
-  const getCandleticks_ = (symbol, start, end, timeframe) => {
+  const getCandleticks_ = (
+    symbol,
+    start,
+    end,
+    timeframe,
+    initial_balance,
+    indicators
+  ) => {
     const body = {
       coins: [symbol],
-      initial_balance: 1000,
+      initial_balance,
       data_from: start,
       data_to: end,
-      timeframe: timeframe,
-      indicators: [
-        {
-          name: "MACD",
-          parameters: {
-            fast: 12,
-            slow: 26,
-            smoothed: 20,
-          },
-        },
-      ],
+      timeframe,
+      indicators,
     }
-
     run(body)
       .then((response) => {
         candleticksFunc((prevState) => ({
@@ -254,7 +262,9 @@ const CurrentStrategy = () => {
         strategy.data.currencies[0],
         strategy.data.start_timestamp,
         parseInt(Date.now() / 1000),
-        strategy.data.timeframe.toLowerCase()
+        strategy.data.timeframe.toLowerCase(),
+        parseInt(strategy.data.initial_balance),
+        strategy.data.indicators
       )
     }
   }, [
@@ -267,22 +277,21 @@ const CurrentStrategy = () => {
 
   const getState = () => {
     getStrategy()
-      .then(strategy => {
-        exchangeFunc(prevState => ({
+      .then((strategy) => {
+        exchangeFunc((prevState) => ({
           ...prevState,
           loading: true,
         }))
 
-        getExchange(strategy?.exchange_id)
-          .then(response => {
-            exchangeFunc(prevState => ({
-              ...prevState,
-              loading: false,
-              data: response?.data
-            }))
-          })
+        getExchange(strategy?.exchange_id).then((response) => {
+          exchangeFunc((prevState) => ({
+            ...prevState,
+            loading: false,
+            data: response?.data,
+          }))
+        })
       })
-      .catch(_ => {})
+      .catch((_) => {})
   }
 
   useEffect(() => {
@@ -321,11 +330,17 @@ const CurrentStrategy = () => {
                 <div className="label">Exchange</div>
                 <div className="value">
                   <>
-                    {exchange.loading && <div className="loader"><BeatLoader size={8} color="white" /></div>}
-                    {exchange.data && <div className="exchange-wrapper">
-                      <p>{exchange.data.alias}</p>
-                      <img alt="Binance" src={logoBinance} width="24px" />
-                    </div>}
+                    {exchange.loading && (
+                      <div className="loader">
+                        <BeatLoader size={8} color="white" />
+                      </div>
+                    )}
+                    {exchange.data && (
+                      <div className="exchange-wrapper">
+                        <p>{exchange.data.alias}</p>
+                        <img alt="Binance" src={logoBinance} width="24px" />
+                      </div>
+                    )}
                   </>
                 </div>
               </div>
@@ -356,7 +371,7 @@ const CurrentStrategy = () => {
           <div>
             <h2>Graphs</h2>
             <div style={{ display: "flex", justifyContent: "center" }}>
-              <div style={{ marginRight: "3rem" }}>
+              {/* <div style={{ marginRight: "3rem" }}>
                 <FieldDatePicker
                   label="Select the start date"
                   name="start"
@@ -371,11 +386,14 @@ const CurrentStrategy = () => {
                 value={selectedDates.end}
                 onChange={onChange}
                 width={140}
-              />
+              /> */}
             </div>
             <div>
               <h3>Comparison of Strategies</h3>
-              {false && <Chart data={candleticks.data} />}
+              <StrategyComparisonChart
+                data={candleticks.data[strategy.data.currencies[0]]?.series}
+                colors={["#87CEEB", "#00FF00"]}
+              />
             </div>
             {false && (
               <div className="graph-item">
