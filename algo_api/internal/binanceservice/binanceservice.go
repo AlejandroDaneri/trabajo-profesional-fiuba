@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"sync"
 
@@ -56,7 +57,7 @@ func NewServiceUsingEnvVars() IService {
 type IService interface {
 	GetPrice(symbol string) (string, error)
 	GetBalance() (string, error)
-	GetAmount(symbol string) (string, error)
+	GetAmount(symbol string) (float64, error)
 	GetCandleticks(symbol string, start int, end int, timeframe string) ([]Candlestick, error)
 	Buy(symbol string) error
 	Sell(symbol string) error
@@ -74,13 +75,13 @@ func (s *BinanceService) GetPrice(symbol string) (string, error) {
 	return ticker.LastPrice, nil
 }
 
-func (s *BinanceService) GetAmount(symbol string) (string, error) {
+func (s *BinanceService) GetAmount(symbol string) (float64, error) {
 	response, err := s.client.NewGetAccountService().Do(context.Background())
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
 		}).Error("Could not get coin balances")
-		return "0.0", nil
+		return 0, nil
 	}
 	amount := 0.0
 	for _, balance := range response.Balances {
@@ -89,7 +90,7 @@ func (s *BinanceService) GetAmount(symbol string) (string, error) {
 			break
 		}
 	}
-	return utils.Float2String(amount), nil
+	return amount, nil
 }
 
 func (s *BinanceService) GetBalance() (string, error) {
@@ -145,23 +146,33 @@ func (s *BinanceService) GetCandleticks(symbol string, start int, end int, timef
 	return candlesticks, nil
 }
 
-func (s *BinanceService) getMinMaxOrderQuantity(symbol string) (string, string, error) {
+func (s *BinanceService) getOrderInfo(symbol string) (minQty, maxQty, stepSize float64, err error) {
 	exchangeInfo, err := s.client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
-		return "", "", err
+		return 0, 0, 0, err
 	}
 
 	for _, s := range exchangeInfo.Symbols {
 		if s.Symbol == (symbol + "USDT") {
 			for _, filter := range s.Filters {
 				if filter.FilterType == "LOT_SIZE" {
-					return filter.MinQty, filter.MaxQty, nil
+					return utils.String2float(filter.MinQty), utils.String2float(filter.MaxQty), utils.String2float(filter.StepSize), nil
 				}
 			}
 		}
 	}
 
-	return "", "", errors.New("could not find symbol")
+	return 0, 0, 0, errors.New("could not find symbol")
+}
+
+func adjustQuantityForLotSize(quantity, minQty, maxQty, stepSize float64) float64 {
+	if quantity < minQty {
+		return minQty
+	}
+	if quantity > maxQty {
+		return maxQty
+	}
+	return math.Floor(quantity/stepSize) * stepSize
 }
 
 func (s *BinanceService) getOrderPrecision(symbol string) (int64, error) {
@@ -180,13 +191,7 @@ func (s *BinanceService) getOrderPrecision(symbol string) (int64, error) {
 }
 
 func (s *BinanceService) Buy(symbol string) error {
-	usdt, err := s.GetAmount("USDT")
-	if err != nil {
-		logrus.Error("Could not get USDT amount")
-		return err
-	}
-
-	btcPrice, err := s.GetPrice(symbol)
+	_, err := s.GetPrice(symbol)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"symbol": symbol,
@@ -194,64 +199,68 @@ func (s *BinanceService) Buy(symbol string) error {
 		return err
 	}
 
-	amount := utils.String2float(btcPrice) / utils.String2float(usdt)
-
-	// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
-	_, maxOrderQuantity, err := s.getMinMaxOrderQuantity(symbol)
+	min, max, step, err := s.getOrderInfo(symbol)
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
 
-	// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
-	precision, err := s.getOrderPrecision(symbol)
+	_, err = s.getOrderPrecision(symbol)
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
 
-	logrus.WithFields(logrus.Fields{
-		"amount":             amount,
-		"precision":          precision,
-		"max order quantity": maxOrderQuantity,
-	}).Info("Buy: started")
-
-	amountCompleted := 0.0
-	for amountCompleted < amount {
-		chunk := utils.String2float(maxOrderQuantity) / utils.String2float(btcPrice)
-
-		chunk2 := utils.String2float(fmt.Sprintf("%.8f", chunk))
-
-		logrus.WithFields(logrus.Fields{
-			"chunk": chunk2,
-		}).Info("Buy: chunk")
-
-		_, err = s.client.NewCreateOrderService().
-			Symbol(symbol + "USDT").
-			Side("BUY").
-			Type("MARKET").
-			Quantity(chunk2).
-			Do(context.Background())
-
+	for {
+		usdt, err := s.GetAmount("USDT")
 		if err != nil {
-			amountCompleted = amountCompleted + chunk2
+			continue
 		}
 
-		if err != nil {
-			logrus.Error(err)
-			return err
+		// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
+		qty := adjustQuantityForLotSize(usdt, min, max, step)
+
+		// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
+		// TO-DO: use precision here
+		formattedQty := utils.String2float(fmt.Sprintf("%.8f", qty))
+
+		logrus.Infof("USDT remaining: %f", usdt)
+
+		if usdt < 1 {
+			logrus.Info("Buy: completed")
+			break
+		}
+
+		if usdt > 0.0 {
+			_, err = s.client.NewCreateOrderService().
+				Symbol(symbol + "USDT").
+				Side("BUY").
+				Type("MARKET").
+				QuoteOrderQty(formattedQty).
+				Do(context.Background())
+
+			if err != nil {
+				logrus.Error(err)
+				continue
+			}
 		}
 	}
 
-	return err
+	return nil
 }
 
 func (s *BinanceService) Sell(symbol string) error {
-	_, err := s.client.NewCreateOrderService().
+	amount, err := s.GetAmount(symbol)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.client.NewCreateOrderService().
 		Symbol(symbol + "USDT").
 		Side("SELL").
 		Type("MARKET").
-		Quantity(0.5).
+		Quantity(amount).
 		Do(context.Background())
+
 	return err
 }

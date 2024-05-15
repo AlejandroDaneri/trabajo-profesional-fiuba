@@ -217,5 +217,5 @@ func (t *ExchangesService) GetAmount(id string, symbol string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return amount, nil
+	return utils.Float2String(amount), nil
 }
