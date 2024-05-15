@@ -164,6 +164,21 @@ func (s *BinanceService) getMinMaxOrderQuantity(symbol string) (string, string, 
 	return "", "", errors.New("could not find symbol")
 }
 
+func (s *BinanceService) getOrderPrecision(symbol string) (int64, error) {
+	exchangeInfo, err := s.client.NewExchangeInfoService().Do(context.Background())
+	if err != nil {
+		return 0, err
+	}
+
+	for _, s := range exchangeInfo.Symbols {
+		if s.Symbol == (symbol + "USDT") {
+			return s.BaseAssetPrecision, nil
+		}
+	}
+
+	return 0, errors.New("could not find symbol")
+}
+
 func (s *BinanceService) Buy(symbol string) error {
 	usdt, err := s.GetAmount("USDT")
 	if err != nil {
@@ -181,22 +196,30 @@ func (s *BinanceService) Buy(symbol string) error {
 
 	amount := utils.String2float(btcPrice) / utils.String2float(usdt)
 
-	logrus.WithFields(logrus.Fields{
-		"amount": amount,
-	}).Info("Buy: started")
-
+	// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
 	_, maxOrderQuantity, err := s.getMinMaxOrderQuantity(symbol)
 	if err != nil {
 		logrus.Error(err)
 		return err
 	}
 
-	// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
+	// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
+	precision, err := s.getOrderPrecision(symbol)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	logrus.WithFields(logrus.Fields{
+		"amount":             amount,
+		"precision":          precision,
+		"max order quantity": maxOrderQuantity,
+	}).Info("Buy: started")
+
 	amountCompleted := 0.0
 	for amountCompleted < amount {
 		chunk := utils.String2float(maxOrderQuantity) / utils.String2float(btcPrice)
 
-		// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
 		chunk2 := utils.String2float(fmt.Sprintf("%.8f", chunk))
 
 		logrus.WithFields(logrus.Fields{
