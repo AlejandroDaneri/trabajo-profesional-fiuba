@@ -12,7 +12,7 @@ import FieldSelect from "../components/reusables/FieldSelect"
 import FieldSwitch from "../components/reusables/FieldSwitch"
 import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Button from "../components/Button"
-import Chart from "../components/reusables/Chart"
+import StrategyComparisonChart from "../components/reusables/Chart"
 import RiskComparisonChart from "../components/RiskComparisonChart"
 import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../components/Popup"
 
@@ -552,7 +552,7 @@ const Backtesting = () => {
 
                 <div className="chart-container">
                   <h3>Strategy vs Buy and Hold</h3>
-                  <Chart
+                  <StrategyComparisonChart
                     data={backtesting.data[state.coin.value]?.series}
                     colors={["#87CEEB", "#00FF00"]}
                   />
