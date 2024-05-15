@@ -403,5 +403,16 @@ func (s *StrategyService) Sell(id string) error {
 		}).Error("Could not sell")
 		return err
 	}
+
+	price, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetPrice(trade.Pair)
+	if err != nil {
+		return err
+	}
+
+	err = s.tradeservice.Close(price)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

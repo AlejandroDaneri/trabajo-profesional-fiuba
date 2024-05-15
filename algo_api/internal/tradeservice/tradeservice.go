@@ -3,9 +3,11 @@ package tradeservice
 import (
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
+	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 )
 
 var instance IService
@@ -31,7 +33,8 @@ func NewService() IService {
 type IService interface {
 	Create(trade map[string]interface{}, strategyID string) (string, error)
 	Get(id string) (*database.TradeResponseFields, error)
-	GetOpen() (*database.TradeResponseFields, error)
+	GetOpen() (*database.Trade, error)
+	Close(price string) error
 	ListAll() ([]*database.TradeResponseFields, error)
 	ListByStrategy(strategyID string) ([]*database.TradeResponseFields, error)
 	Remove(id string) error
@@ -78,7 +81,7 @@ func (s *TradeService) Get(id string) (*database.TradeResponseFields, error) {
 	}, nil
 }
 
-func (s *TradeService) GetOpen() (*database.TradeResponseFields, error) {
+func (s *TradeService) GetOpen() (*database.Trade, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
@@ -114,10 +117,33 @@ func (s *TradeService) GetOpen() (*database.TradeResponseFields, error) {
 		}
 
 	}
-	return &database.TradeResponseFields{
-		TradePublicFields: trade.TradePublicFields,
-		ID:                trade.ID,
-	}, nil
+	return &trade, nil
+}
+
+func (s *TradeService) Close(price string) error {
+	trade, err := s.GetOpen()
+	if err != nil {
+		return err
+	}
+
+	trade.Orders.Sell = database.TradePublicSell{}
+	trade.Orders.Sell.Price = price
+	trade.Orders.Sell.Timestamp = time.Now().Unix() * 1000
+
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return err
+	}
+	doc, err := utils.StructToMap(trade)
+	if err != nil {
+		return err
+	}
+	_, _, err = db.Save(doc, nil)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *TradeService) ListAll() ([]*database.TradeResponseFields, error) {
