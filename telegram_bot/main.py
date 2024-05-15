@@ -20,8 +20,7 @@ def start(update, context):
         else:
             print("Failed to post chat ID. Status code:", response_telegram_api.status_code)
 
-def main():
-
+def fetchChatIds():
     response_algo_api = api.get('telegram/chats')
     if response_algo_api.status_code // 100 == 2:
         print("ChatIds retrieved successfully")
@@ -35,6 +34,9 @@ def main():
     if(chat_ids_api != None):
         for chat_id in chat_ids_api:
             chat_ids.append(chat_id)
+
+def main():
+    fetchChatIds()
 
     updater = Updater(os.environ.get('BOT_TOKEN'), use_context=True)
 

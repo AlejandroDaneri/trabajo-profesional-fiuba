@@ -23,8 +23,6 @@ def get_all_chat_ids():
         for chat_id in chat_ids_api:
             chat_ids.append(chat_id)
     
-    print(chat_ids)
-    
     return chat_ids
 
 def post_telegram_chat(chat_id):
