@@ -3,6 +3,7 @@ package binanceservice
 import (
 	"algo_api/internal/utils"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"sync"
@@ -144,14 +145,82 @@ func (s *BinanceService) GetCandleticks(symbol string, start int, end int, timef
 	return candlesticks, nil
 }
 
-func (s *BinanceService) Buy(symbol string) error {
-	_, err := s.client.NewOrderBookService().
-		Symbol(symbol + "USDT").Do(context.Background())
+func (s *BinanceService) getMinMaxOrderQuantity(symbol string) (string, string, error) {
+	exchangeInfo, err := s.client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
-		logrus.Error("Could not buy")
+		return "", "", err
+	}
+
+	for _, s := range exchangeInfo.Symbols {
+		if s.Symbol == (symbol + "USDT") {
+			for _, filter := range s.Filters {
+				if filter.FilterType == "LOT_SIZE" {
+					return filter.MinQty, filter.MaxQty, nil
+				}
+			}
+		}
+	}
+
+	return "", "", errors.New("could not find symbol")
+}
+
+func (s *BinanceService) Buy(symbol string) error {
+	usdt, err := s.GetAmount("USDT")
+	if err != nil {
+		logrus.Error("Could not get USDT amount")
 		return err
 	}
-	return nil
+
+	btcPrice, err := s.GetPrice(symbol)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"symbol": symbol,
+		}).Error("Could not get price")
+		return err
+	}
+
+	amount := utils.String2float(btcPrice) / utils.String2float(usdt)
+
+	logrus.WithFields(logrus.Fields{
+		"amount": amount,
+	}).Info("Buy: started")
+
+	_, maxOrderQuantity, err := s.getMinMaxOrderQuantity(symbol)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
+	amountCompleted := 0.0
+	for amountCompleted < amount {
+		chunk := utils.String2float(maxOrderQuantity) / utils.String2float(btcPrice)
+
+		// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
+		chunk2 := utils.String2float(fmt.Sprintf("%.8f", chunk))
+
+		logrus.WithFields(logrus.Fields{
+			"chunk": chunk2,
+		}).Info("Buy: chunk")
+
+		_, err = s.client.NewCreateOrderService().
+			Symbol(symbol + "USDT").
+			Side("BUY").
+			Type("MARKET").
+			Quantity(chunk2).
+			Do(context.Background())
+
+		if err != nil {
+			amountCompleted = amountCompleted + chunk2
+		}
+
+		if err != nil {
+			logrus.Error(err)
+			return err
+		}
+	}
+
+	return err
 }
 
 func (s *BinanceService) Sell(symbol string) error {
