@@ -4,6 +4,8 @@ import (
 	"algo_api/internal/binanceservice"
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
+	"algo_api/internal/exchangesservice"
+	"algo_api/internal/tradeservice"
 	"algo_api/internal/utils"
 	"encoding/json"
 	"errors"
@@ -27,12 +29,16 @@ func GetInstance() IService {
 type StrategyService struct {
 	databaseservice databaseservice.IService
 	binanceservice  binanceservice.IService
+	exchangeservice exchangesservice.IService
+	tradeservice    tradeservice.IService
 }
 
 func NewService() IService {
 	return &StrategyService{
 		databaseservice: databaseservice.GetInstance(),
 		binanceservice:  binanceservice.GetInstance(),
+		exchangeservice: exchangesservice.GetInstance(),
+		tradeservice:    tradeservice.GetInstance(),
 	}
 }
 
@@ -47,6 +53,8 @@ type IService interface {
 	Stop(id string) error
 	DeleteAll() error
 	Delete(id string) error
+	Buy(id string, symbol string) error
+	Sell(id string) error
 }
 
 func (s *StrategyService) get(id string) (*database.Strategy, error) {
@@ -325,4 +333,86 @@ func (s *StrategyService) Delete(id string) error {
 	err = db.Delete(id)
 
 	return err
+}
+
+func (s *StrategyService) Buy(id string, symbol string) error {
+	strategy, err := s.get(id)
+	if err != nil {
+		return err
+	}
+	exchange, err := s.exchangeservice.GetExchange(strategy.ExchangeId)
+	if err != nil {
+		return err
+	}
+	err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Buy(symbol)
+	if err != nil {
+		return err
+	}
+
+	amount, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetAmount(symbol)
+	if err != nil {
+		return err
+	}
+
+	price, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetPrice(symbol)
+	if err != nil {
+		return err
+	}
+
+	trade := map[string]interface{}{
+		"pair":   symbol,
+		"amount": utils.Float2String(amount),
+		"orders": map[string]interface{}{
+			"buy": map[string]interface{}{
+				"price":     price,
+				"timestamp": time.Now().Unix() * 1000,
+			},
+		},
+	}
+
+	_, err = s.tradeservice.Create(trade, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *StrategyService) Sell(id string) error {
+	strategy, err := s.get(id)
+	if err != nil {
+		logrus.Error("Could not get strategy")
+		return err
+	}
+	exchange, err := s.exchangeservice.GetExchange(strategy.ExchangeId)
+	if err != nil {
+		return err
+	}
+
+	trade, err := s.tradeservice.GetOpen()
+	if err != nil {
+		logrus.Error("Could not find open trade")
+		return err
+	}
+
+	err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Sell(trade.Pair)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":  err,
+			"coin": trade.Pair,
+		}).Error("Could not sell")
+		return err
+	}
+
+	price, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetPrice(trade.Pair)
+	if err != nil {
+		return err
+	}
+
+	err = s.tradeservice.Close(price)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

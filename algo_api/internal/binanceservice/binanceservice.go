@@ -3,7 +3,9 @@ package binanceservice
 import (
 	"algo_api/internal/utils"
 	"context"
+	"errors"
 	"fmt"
+	"math"
 	"os"
 	"sync"
 
@@ -55,7 +57,10 @@ func NewServiceUsingEnvVars() IService {
 type IService interface {
 	GetPrice(symbol string) (string, error)
 	GetBalance() (string, error)
+	GetAmount(symbol string) (float64, error)
 	GetCandleticks(symbol string, start int, end int, timeframe string) ([]Candlestick, error)
+	Buy(symbol string) error
+	Sell(symbol string) error
 }
 
 func (s *BinanceService) GetPrice(symbol string) (string, error) {
@@ -70,6 +75,24 @@ func (s *BinanceService) GetPrice(symbol string) (string, error) {
 	return ticker.LastPrice, nil
 }
 
+func (s *BinanceService) GetAmount(symbol string) (float64, error) {
+	response, err := s.client.NewGetAccountService().Do(context.Background())
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not get coin balances")
+		return 0, nil
+	}
+	amount := 0.0
+	for _, balance := range response.Balances {
+		if balance.Asset == symbol {
+			amount = utils.String2Float(balance.Free) + utils.String2Float(balance.Locked)
+			break
+		}
+	}
+	return amount, nil
+}
+
 func (s *BinanceService) GetBalance() (string, error) {
 	response, err := s.client.NewGetAccountService().Do(context.Background())
 	if err != nil {
@@ -81,7 +104,7 @@ func (s *BinanceService) GetBalance() (string, error) {
 	balanceTotal := 0.0
 	for _, balance := range response.Balances {
 		symbol := balance.Asset
-		amount := utils.String2float(balance.Free) + utils.String2float(balance.Locked)
+		amount := utils.String2Float(balance.Free) + utils.String2Float(balance.Locked)
 		if symbol == "USDT" {
 			balanceTotal += amount
 		}
@@ -93,7 +116,7 @@ func (s *BinanceService) GetBalance() (string, error) {
 		if err != nil {
 			continue
 		}
-		balanceTotal += amount * utils.String2float(price)
+		balanceTotal += amount * utils.String2Float(price)
 	}
 
 	return fmt.Sprintf("%.2f", balanceTotal), nil
@@ -121,4 +144,123 @@ func (s *BinanceService) GetCandleticks(symbol string, start int, end int, timef
 		})
 	}
 	return candlesticks, nil
+}
+
+func (s *BinanceService) getOrderInfo(symbol string) (minQty, maxQty, stepSize float64, err error) {
+	exchangeInfo, err := s.client.NewExchangeInfoService().Do(context.Background())
+	if err != nil {
+		return 0, 0, 0, err
+	}
+
+	for _, s := range exchangeInfo.Symbols {
+		if s.Symbol == (symbol + "USDT") {
+			for _, filter := range s.Filters {
+				if filter.FilterType == "LOT_SIZE" {
+					return utils.String2Float(filter.MinQty), utils.String2Float(filter.MaxQty), utils.String2Float(filter.StepSize), nil
+				}
+			}
+		}
+	}
+
+	return 0, 0, 0, errors.New("could not find symbol")
+}
+
+func adjustQuantityForLotSize(quantity, minQty, maxQty, stepSize float64) float64 {
+	if quantity < minQty {
+		return minQty
+	}
+	if quantity > maxQty {
+		return maxQty
+	}
+	return math.Floor(quantity/stepSize) * stepSize
+}
+
+func (s *BinanceService) getOrderPrecision(symbol string) (int64, error) {
+	exchangeInfo, err := s.client.NewExchangeInfoService().Do(context.Background())
+	if err != nil {
+		return 0, err
+	}
+
+	for _, s := range exchangeInfo.Symbols {
+		if s.Symbol == (symbol + "USDT") {
+			return s.BaseAssetPrecision, nil
+		}
+	}
+
+	return 0, errors.New("could not find symbol")
+}
+
+func (s *BinanceService) Buy(symbol string) error {
+	_, err := s.GetPrice(symbol)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"symbol": symbol,
+		}).Error("Could not get price")
+		return err
+	}
+
+	min, max, step, err := s.getOrderInfo(symbol)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	_, err = s.getOrderPrecision(symbol)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	for {
+		usdt, err := s.GetAmount("USDT")
+		if err != nil {
+			continue
+		}
+
+		// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
+		qty := adjustQuantityForLotSize(usdt, min, max, step)
+
+		// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
+		// TO-DO: use precision here
+		formattedQty := utils.String2Float(fmt.Sprintf("%.8f", qty))
+
+		logrus.Infof("USDT remaining: %f", usdt)
+
+		if usdt < 1 {
+			logrus.Info("Buy: completed")
+			break
+		}
+
+		if usdt > 0.0 {
+			_, err = s.client.NewCreateOrderService().
+				Symbol(symbol + "USDT").
+				Side("BUY").
+				Type("MARKET").
+				QuoteOrderQty(formattedQty).
+				Do(context.Background())
+
+			if err != nil {
+				logrus.Error(err)
+				continue
+			}
+		}
+	}
+
+	return nil
+}
+
+func (s *BinanceService) Sell(symbol string) error {
+	amount, err := s.GetAmount(symbol)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.client.NewCreateOrderService().
+		Symbol(symbol + "USDT").
+		Side("SELL").
+		Type("MARKET").
+		Quantity(amount).
+		Do(context.Background())
+
+	return err
 }
