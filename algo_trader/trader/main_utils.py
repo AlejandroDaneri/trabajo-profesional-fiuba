@@ -5,8 +5,8 @@ from lib.providers.binance import Binance as BinanceProvider
 from lib.strategies.strategy import Strategy
 from lib.utils.utils import hydrate_strategy, timeframe_2_seconds
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
-from lib.exchanges.binance import Binance as BinanceExchange
 from lib.exchanges.exchange import Exchange
+from lib.exchanges.dummy import Dummy
 from api_client import ApiClient
 import time
 import sentry_sdk
@@ -63,7 +63,7 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dic
     response = api.get(f'exchanges/{exchange_id}')
     exchange = response.json()
 
-    exchange = BinanceExchange(exchange["api_key"], exchange["api_secret"])
+    exchange = Dummy()
 
     return strategy, exchange
 
@@ -79,10 +79,10 @@ def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: Trade
             if trade.is_closed():
                 # save closed trade
                 notify_telegram_users(trade)
-                response = api.post(f'strategy/{strategy_id}/sell')
+                response = api.put(f'strategy/{strategy_id}/sell')
             else:
                 # trade current: buy executed but not sell yet
-                response = api.post(f'strategy/{strategy_id}/buy/{trade.symbol}')
+                response = api.put(f'strategy/{strategy_id}/buy/{trade.symbol}')
 
     time.sleep(timeframe_2_seconds(strategy[currency].get_timeframe()))                  
     print("\n")
