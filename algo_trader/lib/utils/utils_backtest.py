@@ -1,9 +1,10 @@
 from lib.indicators import *
 from lib.strategies.strategy import Strategy
 from lib.strategies.basic import Basic
+from lib.strategies.TDstrategy import TDstrategy
 from typing import Dict
 
-def hydrate_strategy( currencies, indicators, timeframe, id) -> Dict[str, Strategy]:
+def hydrate_strategy(currencies, indicators, timeframe, type) -> Dict[str, Strategy]:
     strategy = {}
     for currency in currencies:
         indicators_builded = []
@@ -22,6 +23,9 @@ def hydrate_strategy( currencies, indicators, timeframe, id) -> Dict[str, Strate
                 indicators_builded.append(instance)
 
         
-        strategy[currency] = Basic(indicators_builded, timeframe, id)
+        if type == "basic" or type == "":
+            strategy[currency] = Basic(indicators_builded, timeframe, id)
+        elif type == "td":
+            strategy[currency] = TDstrategy(indicators_builded, timeframe, id)
 
     return strategy

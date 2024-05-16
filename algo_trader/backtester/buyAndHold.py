@@ -17,11 +17,11 @@ class BuyAndHoldBacktester:
         final_balance = (sell_price / buy_price) * self.initial_balance
 
         pct_change = self.historical_data['Close'].pct_change()
-        self.strategy_linear_returns = pct_change
-        self.strategy_returns = (1 + self.strategy_linear_returns).cumprod()
+        self.linear_returns = pct_change
+        self.returns = (1 + self.linear_returns).cumprod()
         self.benchmark_returns = pct_change.add(1).cumprod()
 
-        self.strategy_log_returns = np.log(self.strategy_returns / self.strategy_returns.shift())
+        self.log_returns = np.log(self.returns / self.returns.shift())
         self.benchmark_log_returns = np.log(self.benchmark_returns / self.benchmark_returns.shift())
 
         trades = pd.DataFrame({
