@@ -38,7 +38,7 @@ const StrategyStyle = styled.div`
       margin-right: 10px;
     }
   }
-`;
+`
 
 const OptionStyle = styled.div`
   display: flex;
@@ -56,7 +56,7 @@ const OptionStyle = styled.div`
     width: 20px;
     height: 20px;
   }
-`;
+`
 
 const Currency = ({ currency }) => {
   return (
@@ -64,11 +64,11 @@ const Currency = ({ currency }) => {
       <p>{currency}</p>
       <CurrencyLogo currency={currency} />
     </OptionStyle>
-  );
-};
+  )
+}
 
-const CURRENCIES = ["BTC", "ETH", "SOL"];
-const INDICATORS = ["EMA", "RSI", "MACD"];
+const CURRENCIES = ["BTC", "ETH", "SOL"]
+const INDICATORS = ["EMA", "RSI", "MACD"]
 
 const Strategy = ({ onCloseModal, onAdd }) => {
   const [strategy, strategyFunc] = useState({
@@ -79,13 +79,14 @@ const Strategy = ({ onCloseModal, onAdd }) => {
   const [exchanges, exchangesFunc] = useState()
 
   useEffect(() => {
-    list()
-      .then(response => {
-        exchangesFunc(response.data.map(exchange => ({
+    list().then((response) => {
+      exchangesFunc(
+        response.data.map((exchange) => ({
           value: exchange.id,
-          label: exchange.alias
-        })))
-      })
+          label: exchange.alias,
+        }))
+      )
+    })
   }, [])
 
   const onChange = (key, value) => {
@@ -119,10 +120,10 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         return {
           name: row.value,
           parameters: createParameters(row.value),
-        };
+        }
       }),
       timeframe: strategy.data.timeframe.value,
-      exchange_id: strategy.data.exchange?.value
+      exchange_id: strategy.data.exchange?.value,
     }
   }
 
@@ -137,17 +138,17 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
-        }));
-        onCloseModal();
-        onAdd();
+        }))
+        onCloseModal()
+        onAdd()
       })
       .catch((_) => {
         strategyFunc((prevState) => ({
           ...prevState,
           loading: false,
-        }));
-      });
-  };
+        }))
+      })
+  }
 
   return (
     <StrategyStyle>
@@ -206,7 +207,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         <Button text="Save" onClick={onSave} loading={strategy.loading} />
       </div>
     </StrategyStyle>
-  );
-};
+  )
+}
 
-export default Strategy;
+export default Strategy

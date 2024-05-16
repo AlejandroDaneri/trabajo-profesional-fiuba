@@ -1,8 +1,8 @@
-import "../styles/errorModal.css";
+import "../styles/errorModal.css"
 
-import { FaExclamationCircle, FaTimes } from "react-icons/fa";
+import { FaExclamationCircle, FaTimes } from "react-icons/fa"
 
-import React from "react";
+import React from "react"
 
 const ErrorModal = ({ isOpen, message, onClose }) => {
   return (
@@ -15,7 +15,7 @@ const ErrorModal = ({ isOpen, message, onClose }) => {
         <p className="error-message">{message}</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ErrorModal;
+export default ErrorModal

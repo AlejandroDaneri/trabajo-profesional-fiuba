@@ -15,6 +15,9 @@ import Exchange from "./Exchange"
 import { list, remove, getBalance } from "../webapi/exchanges"
 import { theme } from "../utils/theme"
 
+/* Import Images */
+import logoBinance from "../images/logos/exchanges/binance.svg"
+
 const ExchangesStyle = styled.div`
   padding: 20px;
   width: 70%;
@@ -22,6 +25,19 @@ const ExchangesStyle = styled.div`
   & .loader {
     display: flex;
     justify-content: center;
+  }
+
+  & .brand {
+    display: flex;
+    justify-content: center;
+
+    & p {
+      margin: 0;
+    }
+
+    & img {
+      margin-left: 5px;
+    }
   }
 
   & .actions {
@@ -38,7 +54,7 @@ const ExchangesStyle = styled.div`
 
 const Exchanges = () => {
   const [state, stateFunc] = useState({
-    data: {}
+    data: {},
   })
 
   const [addModal, addModalFunc] = useState({
@@ -56,7 +72,7 @@ const Exchanges = () => {
     addModalFunc((prevState) => ({
       ...prevState,
       show: true,
-      id: ''
+      id: "",
     }))
   }
 
@@ -68,68 +84,65 @@ const Exchanges = () => {
     addModalFunc((prevState) => ({
       ...prevState,
       show: true,
-      id: row.id
+      id: row.id,
     }))
   }
 
   const onDelete = (row) => {
-    remove(row.id)
-      .then(_ => {
-        getState()
-      })
+    remove(row.id).then((_) => {
+      getState()
+    })
   }
 
-
   const transformToView = (data) => {
-    return data.map(exchange => ({
-      ...exchange,
-      balance: {
-        loading: true,
-        value: ''
-      }
-    })).reduce((exchanges, exchange) => {
-      return {
-        ...exchanges,
-        [exchange.id]: exchange
-      }
-    }, {})
+    return data
+      .map((exchange) => ({
+        ...exchange,
+        balance: {
+          loading: true,
+          value: "",
+        },
+      }))
+      .reduce((exchanges, exchange) => {
+        return {
+          ...exchanges,
+          [exchange.id]: exchange,
+        }
+      }, {})
   }
 
   const getExchanges = () => {
     return new Promise((resolve, reject) => {
-      list()
-        .then(response => {
-          stateFunc(prevState => ({
-            ...prevState,
-            data: transformToView(response?.data || [])
-          }))
-          resolve(response.data)
-        })
+      list().then((response) => {
+        stateFunc((prevState) => ({
+          ...prevState,
+          data: transformToView(response?.data || []),
+        }))
+        resolve(response.data)
+      })
     })
   }
 
   const getState = () => {
-    getExchanges()
-      .then(data => {
-        data.forEach(exchange => {
-          getBalance(exchange.id)
-            .then(response => {
-              stateFunc(prevState => ({
-                ...prevState,
-                data: {
-                  ...prevState.data,
-                  [exchange.id]: {
-                      ...exchange,
-                      balance: {
-                        loading: false,
-                        value: response.data
-                      }
-                    }
-                }
-              }))
-            })
+    getExchanges().then((data) => {
+      data.forEach((exchange) => {
+        getBalance(exchange.id).then((response) => {
+          stateFunc((prevState) => ({
+            ...prevState,
+            data: {
+              ...prevState.data,
+              [exchange.id]: {
+                ...exchange,
+                balance: {
+                  loading: false,
+                  value: response.data,
+                },
+              },
+            },
+          }))
         })
       })
+    })
   }
 
   useEffect(() => {
@@ -148,41 +161,50 @@ const Exchanges = () => {
     },
     {
       value: "balance",
-      label: "Balance"
+      label: "Balance",
     },
     {
       value: "actions",
       label: "Actions",
-    }
+    },
   ]
 
   const buildRow = (row) => {
     return [
       row.alias,
-      'Binance',
-      row.balance.loading ? <div className='loader'><Loader size={8} color={theme.white} /></div> : row.balance.value,
+      <div className="brand">
+        <p>Binance</p>
+        <img alt="Binance" src={logoBinance} width="24px" />
+      </div>,
+      row.balance.loading ? (
+        <div className="loader">
+          <Loader size={8} color={theme.white} />
+        </div>
+      ) : (
+        row.balance.value
+      ),
       <div className="actions">
         <div className="button-container">
-            <Button
-              width={25}
-              height={25}
-              text={<i className="material-icons">edit</i>}
-              tooltip="Edit"
-              onClick={() => onEdit(row)}
-              circle
-            />
-          </div>
-          <div className="button-container">
-            <Button
-              width={25}
-              height={25}
-              text={<i className="material-icons">delete</i>}
-              tooltip="Delete"
-              onClick={() => onDelete(row)}
-              circle
-            />
-          </div>
-      </div>
+          <Button
+            width={25}
+            height={25}
+            text={<i className="material-icons">edit</i>}
+            tooltip="Edit"
+            onClick={() => onEdit(row)}
+            circle
+          />
+        </div>
+        <div className="button-container">
+          <Button
+            width={25}
+            height={25}
+            text={<i className="material-icons">delete</i>}
+            tooltip="Delete"
+            onClick={() => onDelete(row)}
+            circle
+          />
+        </div>
+      </div>,
     ]
   }
 
@@ -190,7 +212,14 @@ const Exchanges = () => {
     <>
       <Modal
         title="Exchange"
-        content={<Exchange open={addModal.show} id={addModal.id} onCloseModal={onToggleAddModal} onAdd={onAdd} />}
+        content={
+          <Exchange
+            open={addModal.show}
+            id={addModal.id}
+            onCloseModal={onToggleAddModal}
+            onAdd={onAdd}
+          />
+        }
         open={addModal.show}
         onToggleOpen={onToggleAddModal}
         width="900px"
@@ -206,12 +235,16 @@ const Exchanges = () => {
         ]}
         content={
           <ExchangesStyle>
-            <Table headers={headers} data={Object.values(state.data)} buildRow={buildRow} />
+            <Table
+              headers={headers}
+              data={Object.values(state.data)}
+              buildRow={buildRow}
+            />
           </ExchangesStyle>
         }
       />
     </>
-  );
-};
+  )
+}
 
-export default Exchanges;
+export default Exchanges

@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import BounceLoader from "react-spinners/BounceLoader"
-import moment from 'moment'
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
@@ -13,6 +12,8 @@ import StrategiesStyle from "../styles/strategies"
 
 /* Import Utils */
 import { capitalize } from "../utils/string"
+import { theme } from "../utils/theme"
+import { getDuration } from "../utils/date"
 
 /* Import Components */
 import CurrencyLogo from "../components/CurrencyLogo"
@@ -39,7 +40,8 @@ import logoBinance from "../images/logos/exchanges/binance.svg"
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
 import Loader from "react-spinners/BeatLoader"
-import { theme } from "../utils/theme"
+
+
 
 const Strategies = () => {
   const dispatch = useDispatch()
@@ -61,53 +63,63 @@ const Strategies = () => {
   })
 
   const transformToView = (data) => {
-
     const transformState = (state) => {
       switch (state) {
-        case 'created':
+        case "created":
           return 0
-        case 'running':
+        case "running":
           return 1
-        case 'finished':
+        case "finished":
           return 2
         default:
           return 0
       }
     }
 
-    const getDuration = (start, end) => {
-      const end_ = end || (Date.now() / 1000)
-      return moment.utc((end_ - start) * 1000).format('HH:mm:ss')
-    }
-
     const transformTimeframe = (timeframe) => {
-      return TIMEFRAMES.find(timeframe_ => timeframe_.value === timeframe)?.label
+      return TIMEFRAMES.find((timeframe_) => timeframe_.value === timeframe)
+        ?.label
     }
 
-    return data.map((strategy) => ({
-      ...strategy,
-      state_value: transformState(strategy.state),
-      state_label: capitalize(strategy.state),
-      duration: getDuration(strategy.start_timestamp, strategy.end_timestamp),
-      timeframe: transformTimeframe(strategy.timeframe),
-      current_balance: parseInt(strategy.current_balance).toFixed(2)
-    })).reduce((strategies, strategy) => {
-      return {
-        ...strategies,
-        [strategy.id]: {
-          ...strategy,
-          exchange: {
-            loading: true,
-            value: {}
-          }
-        }
+    const transformDuration = (state, start, end) => {
+      switch(state) {
+        case "created":
+          return ""
+        case "running":
+          return getDuration(start, Date.now() / 1000)
+        case "finished":
+          return getDuration(start, end)
+        default:
+          return ""
       }
-    }, {})
+    }
+
+    return data
+      .map((strategy) => ({
+        ...strategy,
+        state_value: transformState(strategy.state),
+        state_label: capitalize(strategy.state),
+        duration: transformDuration(strategy.state, strategy.start_timestamp, strategy.end_timestamp),
+        timeframe: transformTimeframe(strategy.timeframe),
+        current_balance: parseInt(strategy.current_balance).toFixed(2),
+      }))
+      .reduce((strategies, strategy) => {
+        return {
+          ...strategies,
+          [strategy.id]: {
+            ...strategy,
+            exchange: {
+              loading: true,
+              value: {},
+            },
+          },
+        }
+      }, {})
   }
 
   const getStrategies = () => {
     return new Promise((resolve, reject) => {
-      stateFunc(prevState => ({
+      stateFunc((prevState) => ({
         ...prevState,
         loading: true,
       }))
@@ -128,43 +140,42 @@ const Strategies = () => {
   }
 
   const getState = () => {
-    getStrategies()
-      .then(strategies => {
-        strategies.forEach(strategy => {
-          getExchange(strategy.exchange_id)
-            .then(response => {
-              stateFunc(prevState => ({
-                ...prevState,
-                data: {
-                  ...prevState.data,
-                  [strategy.id]: {
-                    ...prevState.data[strategy.id],
-                    exchange: {
-                      loading: false,
-                      error: false,
-                      value: response?.data
-                    }
-                  }
-                }
-              }))
-            })
-            .catch(_ => {
-              stateFunc(prevState => ({
-                ...prevState,
-                data: {
-                  ...prevState.data,
-                  [strategy.id]: {
-                    ...prevState.data[strategy.id],
-                    exchange: {
-                      loading: false,
-                      error: true,
-                    }
-                  }
-                }
-              }))
-            })
-        })
+    getStrategies().then((strategies) => {
+      strategies.forEach((strategy) => {
+        getExchange(strategy.exchange_id)
+          .then((response) => {
+            stateFunc((prevState) => ({
+              ...prevState,
+              data: {
+                ...prevState.data,
+                [strategy.id]: {
+                  ...prevState.data[strategy.id],
+                  exchange: {
+                    loading: false,
+                    error: false,
+                    value: response?.data,
+                  },
+                },
+              },
+            }))
+          })
+          .catch((_) => {
+            stateFunc((prevState) => ({
+              ...prevState,
+              data: {
+                ...prevState.data,
+                [strategy.id]: {
+                  ...prevState.data[strategy.id],
+                  exchange: {
+                    loading: false,
+                    error: true,
+                  },
+                },
+              },
+            }))
+          })
       })
+    })
   }
 
   useEffect(() => {
@@ -317,7 +328,9 @@ const Strategies = () => {
 
   const buildRow = (row) => {
     const getPL = (row) => {
-      const profitAndLoss = (row.current_balance - row.initial_balance).toFixed(2)
+      const profitAndLoss = (row.current_balance - row.initial_balance).toFixed(
+        2
+      )
       const profitAndLossPercentaje = (
         (row.current_balance / row.initial_balance - 1) *
         100
@@ -328,20 +341,33 @@ const Strategies = () => {
     return [
       <div className="state">
         <p>{capitalize(row.state)}</p>
-        {row.state === "running" && <div className="loader"><BounceLoader color="white" size={18} /></div>}
+        {row.state === "running" && (
+          <div className="loader">
+            <BounceLoader color="white" size={18} />
+          </div>
+        )}
       </div>,
       row.initial_balance,
       row.current_balance,
       getPL(row),
       row.timeframe,
       row.duration,
-      row.exchange.loading ?
-        <div className='loader'><Loader size={8} color={theme.white} /></div>
-      : 
-        row.exchange.error ? <div className="exchange-error"><i className="material-icons">warning</i></div> : <div className='exchange-info'>
+      row.exchange.loading ? (
+        <div className="loader">
+          <Loader size={8} color={theme.white} />
+        </div>
+      ) : row.exchange.error ? (
+        <div className="exchange-error">
+          <i className="material-icons">warning</i>
+        </div>
+      ) : (
+        <div className="exchange-info">
           <p>{row.exchange.value?.alias}</p>
-          {row.exchange.value.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
-        </div>,
+          {row.exchange.value.exchange_name === "binance" && (
+            <img alt="Binance" src={logoBinance} width="24px" />
+          )}
+        </div>
+      ),
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (
@@ -456,7 +482,11 @@ const Strategies = () => {
         ]}
         content={
           <StrategiesStyle>
-            <Table headers={headers} data={Object.values(state.data)} buildRow={buildRow} />
+            <Table
+              headers={headers}
+              data={Object.values(state.data)}
+              buildRow={buildRow}
+            />
           </StrategiesStyle>
         }
       />

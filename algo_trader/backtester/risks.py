@@ -15,7 +15,6 @@ class RiskMetrics:
         tail_left = returns[returns < returns.quantile(alpha)]
         if(len(tail_left.array) == 0 or len(tail_right.array)== 0):
             return 0
-        
         if tail_left.abs().mean() == 0:
             return 99999999
         return round(tail_right.mean() / tail_left.abs().mean(), 3)
@@ -36,11 +35,10 @@ class RiskMetrics:
     def max_drawdowns(strategy):
         drawdowns = (strategy / strategy.cummax() - 1)
         if drawdowns.min() == float('inf'):
-            return 0  
+            return 100  
         if drawdowns.min() == -float('inf'):
-            return -99999999  
+            return -100
         result = drawdowns.min()
-        print(result)
         return 0 if np.isnan(result) else result
 
     @staticmethod

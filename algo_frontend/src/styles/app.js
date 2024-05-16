@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { theme } from "../utils/theme";
+import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 const AppStyle = styled.div`
   display: flex;
@@ -17,6 +17,6 @@ const AppStyle = styled.div`
     width: 100%;
     height: 100%;
   }
-`;
+`
 
-export default AppStyle;
+export default AppStyle

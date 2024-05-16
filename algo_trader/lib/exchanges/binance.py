@@ -9,13 +9,11 @@ import os
 import time
 
 class Binance(Exchange):
-    def __init__(self):
-        api_key = os.getenv('EXCHANGE_BINANCE_API_KEY')
-        secret_key = os.getenv('EXCHANGE_BINANCE_API_SECRET')
+    def __init__(self, api_key, api_secret):
 
         self.client = Client(
             api_key,
-            secret_key,
+            api_secret,
             base_url='https://testnet.binance.vision'
         )
 

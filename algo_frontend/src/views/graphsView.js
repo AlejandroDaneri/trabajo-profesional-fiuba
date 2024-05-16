@@ -1,4 +1,4 @@
-import "../styles/graphsView.css";
+import "../styles/graphsView.css"
 
 import {
   Bar,
@@ -15,19 +15,19 @@ import {
   Tooltip,
   XAxis,
   YAxis,
-} from "recharts";
-import React, { PureComponent } from "react";
+} from "recharts"
+import React, { PureComponent } from "react"
 
 const generateTradingData = () => {
-  const startDate = new Date(2023, 0, 1);
-  const endDate = new Date(2023, 0, 10);
-  const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000));
+  const startDate = new Date(2023, 0, 1)
+  const endDate = new Date(2023, 0, 10)
+  const days = Math.floor((endDate - startDate) / (24 * 60 * 60 * 1000))
 
-  const tradingData = [];
+  const tradingData = []
 
   for (let i = 0; i <= days; i++) {
-    const date = new Date(startDate);
-    date.setDate(startDate.getDate() + i);
+    const date = new Date(startDate)
+    date.setDate(startDate.getDate() + i)
 
     tradingData.push({
       date: date.toLocaleDateString(),
@@ -36,15 +36,15 @@ const generateTradingData = () => {
       high: Math.random() * 100 + 500,
       low: Math.random() * 100 + 500,
       volume: Math.floor(Math.random() * 100000),
-    });
+    })
   }
 
-  return tradingData;
-};
+  return tradingData
+}
 
-const tradingChartData = generateTradingData();
+const tradingChartData = generateTradingData()
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"]
 
 export default class GraphsView extends PureComponent {
   render() {
@@ -147,6 +147,6 @@ export default class GraphsView extends PureComponent {
           </ResponsiveContainer>
         </div>
       </div>
-    );
+    )
   }
 }

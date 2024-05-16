@@ -1,5 +1,5 @@
 # Stage 1. build app
-FROM node:16.20.2 as build
+FROM node:20.13 as build
 
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH

@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "axios"
 import { getBackend } from "./env"
 
 export const add = (exchange) => {

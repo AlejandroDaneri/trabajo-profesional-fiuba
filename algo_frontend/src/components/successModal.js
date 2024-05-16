@@ -1,8 +1,8 @@
-import "../styles/successModal.css";
+import "../styles/successModal.css"
 
-import { FaCheckCircle, FaTimes } from "react-icons/fa";
+import { FaCheckCircle, FaTimes } from "react-icons/fa"
 
-import React from "react";
+import React from "react"
 
 const SuccessModal = ({ isOpen, message, onClose }) => {
   return (
@@ -15,7 +15,7 @@ const SuccessModal = ({ isOpen, message, onClose }) => {
         <p className="success-message">{message}</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SuccessModal;
+export default SuccessModal

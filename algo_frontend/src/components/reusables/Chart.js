@@ -1,77 +1,129 @@
-/* Import Libs */
-import { useState } from "react"
-import { CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import React, { useState } from "react"
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  Brush,
+  Area,
+  AreaChart,
+} from "recharts"
 import styled from "styled-components"
 
-/* Import Reusables Components */
 import FieldSwitch from "./FieldSwitch"
 
 const ChartStyle = styled.div`
-    & .field {
-        margin-bottom: 10px;
-    }
+  & .field {
+    margin-bottom: 10px;
+  }
 `
 
-const Chart = ({ data }) => {
-    const [logScale, logScaleFunc] = useState(false)
+const StrategyComparisonChart = ({ data, colors }) => {
+  const [logScale, setLogScale] = useState(false)
+  const [zoomedData, setZoomedData] = useState(data)
 
-    const onToggle = () => {
-        logScaleFunc(prevState => !prevState)
+  const toggleLogScale = () => {
+    setLogScale((prevLogScale) => !prevLogScale)
+  }
+
+  const handleBrushChange = (domain) => {
+    if (domain && domain.length === 2) {
+      const [start, end] = domain
+      const newData = data.filter(
+        (entry) => entry.date >= start && entry.date <= end
+      )
+      setZoomedData(newData)
+    } else {
+      setZoomedData(data)
     }
+  }
 
-    return (
-        <ChartStyle>
-            <div className="field">
-                <FieldSwitch
-                    id="log_scale"
-                    name="log_scale"
-                    label="Log Scale"
-                    value={logScale}
-                    onChange={onToggle}
-                />
-            </div>
-            <ResponsiveContainer width="100%" height={400}>
-                <LineChart
-                    data={data}
-                    margin={{
-                        top: 5,
-                        right: 30,
-                        left: 20,
-                        bottom: 5,
-                    }}
-                >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <Tooltip />
-                    <Legend />
+  return (
+    <ChartStyle>
+      <div className="field">
+        <FieldSwitch
+          id="log_scale"
+          name="log_scale"
+          label="Log Scale"
+          value={logScale}
+          onChange={toggleLogScale}
+        />
+      </div>
+      <ResponsiveContainer width="100%" height={400}>
+        <LineChart
+          data={data}
+          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        >
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          {logScale ? (
+            <YAxis
+              label={{ value: "Balance", position: "insideLeft" }}
+              scale={logScale && "log"}
+              domain={logScale && ["auto", "auto"]}
+            />
+          ) : (
+            <YAxis label={{ value: "Balance", position: "insideLeft" }} />
+          )}
 
-                    <XAxis dataKey="date" />
-                    {logScale ? 
-                        <YAxis label={{value: "Balance", position: "insideLeft"}} scale={logScale && "log"} domain={logScale && ['auto', 'auto']} />
-                    :
-                        <YAxis label={{value: "Balance", position: "insideLeft"}} />
-                    }
-
-                    <Line
-                        type="monotone"
-                        dataKey="balance_buy_and_hold"
-                        name="Balance Buy and Hold"
-                        stroke="#3FA054"
-                        activeDot={{ r: 8 }}
-                        dot={false}
-                    />
-
-                    <Line
-                        type="monotone"
-                        dataKey="balance_strategy"
-                        name="Balance Strategy"
-                        stroke="#0FF541"
-                        activeDot={{ r: 8 }}
-                        dot={false}
-                    />
-                </LineChart>
-            </ResponsiveContainer>
-        </ChartStyle>
-    )
+          <Tooltip />
+          <Legend />
+          <Area
+            type="monotone"
+            dataKey="balance_buy_and_hold"
+            name="Balance Buy and Hold"
+            stroke={colors[0]}
+            fill={colors[0]}
+            connectNulls
+          />
+          <Area
+            type="monotone"
+            dataKey="balance_strategy"
+            name="Balance Strategy"
+            stroke={colors[1]}
+            fill={colors[1]}
+            connectNulls
+          />
+          <Line
+            type="monotone"
+            dataKey="balance_buy_and_hold"
+            stroke={colors[0]}
+            dot={false}
+            connectNulls
+          />
+          <Line
+            type="monotone"
+            dataKey="balance_strategy"
+            stroke={colors[1]}
+            dot={false}
+            connectNulls
+          />
+          <Brush dataKey="date" onChange={handleBrushChange}>
+            <AreaChart>
+              <Area
+                type="monotone"
+                dataKey="balance_buy_and_hold"
+                stroke={colors[0]}
+                fill={colors[0]}
+                connectNulls
+              />
+              <Area
+                type="monotone"
+                dataKey="balance_strategy"
+                stroke={colors[1]}
+                fill={colors[1]}
+                connectNulls
+              />
+            </AreaChart>
+          </Brush>
+        </LineChart>
+      </ResponsiveContainer>
+    </ChartStyle>
+  )
 }
 
-export default Chart
+export default StrategyComparisonChart

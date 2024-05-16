@@ -1,10 +1,10 @@
-import styled from "styled-components";
-import { theme } from "../utils/theme";
+import styled from "styled-components"
+import { theme } from "../utils/theme"
 
 export const ResultStyle = styled.div`
   color: ${({ win }) => (win ? theme.green : theme.red)};
   font-weight: 600;
-`;
+`
 
 export const CurrentStrategyStyle = styled.div`
   height: 100%;
@@ -37,6 +37,26 @@ export const CurrentStrategyStyle = styled.div`
           display: flex;
           font-weight: 800;
 
+          & .loader {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+          }
+
+          & .exchange-wrapper {
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+
+            & p {
+              margin: 0;
+            }
+
+            & img {
+              margin-left: 5px;
+            }
+          }
+
           & .currency-wrapper {
             margin-right: 5px;
           }
@@ -56,4 +76,4 @@ export const CurrentStrategyStyle = styled.div`
     border: 1px solid var(--text-dark);
     border-radius: 8px;
   }
-`;
+`
