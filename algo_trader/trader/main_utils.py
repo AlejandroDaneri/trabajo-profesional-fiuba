@@ -78,7 +78,7 @@ def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: Trade
             # trade closed: means buy and sell executed
             if trade.is_closed():
                 # save closed trade
-                notify_telegram_users(data)
+                notify_telegram_users(trade)
                 response = api.post(f'strategy/{strategy_id}/sell')
             else:
                 # trade current: buy executed but not sell yet

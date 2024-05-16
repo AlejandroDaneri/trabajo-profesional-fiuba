@@ -2,8 +2,8 @@ import requests
 import os
 import json
 from datetime import datetime
-
 from api_client import ApiClient
+from lib.trade import Trade
 
 api = ApiClient()
 
@@ -32,8 +32,8 @@ def post_telegram_chat(chat_id):
     else:
         print("Failed to post chat ID. Status code:", response_telegram_api.status_code)
 
-def build_message(data):
-    if data['buy']['price'] <= data['sell']['price']:
+def build_message(trade: Trade):
+    if trade.buy_order.price <= trade.sell_order.price:
         trade_result = "👍 Positive"
     else: 
         trade_result = "👎 Negative"
@@ -50,20 +50,20 @@ def build_message(data):
     "  Timestamp: {}\n"
     "Trade Result: {}"
     ).format(
-        data['pair'],
-        data['amount'],
-        data['buy']['price'],
-        datetime.fromtimestamp(data['buy']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-        data['sell']['price'],
-        datetime.fromtimestamp(data['sell']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+        trade.symbol,
+        trade.amount,
+        trade.buy_order.price,
+        datetime.fromtimestamp(trade.buy_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+        trade.sell_order.price,
+        datetime.fromtimestamp(trade.sell_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
         trade_result
     )
 
     return trade_details_message
 
-def notify_telegram_users(data):
+def notify_telegram_users(trade):
 
-    message = build_message(data)
+    message = build_message(trade)
 
     bot_token = os.environ.get('BOT_TOKEN')
     all_chat_ids = get_all_chat_ids()
