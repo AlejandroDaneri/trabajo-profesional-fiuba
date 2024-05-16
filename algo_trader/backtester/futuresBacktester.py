@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Tuple
 
-class FuturesBacktesting:
+class FuturesBacktester:
     def __init__(self, strategy: Strategy, initial_balance: float, loan_amount: float=1, fixed_commission: float=0.0002, variable_commission_rate: float=0.0002):        
         self.strategy = strategy
         self.initial_balance = initial_balance

@@ -79,23 +79,23 @@ def trades_2_balance_series(data, trades, timeframe, initial_balance):
     trade = trades.iloc[index]
 
     # INTERVAL: UNTIL ON BUY
-    df_until_buy = generate_range_sell(start, trade.buy_date, timeframe, balance)
+    df_until_buy = generate_range_sell(start, trade.entry_date, timeframe, balance)
     df = pd.concat([df, df_until_buy])
 
     # INTERVAL: ON BUY
-    price = data.loc[trade.buy_date].Close
+    price = data.loc[trade.entry_date].Close
     amount = balance / price
     balance = 0
-    df_interval_buy = generate_range_buy(trade.buy_date, trade.sell_date, timeframe, amount)
+    df_interval_buy = generate_range_buy(trade.entry_date, trade.output_date, timeframe, amount)
     df = pd.concat([df, df_interval_buy])
 
-    price = data.loc[trade.sell_date].Close
+    price = data.loc[trade.output_date].Close
     balance = amount * price
     amount = 0
       
-    start = trade.sell_date
+    start = trade.output_date
   
-  start = trades.iloc[-1].sell_date
+  start = trades.iloc[-1].output_date
   end = data.index[-1]
   df_final_interval = generate_range_sell(start, end, timeframe, balance)
   df = pd.concat([df, df_final_interval])

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Tuple
 
-class LongBacktester:
+class SpotBacktester:
     def __init__(self, strategy: Strategy, initial_balance: float, fixed_commission: float=0.005, variable_commission_rate: float=0.005):        
         self.strategy = strategy
         self.initial_balance = initial_balance
@@ -70,15 +70,15 @@ class LongBacktester:
         pairs = actions.iloc[::2].loc[:, ["Close"]].reset_index()
         odds = actions.iloc[1::2].loc[:, ["Close"]].reset_index()
         trades = pd.concat([pairs, odds], axis=1)
-        trades.columns = ["buy_date", "buy_price", "sell_date", "sell_price"]
+        trades.columns = ["entry_date", "entry_price", "output_date", "output_price"]
 
         trades["fixed_commission"] = self.fixed_commission
-        trades["variable_commission"] = trades["buy_price"] * self.variable_commission_rate
+        trades["variable_commission"] = trades["entry_price"] * self.variable_commission_rate
 
-        trades["buy_price"] += trades["fixed_commission"] + trades["variable_commission"]
-        trades["sell_price"] -= trades["fixed_commission"] + trades["variable_commission"]
+        trades["entry_price"] += trades["fixed_commission"] + trades["variable_commission"]
+        trades["output_price"] -= trades["fixed_commission"] + trades["variable_commission"]
 
-        trades["return"] = trades.sell_price / trades.buy_price - 1
+        trades["return"] = trades.output_price / trades.entry_price - 1
 
         cumulative_return = (1 + trades["return"]).cumprod() - 1
         trades["cumulative_return"] = cumulative_return
