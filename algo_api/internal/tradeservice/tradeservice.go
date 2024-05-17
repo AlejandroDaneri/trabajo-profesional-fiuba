@@ -105,6 +105,9 @@ func (s *TradeService) GetOpen() (*database.Trade, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(docs) == 0 {
+		return nil, nil
+	}
 	trade := database.Trade{}
 	for _, doc := range docs {
 		bytes, err := json.Marshal(doc)
