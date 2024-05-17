@@ -18,6 +18,7 @@ import { unixToDate } from "../utils/date"
 const TradesStyle = styled.div`
   display: flex;
   width: 100%;
+  max-height: 600px;
 `
 
 const Trades = ({ strategyID }) => {
