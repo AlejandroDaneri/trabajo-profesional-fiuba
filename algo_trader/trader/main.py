@@ -13,8 +13,8 @@ def main():
     data_provider = BinanceProvider()
     api = ApiClient()
 
-    strategy, exchange = get_current_strategy(data_provider, api)
-    trade_bot = TradeBot(strategy, exchange)
+    strategy = get_current_strategy(data_provider, api)
+    trade_bot = TradeBot(strategy)
 
     while True:
         strategy_id = list(strategy.values())[0].get_id()

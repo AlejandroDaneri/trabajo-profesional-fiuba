@@ -1,13 +1,12 @@
 from lib.actions import Action
-from lib.exchanges.exchange import Exchange
+from lib.exchanges.dummy import Dummy
 from lib.strategies.strategy import Strategy
-
 from lib.trade import Trade
 
 class TradeBot:
-    def __init__(self, strategy: dict[Strategy], exchange: Exchange):
+    def __init__(self, strategy: dict[Strategy]):
         self.strategy = strategy
-        self.exchange = exchange
+        self.exchange = Dummy()
         self.trades = []
         self.stop_loss_ratio = 0.2
 

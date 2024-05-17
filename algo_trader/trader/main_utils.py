@@ -23,7 +23,7 @@ def init_sentry():
         )
 
 # get strategy from the db, and hydrate Strategy class with the data
-def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dict[str, Strategy], Exchange]:
+def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict[str, Strategy]:
     WAIT_TIME_TO_CHECK_NEW_STRATEGY_IN_SECONDS = 60
 
     strategy = None
@@ -45,7 +45,6 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dic
     timeframe = strategy["timeframe"]
     type = strategy["type"]
     initial_balance = strategy["initial_balance"]
-    exchange_id = strategy["exchange_id"]
 
     print(f"[main] initial balance: {initial_balance}")
 
@@ -60,12 +59,7 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dic
         train_data[currency] = data[currency].iloc[0:n_train]
         strategy[currency].prepare_data(train_data[currency])
 
-    response = api.get(f'exchanges/{exchange_id}')
-    exchange = response.json()
-
-    exchange = Dummy()
-
-    return strategy, exchange
+    return strategy
 
 # inject new tick to trade bot to detect buy and sell signals
 def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: TradeBot, data_provider: BinanceProvider, api: ApiClient):
