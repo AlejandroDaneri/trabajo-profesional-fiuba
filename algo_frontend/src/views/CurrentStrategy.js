@@ -176,7 +176,7 @@ const CurrentStrategy = () => {
       ...data,
       current_balance: parseFloat(data.current_balance).toFixed(2),
       profit_and_loss_label: `${profitAndLoss} (${profitAndLossPercentaje}%)`,
-      indicators: (data.indicators || []).map((indicator) => ({
+      indicators_label: (data.indicators || []).map((indicator) => ({
         ...indicator,
         name: (() => {
           switch (indicator.name) {
@@ -358,7 +358,7 @@ const CurrentStrategy = () => {
               <div className="box">
                 <div className="label">Indicators</div>
                 <div className="value">
-                  {strategy.data.indicators.map((indicator) => (
+                  {strategy.data.indicators_label.map((indicator) => (
                     <div className="indicator-wrapper">
                       {indicator.name}
                     </div>
