@@ -146,6 +146,27 @@ func (s *BinanceService) GetCandleticks(symbol string, start int, end int, timef
 	return candlesticks, nil
 }
 
+// https://github.com/binance/binance-spot-api-docs/blob/master/filters.md#min_notional
+func (s *BinanceService) getMinNotional(symbol string) (float64, error) {
+	exchangeInfo, err := s.client.NewExchangeInfoService().Do(context.Background())
+	if err != nil {
+		return 0, err
+	}
+
+	for _, s := range exchangeInfo.Symbols {
+		if s.Symbol == (symbol + "USDT") {
+			for _, filter := range s.Filters {
+				if filter.FilterType == "NOTIONAL" {
+					return utils.String2Float(filter.MinNotional), nil
+				}
+			}
+		}
+	}
+
+	return 0, errors.New("min notional not found")
+}
+
+// https://github.com/binance/binance-spot-api-docs/blob/master/filters.md#lot_size
 func (s *BinanceService) getOrderInfo(symbol string) (minQty, maxQty, stepSize float64, err error) {
 	exchangeInfo, err := s.client.NewExchangeInfoService().Do(context.Background())
 	if err != nil {
@@ -191,17 +212,14 @@ func (s *BinanceService) getOrderPrecision(symbol string) (int64, error) {
 }
 
 func (s *BinanceService) Buy(symbol string) error {
-	_, err := s.GetPrice(symbol)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"symbol": symbol,
-		}).Error("Could not get price")
-		return err
-	}
-
 	min, max, step, err := s.getOrderInfo(symbol)
 	if err != nil {
 		logrus.Error(err)
+		return err
+	}
+
+	minNotional, err := s.getMinNotional(symbol)
+	if err != nil {
 		return err
 	}
 
@@ -211,38 +229,54 @@ func (s *BinanceService) Buy(symbol string) error {
 		return err
 	}
 
+	logrus.WithFields(logrus.Fields{
+		"symbol": symbol,
+	}).Info("Buy: started")
 	for {
 		usdt, err := s.GetAmount("USDT")
 		if err != nil {
 			continue
 		}
 
+		amount, err := s.GetAmount(symbol)
+		if err != nil {
+			continue
+		}
+
+		price, err := s.GetPrice(symbol)
+		if err != nil {
+			continue
+		}
+
 		// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
-		qty := adjustQuantityForLotSize(usdt, min, max, step)
+		qty := adjustQuantityForLotSize(usdt/utils.String2Float(price), min, max, step)
 
 		// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
 		// TO-DO: use precision here
 		formattedQty := utils.String2Float(fmt.Sprintf("%.8f", qty))
 
-		logrus.Infof("USDT remaining: %f", usdt)
+		logrus.WithFields(logrus.Fields{
+			"symbol": symbol,
+			"usdt":   usdt,
+			"amount": amount,
+		}).Info("Buy: progress")
 
-		if usdt < 1 {
-			logrus.Info("Buy: completed")
+		if usdt < minNotional {
+			logrus.WithFields(logrus.Fields{
+				"symbol": symbol,
+			}).Info("Buy: completed")
 			break
 		}
 
-		if usdt > 0.0 {
-			_, err = s.client.NewCreateOrderService().
-				Symbol(symbol + "USDT").
-				Side("BUY").
-				Type("MARKET").
-				QuoteOrderQty(formattedQty).
-				Do(context.Background())
+		_, err = s.client.NewCreateOrderService().
+			Symbol(symbol + "USDT").
+			Side("BUY").
+			Type("MARKET").
+			Quantity(formattedQty).
+			Do(context.Background())
 
-			if err != nil {
-				logrus.Error(err)
-				continue
-			}
+		if err != nil {
+			logrus.Info(err)
 		}
 	}
 
@@ -250,17 +284,63 @@ func (s *BinanceService) Buy(symbol string) error {
 }
 
 func (s *BinanceService) Sell(symbol string) error {
-	amount, err := s.GetAmount(symbol)
+	logrus.WithFields(logrus.Fields{
+		"symbol": symbol,
+	}).Info("Sell: started")
+
+	min, max, step, err := s.getOrderInfo(symbol)
+	if err != nil {
+		logrus.Error(err)
+		return err
+	}
+
+	minNotional, err := s.getMinNotional(symbol)
 	if err != nil {
 		return err
 	}
 
-	_, err = s.client.NewCreateOrderService().
-		Symbol(symbol + "USDT").
-		Side("SELL").
-		Type("MARKET").
-		Quantity(amount).
-		Do(context.Background())
+	for {
+		price, err := s.GetPrice(symbol)
+		if err != nil {
+			return err
+		}
 
-	return err
+		amount, err := s.GetAmount(symbol)
+		if err != nil {
+			return err
+		}
+
+		usdt, err := s.GetAmount("USDT")
+		if err != nil {
+			return err
+		}
+
+		qty := adjustQuantityForLotSize(amount, min, max, step)
+		formattedQty := utils.String2Float(fmt.Sprintf("%.8f", qty))
+
+		logrus.WithFields(logrus.Fields{
+			"symbol": symbol,
+			"usdt":   usdt,
+			"amount": amount,
+		}).Info("Sell: progress")
+
+		if amount*utils.String2Float(price) < minNotional {
+			logrus.WithFields(logrus.Fields{
+				"symbol": symbol,
+			}).Info("Sell: completed")
+			break
+		}
+
+		_, err = s.client.NewCreateOrderService().
+			Symbol(symbol + "USDT").
+			Side("SELL").
+			Type("MARKET").
+			Quantity(formattedQty).
+			Do(context.Background())
+
+		if err != nil {
+			logrus.Info(err)
+		}
+	}
+	return nil
 }
