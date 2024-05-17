@@ -248,6 +248,17 @@ func (s *StrategyService) Create(strategy map[string]interface{}) (string, error
 }
 
 func (s *StrategyService) Stop(id string) error {
+	trade, err := s.tradeservice.GetOpen()
+	if err != nil {
+		return err
+	}
+	if trade != nil {
+		err = s.Sell(id)
+		if err != nil {
+			return err
+		}
+	}
+
 	strategy, err := s.get(id)
 	if err != nil {
 		return err
