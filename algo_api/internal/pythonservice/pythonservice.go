@@ -69,6 +69,7 @@ type BacktestingQuery struct {
 	InitialBalance int      `json:"initial_balance"`
 	DataFrom       int64    `json:"data_from"`
 	DataTo         int64    `json:"data_to"`
+	Type           string   `json:"type"`
 	Timeframe      string   `json:"timeframe"`
 	Indicators     []struct {
 		Name       string      `json:"name"`

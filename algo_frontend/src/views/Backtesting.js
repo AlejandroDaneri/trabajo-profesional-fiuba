@@ -24,7 +24,7 @@ import { theme } from "../utils/theme"
 import { capitalize } from "../utils/string"
 
 /* Import Constants */
-import { CRYPTOCURRENCIES, TIMEFRAMES } from "../constants"
+import { CRYPTOCURRENCIES, TIMEFRAMES, BACKTESTING_TYPES } from "../constants"
 
 const VIEW_FORM = 0
 const VIEW_BACKTESTING = 1
@@ -212,6 +212,7 @@ const Backtesting = () => {
       value: "1d",
       label: "1 day",
     },
+    type: BACKTESTING_TYPES[0],
     initial_balance: 1000,
     indicators: {},
   })
@@ -263,6 +264,8 @@ const Backtesting = () => {
   }, [])
 
   const onChange = (key, value) => {
+    console.log("🚀 ~ onChange ~ key, value:", key, value)
+
     stateFunc((prevState) => ({
       ...prevState,
       [key]: value,
@@ -308,6 +311,7 @@ const Backtesting = () => {
       data_to: Math.floor(end.getTime() / 1000),
       timeframe: data.timeframe.value,
       indicators: transformToSendIndicators(data),
+      type: data.type.value.toLowerCase(),
     }
   }
 
@@ -424,6 +428,20 @@ const Backtesting = () => {
                       onChange={onChange}
                       width={140}
                     />
+                  </div>
+                </div>
+                <div className="section">
+                  <h3>Type</h3>
+                  <div className="section-content">
+                    <div className="field">
+                      <FieldSelect
+                        name={"type"}
+                        value={state.type}
+                        onChange={onChange}
+                        width={140}
+                        options={BACKTESTING_TYPES}
+                      />
+                    </div>
                   </div>
                 </div>
                 <div className="section">

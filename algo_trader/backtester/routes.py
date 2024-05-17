@@ -1,5 +1,6 @@
+from futuresBacktester import FuturesBacktester
 from buyAndHold import BuyAndHoldBacktester
-from longBacktester import LongBacktester
+from spotBacktester import SpotBacktester
 from lib.utils.utils_backtest import hydrate_strategy
 from lib.utils.plotter import trades_2_balance_series, buy_and_hold_balance_series
 from lib.providers.yahoofinance import YahooFinance
@@ -40,7 +41,7 @@ def backtest():
     if not req_data:
         abort(400, description="JSON data is missing in the request body.")
 
-    required_params = ['coins', 'initial_balance', 'data_from', 'data_to', 'timeframe', 'indicators']
+    required_params = ['coins', 'initial_balance', 'data_from', 'data_to', 'timeframe', 'indicators','type']
     missing_params = [param for param in required_params if param not in req_data]
     if missing_params:
         abort(400, description=f"Required parameters {missing_params} are missing in the JSON data.")
@@ -53,7 +54,7 @@ def backtest():
     indicators = req_data['indicators']
     data_from = datetime.fromtimestamp(int(data_from_ts), tz=timezone.utc).strftime(DATE_FORMAT[timeframe])
     data_to = datetime.fromtimestamp(int(data_to_ts), tz=timezone.utc).strftime(DATE_FORMAT[timeframe])
-
+    backtest_type = req_data['type']
     try:
         initial_balance = float(initial_balance)
     except ValueError:
@@ -74,7 +75,14 @@ def backtest():
         print("[Backtester] getting data: finished")
 
         strategy = hydrate_strategy([coin], indicators, timeframe, 123)  # FIXME: Not sure how to get strategy
-        backtester = LongBacktester(strategy[coin], initial_balance)
+        if backtest_type == 'spot':
+            backtester = SpotBacktester(strategy[coin], initial_balance)
+        elif backtest_type == 'futures':
+            backtester = FuturesBacktester(strategy[coin], initial_balance)
+        else: 
+            abort(400, description="'type' is not valid.")
+
+
         print("[Backtester] backtest: started")
         trades, final_balance = backtester.backtest(data)
         print("[Backtester] backtest: finished")

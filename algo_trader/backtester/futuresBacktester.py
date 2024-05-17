@@ -3,10 +3,11 @@ import pandas as pd
 import numpy as np
 from typing import Tuple
 
-class LongBacktester:
-    def __init__(self, strategy: Strategy, initial_balance: float, fixed_commission: float=0.005, variable_commission_rate: float=0.005):        
+class FuturesBacktester:
+    def __init__(self, strategy: Strategy, initial_balance: float, loan_amount: float=1, fixed_commission: float=0.0002, variable_commission_rate: float=0.0002):        
         self.strategy = strategy
         self.initial_balance = initial_balance
+        self.loan_amount = loan_amount
         self.fixed_commission = fixed_commission
         self.variable_commission_rate = variable_commission_rate
 
@@ -14,7 +15,7 @@ class LongBacktester:
         trades, final_balance = self._execute_backtest(historical_data)
 
         return trades, final_balance
-
+    
     def _execute_backtest(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
         buy_signals, sell_signals = self._get_buy_sell_signals(historical_data)
 
@@ -26,7 +27,7 @@ class LongBacktester:
         final_balance = self._calculate_final_balance(historical_data, trades, self.initial_balance)
 
         return trades, final_balance
-
+    
     def _get_buy_sell_signals(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
         buy_signals = pd.DataFrame(index=historical_data.index)
         sell_signals = pd.DataFrame(index=historical_data.index)
@@ -39,7 +40,7 @@ class LongBacktester:
             sell_signals[indicator.name] = np.where(indicator.calc_sell_signals(), 1, 0)
 
         return buy_signals, sell_signals
-
+    
     def _get_actions(self, buy_signals: pd.DataFrame, sell_signals: pd.DataFrame) -> pd.DataFrame:
         actions = pd.DataFrame(index=buy_signals.index)
         actions["Close"] = buy_signals["Close"]
@@ -65,28 +66,57 @@ class LongBacktester:
                     trades = trades.iloc[1:]
 
         return trades
-
+    
     def _get_trades(self, actions: pd.DataFrame) -> pd.DataFrame:
         pairs = actions.iloc[::2].loc[:, ["Close"]].reset_index()
         odds = actions.iloc[1::2].loc[:, ["Close"]].reset_index()
-        trades = pd.concat([pairs, odds], axis=1)
-        trades.columns = ["buy_date", "buy_price", "sell_date", "sell_price"]
+        long_trades = self._get_long_trades(pairs, odds)
+        short_trades = self._get_short_trades(pairs, odds)
+
+        trades = pd.concat([long_trades, short_trades], axis=0).sort_index()
+        trades = trades.reset_index()
 
         trades["fixed_commission"] = self.fixed_commission
-        trades["variable_commission"] = trades["buy_price"] * self.variable_commission_rate
+        trades["variable_commission"] = trades["entry_price"] * self.variable_commission_rate
 
-        trades["buy_price"] += trades["fixed_commission"] + trades["variable_commission"]
-        trades["sell_price"] -= trades["fixed_commission"] + trades["variable_commission"]
+        trades["entry_price"] += trades["fixed_commission"] + trades["variable_commission"]
+        trades["output_price"] -= trades["fixed_commission"] + trades["variable_commission"]
 
-        trades["return"] = trades.sell_price / trades.buy_price - 1
+        trades["return"] = np.where(trades.position_type == 'long', 
+                                    trades.output_price / trades.entry_price - 1, 
+                                    trades.entry_price / trades.output_price - 1)
 
         cumulative_return = (1 + trades["return"]).cumprod() - 1
         trades["cumulative_return"] = cumulative_return
 
         trades["result"] = np.where(trades["return"] > 0, "Winner", "Loser")
 
-        return trades
+        trades = trades.drop(['trade_number'], axis=1)
 
+        return trades
+    
+    def _get_long_trades(self, pairs, odds) -> pd.DataFrame: 
+        long_trades = pd.concat([pairs, odds], axis=1)
+        long_trades.columns = ["entry_date", "entry_price", "output_date", "output_price"]
+        long_trades['position_type'] = 'long'
+        long_trades['trade_number'] = long_trades.index*2
+        long_trades = long_trades.set_index('trade_number')
+
+        return long_trades
+    
+    def _get_short_trades(self, pairs, odds) -> pd.DataFrame: 
+        short_trades = pd.concat([odds.shift(), pairs], axis=1)
+        short_trades.columns = ["entry_date", "entry_price", "output_date", "output_price"]
+        short_trades = short_trades[1:]
+        short_trades['position_type'] = 'short'
+        short_trades['trade_number'] = (short_trades.index*2) - 1
+        short_trades = short_trades.set_index('trade_number')
+
+        short_trades['entry_price'] = short_trades['entry_price']*self.loan_amount
+        short_trades['output_price'] = short_trades['output_price']*self.loan_amount
+
+        return short_trades
+    
     def _calculate_final_balance(self, data, trades, starting_capital=10000):
         if len(trades) == 0:
             return starting_capital
