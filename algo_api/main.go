@@ -121,6 +121,12 @@ func GetCurrentTrade(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if err == nil && currentTrade == nil {
+		logrus.Info("Strategy do not have a open trade")
+		http.Error(w, http.StatusText(404), 404)
+		return
+	}
+
 	bytes, err := json.Marshal(currentTrade)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{

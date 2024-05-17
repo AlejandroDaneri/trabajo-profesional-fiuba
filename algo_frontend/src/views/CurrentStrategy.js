@@ -44,7 +44,7 @@ const CurrentStrategy = () => {
     loading: false,
     data: {
       currencies: [],
-      indicators: []
+      indicators_label: []
     },
   })
 
@@ -239,6 +239,7 @@ const CurrentStrategy = () => {
       data_to: end,
       timeframe,
       indicators,
+      type: 'spot'
     }
     run(body)
       .then((response) => {
