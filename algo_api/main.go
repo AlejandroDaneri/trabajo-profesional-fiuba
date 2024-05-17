@@ -112,9 +112,7 @@ func RemoveCurrentTrade(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCurrentTrade(w http.ResponseWriter, r *http.Request) {
-	id := "current"
-
-	currentTrade, err := tradeservice.GetInstance().Get(id)
+	currentTrade, err := tradeservice.GetInstance().GetOpen()
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
