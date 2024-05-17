@@ -46,7 +46,7 @@ class TradeBot:
             return None
 
     def set_current_trade(self, trade: Trade):
-        self.current_trade = trade
+        self.current_trade = self.exchange.buy(trade.symbol, float(trade.buy_order.price), trade.buy_order.timestamp)
 
     def get_trades(self):
         return self.trades

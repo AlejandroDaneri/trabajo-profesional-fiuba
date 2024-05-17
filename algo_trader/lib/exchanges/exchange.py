@@ -30,9 +30,6 @@ class Exchange:
     def sell(self, trade: Trade, price: int, timestamp: int) -> Trade:
         symbol = trade.symbol
         amount = trade.amount
-        
-        if symbol not in self.portfolio or self.portfolio[symbol] < amount:
-            raise ValueError("Not enough asset to execute the sell order.")
 
         self.balance = self.portfolio[symbol] * price
         self.portfolio[symbol] = 0

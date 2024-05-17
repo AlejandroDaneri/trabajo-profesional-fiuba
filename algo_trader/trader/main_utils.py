@@ -61,6 +61,13 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict
 
     return strategy
 
+def get_current_trade(api: ApiClient) -> Trade | None:
+    response = api.get('trade/current')
+    if response.status_code == 200:
+        trade_doc = response.json()
+        return Trade(trade_doc["pair"], trade_doc["amount"], trade_doc["orders"]["buy"]["price"], trade_doc["orders"]["buy"]["timestamp"])
+    return None
+
 # inject new tick to trade bot to detect buy and sell signals
 def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: TradeBot, data_provider: BinanceProvider, api: ApiClient):
     for currency in list(strategy.keys()):
