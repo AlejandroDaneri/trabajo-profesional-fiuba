@@ -128,7 +128,7 @@ func (s *TradeService) Close(price string) error {
 
 	trade.Orders.Sell = database.TradePublicSell{}
 	trade.Orders.Sell.Price = price
-	trade.Orders.Sell.Timestamp = time.Now().Unix() * 1000
+	trade.Orders.Sell.Timestamp = time.Now().Unix()
 
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)

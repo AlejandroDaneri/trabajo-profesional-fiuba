@@ -365,7 +365,7 @@ func (s *StrategyService) Buy(id string, symbol string) error {
 		"orders": map[string]interface{}{
 			"buy": map[string]interface{}{
 				"price":     price,
-				"timestamp": time.Now().Unix() * 1000,
+				"timestamp": time.Now().Unix(),
 			},
 		},
 	}
