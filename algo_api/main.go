@@ -767,6 +767,32 @@ func GetExchangeBalance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func ExchangeSell(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get exchange id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	symbol := vars["symbol"]
+	if id == "" {
+		logrus.Error("Could not get symbol")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	err := exchangesservice.GetInstance().Sell(id, symbol)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+			"id":  id,
+		}).Error("Could not sell")
+		return
+	}
+}
+
 func GetExchangeAmount(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -1036,6 +1062,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/exchanges/{id}", DeleteExchange).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", GetExchange).Methods("GET")
 	router.HandleFunc("/exchanges/{id}/balance", GetExchangeBalance).Methods("GET")
+	router.HandleFunc("/exchanges/{id}/sell/{symbol}", ExchangeSell).Methods("PUT")
 	router.HandleFunc("/exchanges/{id}/amount/{symbol}", GetExchangeAmount).Methods("GET")
 	router.HandleFunc("/exchanges/{id}", EditExchange).Methods("PUT")
 	router.HandleFunc("/exchanges", GetExchanges).Methods("GET")
