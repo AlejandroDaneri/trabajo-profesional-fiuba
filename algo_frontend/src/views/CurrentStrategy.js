@@ -44,6 +44,7 @@ const CurrentStrategy = () => {
     loading: false,
     data: {
       currencies: [],
+      indicators: []
     },
   })
 
@@ -350,6 +351,16 @@ const CurrentStrategy = () => {
                   {strategy.data.currencies.map((currency) => (
                     <div className="currency-wrapper">
                       <CurrencyLogo currency={currency} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="box">
+                <div className="label">Indicators</div>
+                <div className="value">
+                  {strategy.data.indicators.map((indicator) => (
+                    <div className="indicator-wrapper">
+                      {indicator.name}
                     </div>
                   ))}
                 </div>

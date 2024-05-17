@@ -17,7 +17,7 @@ export const CurrentStrategyStyle = styled.div`
     & .summary-content {
       display: flex;
       flex-direction: row;
-      width: 60%;
+      width: 70%;
       justify-content: space-around;
 
       & .box {
@@ -41,6 +41,16 @@ export const CurrentStrategyStyle = styled.div`
             display: flex;
             justify-content: center;
             width: 100%;
+          }
+
+          & .indicator-wrapper {
+            background: ${theme.white};
+            color: ${theme.grayDark};
+            padding: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 10px;
+            font-weight: 400;
           }
 
           & .exchange-wrapper {
