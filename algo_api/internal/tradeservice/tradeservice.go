@@ -33,8 +33,8 @@ func NewService() IService {
 type IService interface {
 	Create(trade map[string]interface{}, strategyID string) (string, error)
 	Get(id string) (*database.TradeResponseFields, error)
-	GetOpen() (*database.Trade, error)
-	Close(price string) error
+	GetOpen(strategyId string) (*database.Trade, error)
+	Close(strategyId string, price string) error
 	ListAll() ([]*database.TradeResponseFields, error)
 	ListByStrategy(strategyID string) ([]*database.TradeResponseFields, error)
 	Remove(id string) error
@@ -81,16 +81,17 @@ func (s *TradeService) Get(id string) (*database.TradeResponseFields, error) {
 	}, nil
 }
 
-func (s *TradeService) GetOpen() (*database.Trade, error) {
+func (s *TradeService) GetOpen(strategyId string) (*database.Trade, error) {
 	dbName := "trades"
 	db, err := s.databaseservice.GetDB(dbName)
 	if err != nil {
 		return nil, err
 	}
-	q := `
+	q := fmt.Sprintf(`
 	{
 		"selector": {
 			"pvt_type": "trade",
+			"strategy_id": "%s",
 			"orders.sell.price": {
 				"$exists": false
 			},
@@ -100,7 +101,7 @@ func (s *TradeService) GetOpen() (*database.Trade, error) {
 		},
 		"limit": 10000
 	}
-	`
+	`, strategyId)
 	docs, err := db.QueryJSON(q)
 	if err != nil {
 		return nil, err
@@ -123,8 +124,8 @@ func (s *TradeService) GetOpen() (*database.Trade, error) {
 	return &trade, nil
 }
 
-func (s *TradeService) Close(price string) error {
-	trade, err := s.GetOpen()
+func (s *TradeService) Close(strategyId string, price string) error {
+	trade, err := s.GetOpen(strategyId)
 	if err != nil {
 		return err
 	}

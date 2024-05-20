@@ -211,6 +211,17 @@ func (s *BinanceService) getOrderPrecision(symbol string) (int64, error) {
 	return 0, errors.New("could not find symbol")
 }
 
+func (s *BinanceService) processQuantity(initialQuantity, min, max, step float64) float64 {
+	// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
+	qty := adjustQuantityForLotSize(initialQuantity, min, max, step)
+
+	// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
+	// TO-DO: use precision here
+	formattedQty := utils.String2Float(fmt.Sprintf("%.8f", qty))
+
+	return formattedQty
+}
+
 func (s *BinanceService) Buy(symbol string) error {
 	min, max, step, err := s.getOrderInfo(symbol)
 	if err != nil {
@@ -243,18 +254,6 @@ func (s *BinanceService) Buy(symbol string) error {
 			continue
 		}
 
-		price, err := s.GetPrice(symbol)
-		if err != nil {
-			continue
-		}
-
-		// "<APIError> code=-1013, msg=Filter failure: LOT_SIZE
-		qty := adjustQuantityForLotSize(usdt/utils.String2Float(price), min, max, step)
-
-		// fix: <APIError> code=-1111, msg=Parameter 'quantity' has too much precision.
-		// TO-DO: use precision here
-		formattedQty := utils.String2Float(fmt.Sprintf("%.8f", qty))
-
 		logrus.WithFields(logrus.Fields{
 			"symbol": symbol,
 			"usdt":   usdt,
@@ -272,7 +271,7 @@ func (s *BinanceService) Buy(symbol string) error {
 			Symbol(symbol + "USDT").
 			Side("BUY").
 			Type("MARKET").
-			Quantity(formattedQty).
+			QuoteOrderQty(s.processQuantity(usdt, min, max, step)).
 			Do(context.Background())
 
 		if err != nil {
@@ -315,9 +314,6 @@ func (s *BinanceService) Sell(symbol string) error {
 			return err
 		}
 
-		qty := adjustQuantityForLotSize(amount, min, max, step)
-		formattedQty := utils.String2Float(fmt.Sprintf("%.8f", qty))
-
 		logrus.WithFields(logrus.Fields{
 			"symbol": symbol,
 			"usdt":   usdt,
@@ -335,7 +331,7 @@ func (s *BinanceService) Sell(symbol string) error {
 			Symbol(symbol + "USDT").
 			Side("SELL").
 			Type("MARKET").
-			Quantity(formattedQty).
+			Quantity(s.processQuantity(amount, min, max, step)).
 			Do(context.Background())
 
 		if err != nil {

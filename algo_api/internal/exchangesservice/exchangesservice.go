@@ -48,6 +48,7 @@ type IService interface {
 	DeleteExchange(id string) error
 	GetBalance(id string) (string, error)
 	GetAmount(id string, symbol string) (string, error)
+	GetPrice(id string, sybmol string) (string, error)
 	Sell(id string, symbol string) error
 	Buy(id string, symbol string) error
 }
@@ -222,15 +223,33 @@ func (t *ExchangesService) GetAmount(id string, symbol string) (string, error) {
 	return utils.Float2String(amount), nil
 }
 
+func (t *ExchangesService) GetPrice(id string, symbol string) (string, error) {
+	exchange, err := t.GetExchange(id)
+	if err != nil {
+		return "", err
+	}
+	price, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetPrice(symbol)
+	if err != nil {
+		return "", err
+	}
+	return price, nil
+}
+
 func (t *ExchangesService) Sell(id string, symbol string) error {
 	exchange, err := t.GetExchange(id)
 	if err != nil {
 		return err
 	}
-	err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Sell(symbol)
-	if err != nil {
-		return err
+	switch exchange.ExchangeName {
+	case "binance":
+		err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Sell(symbol)
+		if err != nil {
+			return err
+		}
+	default:
+		return errors.New("could not find exchange name")
 	}
+
 	return nil
 }
 
@@ -239,9 +258,15 @@ func (t *ExchangesService) Buy(id string, symbol string) error {
 	if err != nil {
 		return err
 	}
-	err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Buy(symbol)
-	if err != nil {
-		return err
+	switch exchange.ExchangeName {
+	case "binance":
+		err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Buy(symbol)
+		if err != nil {
+			return err
+		}
+	default:
+		return errors.New("could not find exchange name")
 	}
+
 	return nil
 }

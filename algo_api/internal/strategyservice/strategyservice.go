@@ -248,7 +248,7 @@ func (s *StrategyService) Create(strategy map[string]interface{}) (string, error
 }
 
 func (s *StrategyService) Stop(id string) error {
-	trade, err := s.tradeservice.GetOpen()
+	trade, err := s.tradeservice.GetOpen(id)
 	if err != nil {
 		return err
 	}
@@ -351,28 +351,24 @@ func (s *StrategyService) Buy(id string, symbol string) error {
 	if err != nil {
 		return err
 	}
-	exchange, err := s.exchangeservice.GetExchange(strategy.ExchangeId)
-	if err != nil {
-		return err
-	}
-	err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Buy(symbol)
+	err = s.exchangeservice.Buy(strategy.ExchangeId, symbol)
 	if err != nil {
 		return err
 	}
 
-	amount, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetAmount(symbol)
+	amount, err := s.exchangeservice.GetAmount(strategy.ExchangeId, symbol)
 	if err != nil {
 		return err
 	}
 
-	price, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetPrice(symbol)
+	price, err := s.exchangeservice.GetPrice(strategy.ExchangeId, symbol)
 	if err != nil {
 		return err
 	}
 
 	trade := map[string]interface{}{
 		"pair":   symbol,
-		"amount": utils.Float2String(amount),
+		"amount": amount,
 		"orders": map[string]interface{}{
 			"buy": map[string]interface{}{
 				"price":     price,
@@ -395,18 +391,14 @@ func (s *StrategyService) Sell(id string) error {
 		logrus.Error("Could not get strategy")
 		return err
 	}
-	exchange, err := s.exchangeservice.GetExchange(strategy.ExchangeId)
-	if err != nil {
-		return err
-	}
 
-	trade, err := s.tradeservice.GetOpen()
+	trade, err := s.tradeservice.GetOpen(id)
 	if err != nil {
 		logrus.Error("Could not find open trade")
 		return err
 	}
 
-	err = binanceservice.NewService(exchange.APIKey, exchange.APISecret).Sell(trade.Pair)
+	err = s.exchangeservice.Sell(strategy.ExchangeId, trade.Pair)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err":  err,
@@ -415,12 +407,12 @@ func (s *StrategyService) Sell(id string) error {
 		return err
 	}
 
-	price, err := binanceservice.NewService(exchange.APIKey, exchange.APISecret).GetPrice(trade.Pair)
+	price, err := s.exchangeservice.GetPrice(strategy.ExchangeId, trade.Pair)
 	if err != nil {
 		return err
 	}
 
-	err = s.tradeservice.Close(price)
+	err = s.tradeservice.Close(id, price)
 	if err != nil {
 		return err
 	}
