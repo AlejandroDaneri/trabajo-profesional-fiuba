@@ -406,7 +406,7 @@ const CurrentStrategy = () => {
             <h2>Trades</h2>
             <Trades strategyID={strategy.data.id} />
           </div>}
-          <div>
+          {trades.data.length > 0 && <div>
             <h2>Graphs</h2>
             <div style={{ display: "flex", justifyContent: "center" }}>
               {/* <div style={{ marginRight: "3rem" }}>
@@ -478,7 +478,7 @@ const CurrentStrategy = () => {
                 </ResponsiveContainer>
               </div>
             )}
-          </div>
+          </div>}
         </CurrentStrategyStyle>
       }
     />
