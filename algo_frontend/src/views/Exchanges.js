@@ -30,6 +30,7 @@ const ExchangesStyle = styled.div`
   & .brand {
     display: flex;
     justify-content: center;
+    align-items: center;
 
     & p {
       margin: 0;
