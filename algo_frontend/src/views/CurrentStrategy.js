@@ -34,17 +34,24 @@ import { getDuration } from "../utils/date"
 import { getRunning } from "../webapi/strategy"
 import { run } from "../webapi/backtesting"
 import { get as getExchange } from "../webapi/exchanges"
+import { list } from "../webapi/trade"
 
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
 
 const CurrentStrategy = () => {
+
   const [strategy, strategyFunc] = useState({
     loading: false,
     data: {
       currencies: [],
       indicators_label: []
     },
+  })
+
+  const [trades, tradesFunc] = useState({
+    loading: false,
+    data: []
   })
 
   const [exchange, exchangeFunc] = useState({
@@ -61,12 +68,6 @@ const CurrentStrategy = () => {
     data: [],
   })
 
-  const onChange = (key, value) => {
-    setSelectedDates((prevState) => ({
-      ...prevState,
-      [key]: value,
-    }))
-  }
 
   //Here we should fetch the actual information from the database.
   const generateStockPerformanceData = () => {
@@ -202,6 +203,27 @@ const CurrentStrategy = () => {
     }
   }
 
+  const getTrades = (strategyId) => {
+    return new Promise((resolve, reject) => {
+      tradesFunc((prevState) => ({
+        ...prevState,
+        loading: true,
+      }))
+      list(strategyId)
+        .then((response) => {
+          tradesFunc((prevState) => ({
+            ...prevState,
+            loading: false,
+            data: response.data,
+          }))
+          resolve(response.data)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  }
+
   const getStrategy = () => {
     return new Promise((resolve, reject) => {
       strategyFunc((prevState) => ({
@@ -248,9 +270,7 @@ const CurrentStrategy = () => {
           data: response.data || [],
         }))
       })
-      .catch((err) => {
-        console.info("err", err)
-      })
+      .catch((err) => {})
   }
 
   useEffect(() => {
@@ -277,12 +297,15 @@ const CurrentStrategy = () => {
   ])
 
   const getState = () => {
+    
     getStrategy()
       .then((strategy) => {
         exchangeFunc((prevState) => ({
           ...prevState,
           loading: true,
         }))
+
+        getTrades(strategy.id)
 
         getExchange(strategy?.exchange_id).then((response) => {
           exchangeFunc((prevState) => ({
@@ -373,12 +396,16 @@ const CurrentStrategy = () => {
                 <div className="label">Timeframe</div>
                 <div>{strategy.data.timeframe_label}</div>
               </div>
+              <div className="box">
+                <div className="label"># Trades</div>
+                <div>{trades.data.length}</div>
+              </div>
             </div>
           </div>
-          <div className="trades">
+          {trades.data.length > 0 && <div className="trades">
             <h2>Trades</h2>
             <Trades strategyID={strategy.data.id} />
-          </div>
+          </div>}
           <div>
             <h2>Graphs</h2>
             <div style={{ display: "flex", justifyContent: "center" }}>
