@@ -1,14 +1,18 @@
 /* Import Libs */
+import styled from "styled-components"
 import { useHistory } from "react-router-dom"
 import { useRecoilState } from "recoil"
-import styled from "styled-components"
 import { useLocation } from "react-router-dom"
+import { useEffect, useState } from "react"
 
 /* Import Styles */
 import TopbarStyle from "../styles/topbar"
 
 /* Import Images */
 import logo from "../images/bitcoin.png"
+
+/* Import WebApi */
+import { getRunning } from "../webapi/strategy"
 
 import { userState } from "../atoms/atoms"
 import { theme } from "../utils/theme"
@@ -56,6 +60,8 @@ const ButtonMenu = ({ route, title, icon }) => {
 const Topbar = () => {
   const history = useHistory()
 
+  const [runningStrategy, runningStrategyFunc] = useState(false)
+
   // eslint-disable-next-line
   const [user, setUser] = useRecoilState(userState)
 
@@ -67,6 +73,25 @@ const Topbar = () => {
     history.push("/")
   }
 
+  useEffect(() => {
+    const getRunningStrategy = () => {
+      getRunning()
+        .then(_ => {
+          runningStrategyFunc(true)
+        })
+        .catch(_ => {
+          runningStrategyFunc(false)
+        })
+    }
+
+    const interval = setInterval(getRunningStrategy, 5000)
+
+    return () => {
+      clearInterval(interval)
+    }
+    
+  }, [])
+
   return (
     <TopbarStyle>
       <div className="logo">
@@ -74,8 +99,16 @@ const Topbar = () => {
         <p>SatoshiBOT</p>
       </div>
       <div className="nav-links">
-        <ButtonMenu route="/home/trades" title="Running" icon="repeat" />
-        <ButtonMenu route="/home/strategies" title="Strategies" icon="list" />
+        {runningStrategy && <ButtonMenu
+          route="/home/trades"
+          title="Running"
+          icon="repeat"
+        />}
+        <ButtonMenu
+          route="/home/strategies"
+          title="Strategies"
+          icon="list"
+        />
         <ButtonMenu
           route="/home/backtesting"
           title="Backtesting"

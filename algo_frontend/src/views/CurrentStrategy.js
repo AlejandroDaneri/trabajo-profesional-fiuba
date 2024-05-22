@@ -19,7 +19,6 @@ import { TIMEFRAMES } from "../constants"
 
 /* Import Components */
 import CurrencyLogo from "../components/CurrencyLogo"
-import FieldDatePicker from "../components/reusables/FieldDatePicker"
 import Trades from "../components/Trades"
 import View from "../components/reusables/View"
 import StrategyComparisonChart from "../components/reusables/Chart"
@@ -32,7 +31,7 @@ import { capitalize } from "../utils/string"
 import { getDuration } from "../utils/date"
 
 /* Import WebApi */
-import { get } from "../webapi/strategy"
+import { getRunning } from "../webapi/strategy"
 import { run } from "../webapi/backtesting"
 import { get as getExchange } from "../webapi/exchanges"
 
@@ -209,7 +208,7 @@ const CurrentStrategy = () => {
         ...prevState,
         loading: true,
       }))
-      get()
+      getRunning()
         .then((response) => {
           strategyFunc((prevState) => ({
             ...prevState,
