@@ -85,6 +85,7 @@ const Topbar = () => {
     }
 
     const interval = setInterval(getRunningStrategy, 5000)
+    getRunningStrategy()
 
     return () => {
       clearInterval(interval)
