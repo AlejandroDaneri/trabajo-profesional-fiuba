@@ -1,34 +1,6 @@
 @import url("../utils/colors.css");
 @import url("../utils/fonts.css");
 
-.login-container {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100vh;
-  background: url("../assets/bitcoin.avif") center/cover no-repeat;
-  font-family: var(--primary-font);
-}
-
-.login-content {
-  min-width: 35vw;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 0 20px var(--box-shadow);
-  background-color: var(--background-light);
-}
-
-.login-heading {
-  text-align: center;
-  color: var(--primary-blue);
-  font-size: 36px;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(var(--primary-blue-rgb), 0.3);
-  animation: titleAnimation 0.8s ease;
-}
-
 @keyframes titleAnimation {
   from {
     opacity: 0;

@@ -71,7 +71,7 @@ const Topbar = () => {
     <TopbarStyle>
       <div className="logo">
         <img src={logo} className="App-logo" alt="logo" />
-        <p>SatoshiBOT.tech</p>
+        <p>SatoshiBOT</p>
       </div>
       <div className="nav-links">
         <ButtonMenu route="/home/trades" title="Running" icon="repeat" />
