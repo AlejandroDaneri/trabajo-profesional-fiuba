@@ -102,7 +102,8 @@ const Strategies = () => {
         state_label: capitalize(strategy.state),
         duration: transformDuration(strategy.state, strategy.start_timestamp, strategy.end_timestamp),
         timeframe: transformTimeframe(strategy.timeframe),
-        current_balance: parseInt(strategy.current_balance).toFixed(2),
+        initial_balance: strategy.initial_balance ? parseInt(strategy.initial_balance).toFixed(2) : '',
+        current_balance: strategy.current_balance ? parseInt(strategy.current_balance).toFixed(2) : '',
       }))
       .reduce((strategies, strategy) => {
         return {

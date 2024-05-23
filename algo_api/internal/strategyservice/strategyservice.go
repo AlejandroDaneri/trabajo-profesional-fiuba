@@ -165,6 +165,9 @@ func (s *StrategyService) List() ([]*database.StrategyResponseFields, error) {
 		if err != nil {
 			continue
 		}
+		if strategy.State == database.StrategyStateCreated {
+			strategy.CurrentBalance = ""
+		}
 		if strategy.State == database.StrategyStateRunning {
 			balance, err := s.binanceservice.GetBalance()
 			if err == nil {
