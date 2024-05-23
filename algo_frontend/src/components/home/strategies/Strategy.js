@@ -8,21 +8,30 @@ import CurrencyLogo from "../../CurrencyLogo"
 
 /* Import Reusables Components */
 import FieldSelect from "../../reusables/FieldSelect"
+import FieldSwitch from "../../reusables/FieldSwitch"
+import FieldInput from "../../reusables/FieldInput"
 
 /* Import Constants */
 import { TIMEFRAMES } from "../../../constants"
 
 /* Import WebApi */
 import { add } from "../../../webapi/strategy"
+import { list as listExchanges } from "../../../webapi/exchanges"
+import { getIndicators as listIndicators } from "../../../webapi/backtesting"
 
 /* Import Utils */
 import { theme } from "../../../utils/theme"
-import { list } from "../../../webapi/exchanges"
+import { capitalize } from "../../../utils/string"
 
 const StrategyStyle = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px;
+
+  & .indicators {
+    height: 300px;
+    overflow-y: scroll;
+  }
 
   & .field {
     margin-bottom: 20px;
@@ -68,25 +77,49 @@ const Currency = ({ currency }) => {
 }
 
 const CURRENCIES = ["BTC", "ETH", "SOL"]
-const INDICATORS = ["EMA", "RSI", "MACD"]
 
 const Strategy = ({ onCloseModal, onAdd }) => {
   const [strategy, strategyFunc] = useState({
     loading: false,
-    data: {},
+    data: {
+      indicators: {}
+    },
   })
 
   const [exchanges, exchangesFunc] = useState()
 
+  const [indicators, indicatorsFunc] = useState({
+    loading: false,
+    data: []
+  })
+
+  const getExchanges = () => {
+    listExchanges()
+      .then((response) => {
+        exchangesFunc(
+          response.data.map((exchange) => ({
+            value: exchange.id,
+            label: exchange.alias,
+          }))
+        )
+      })
+      .catch(_ => {})
+  }
+
+  const getIndicators = () => {
+    listIndicators()
+      .then(response => {
+        indicatorsFunc({
+          loading: false,
+          data: response.data
+        })
+      })
+      .catch(_ => {})
+  }
+
   useEffect(() => {
-    list().then((response) => {
-      exchangesFunc(
-        response.data.map((exchange) => ({
-          value: exchange.id,
-          label: exchange.alias,
-        }))
-      )
-    })
+    getExchanges()
+    getIndicators()
   }, [])
 
   const onChange = (key, value) => {
@@ -98,6 +131,26 @@ const Strategy = ({ onCloseModal, onAdd }) => {
       },
     }))
   }
+
+  const onChangeIndicatorEnabled = (key, value) => {
+    const indicator = key.split(".")[0]
+
+    strategyFunc((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState.data,
+        indicators: {
+          ...prevState.data.indicators,
+          [indicator]: {
+            ...prevState.data.indicators[indicator],
+            enabled: value,
+          },
+        },
+      }
+    }))
+  }
+
+  const onChangeIndicatorParameter = () => {}
 
   const transformToSend = (data) => {
     const createParameters = (indicator) => {
@@ -166,19 +219,35 @@ const Strategy = ({ onCloseModal, onAdd }) => {
           multiple
         />
       </div>
-      <div className="field">
-        <FieldSelect
-          name="indicators"
-          label="Indicators"
-          value={strategy.indicators}
-          onChange={onChange}
-          options={INDICATORS.map((indicator) => ({
-            value: indicator,
-            label: indicator,
-          }))}
-          width={800}
-          multiple
-        />
+      <div className="indicators">
+        {Object.keys(indicators.data).map((indicator) => (
+          <div className="section-content-row">
+            <div className="field">
+              <FieldSwitch
+                name={indicator}
+                label={indicator}
+                value={strategy.data.indicators[indicator]?.enabled}
+                onChange={onChangeIndicatorEnabled}
+              />
+            </div>
+            {strategy.data.indicators[indicator]?.enabled && (
+              <>
+                {Object.keys(
+                  indicators.data[indicator].parameters
+                ).map((parameter) => (
+                  <div className="field">
+                    <FieldInput
+                      name={`${indicator}.${parameter}`}
+                      label={parameter.split("_").map((word) => capitalize(word)).join(" ")}
+                      value={strategy.data.indicators[indicator].parameters[parameter].value}
+                      onChange={onChangeIndicatorParameter}
+                    />
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        ))}
       </div>
       <div className="field">
         <FieldSelect
