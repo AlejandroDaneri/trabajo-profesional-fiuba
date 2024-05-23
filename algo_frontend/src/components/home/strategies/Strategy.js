@@ -118,11 +118,6 @@ const Strategy = ({ onCloseModal, onAdd }) => {
 
   const [exchanges, exchangesFunc] = useState()
 
-  const [indicators, indicatorsFunc] = useState({
-    loading: false,
-    data: []
-  })
-
   const getExchanges = () => {
     listExchanges()
       .then((response) => {
@@ -163,10 +158,13 @@ const Strategy = ({ onCloseModal, onAdd }) => {
             },
           }
         }, {})
-        indicatorsFunc({
+        strategyFunc(prevState => ({
           loading: false,
-          data: indicators
-        })
+          data: {
+            ...prevState.data,
+            indicators
+          }
+        }))
       })
       .catch(_ => {})
   }
@@ -302,7 +300,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         <h3>Indicators</h3>
         <div className="section-content">
           <div className="indicators">
-            {Object.keys(indicators.data).map((indicator) => (
+            {Object.keys(strategy.data.indicators).map((indicator) => (
               <div className="section-content-row">
                 <div className="field">
                   <FieldSwitch
@@ -312,10 +310,10 @@ const Strategy = ({ onCloseModal, onAdd }) => {
                     onChange={onChangeIndicatorEnabled}
                   />
                 </div>
-                {strategy.data.indicators[indicator]?.enabled && (
+                {strategy.data.indicators[indicator].enabled && (
                   <>
                     {Object.keys(
-                      indicators.data[indicator].parameters
+                      strategy.data.indicators[indicator].parameters
                     ).map((parameter) => (
                       <div className="field">
                         <FieldInput
@@ -323,6 +321,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
                           label={parameter.split("_").map((word) => capitalize(word)).join(" ")}
                           value={strategy.data.indicators[indicator].parameters[parameter].value}
                           onChange={onChangeIndicatorParameter}
+                          width={100}
                         />
                       </div>
                     ))}
