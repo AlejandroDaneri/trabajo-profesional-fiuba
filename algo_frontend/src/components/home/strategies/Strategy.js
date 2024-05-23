@@ -28,6 +28,26 @@ const StrategyStyle = styled.div`
   flex-direction: column;
   padding: 20px;
 
+  & .section {
+    display: flex;
+    flex-direction: column;
+
+    & .section-content.row {
+      display: flex;
+      flex-direction: row;
+    }
+
+    & .field {
+      margin-right: 20px;
+    }
+
+    & h3 {
+      border-bottom: 0.5px solid white;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+  }
+
   & .indicators {
     height: 300px;
     overflow-y: scroll;
@@ -41,9 +61,7 @@ const StrategyStyle = styled.div`
       border-radius: 10px;
       background-color: ${theme.white};
     }
-
   }
-    
 
   & .field {
     margin-bottom: 20px;
@@ -242,29 +260,42 @@ const Strategy = ({ onCloseModal, onAdd }) => {
   return (
     <StrategyStyle>
       <div className="section">
-        <div className="field">
-          <FieldSelect
-            name="currencies"
-            label="Currencies"
-            value={strategy.currencies}
-            onChange={onChange}
-            options={CURRENCIES.map((currency) => ({
-              value: currency,
-              label: <Currency currency={currency} />,
-            }))}
-            width={140}
-            multiple
-          />
-        </div>
-        <div className="field">
-          <FieldSelect
-            name="timeframe"
-            label="Timeframe"
-            value={strategy.timeframe}
-            onChange={onChange}
-            options={TIMEFRAMES}
-            width={140}
-          />
+        <h3>Basic</h3>
+        <div className="section-content row">
+          <div className="field">
+            <FieldSelect
+              name="currencies"
+              label="Currencies"
+              value={strategy.currencies}
+              onChange={onChange}
+              options={CURRENCIES.map((currency) => ({
+                value: currency,
+                label: <Currency currency={currency} />,
+              }))}
+              width={200}
+              multiple
+            />
+          </div>
+          <div className="field">
+            <FieldSelect
+              name="timeframe"
+              label="Timeframe"
+              value={strategy.timeframe}
+              onChange={onChange}
+              options={TIMEFRAMES}
+              width={200}
+            />
+          </div>
+          <div className="field">
+            <FieldSelect
+              name="exchange"
+              label="Exchange"
+              value={strategy.exchange}
+              onChange={onChange}
+              options={exchanges}
+              width={200}
+            />
+          </div>
         </div>
       </div>
       <div className="section">
@@ -303,16 +334,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
         </div>
       </div>
       
-      <div className="field">
-        <FieldSelect
-          name="exchange"
-          label="Exchange"
-          value={strategy.exchange}
-          onChange={onChange}
-          options={exchanges}
-          width={800}
-        />
-      </div>
+      
       <div className="actions">
         <div className="cancel">
           <Button text="Cancel" onClick={onCloseModal} />
