@@ -109,9 +109,33 @@ const Strategy = ({ onCloseModal, onAdd }) => {
   const getIndicators = () => {
     listIndicators()
       .then(response => {
+        const indicators = response.data.reduce((indicators, indicator) => {
+          return {
+            ...indicators,
+            [indicator.name]: {
+              enabled: false,
+              name: indicator.name,
+              parameters: Object.keys(indicator.parameters).reduce(
+                (parameters, parameter) => {
+                  return {
+                    ...parameters,
+                    [parameter]: {
+                      type: indicator.parameters[parameter].type,
+                      value:
+                        indicator.parameters[parameter].default === "required"
+                          ? ""
+                          : indicator.parameters[parameter].default,
+                    },
+                  }
+                },
+                {}
+              ),
+            },
+          }
+        }, {})
         indicatorsFunc({
           loading: false,
-          data: response.data
+          data: indicators
         })
       })
       .catch(_ => {})
