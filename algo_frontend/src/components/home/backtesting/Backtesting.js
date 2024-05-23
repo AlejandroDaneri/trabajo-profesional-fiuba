@@ -6,25 +6,25 @@ import { useDispatch } from "react-redux"
 import "react-day-picker/dist/style.css"
 
 /* Import Reusables Components */
-import View from "../components/reusables/View"
-import FieldInput from "../components/reusables/FieldInput"
-import FieldSelect from "../components/reusables/FieldSelect"
-import FieldSwitch from "../components/reusables/FieldSwitch"
-import FieldDatePicker from "../components/reusables/FieldDatePicker"
-import Button from "../components/Button"
-import StrategyComparisonChart from "../components/reusables/Chart"
-import RiskComparisonChart from "../components/RiskComparisonChart"
-import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../components/Popup"
+import View from "../../reusables/View"
+import FieldInput from "../../reusables/FieldInput"
+import FieldSelect from "../../reusables/FieldSelect"
+import FieldSwitch from "../../reusables/FieldSwitch"
+import FieldDatePicker from "../../reusables/FieldDatePicker"
+import Button from "../../Button"
+import StrategyComparisonChart from "../../reusables/Chart"
+import RiskComparisonChart from "../../RiskComparisonChart"
+import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../../Popup"
 
 /* Impor WebApi */
-import { getIndicators, run as runBacktesting } from "../webapi/backtesting"
+import { getIndicators, run as runBacktesting } from "../../../webapi/backtesting"
 
 /* Import Utils */
-import { theme } from "../utils/theme"
-import { capitalize } from "../utils/string"
+import { theme } from "../../../utils/theme"
+import { capitalize } from "../../../utils/string"
 
 /* Import Constants */
-import { CRYPTOCURRENCIES, TIMEFRAMES, BACKTESTING_TYPES } from "../constants"
+import { CRYPTOCURRENCIES, TIMEFRAMES, BACKTESTING_TYPES } from "../../../constants"
 
 const VIEW_FORM = 0
 const VIEW_BACKTESTING = 1

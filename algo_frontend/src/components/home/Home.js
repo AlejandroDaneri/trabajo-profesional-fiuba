@@ -2,15 +2,13 @@
 import { Route } from "react-router-dom"
 
 /* Import Components */
-import Topbar from "../components/topbar"
+import Topbar from "./Topbar"
+import CurrentStrategy from "../CurrentStrategy"
+import Strategies from "./strategies/Strategies"
+import Backtesting from "./backtesting/Backtesting"
+import Exchanges from "./exchanges/Exchanges"
 
-/* Import Views */
-import CurrentStrategy from "./CurrentStrategy"
-import Strategies from "./Strategies"
-import Backtesting from "./Backtesting"
-import Exchanges from "./Exchanges"
-
-const HomeView = () => {
+const Home = () => {
   return (
     <>
       <Topbar />
@@ -24,4 +22,4 @@ const HomeView = () => {
   )
 }
 
-export default HomeView
+export default Home

@@ -6,16 +6,16 @@ import { useLocation } from "react-router-dom"
 import { useEffect, useState } from "react"
 
 /* Import Styles */
-import TopbarStyle from "../styles/topbar"
+import TopbarStyle from "../../styles/topbar"
 
 /* Import Images */
-import logo from "../images/bitcoin.png"
+import logo from "../../images/bitcoin.png"
 
 /* Import WebApi */
-import { getRunning } from "../webapi/strategy"
+import { getRunning } from "../../webapi/strategy"
 
-import { userState } from "../atoms/atoms"
-import { theme } from "../utils/theme"
+import { userState } from "../../atoms/atoms"
+import { theme } from "../../utils/theme"
 
 const ButtonMenuStyle = styled.button`
   display: flex;

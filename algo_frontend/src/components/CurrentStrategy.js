@@ -18,10 +18,10 @@ import BeatLoader from "react-spinners/BeatLoader"
 import { TIMEFRAMES } from "../constants"
 
 /* Import Components */
-import CurrencyLogo from "../components/CurrencyLogo"
-import Trades from "../components/Trades"
-import View from "../components/reusables/View"
-import StrategyComparisonChart from "../components/reusables/Chart"
+import CurrencyLogo from "./CurrencyLogo"
+import Trades from "./Trades"
+import View from "./reusables/View"
+import StrategyComparisonChart from "./reusables/Chart"
 
 /* Import Styles */
 import { CurrentStrategyStyle } from "../styles/CurrentStrategy"

@@ -6,10 +6,10 @@ import styled from "styled-components"
 import React, { useState } from "react"
 
 /* Import Components */
-import ErrorModal from "../components/errorModal"
+import ErrorModal from "./errorModal"
 /* Import Utils */
 import { INVALID_EMAIL } from "../utils/interactiveMessages"
-import SuccessModal from "../components/successModal"
+import SuccessModal from "./successModal"
 import { createUser } from "../config/firebaseConfig"
 import { useHistory } from "react-router-dom"
 import { theme } from "../utils/theme"

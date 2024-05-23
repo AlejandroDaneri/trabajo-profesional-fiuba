@@ -3,21 +3,21 @@ import { useEffect, useState } from "react"
 import styled from "styled-components"
 
 /* Import Components */
-import Button from "../components/Button"
-import CurrencyLogo from "../components/CurrencyLogo"
+import Button from "../../Button"
+import CurrencyLogo from "../../CurrencyLogo"
 
 /* Import Reusables Components */
-import FieldSelect from "../components/reusables/FieldSelect"
+import FieldSelect from "../../reusables/FieldSelect"
 
 /* Import Constants */
-import { TIMEFRAMES } from "../constants"
+import { TIMEFRAMES } from "../../../constants"
 
 /* Import WebApi */
-import { add } from "../webapi/strategy"
+import { add } from "../../../webapi/strategy"
 
 /* Import Utils */
-import { theme } from "../utils/theme"
-import { list } from "../webapi/exchanges"
+import { theme } from "../../../utils/theme"
+import { list } from "../../../webapi/exchanges"
 
 const StrategyStyle = styled.div`
   display: flex;

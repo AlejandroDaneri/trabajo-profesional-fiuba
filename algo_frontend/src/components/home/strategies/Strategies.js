@@ -2,44 +2,42 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import BounceLoader from "react-spinners/BounceLoader"
-import Loader from "react-spinners/BeatLoader"
 
 /* Import WebApi */
-import { list, remove, start, stop } from "../webapi/strategy"
-import { list as listExchanges } from "../webapi/exchanges"
+import { list, remove, start, stop } from "../../../webapi/strategy"
+import { list as listExchanges } from "../../../webapi/exchanges"
 
 /* Import Styles */
-import StrategiesStyle from "../styles/strategies"
+import StrategiesStyle from "../../../styles/strategies"
 
 /* Import Utils */
-import { capitalize } from "../utils/string"
-import { theme } from "../utils/theme"
-import { getDuration } from "../utils/date"
+import { capitalize } from "../../../utils/string"
+import { getDuration } from "../../../utils/date"
 
 /* Import Components */
-import CurrencyLogo from "../components/CurrencyLogo"
-import Table from "../components/Table"
-import Button from "../components/Button"
-import Trades from "../components/Trades"
+import CurrencyLogo from "../../CurrencyLogo"
+import Table from "../../Table"
+import Button from "../../Button"
+import Trades from "../../Trades"
 import {
   POPUP_ACTION_OPEN,
   POPUP_TYPE_ERROR,
   POPUP_TYPE_SUCCESS,
-} from "../components/Popup"
-import Modal from "../components/reusables/Modal"
-import View from "../components/reusables/View"
+} from "../../Popup"
+import Modal from "../../reusables/Modal"
+import View from "../../reusables/View"
 import FlotantBox, {
   FlotantBoxProvider,
-} from "../components/reusables/FlotantBox"
+} from "../../reusables/FlotantBox"
 
 /* Import Views */
 import Strategy from "./Strategy"
 
 /* Import Images */
-import logoBinance from "../images/logos/exchanges/binance.svg"
+import logoBinance from "../../../images/logos/exchanges/binance.svg"
 
 /* Import Constants */
-import { TIMEFRAMES } from "../constants"
+import { TIMEFRAMES } from "../../../constants"
 
 const Strategies = () => {
   const dispatch = useDispatch()

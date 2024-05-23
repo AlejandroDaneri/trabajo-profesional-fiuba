@@ -4,19 +4,19 @@ import styled from "styled-components"
 import Loader from "react-spinners/BeatLoader"
 
 /* Import Reusables Components */
-import View from "../components/reusables/View"
-import Modal from "../components/reusables/Modal"
-import Table from "../components/Table"
-import Button from "../components/Button"
+import View from "../../reusables/View"
+import Modal from "../../reusables/Modal"
+import Table from "../../Table"
+import Button from "../../Button"
 
 import Exchange from "./Exchange"
 
 /* Import WebApi */
-import { list, remove, getBalance } from "../webapi/exchanges"
-import { theme } from "../utils/theme"
+import { list, remove, getBalance } from "../../../webapi/exchanges"
+import { theme } from "../../../utils/theme"
 
 /* Import Images */
-import logoBinance from "../images/logos/exchanges/binance.svg"
+import logoBinance from "../../../images/logos/exchanges/binance.svg"
 
 const ExchangesStyle = styled.div`
   padding: 20px;

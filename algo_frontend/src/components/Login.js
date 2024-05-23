@@ -9,12 +9,12 @@ import "../styles/loginView.css"
 
 import { INVALID_EMAIL, WRONG_CREDENTIALS } from "../utils/interactiveMessages"
 import { theme } from "../utils/theme"
-import ErrorModal from "../components/errorModal"
+import ErrorModal from "./errorModal"
 import { login } from "../config/firebaseConfig"
 import { userState } from "../atoms/atoms"
 
-const images = require.context('../images/svg', true);
-const imageList = images.keys().map(image => images(image));
+const images = require.context('../images/svg', true)
+const imageList = images.keys().map(image => images(image))
 
 const CryptoLogoStyle = styled.div`
   z-index: 0;

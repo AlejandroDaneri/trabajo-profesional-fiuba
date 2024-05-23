@@ -3,16 +3,16 @@ import React, { useEffect, useState } from "react"
 import styled from "styled-components"
 
 /* Import Reusables Components */
-import FieldSelect from "../components/reusables/FieldSelect"
-import FieldSwitch from "../components/reusables/FieldSwitch"
-import FieldInput from "../components/reusables/FieldInput"
-import Button from "../components/Button"
+import FieldSelect from "../../reusables/FieldSelect"
+import FieldSwitch from "../../reusables/FieldSwitch"
+import FieldInput from "../../reusables/FieldInput"
+import Button from "../../Button"
 
 /* Import WebApi */
-import { add, edit, get } from "../webapi/exchanges"
+import { add, edit, get } from "../../../webapi/exchanges"
 
 /* Import Utils */
-import { capitalize } from "../utils/string"
+import { capitalize } from "../../../utils/string"
 
 const ExchangeStyle = styled.div`
   display: flex;
