@@ -518,6 +518,7 @@ const Backtesting = () => {
                                       ].value
                                     }
                                     onChange={onChangeIndicatorParameter}
+                                    width={100}
                                   />
                                 </div>
                               ))}
