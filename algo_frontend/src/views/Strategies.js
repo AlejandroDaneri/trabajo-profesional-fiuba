@@ -2,10 +2,11 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import BounceLoader from "react-spinners/BounceLoader"
+import Loader from "react-spinners/BeatLoader"
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
-import { get as getExchange } from "../webapi/exchanges"
+import { list as listExchanges } from "../webapi/exchanges"
 
 /* Import Styles */
 import StrategiesStyle from "../styles/strategies"
@@ -39,16 +40,18 @@ import logoBinance from "../images/logos/exchanges/binance.svg"
 
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
-import Loader from "react-spinners/BeatLoader"
-
-
 
 const Strategies = () => {
   const dispatch = useDispatch()
 
-  const [state, stateFunc] = useState({
+  const [strategies, strategiesFunc] = useState({
     loading: false,
     data: [],
+  })
+
+  const [exchanges, exchangesFunc] = useState({
+    loading: false,
+    data: []
   })
 
   const [tradesModal, tradesModalFunc] = useState({
@@ -108,10 +111,6 @@ const Strategies = () => {
           ...strategies,
           [strategy.id]: {
             ...strategy,
-            exchange: {
-              loading: true,
-              value: {},
-            },
           },
         }
       }, {})
@@ -119,20 +118,42 @@ const Strategies = () => {
 
   const getStrategies = () => {
     return new Promise((resolve, reject) => {
-      stateFunc((prevState) => ({
+      strategiesFunc((prevState) => ({
         ...prevState,
         loading: true,
       }))
       list()
         .then((response) => {
-          stateFunc({
+          strategiesFunc({
             loading: false,
             data: transformToView(response?.data || []),
           })
           resolve(response.data)
         })
         .catch((_) => {
-          stateFunc({
+          strategiesFunc({
+            loading: false,
+          })
+        })
+    })
+  }
+
+  const getExchanges  = () => {
+    return new Promise((resolve, reject) => {
+      exchangesFunc((prevState) => ({
+        ...prevState,
+        loading: true,
+      }))
+      listExchanges()
+        .then((response) => {
+          exchangesFunc({
+            loading: false,
+            data: response?.data || [],
+          })
+          resolve(response.data)
+        })
+        .catch((_) => {
+          exchangesFunc({
             loading: false,
           })
         })
@@ -140,42 +161,8 @@ const Strategies = () => {
   }
 
   const getState = () => {
-    getStrategies().then((strategies) => {
-      strategies.forEach((strategy) => {
-        getExchange(strategy.exchange_id)
-          .then((response) => {
-            stateFunc((prevState) => ({
-              ...prevState,
-              data: {
-                ...prevState.data,
-                [strategy.id]: {
-                  ...prevState.data[strategy.id],
-                  exchange: {
-                    loading: false,
-                    error: false,
-                    value: response?.data,
-                  },
-                },
-              },
-            }))
-          })
-          .catch((_) => {
-            stateFunc((prevState) => ({
-              ...prevState,
-              data: {
-                ...prevState.data,
-                [strategy.id]: {
-                  ...prevState.data[strategy.id],
-                  exchange: {
-                    loading: false,
-                    error: true,
-                  },
-                },
-              },
-            }))
-          })
-      })
-    })
+    getStrategies()
+    getExchanges()
   }
 
   useEffect(() => {
@@ -352,22 +339,13 @@ const Strategies = () => {
       getPL(row),
       row.timeframe,
       row.duration,
-      row.exchange.loading ? (
-        <div className="loader">
-          <Loader size={8} color={theme.white} />
-        </div>
-      ) : row.exchange.error ? (
-        <div className="exchange-error">
-          <i className="material-icons">warning</i>
-        </div>
-      ) : (
-        <div className="exchange-info">
-          <p>{row.exchange.value?.alias}</p>
-          {row.exchange.value.exchange_name === "binance" && (
+      <div className="exchange-info">
+          <p>{exchanges.data.find(exchange => exchange.id === row.exchange_id)?.alias}</p>
+          {exchanges.data.find(exchange => exchange.id === row.exchange_id)?.exchange_name === "binance" && (
             <img alt="Binance" src={logoBinance} width="24px" />
           )}
-        </div>
-      ),
+      </div>
+      ,
       <div className="indicators">
         <FlotantBoxProvider>
           {row.indicators.map((indicator) => (
@@ -472,7 +450,7 @@ const Strategies = () => {
       />
       <View
         title="Strategies"
-        loading={state.loading}
+        loading={strategies.loading}
         buttons={[
           {
             icon: <i className="material-icons">add_circle</i>,
@@ -484,7 +462,7 @@ const Strategies = () => {
           <StrategiesStyle>
             <Table
               headers={headers}
-              data={Object.values(state.data)}
+              data={Object.values(strategies.data)}
               buildRow={buildRow}
             />
           </StrategiesStyle>
