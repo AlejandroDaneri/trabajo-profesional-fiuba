@@ -32,6 +32,15 @@ const StrategyStyle = styled.div`
     display: flex;
     flex-direction: column;
 
+    & .section-content-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      border-left: 5px solid ${theme.gray};
+      padding-left: 10px;
+      margin-bottom: 8px;
+    }
+
     & .section-content.row {
       display: flex;
       flex-direction: row;
@@ -202,33 +211,66 @@ const Strategy = ({ onCloseModal, onAdd }) => {
     }))
   }
 
-  const onChangeIndicatorParameter = () => {}
+  const onChangeIndicatorParameter = (key, value) => {
+    const indicator = key.split(".")[0]
+    const parameter = key.split(".")[1]
+
+    strategyFunc((prevState) => ({
+      ...prevState,
+      data: {
+        ...prevState.data,
+        indicators: {
+          ...prevState.data.indicators,
+          [indicator]: {
+            ...prevState.data.indicators[indicator],
+            parameters: {
+              ...prevState.data.indicators[indicator].parameters,
+              [parameter]: {
+                ...prevState.data.indicators[indicator].parameters[parameter],
+                value: value,
+              },
+            },
+          },
+        },
+      }
+    }))
+  }
 
   const transformToSend = (data) => {
-    const createParameters = (indicator) => {
-      // to-do: able to set this parameters in the ui
-      switch (indicator) {
-        case "RSI":
-          return { buy_threshold: 30, rounds: 14, sell_threshold: 71 }
-        case "MACD":
-          return { slow: 26, fast: 12, smoothed: 20 }
-        case "EMA":
-          return { rounds: 100 }
-        default:
-          return {}
+
+    const transformToSendIndicators = (indicators) => {
+      const convert2type = (value, type) => {
+        if (type === "int") {
+          return parseInt(value)
+        }
+        if (type === "float") {
+          return parseFloat(value)
+        }
+        return value
       }
+
+      return Object.values(indicators)
+        .filter((indicator) => indicator.enabled)
+        .map((indicator) => ({
+          ...indicator,
+          parameters: Object.keys(indicator.parameters).reduce(
+            (parameters, parameter) => ({
+              ...parameters,
+              [parameter]: convert2type(
+                indicator.parameters[parameter].value,
+                indicator.parameters[parameter].type
+              ),
+            }),
+            {}
+          ),
+        }))
     }
 
     return {
-      currencies: strategy.data.currencies.map((row) => row.value),
-      indicators: strategy.data.indicators.map((row) => {
-        return {
-          name: row.value,
-          parameters: createParameters(row.value),
-        }
-      }),
-      timeframe: strategy.data.timeframe.value,
-      exchange_id: strategy.data.exchange?.value,
+      currencies: data.currencies.map((row) => row.value),
+      timeframe: data.timeframe.value,
+      exchange_id: data.exchange?.value,
+      indicators: transformToSendIndicators(data.indicators)
     }
   }
 
