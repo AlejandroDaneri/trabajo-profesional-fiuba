@@ -1,34 +1,6 @@
 @import url("../utils/colors.css");
 @import url("../utils/fonts.css");
 
-.register-page-container {
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: 100vh;
-  background: url("../assets/bitcoin.avif") center/cover no-repeat;
-  font-family: var(--primary-font);
-}
-
-.register-container {
-  min-height: 50vh;
-  min-width: 35vw;
-  padding: 20px 40px 20px 40px;
-  margin-top: 5vh;
-  margin-bottom: 5vh;
-  border-radius: 12px;
-  box-shadow: 0 0 20px var(--box-shadow);
-  background-color: var(--background-light);
-  text-align: center;
-}
-
-.already-have-account-text {
-  color: var(--text-dark);
-  font-size: 14px;
-}
-
 select {
   padding: 12px;
   margin-bottom: 15px;
@@ -70,12 +42,6 @@ form {
   font-size: 14px;
   padding-left: 4px;
   cursor: pointer;
-}
-
-.register-labels {
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: var(--text-dark);
 }
 
 .input-register-view {

@@ -1,16 +1,16 @@
+/* Import Libs */
+import React, { useEffect, useRef, useState } from "react"
+import styled from "styled-components"
+import { useHistory } from "react-router-dom"
+import { useRecoilState } from "recoil"
+
+/* Import Style */
 import "../styles/loginView.css"
 
 import { INVALID_EMAIL, WRONG_CREDENTIALS } from "../utils/interactiveMessages"
-import React, { useEffect, useRef, useState } from "react"
-import styled from "styled-components"
 import { theme } from "../utils/theme"
-import logoEth from "../images/eth.svg"
-import logoSol from "../images/sol.svg"
-
 import ErrorModal from "../components/errorModal"
 import { login } from "../config/firebaseConfig"
-import { useHistory } from "react-router-dom"
-import { useRecoilState } from "recoil"
 import { userState } from "../atoms/atoms"
 
 const images = require.context('../images/svg', true);
@@ -97,6 +97,11 @@ const LoginStyle = styled.div`
     border-radius: 12px;
     background-color: ${theme.black};
     box-shadow: rgba(255, 255, 255, 0.35) 0px 0px 15px;
+
+    & .login-additional-options {
+      display: flex;
+      justify-content: right;
+    }
   }
 
   & .login-heading {
@@ -193,9 +198,6 @@ const LoginView = () => {
           </form>
 
           <div className="login-additional-options">
-            <button type="button" className="forgot-password-btn">
-              Forgot your password?
-            </button>
             <button
               type="button"
               className="register-btn"
