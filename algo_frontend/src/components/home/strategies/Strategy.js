@@ -31,7 +31,19 @@ const StrategyStyle = styled.div`
   & .indicators {
     height: 300px;
     overflow-y: scroll;
+
+    &::-webkit-scrollbar {
+      -webkit-appearance: none;
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      background-color: ${theme.white};
+    }
+
   }
+    
 
   & .field {
     margin-bottom: 20px;
@@ -229,60 +241,68 @@ const Strategy = ({ onCloseModal, onAdd }) => {
 
   return (
     <StrategyStyle>
-      <div className="field">
-        <FieldSelect
-          name="currencies"
-          label="Currencies"
-          value={strategy.currencies}
-          onChange={onChange}
-          options={CURRENCIES.map((currency) => ({
-            value: currency,
-            label: <Currency currency={currency} />,
-          }))}
-          width={800}
-          multiple
-        />
+      <div className="section">
+        <div className="field">
+          <FieldSelect
+            name="currencies"
+            label="Currencies"
+            value={strategy.currencies}
+            onChange={onChange}
+            options={CURRENCIES.map((currency) => ({
+              value: currency,
+              label: <Currency currency={currency} />,
+            }))}
+            width={140}
+            multiple
+          />
+        </div>
+        <div className="field">
+          <FieldSelect
+            name="timeframe"
+            label="Timeframe"
+            value={strategy.timeframe}
+            onChange={onChange}
+            options={TIMEFRAMES}
+            width={140}
+          />
+        </div>
       </div>
-      <div className="indicators">
-        {Object.keys(indicators.data).map((indicator) => (
-          <div className="section-content-row">
-            <div className="field">
-              <FieldSwitch
-                name={indicator}
-                label={indicator}
-                value={strategy.data.indicators[indicator]?.enabled}
-                onChange={onChangeIndicatorEnabled}
-              />
-            </div>
-            {strategy.data.indicators[indicator]?.enabled && (
-              <>
-                {Object.keys(
-                  indicators.data[indicator].parameters
-                ).map((parameter) => (
-                  <div className="field">
-                    <FieldInput
-                      name={`${indicator}.${parameter}`}
-                      label={parameter.split("_").map((word) => capitalize(word)).join(" ")}
-                      value={strategy.data.indicators[indicator].parameters[parameter].value}
-                      onChange={onChangeIndicatorParameter}
-                    />
-                  </div>
-                ))}
-              </>
-            )}
+      <div className="section">
+        <h3>Indicators</h3>
+        <div className="section-content">
+          <div className="indicators">
+            {Object.keys(indicators.data).map((indicator) => (
+              <div className="section-content-row">
+                <div className="field">
+                  <FieldSwitch
+                    name={indicator}
+                    label={indicator}
+                    value={strategy.data.indicators[indicator]?.enabled}
+                    onChange={onChangeIndicatorEnabled}
+                  />
+                </div>
+                {strategy.data.indicators[indicator]?.enabled && (
+                  <>
+                    {Object.keys(
+                      indicators.data[indicator].parameters
+                    ).map((parameter) => (
+                      <div className="field">
+                        <FieldInput
+                          name={`${indicator}.${parameter}`}
+                          label={parameter.split("_").map((word) => capitalize(word)).join(" ")}
+                          value={strategy.data.indicators[indicator].parameters[parameter].value}
+                          onChange={onChangeIndicatorParameter}
+                        />
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
-      <div className="field">
-        <FieldSelect
-          name="timeframe"
-          label="Timeframe"
-          value={strategy.timeframe}
-          onChange={onChange}
-          options={TIMEFRAMES}
-          width={800}
-        />
-      </div>
+      
       <div className="field">
         <FieldSelect
           name="exchange"
