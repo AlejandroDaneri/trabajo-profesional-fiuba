@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch } from "react-redux"
 import BounceLoader from "react-spinners/BounceLoader"
+import Loader from "react-spinners/BeatLoader"
 
 /* Import WebApi */
 import { list, remove, start, stop } from "../webapi/strategy"
@@ -39,14 +40,11 @@ import logoBinance from "../images/logos/exchanges/binance.svg"
 
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
-import Loader from "react-spinners/BeatLoader"
-
-
 
 const Strategies = () => {
   const dispatch = useDispatch()
 
-  const [state, stateFunc] = useState({
+  const [strategies, strategiesFunc] = useState({
     loading: false,
     data: [],
   })
@@ -119,20 +117,20 @@ const Strategies = () => {
 
   const getStrategies = () => {
     return new Promise((resolve, reject) => {
-      stateFunc((prevState) => ({
+      strategiesFunc((prevState) => ({
         ...prevState,
         loading: true,
       }))
       list()
         .then((response) => {
-          stateFunc({
+          strategiesFunc({
             loading: false,
             data: transformToView(response?.data || []),
           })
           resolve(response.data)
         })
         .catch((_) => {
-          stateFunc({
+          strategiesFunc({
             loading: false,
           })
         })
@@ -144,7 +142,7 @@ const Strategies = () => {
       strategies.forEach((strategy) => {
         getExchange(strategy.exchange_id)
           .then((response) => {
-            stateFunc((prevState) => ({
+            strategiesFunc((prevState) => ({
               ...prevState,
               data: {
                 ...prevState.data,
@@ -160,7 +158,7 @@ const Strategies = () => {
             }))
           })
           .catch((_) => {
-            stateFunc((prevState) => ({
+            strategiesFunc((prevState) => ({
               ...prevState,
               data: {
                 ...prevState.data,
@@ -472,7 +470,7 @@ const Strategies = () => {
       />
       <View
         title="Strategies"
-        loading={state.loading}
+        loading={strategies.loading}
         buttons={[
           {
             icon: <i className="material-icons">add_circle</i>,
@@ -484,7 +482,7 @@ const Strategies = () => {
           <StrategiesStyle>
             <Table
               headers={headers}
-              data={Object.values(state.data)}
+              data={Object.values(strategies.data)}
               buildRow={buildRow}
             />
           </StrategiesStyle>
