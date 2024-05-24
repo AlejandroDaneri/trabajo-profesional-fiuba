@@ -18,10 +18,24 @@ const TableWrapper = styled.div`
 `
 
 const TableStyle = styled.table`
+  border-collapse: collapse;
   width: 100%;
+  border: 1px solid ${theme.gray}22;
 
   & span {
     color: white;
+  }
+
+  & th {
+    background: ${theme.dark};
+    text-align: center;
+    padding-left: 10px;
+    padding-right: 10px;
+    height: 35px;
+  }
+
+  & tr {
+    border-bottom: 1px solid ${theme.gray}22;
   }
 
   & thead {
@@ -44,6 +58,15 @@ const TableStyle = styled.table`
     display: table;
     width: 100%;
 
+    & tr {
+      &:nth-child(even) {
+        background: #1C1C1EAA;
+      }
+      &:nth-child(odd) {
+        background: #20202066;
+      }
+    }
+
     & td {
       ${({ columnsWidth }) =>
         (columnsWidth || []).map((column, index) => {
@@ -56,20 +79,12 @@ const TableStyle = styled.table`
     }
   }
 
-  & th {
-    border: 1px solid ${theme.white};
-    text-align: center;
-    padding-left: 10px;
-    padding-right: 10px;
-    height: 35px;
-  }
-
   & td {
-    border: 0.5px solid ${theme.white};
     text-align: center;
     padding-left: 10px;
     padding-right: 10px;
     height: 35px;
+    font-size: 14px;
   }
 `
 
@@ -130,7 +145,7 @@ const Table = ({ headers, data, buildRow }) => {
       ref={(ref) => refState(ref)}
       top={ref?.getBoundingClientRect()?.top}
     >
-      <TableStyle columns={headers.length} columnsWidth={columnsWidth}>
+      <TableStyle columns={headers.length} columnsWidth={columnsWidth} cellspacing="0" cellpadding="0">
         <thead>
           <tr>
             {(headers || []).map((header) => (

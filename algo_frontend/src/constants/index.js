@@ -74,3 +74,8 @@ export const CRYPTOCURRENCIES = [
     label: "Avalanche (AVAX)",
   },
 ]
+
+export const BACKTESTING_TYPES = [
+  { value: "Spot", label: "Spot" },
+  { value: "Futures", label: "Futures" },
+]

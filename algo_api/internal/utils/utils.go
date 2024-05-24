@@ -34,9 +34,13 @@ func ToPrettyPrint(m interface{}) string {
 	return ""
 }
 
-func String2float(number string) float64 {
+func String2Float(number string) float64 {
 	float, _ := strconv.ParseFloat(strings.TrimSpace(number), 64)
 	return float
+}
+
+func Float2String(number float64) string {
+	return strconv.FormatFloat(number, 'f', 6, 64)
 }
 
 func Int2String(number int) string {

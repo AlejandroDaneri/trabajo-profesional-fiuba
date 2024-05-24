@@ -29,8 +29,7 @@ const FieldDatePickerStyle = styled.div`
     padding: 10px;
     --rdp-accent-color: ${theme.btc};
     --rdp-background-color: ${theme.btc};
-    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2), 0 4px 5px rgba(0, 0, 0, 0.3),
-      0 2px 4px -1px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2), 0 4px 5px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.4);
   }
 
   & .day-picker-container-1 {

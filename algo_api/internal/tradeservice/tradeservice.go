@@ -3,9 +3,11 @@ package tradeservice
 import (
 	"algo_api/internal/database"
 	"algo_api/internal/databaseservice"
+	"algo_api/internal/utils"
 	"encoding/json"
 	"fmt"
 	"sync"
+	"time"
 )
 
 var instance IService
@@ -31,6 +33,8 @@ func NewService() IService {
 type IService interface {
 	Create(trade map[string]interface{}, strategyID string) (string, error)
 	Get(id string) (*database.TradeResponseFields, error)
+	GetOpen(strategyId string) (*database.Trade, error)
+	Close(strategyId string, price string) error
 	ListAll() ([]*database.TradeResponseFields, error)
 	ListByStrategy(strategyID string) ([]*database.TradeResponseFields, error)
 	Remove(id string) error
@@ -75,6 +79,75 @@ func (s *TradeService) Get(id string) (*database.TradeResponseFields, error) {
 		TradePublicFields: trade.TradePublicFields,
 		ID:                trade.ID,
 	}, nil
+}
+
+func (s *TradeService) GetOpen(strategyId string) (*database.Trade, error) {
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return nil, err
+	}
+	q := fmt.Sprintf(`
+	{
+		"selector": {
+			"pvt_type": "trade",
+			"strategy_id": "%s",
+			"orders.sell.price": {
+				"$exists": false
+			},
+			"orders.sell.timestamp": {
+				"$exists": false
+			}
+		},
+		"limit": 10000
+	}
+	`, strategyId)
+	docs, err := db.QueryJSON(q)
+	if err != nil {
+		return nil, err
+	}
+	if len(docs) == 0 {
+		return nil, nil
+	}
+	trade := database.Trade{}
+	for _, doc := range docs {
+		bytes, err := json.Marshal(doc)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(bytes, &trade)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+	return &trade, nil
+}
+
+func (s *TradeService) Close(strategyId string, price string) error {
+	trade, err := s.GetOpen(strategyId)
+	if err != nil {
+		return err
+	}
+
+	trade.Orders.Sell = database.TradePublicSell{}
+	trade.Orders.Sell.Price = price
+	trade.Orders.Sell.Timestamp = time.Now().Unix()
+
+	dbName := "trades"
+	db, err := s.databaseservice.GetDB(dbName)
+	if err != nil {
+		return err
+	}
+	doc, err := utils.StructToMap(trade)
+	if err != nil {
+		return err
+	}
+	_, _, err = db.Save(doc, nil)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *TradeService) ListAll() ([]*database.TradeResponseFields, error) {

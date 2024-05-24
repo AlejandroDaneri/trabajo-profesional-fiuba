@@ -2,15 +2,13 @@ import requests
 import os
 import json
 from datetime import datetime
-
 from api_client import ApiClient
+from lib.trade import Trade
 
 api = ApiClient()
 
-def get_all_chat_ids(bot_token):
-    base_url = 'https://api.telegram.org/bot{}'.format(bot_token)
-    get_updates_url = '{}/getUpdates'.format(base_url)
-
+def get_all_chat_ids():
+    chat_ids = []
     response_algo_api = api.get('telegram/chats')
     if response_algo_api.status_code // 100 == 2:
         print("ChatIds retrieved successfully")
@@ -21,27 +19,11 @@ def get_all_chat_ids(bot_token):
     if(response_algo_api):
         chat_ids_api = json.loads(response_algo_api.text)
 
-    chat_ids = set()
-
     if(chat_ids_api != None):
         for chat_id in chat_ids_api:
-            chat_ids.add(chat_id)
-
-    response_telegram_api = requests.get(get_updates_url)
-    updates = response_telegram_api.json().get('result', [])
-
-    if(updates != None):
-        for update in updates:
-            chat_id = update.get('message', {}).get('chat', {}).get('id')
-            if chat_id:
-                chat_ids.add(chat_id)
-                if(chat_ids_api != None):
-                    if(chat_id not in chat_ids_api):
-                        post_telegram_chat(chat_id)
-                else:
-                    post_telegram_chat(chat_id)
-
-    return list(chat_ids)
+            chat_ids.append(chat_id)
+    
+    return chat_ids
 
 def post_telegram_chat(chat_id):
     response_telegram_api = api.post('telegram/chat', json={"chat_id": chat_id})
@@ -50,8 +32,8 @@ def post_telegram_chat(chat_id):
     else:
         print("Failed to post chat ID. Status code:", response_telegram_api.status_code)
 
-def build_message(data):
-    if data['buy']['price'] <= data['sell']['price']:
+def build_message(trade: Trade):
+    if trade.buy_order.price <= trade.sell_order.price:
         trade_result = "👍 Positive"
     else: 
         trade_result = "👎 Negative"
@@ -68,23 +50,23 @@ def build_message(data):
     "  Timestamp: {}\n"
     "Trade Result: {}"
     ).format(
-        data['pair'],
-        data['amount'],
-        data['buy']['price'],
-        datetime.fromtimestamp(data['buy']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-        data['sell']['price'],
-        datetime.fromtimestamp(data['sell']['timestamp'] / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+        trade.symbol,
+        trade.amount,
+        trade.buy_order.price,
+        datetime.fromtimestamp(trade.buy_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
+        trade.sell_order.price,
+        datetime.fromtimestamp(trade.sell_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
         trade_result
     )
 
     return trade_details_message
 
-def notify_telegram_users(data):
+def notify_telegram_users(trade):
 
-    message = build_message(data)
+    message = build_message(trade)
 
     bot_token = os.environ.get('BOT_TOKEN')
-    all_chat_ids = get_all_chat_ids(bot_token)
+    all_chat_ids = get_all_chat_ids()
 
     for chat_id in all_chat_ids:
         send_telegram_message(bot_token, chat_id, message)

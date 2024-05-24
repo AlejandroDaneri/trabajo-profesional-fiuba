@@ -11,10 +11,8 @@ class Dummy(Exchange):
         pass
     
     def buy(self, symbol: str, price: int, timestamp: float) -> Trade:
-        print(f"[Exchange | Dummy] Buying {symbol}, price {price}")
         return super().buy(symbol, price, timestamp)
 
     def sell(self, trade: Trade, price: int, timestamp: float) -> Trade:
-        print(f"[Exchange | Dummy] Selling {trade.symbol}, price {price}")
         return super().sell(trade, price, timestamp)
 

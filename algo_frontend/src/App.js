@@ -4,18 +4,16 @@ import React from "react"
 import { RecoilRoot } from "recoil"
 import { Provider } from "react-redux"
 
-/* Import Views */
-import LoginView from "./views/loginView"
-import RegisterView from "./views/registerView"
+/* Import Components */
+import Login from "./components/Login"
+import Register from "./components/Register"
+import Home from "./components/home/Home"
+import Popup from "./components/Popup"
 
 /* Import Styles */
 import AppStyle from "./styles/app"
-import HomeView from "./views/homeView"
 
 import store from "./store"
-
-/* Import Components */
-import Popup from "./components/Popup"
 
 const App = () => {
   return (
@@ -25,9 +23,9 @@ const App = () => {
           <AppStyle>
             <Popup />
             <Switch>
-              <Route exact path="/" component={LoginView} />
-              <Route path="/register" component={RegisterView} />
-              <Route path="/home" component={HomeView} />
+              <Route exact path="/" component={Login} />
+              <Route path="/register" component={Register} />
+              <Route path="/home" component={Home} />
             </Switch>
           </AppStyle>
         </BrowserRouter>

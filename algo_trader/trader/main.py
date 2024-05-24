@@ -5,7 +5,7 @@ from lib.providers.binance import Binance as BinanceProvider
 
 from api_client import ApiClient
 
-from main_utils import init_sentry, get_current_strategy, inject_new_tick_to_trade_bot
+from main_utils import init_sentry, get_current_strategy, get_current_trade, inject_new_tick_to_trade_bot
 
 init_sentry()
 
@@ -13,8 +13,12 @@ def main():
     data_provider = BinanceProvider()
     api = ApiClient()
 
-    strategy, exchange = get_current_strategy(data_provider, api)
-    trade_bot = TradeBot(strategy, exchange)
+    strategy = get_current_strategy(data_provider, api)
+    trade_bot = TradeBot(strategy)
+
+    trade = get_current_trade(api)
+    if trade is not None:
+        trade_bot.set_current_trade(trade)
 
     while True:
         strategy_id = list(strategy.values())[0].get_id()

@@ -5,8 +5,8 @@ from lib.providers.binance import Binance as BinanceProvider
 from lib.strategies.strategy import Strategy
 from lib.utils.utils import hydrate_strategy, timeframe_2_seconds
 from common.notifications.telegram.telegram_notifications_service import notify_telegram_users
-from lib.exchanges.binance import Binance as BinanceExchange
 from lib.exchanges.exchange import Exchange
+from lib.exchanges.dummy import Dummy
 from api_client import ApiClient
 import time
 import sentry_sdk
@@ -23,7 +23,7 @@ def init_sentry():
         )
 
 # get strategy from the db, and hydrate Strategy class with the data
-def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dict[str, Strategy], Exchange]:
+def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> Dict[str, Strategy]:
     WAIT_TIME_TO_CHECK_NEW_STRATEGY_IN_SECONDS = 60
 
     strategy = None
@@ -45,7 +45,6 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dic
     timeframe = strategy["timeframe"]
     type = strategy["type"]
     initial_balance = strategy["initial_balance"]
-    exchange_id = strategy["exchange_id"]
 
     print(f"[main] initial balance: {initial_balance}")
 
@@ -60,12 +59,14 @@ def get_current_strategy(data_provider: BinanceProvider, api: ApiClient) -> [Dic
         train_data[currency] = data[currency].iloc[0:n_train]
         strategy[currency].prepare_data(train_data[currency])
 
-    response = api.get(f'exchanges/{exchange_id}')
-    exchange = response.json()
+    return strategy
 
-    exchange = BinanceExchange(exchange["api_key"], exchange["api_secret"])
-
-    return strategy, exchange
+def get_current_trade(api: ApiClient) -> Trade | None:
+    response = api.get('trade/current')
+    if response.status_code == 200:
+        trade_doc = response.json()
+        return Trade(trade_doc["pair"], trade_doc["amount"], trade_doc["orders"]["buy"]["price"], trade_doc["orders"]["buy"]["timestamp"])
+    return None
 
 # inject new tick to trade bot to detect buy and sell signals
 def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: TradeBot, data_provider: BinanceProvider, api: ApiClient):
@@ -74,46 +75,15 @@ def inject_new_tick_to_trade_bot(strategy: Dict[str, Strategy], trade_bot: Trade
         print(f'Get: {currency} {data.index[0]}')
         trade = trade_bot.run_strategy(currency, data)
         if trade is not None:
+            strategy_id = strategy[currency].get_id()
             # trade closed: means buy and sell executed
             if trade.is_closed():
                 # save closed trade
-                data = {
-                    "pair": trade.symbol,
-                    "amount": str(trade.amount),
-                    "buy": {
-                        "price": str(trade.buy_order.price),
-                        "timestamp": int(trade.buy_order.timestamp)
-                    },
-                    "sell": {
-                        "price": str(trade.sell_order.price),
-                        "timestamp": int(trade.sell_order.timestamp)
-                    }
-                }
-                response = api.post('trade', json=data)
-
-                # remove tmp current trade
-                api.delete('trade/current')
-
-                notify_telegram_users(data)
-                response = api.post('trade/current', json=data)
-                            
-                # update balance to strategy doc in the db
-                current_balance = trade_bot.get_balance()
-                print(f"Current balance: {current_balance}")
-                api.put(f'strategy/{id}/balance', json={
-                    "current_balance": str(current_balance)
-                })
+                notify_telegram_users(trade)
+                response = api.put(f'strategy/{strategy_id}/sell')
             else:
                 # trade current: buy executed but not sell yet
-                data = {
-                    "pair": trade.symbol,
-                    "amount": str(trade.amount),
-                    "buy": {
-                        "price": str(trade.buy_order.price),
-                        "timestamp": int(trade.buy_order.timestamp)
-                    }
-                }
-                response = api.post('trade/current', json=data)
+                response = api.put(f'strategy/{strategy_id}/buy/{trade.symbol}')
 
     time.sleep(timeframe_2_seconds(strategy[currency].get_timeframe()))                  
     print("\n")

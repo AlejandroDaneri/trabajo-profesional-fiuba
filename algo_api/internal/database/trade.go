@@ -8,6 +8,11 @@ type Trade struct {
 	couchdb.Document
 }
 
+type TradePublicSell struct {
+	Price     string `json:"price,omitempty"`
+	Timestamp int64  `json:"timestamp,omitempty"`
+}
+
 type TradePublicFields struct {
 	Pair   string `json:"pair"`
 	Amount string `json:"amount"`
@@ -16,10 +21,7 @@ type TradePublicFields struct {
 			Price     string `json:"price"`
 			Timestamp int64  `json:"timestamp"`
 		} `json:"buy"`
-		Sell struct {
-			Price     string `json:"price,omitempty"`
-			Timestamp int64  `json:"timestamp,omitempty"`
-		} `json:"sell,omitempty"`
+		Sell TradePublicSell `json:"sell,omitempty"`
 	} `json:"orders"`
 	StrategyID string `json:"strategy_id"`
 }

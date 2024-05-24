@@ -1,7 +1,7 @@
 import axios from "axios"
 import { getBackend } from "./env"
 
-export const get = () => {
+export const getRunning = () => {
   return axios.get(`${getBackend()}/api/strategy/running`)
 }
 
