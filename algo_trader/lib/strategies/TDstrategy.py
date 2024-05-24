@@ -24,7 +24,7 @@ class TDstrategy(Strategy):
 
     def prepare_data(self, historical_data: pd.DataFrame):
         print(self.name + " | begin prepare")
-        self.data = historical_data[["Open", "High", "Low", "Close", "Volume"]]
+        self.data = historical_data[["Open", "High", "Low", "Close", "Volume"]].copy()
         self.data[["High", "Low", "Close", "Volume", "Open"]] = self.data[["High", "Low", "Close", "Volume", "Open"]].apply(pd.to_numeric)
         print(self.name + " | end prepare")
 
@@ -74,38 +74,55 @@ class TDstrategy(Strategy):
             signal = self.predict(row_df)
             signals.append(signal)
 
-        actions = pd.DataFrame({'signal': signals}, index=last_data.index)
-
+        actions = pd.DataFrame({'signal': signals, 'close_price': last_data['Close']}, index=last_data.index)
 
 
         trades = self._get_trades(actions, fixed_commission, variable_commission_rate)
+        last_data['signal'] = actions['signal'] 
+        self.payoff= self._event_drive(last_data)
         final_balance = self._calculate_final_balance(last_data, trades, initial_balance)
 
         return trades, final_balance
     
 
     def _get_trades(self, actions: pd.DataFrame, fixed_commission, variable_commission_rate) -> pd.DataFrame:
-        # WIP
-        pairs = actions.loc[actions['signal'] == Action.BUY]
-        odds = actions.loc[actions['signal'] == Action.SELL]
+        buy_indices = actions.index[actions['signal'] == Action.BUY].tolist()
+        sell_indices = actions.index[actions['signal'] == Action.SELL].tolist()
+        trades = pd.DataFrame(columns=['buy_date', 'sell_date', 'buy_price', 'sell_price', 'commission', 'return'])
 
-        trades = pd.concat([pairs, odds], axis=1)
-        trades.columns = ['buy_date', 'buy_signal', 'sell_date', 'sell_signal']
-        trades['buy_price'] = trades['buy_signal'].apply(lambda x: x if x != Action.BUY else np.nan)
-        trades['sell_price'] = trades['sell_signal'].apply(lambda x: x if x != Action.SELL else np.nan)
+        while buy_indices and sell_indices:
+            buy_index = buy_indices.pop(0)  
+            next_sell_index = None
+            
+            for sell_index in sell_indices:
+                if sell_index > buy_index:
+                    next_sell_index = sell_index
+                    break
 
-        trades = trades.dropna()
+            if next_sell_index is not None:
+                buy_price = actions.loc[buy_index, 'close_price']
+                sell_price = actions.loc[next_sell_index, 'close_price']
+                
+                commission = fixed_commission + buy_price * variable_commission_rate
+                buy_price += commission
+                sell_price -= commission
+                
+                trade_return = (sell_price / buy_price) - 1
 
-        trades['commission'] = fixed_commission + trades['buy_price'] * variable_commission_rate
-        trades['buy_price'] += trades['commission']
-        trades['sell_price'] -= trades['commission']
+                trades_row = pd.DataFrame({'buy_date': buy_index,
+                                            'sell_date': next_sell_index,
+                                            'buy_price': buy_price,
+                                            'sell_price': sell_price,
+                                            'commission': commission,
+                                            'return': trade_return}, index=[0])
 
-        trades['return'] = (trades['sell_price'] / trades['buy_price']) - 1
+                trades = pd.concat([trades, trades_row], ignore_index=True)
+
+                sell_indices.remove(next_sell_index)
 
         return trades
     
     def _calculate_final_balance(self, data, trades, starting_capital=10000):
-        # WIP
         if trades.empty:
             return starting_capital
 
@@ -122,3 +139,43 @@ class TDstrategy(Strategy):
         final_balance = starting_capital * (1 + cumulative_return + unrealized_pnl)
 
         return final_balance
+    
+    def _event_drive(self,df): 
+        df["pct_change"]=df['Close'].pct_change() 
+        signals=df['signal'].tolist()
+        pct_changes =df['pct_change'].tolist()
+
+        total = len(signals) 
+        i, results = 1, [0]
+
+        while i<total:
+
+            if signals[i-1] == 'buy':
+                j=i
+                while j<total:
+                    results.append(pct_changes[j])
+                    j +=1
+                    if signals[j-1]=="sell":
+                        i=j
+                        break
+                    if j == total:
+                        i=j
+                        print("Compra abierta")
+                        break
+
+            else:
+                results.append(0)
+                i +=1
+
+        result = pd.concat([df,pd.Series(data=results,index=df.index)],axis=1)
+        result.columns.values[-1] ="strategy"
+        result=result.iloc[:,-2:].add(1).cumprod()
+
+        self.linear_returns = result['strategy']
+        self.benchmark = result['pct_change']
+        self.log_returns = np.log(self.linear_returns /self.linear_returns.shift())
+        self.benchmark_log_returns = np.log(self.benchmark /self.benchmark.shift())
+
+        self.returns = self.linear_returns.pct_change()
+        self.benchmark_returns = self.benchmark.pct_change()
+        return result
