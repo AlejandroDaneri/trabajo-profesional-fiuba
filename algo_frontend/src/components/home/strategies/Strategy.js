@@ -270,7 +270,8 @@ const Strategy = ({ onCloseModal, onAdd }) => {
       currencies: data.currencies.map((row) => row.value),
       timeframe: data.timeframe.value,
       exchange_id: data.exchange?.value,
-      indicators: transformToSendIndicators(data.indicators)
+      indicators: transformToSendIndicators(data.indicators),
+      type: data.type?.value
     }
   }
 
@@ -333,6 +334,33 @@ const Strategy = ({ onCloseModal, onAdd }) => {
               value={strategy.exchange}
               onChange={onChange}
               options={exchanges}
+              width={200}
+            />
+          </div>
+          <div className="field">
+            <FieldSelect
+              name="type"
+              label="Type"
+              value={strategy.type}
+              onChange={onChange}
+              options={[
+                {
+                  label: "Basic",
+                  value: "basic"
+                },
+                {
+                  label: "RL",
+                  value: "rl"
+                },
+                {
+                  label: "LSTM",
+                  value: "lstm"
+                },
+                {
+                  label: "TD",
+                  value: "td"
+                }
+              ]}
               width={200}
             />
           </div>
