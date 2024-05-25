@@ -124,9 +124,7 @@ const LoginView = () => {
     message: "",
   })
 
-  const handleCreateAccount = async () => {
-    history.push("/register")
-  }
+  console.info('user', user)
 
   const handleLogin = async () => {
     try {
@@ -196,16 +194,7 @@ const LoginView = () => {
               Log in
             </button>
           </form>
-
-          <div className="login-additional-options">
-            <button
-              type="button"
-              className="register-btn"
-              onClick={handleCreateAccount}
-            >
-              Create your account
-            </button>
-          </div>
+          
         </div>
         <ErrorModal
           isOpen={errorModal.isOpen}

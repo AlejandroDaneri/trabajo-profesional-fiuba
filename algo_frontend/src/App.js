@@ -6,7 +6,6 @@ import { Provider } from "react-redux"
 
 /* Import Components */
 import Login from "./components/Login"
-import Register from "./components/Register"
 import Home from "./components/home/Home"
 import Popup from "./components/Popup"
 
@@ -24,7 +23,6 @@ const App = () => {
             <Popup />
             <Switch>
               <Route exact path="/" component={Login} />
-              <Route path="/register" component={Register} />
               <Route path="/home" component={Home} />
             </Switch>
           </AppStyle>
