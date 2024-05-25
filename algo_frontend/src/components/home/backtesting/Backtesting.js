@@ -17,14 +17,22 @@ import RiskComparisonChart from "../../RiskComparisonChart"
 import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../../Popup"
 
 /* Impor WebApi */
-import { getIndicators, run as runBacktesting } from "../../../webapi/backtesting"
+import {
+  getIndicators,
+  run as runBacktesting,
+} from "../../../webapi/backtesting"
 
 /* Import Utils */
 import { theme } from "../../../utils/theme"
 import { capitalize } from "../../../utils/string"
 
 /* Import Constants */
-import { CRYPTOCURRENCIES, TIMEFRAMES, BACKTESTING_TYPES } from "../../../constants"
+import {
+  CRYPTOCURRENCIES,
+  TIMEFRAMES,
+  BACKTESTING_TYPES,
+  STRATEGIES_TYPES,
+} from "../../../constants"
 
 const VIEW_FORM = 0
 const VIEW_BACKTESTING = 1
@@ -215,6 +223,7 @@ const Backtesting = () => {
       label: "1 day",
     },
     type: BACKTESTING_TYPES[0],
+    strategy: STRATEGIES_TYPES[0],
     initial_balance: 1000,
     indicators: {},
   })
@@ -314,6 +323,7 @@ const Backtesting = () => {
       timeframe: data.timeframe.value,
       indicators: transformToSendIndicators(data),
       type: data.type.value.toLowerCase(),
+      strategy: data.strategy.value.toLowerCase(),
     }
   }
 
@@ -433,8 +443,17 @@ const Backtesting = () => {
                   </div>
                 </div>
                 <div className="section">
-                  <h3>Type</h3>
-                  <div className="section-content">
+                  <h3>Strategy</h3>
+                  <div className="section-content row">
+                    <div className="field">
+                      <FieldSelect
+                        name={"strategy"}
+                        value={state.strategy}
+                        onChange={onChange}
+                        width={140}
+                        options={STRATEGIES_TYPES}
+                      />
+                    </div>
                     <div className="field">
                       <FieldSelect
                         name={"type"}
@@ -447,7 +466,7 @@ const Backtesting = () => {
                   </div>
                 </div>
                 <div className="section">
-                  <h3>Basic</h3>
+                  <h3>Settings</h3>
                   <div className="section-content row">
                     <div className="field">
                       <FieldInput

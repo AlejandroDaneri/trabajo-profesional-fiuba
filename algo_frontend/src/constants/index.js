@@ -79,3 +79,8 @@ export const BACKTESTING_TYPES = [
   { value: "Spot", label: "Spot" },
   { value: "Futures", label: "Futures" },
 ]
+
+export const STRATEGIES_TYPES = [
+  { value: "basic", label: "Basic" },
+  { value: "td", label: "TD" },
+]
