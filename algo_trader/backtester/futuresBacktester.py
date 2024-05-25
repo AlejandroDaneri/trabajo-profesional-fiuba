@@ -17,7 +17,7 @@ class FuturesBacktester:
         return trades, final_balance
     
     def _execute_backtest(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
-        buy_signals, sell_signals = self._get_buy_sell_signals(historical_data)
+        buy_signals, sell_signals = self.strategy.get_buy_sell_signals(historical_data)
 
         actions = self._get_actions(buy_signals, sell_signals)
         historical_data['signal'] = actions['signal'] 
@@ -28,19 +28,19 @@ class FuturesBacktester:
 
         return trades, final_balance
     
-    def _get_buy_sell_signals(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        buy_signals = pd.DataFrame(index=historical_data.index)
-        sell_signals = pd.DataFrame(index=historical_data.index)
-        buy_signals["Close"] = historical_data["Close"]
-        sell_signals["Close"] = historical_data["Close"]
+    # def _get_buy_sell_signals(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    #     buy_signals = pd.DataFrame(index=historical_data.index)
+    #     sell_signals = pd.DataFrame(index=historical_data.index)
+    #     buy_signals["Close"] = historical_data["Close"]
+    #     sell_signals["Close"] = historical_data["Close"]
 
-        for indicator in self.strategy.indicators:
-            indicator.calculate(historical_data)
-            buy_signals[indicator.name] = np.where(indicator.calc_buy_signals(), 1, 0)
-            sell_signals[indicator.name] = np.where(indicator.calc_sell_signals(), 1, 0)
+    #     for indicator in self.strategy.indicators:
+    #         indicator.calculate(historical_data)
+    #         buy_signals[indicator.name] = np.where(indicator.calc_buy_signals(), 1, 0)
+    #         sell_signals[indicator.name] = np.where(indicator.calc_sell_signals(), 1, 0)
 
-        return buy_signals, sell_signals
-    
+    #     return buy_signals, sell_signals
+        
     def _get_actions(self, buy_signals: pd.DataFrame, sell_signals: pd.DataFrame) -> pd.DataFrame:
         actions = pd.DataFrame(index=buy_signals.index)
         actions["Close"] = buy_signals["Close"]
@@ -66,7 +66,7 @@ class FuturesBacktester:
                     trades = trades.iloc[1:]
 
         return trades
-    
+        
     def _get_trades(self, actions: pd.DataFrame) -> pd.DataFrame:
         pairs = actions.iloc[::2].loc[:, ["Close"]].reset_index()
         odds = actions.iloc[1::2].loc[:, ["Close"]].reset_index()
@@ -166,11 +166,11 @@ class FuturesBacktester:
         result.columns.values[-1] ="strategy"
         result=result.iloc[:,-2:].add(1).cumprod()
 
-        self.strategy_linear_returns = result['strategy']
+        self.linear_returns = result['strategy']
         self.benchmark = result['pct_change']
-        self.strategy_log_returns = np.log(self.strategy_linear_returns /self.strategy_linear_returns.shift())
+        self.log_returns = np.log(self.linear_returns /self.linear_returns.shift())
         self.benchmark_log_returns = np.log(self.benchmark /self.benchmark.shift())
 
-        self.strategy_returns = self.strategy_linear_returns.pct_change()
+        self.returns = self.linear_returns.pct_change()
         self.benchmark_returns = self.benchmark.pct_change()
         return result

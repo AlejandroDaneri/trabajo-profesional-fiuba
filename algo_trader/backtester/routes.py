@@ -75,7 +75,7 @@ def backtest():
             abort(500, description=f"Failed request to YFinance for {coin}")
         print("[Backtester] getting data: finished")
 
-        strategy = hydrate_strategy([coin], indicators, timeframe, strategy_id)  # FIXME: Not sure how to get strategy
+        strategy = hydrate_strategy([coin], indicators, timeframe, strategy_id)
         if backtest_type == 'spot':
             backtester = SpotBacktester(strategy[coin], initial_balance)
         elif backtest_type == 'futures':
@@ -100,11 +100,11 @@ def backtest():
         buy_and_hold["profit_factor"] = RiskMetrics.profit_factor(byh_backtester.returns)
         
         strategy_risks = {}
-        strategy_risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.strategy.linear_returns)
-        strategy_risks["profit_factor"] = RiskMetrics.profit_factor(backtester.strategy.log_returns)
-        strategy_risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.strategy.log_returns)
-        strategy_risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.strategy.linear_returns)
-        strategy_risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.strategy.returns)
+        strategy_risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.linear_returns)
+        strategy_risks["profit_factor"] = RiskMetrics.profit_factor(backtester.log_returns)
+        strategy_risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.log_returns)
+        strategy_risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.linear_returns)
+        strategy_risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.returns)
         
         risks["buy_and_hold"]=buy_and_hold
         risks["strategy"]=strategy_risks
