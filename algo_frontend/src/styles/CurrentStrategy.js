@@ -17,7 +17,6 @@ export const CurrentStrategyStyle = styled.div`
     & .summary-content {
       display: flex;
       flex-direction: row;
-      width: 70%;
       justify-content: space-around;
 
       & .box {
@@ -25,9 +24,10 @@ export const CurrentStrategyStyle = styled.div`
         flex-direction: column;
         justify-content: space-between;
         height: 50px;
-        border: 1px solid white;
+        border: 0.1px solid #e5e7eb;
         padding: 10px;
         border-radius: 4px;
+        background: linear-gradient(132.03deg, rgba(21,24,37,.4) 0%, rgba(11,10,7,.4) 100%);
 
         & .label {
           color: #a5a8b6;
@@ -35,7 +35,13 @@ export const CurrentStrategyStyle = styled.div`
 
         & .value {
           display: flex;
-          font-weight: 800;
+          font-size: 14px;
+          font-weight: 600;
+          min-width: 120px;
+
+          & p {
+            font-size: 14px;
+          }
 
           & .loader {
             display: flex;
@@ -48,7 +54,7 @@ export const CurrentStrategyStyle = styled.div`
             color: ${theme.grayDark};
             padding: 3px;
             cursor: pointer;
-            font-size: 12px;
+   
             margin-right: 10px;
             font-weight: 400;
           }

@@ -21,25 +21,26 @@ const ButtonMenuStyle = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${({ selected }) => (selected ? theme.btc : theme.dark)};
   border: none;
+  border-top: ${({ selected }) => (selected ? `5px solid ${theme.btc}` : `0px solid ${theme.dark}`)};
+  background: ${theme.dark};
   cursor: pointer;
   transition: color 0.3s;
   height: 100%;
   width: 200px;
-  transition: background-color 1s ease;
+  transition: border-top 0.5s ease;
 
   & i {
     margin-right: 10px;
     font-size: 22px;
     padding: 0;
-    color: ${({ selected }) => (selected ? "#000000" : theme.white)};
+    color: ${theme.white};
   }
 
   & p {
     font-size: 14px;
     font-weight: 600;
-    color: ${({ selected }) => (selected ? "#000000" : theme.white)};
+    color: ${theme.white};
   }
 `
 

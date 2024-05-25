@@ -33,7 +33,7 @@ import { getDuration } from "../utils/date"
 /* Import WebApi */
 import { getRunning } from "../webapi/strategy"
 import { run } from "../webapi/backtesting"
-import { get as getExchange } from "../webapi/exchanges"
+import { list as listExchanges } from "../webapi/exchanges"
 import { list } from "../webapi/trade"
 
 /* Import Images */
@@ -54,8 +54,9 @@ const CurrentStrategy = () => {
     data: []
   })
 
-  const [exchange, exchangeFunc] = useState({
+  const [exchanges, exchangesFunc] = useState({
     loading: false,
+    data: []
   })
 
   const [selectedDates, setSelectedDates] = useState({
@@ -245,6 +246,27 @@ const CurrentStrategy = () => {
     })
   }
 
+  const getExchanges = () => {
+    return new Promise((resolve, reject) => {
+      exchangesFunc((prevState) => ({
+        ...prevState,
+        loading: true
+      }))
+      listExchanges()
+        .then((response) => {
+          exchangesFunc((prevState) => ({
+            ...prevState,
+            loading: false,
+            data: response.data,
+          }))
+          resolve(response.data)
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    })
+  }
+
   const getCandleticks_ = (
     symbol,
     start,
@@ -297,26 +319,16 @@ const CurrentStrategy = () => {
   ])
 
   const getState = () => {
-    
     getStrategy()
       .then((strategy) => {
-        exchangeFunc((prevState) => ({
-          ...prevState,
-          loading: true,
-        }))
-
         getTrades(strategy.id)
-
-        getExchange(strategy?.exchange_id).then((response) => {
-          exchangeFunc((prevState) => ({
-            ...prevState,
-            loading: false,
-            data: response?.data,
-          }))
-        })
       })
       .catch((_) => {})
   }
+
+  useEffect(() => {
+    getExchanges()
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(getState, 10000)
@@ -342,30 +354,21 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Current Balance</div>
-                <div className="value">{strategy.data.current_balance}</div>
+                <div className="value">{trades.data.length === 0 ? strategy.data.initial_balance : strategy.data.current_balance}</div>
               </div>
               <div className="box">
                 <div className="label">Profit/Loss</div>
                 <div className="value">
-                  {strategy.data.profit_and_loss_label}
+                  {trades.data.length === 0 ? '0 (0%)' : strategy.data.profit_and_loss_label}
                 </div>
               </div>
               <div className="box">
                 <div className="label">Exchange</div>
                 <div className="value">
-                  <>
-                    {exchange.loading && (
-                      <div className="loader">
-                        <BeatLoader size={8} color="white" />
+                    <div className="exchange-wrapper">
+                        <p>{exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.alias}</p>
+                        {exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
                       </div>
-                    )}
-                    {exchange.data && (
-                      <div className="exchange-wrapper">
-                        <p>{exchange.data.alias}</p>
-                        <img alt="Binance" src={logoBinance} width="24px" />
-                      </div>
-                    )}
-                  </>
                 </div>
               </div>
               <div className="box">
@@ -390,15 +393,15 @@ const CurrentStrategy = () => {
               </div>
               <div className="box">
                 <div className="label">Duration</div>
-                <div>{strategy.data.duration}</div>
+                <div className="value">{strategy.data.duration}</div>
               </div>
               <div className="box">
                 <div className="label">Timeframe</div>
-                <div>{strategy.data.timeframe_label}</div>
+                <div className="value">{strategy.data.timeframe_label}</div>
               </div>
               <div className="box">
                 <div className="label"># Trades</div>
-                <div>{trades.data.length}</div>
+                <div className="value">{trades.data.length}</div>
               </div>
             </div>
           </div>
