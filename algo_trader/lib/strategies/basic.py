@@ -35,3 +35,29 @@ class Basic(Strategy):
         print(f'[Strategy | Basic] Signal: {most_common_signal}')
 
         return most_common_signal
+
+    # def execute_backtest(self, historical_data: pd.DataFrame,initial_balance, fixed_commission,variable_commission_rate) -> Tuple[pd.DataFrame, float]:
+    #     buy_signals, sell_signals = self.get_buy_sell_signals(historical_data)
+
+    #     actions = self._get_actions(buy_signals, sell_signals)
+    #     historical_data['signal'] = actions['signal'] 
+
+    #     trades = self._get_trades(actions,fixed_commission,variable_commission_rate)
+    #     self.payoff= self._event_drive(historical_data)
+    #     final_balance = self._calculate_final_balance(historical_data, trades, initial_balance)
+
+    #     return trades, final_balance
+
+    def get_buy_sell_signals(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        buy_signals = pd.DataFrame(index=historical_data.index)
+        sell_signals = pd.DataFrame(index=historical_data.index)
+        buy_signals["Close"] = historical_data["Close"]
+        sell_signals["Close"] = historical_data["Close"]
+
+        for indicator in self.indicators:
+            indicator.calculate(historical_data)
+            buy_signals[indicator.name] = np.where(indicator.calc_buy_signals(), 1, 0)
+            sell_signals[indicator.name] = np.where(indicator.calc_sell_signals(), 1, 0)
+
+        return buy_signals, sell_signals
+
