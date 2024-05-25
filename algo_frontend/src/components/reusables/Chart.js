@@ -22,8 +22,8 @@ const ChartStyle = styled.div`
   }
 `
 
-const StrategyComparisonChart = ({ data, colors }) => {
-  const [logScale, setLogScale] = useState(false)
+const StrategyComparisonChart = ({ data, colors, logScaleDefault }) => {
+  const [logScale, setLogScale] = useState(logScaleDefault)
   const [zoomedData, setZoomedData] = useState(data)
 
   const toggleLogScale = () => {

@@ -432,6 +432,7 @@ const CurrentStrategy = () => {
             <div>
               <h3>Comparison of Strategies</h3>
               <StrategyComparisonChart
+                logScaleDefault={true}
                 data={candleticks.data[strategy.data.currencies[0]]?.series}
                 colors={["#87CEEB", "#00FF00"]}
               />
