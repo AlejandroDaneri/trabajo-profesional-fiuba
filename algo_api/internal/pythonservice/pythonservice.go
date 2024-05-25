@@ -70,6 +70,7 @@ type BacktestingQuery struct {
 	DataFrom       int64    `json:"data_from"`
 	DataTo         int64    `json:"data_to"`
 	Type           string   `json:"type"`
+	Strategy	   string   `json:"strategy"`
 	Timeframe      string   `json:"timeframe"`
 	Indicators     []struct {
 		Name       string      `json:"name"`
