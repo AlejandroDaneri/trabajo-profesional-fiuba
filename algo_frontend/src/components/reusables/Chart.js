@@ -22,7 +22,7 @@ const ChartStyle = styled.div`
   }
 `
 
-const StrategyComparisonChart = ({ data, colors, logScaleDefault }) => {
+const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush }) => {
   const [logScale, setLogScale] = useState(logScaleDefault)
   const [zoomedData, setZoomedData] = useState(data)
 
@@ -102,7 +102,7 @@ const StrategyComparisonChart = ({ data, colors, logScaleDefault }) => {
             dot={false}
             connectNulls
           />
-          <Brush dataKey="date" onChange={handleBrushChange}>
+          {!hideBrush && <Brush dataKey="date" onChange={handleBrushChange}>
             <AreaChart>
               <Area
                 type="monotone"
@@ -119,7 +119,7 @@ const StrategyComparisonChart = ({ data, colors, logScaleDefault }) => {
                 connectNulls
               />
             </AreaChart>
-          </Brush>
+          </Brush>}
         </LineChart>
       </ResponsiveContainer>
     </ChartStyle>
