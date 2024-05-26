@@ -47,7 +47,7 @@ const TradesTable = ({ trades }) => {
           <th>Trade Duration (days)</th>
           <th>Commission (US$)</th>
           <th>Return (%)</th>
-          <th>Cumulative Return (%)</th>
+          {/* <th>Cumulative Return (%)</th> */}
           <th>Result</th>
         </tr>
       </THead>
@@ -73,7 +73,7 @@ const TradesTable = ({ trades }) => {
                 )}
               </TD>
               <TD>{formatNumber(trade.return)}</TD>
-              <TD>{formatNumber(trade.cumulative_return)}</TD>
+              {/* <TD>{formatNumber(trade.cumulative_return)}</TD> */}
               <TD>{trade.result}</TD>
             </tr>
           )
