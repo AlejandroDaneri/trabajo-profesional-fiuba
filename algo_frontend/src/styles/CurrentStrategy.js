@@ -19,64 +19,32 @@ export const CurrentStrategyStyle = styled.div`
       flex-direction: row;
       justify-content: space-around;
 
-      & .box {
+      & .indicator-wrapper {
+        background: ${theme.white};
+        color: ${theme.grayDark};
+        padding: 3px;
+        cursor: pointer;
+
+        margin-right: 10px;
+        font-weight: 400;
+      }
+
+      & .exchange-wrapper {
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 50px;
-        border: 0.1px solid #e5e7eb;
-        padding: 10px;
-        border-radius: 4px;
-        background: linear-gradient(132.03deg, rgba(21,24,37,.4) 0%, rgba(11,10,7,.4) 100%);
+        align-items: center;
+        flex-direction: row;
 
-        & .label {
-          color: #a5a8b6;
+        & p {
+          margin: 0;
         }
 
-        & .value {
-          display: flex;
-          font-size: 14px;
-          font-weight: 600;
-          min-width: 120px;
-
-          & p {
-            font-size: 14px;
-          }
-
-          & .loader {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-          }
-
-          & .indicator-wrapper {
-            background: ${theme.white};
-            color: ${theme.grayDark};
-            padding: 3px;
-            cursor: pointer;
-   
-            margin-right: 10px;
-            font-weight: 400;
-          }
-
-          & .exchange-wrapper {
-            display: flex;
-            align-items: center;
-            flex-direction: row;
-
-            & p {
-              margin: 0;
-            }
-
-            & img {
-              margin-left: 5px;
-            }
-          }
-
-          & .currency-wrapper {
-            margin-right: 5px;
-          }
+        & img {
+          margin-left: 5px;
         }
+      }
+
+      & .currency-wrapper {
+        margin-right: 5px;
       }
     }
   }

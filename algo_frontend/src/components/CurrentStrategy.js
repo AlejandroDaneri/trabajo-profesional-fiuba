@@ -12,8 +12,6 @@ import {
 } from "recharts"
 import { useEffect, useState } from "react"
 
-import BeatLoader from "react-spinners/BeatLoader"
-
 /* Import Constants */
 import { TIMEFRAMES } from "../constants"
 
@@ -38,6 +36,7 @@ import { list } from "../webapi/trade"
 
 /* Import Images */
 import logoBinance from "../images/logos/exchanges/binance.svg"
+import Box from "./reusables/Box"
 
 const CurrentStrategy = () => {
 
@@ -348,61 +347,28 @@ const CurrentStrategy = () => {
           <div className="summary">
             <h2>Summary</h2>
             <div className="summary-content">
-              <div className="box">
-                <div className="label">Initial Balance</div>
-                <div className="value">{strategy.data.initial_balance}</div>
-              </div>
-              <div className="box">
-                <div className="label">Current Balance</div>
-                <div className="value">{trades.data.length === 0 ? strategy.data.initial_balance : strategy.data.current_balance}</div>
-              </div>
-              <div className="box">
-                <div className="label">Profit/Loss</div>
-                <div className="value">
-                  {trades.data.length === 0 ? '0 (0%)' : strategy.data.profit_and_loss_label}
+              <Box label='Initial Balance' value={strategy.data.initial_balance} />
+              <Box label='Current Balance' value={trades.data.length === 0 ? strategy.data.initial_balance : strategy.data.current_balance} />
+              <Box label='Profit/Loss' value={trades.data.length === 0 ? '0 (0%)' : strategy.data.profit_and_loss_label} />
+              <Box label='Exchange' value={
+                <div className="exchange-wrapper">
+                  <p>{exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.alias}</p>
+                  {exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
                 </div>
-              </div>
-              <div className="box">
-                <div className="label">Exchange</div>
-                <div className="value">
-                    <div className="exchange-wrapper">
-                        <p>{exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.alias}</p>
-                        {exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
-                      </div>
+              } />
+              <Box label='Currencies' value={strategy.data.currencies.map((currency) => (
+                <div className="currency-wrapper">
+                  <CurrencyLogo currency={currency} />
                 </div>
-              </div>
-              <div className="box">
-                <div className="label">Currencies</div>
-                <div className="value">
-                  {strategy.data.currencies.map((currency) => (
-                    <div className="currency-wrapper">
-                      <CurrencyLogo currency={currency} />
-                    </div>
-                  ))}
+              ))} />
+              <Box label='Indicators' value={strategy.data.indicators_label.map((indicator) => (
+                <div className="indicator-wrapper">
+                  {indicator.name}
                 </div>
-              </div>
-              <div className="box">
-                <div className="label">Indicators</div>
-                <div className="value">
-                  {strategy.data.indicators_label.map((indicator) => (
-                    <div className="indicator-wrapper">
-                      {indicator.name}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div className="box">
-                <div className="label">Duration</div>
-                <div className="value">{strategy.data.duration}</div>
-              </div>
-              <div className="box">
-                <div className="label">Timeframe</div>
-                <div className="value">{strategy.data.timeframe_label}</div>
-              </div>
-              <div className="box">
-                <div className="label"># Trades</div>
-                <div className="value">{trades.data.length}</div>
-              </div>
+              ))} />
+              <Box label='Duration' value={strategy.data.duration} />
+              <Box label='Timeframe' value={strategy.data.timeframe_label} />
+              <Box label='# Trades' value={trades.data.length} />
             </div>
           </div>
           {trades.data.length > 0 && <div className="trades">
@@ -411,24 +377,6 @@ const CurrentStrategy = () => {
           </div>}
           {trades.data.length > 0 && <div>
             <h2>Graphs</h2>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              {/* <div style={{ marginRight: "3rem" }}>
-                <FieldDatePicker
-                  label="Select the start date"
-                  name="start"
-                  value={selectedDates.start}
-                  onChange={onChange}
-                  width={140}
-                />
-              </div>
-              <FieldDatePicker
-                label="Select the end date"
-                name="end"
-                value={selectedDates.end}
-                onChange={onChange}
-                width={140}
-              /> */}
-            </div>
             <div>
               <h3>Comparison of Strategies</h3>
               <StrategyComparisonChart
@@ -436,7 +384,7 @@ const CurrentStrategy = () => {
                 colors={["#87CEEB", "#00FF00"]}
                 logScaleDefault={true}
                 hideBrush={true}
-                height={350}
+                height={200}
               />
             </div>
             {false && (
