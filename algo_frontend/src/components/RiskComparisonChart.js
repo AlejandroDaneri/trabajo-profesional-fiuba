@@ -39,7 +39,7 @@ const RiskComparisonChart = ({ risks, colors }) => {
   const renderCharts = () => {
     return riskPairs.map((pair, index) => (
       <div key={index} style={{ width: "50%" }}>
-        <h3>{pair.label}</h3>
+        <h4>{pair.label}</h4>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart
             layout="vertical"

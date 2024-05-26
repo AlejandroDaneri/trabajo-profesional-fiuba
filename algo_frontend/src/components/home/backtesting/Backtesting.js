@@ -15,7 +15,7 @@ import Button from "../../Button"
 import StrategyComparisonChart from "../../reusables/Chart"
 import RiskComparisonChart from "../../RiskComparisonChart"
 import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../../Popup"
-
+import TradesTable from "../../BTTrades"
 /* Impor WebApi */
 import {
   getIndicators,
@@ -681,6 +681,11 @@ const Backtesting = () => {
                     logScaleDefault={true}
                   />
                 </div>
+                <h3>Trade Details</h3>
+                <TradesTable
+                  trades={backtesting.data[state.coin.value]?.trades}
+                />
+                <h3>Risk Analysis</h3>
                 <RiskComparisonChart
                   risks={backtesting.data[state.coin.value]?.risks}
                   colors={["#87CEEB", "#00FF00"]}
