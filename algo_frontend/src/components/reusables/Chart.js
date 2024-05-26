@@ -22,7 +22,7 @@ const ChartStyle = styled.div`
   }
 `
 
-const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush }) => {
+const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush, height }) => {
   const [logScale, setLogScale] = useState(logScaleDefault)
   const [zoomedData, setZoomedData] = useState(data)
 
@@ -53,7 +53,7 @@ const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush }) =
           onChange={toggleLogScale}
         />
       </div>
-      <ResponsiveContainer width="100%" height={400}>
+      <ResponsiveContainer width="100%" height={height || 400}>
         <LineChart
           data={data}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}

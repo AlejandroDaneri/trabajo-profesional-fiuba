@@ -436,6 +436,7 @@ const CurrentStrategy = () => {
                 colors={["#87CEEB", "#00FF00"]}
                 logScaleDefault={true}
                 hideBrush={true}
+                height={350}
               />
             </div>
             {false && (
