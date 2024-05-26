@@ -274,6 +274,20 @@ const CurrentStrategy = () => {
     initial_balance,
     indicators
   ) => {
+    const transformToView = (data) => {
+      return {
+        ...data,
+        [symbol]: {
+          ...data[symbol],
+          series: data[symbol].series.map(row => ({
+            ...row,
+            balance_buy_and_hold: row.balance_buy_and_hold.toFixed(2),
+            balance_strategy: row.balance_strategy.toFixed(2)
+          }))
+        }
+      }
+    }
+
     const body = {
       coins: [symbol],
       initial_balance,
@@ -288,7 +302,7 @@ const CurrentStrategy = () => {
         candleticksFunc((prevState) => ({
           ...prevState,
           loading: true,
-          data: response.data || [],
+          data: transformToView(response.data || []),
         }))
       })
       .catch((err) => {})
