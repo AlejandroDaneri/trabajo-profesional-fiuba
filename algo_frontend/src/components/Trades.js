@@ -79,6 +79,7 @@ const Trades = ({ strategyID }) => {
       label: "Date Buy",
       sortable: true,
       default: true,
+      direction: 'desc',
     },
     {
       value: "sell_timestamp",

@@ -178,6 +178,7 @@ const Strategies = () => {
       value: "state_value",
       label: "State",
       default: true,
+      direction: 'asc',
       width: 10,
     },
     {
