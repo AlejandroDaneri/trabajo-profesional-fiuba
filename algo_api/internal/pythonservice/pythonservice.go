@@ -48,15 +48,30 @@ type Risk struct {
         RachevRatio    float64 `json:"rachev_ratio"`
     } `json:"strategy"`
 }
+type Trade struct {
+    CumulativeReturn   float64 `json:"cumulative_return"`
+    EntryDate          string  `json:"entry_date"`
+    EntryPrice         float64 `json:"entry_price"`
+    FixedCommission    float64 `json:"fixed_commission"`
+    OutputDate         string  `json:"output_date"`
+    OutputPrice        float64 `json:"output_price"`
+    Result             string  `json:"result"`
+    Return             float64 `json:"return"`
+    VariableCommission float64 `json:"variable_commission"`
+}
+
+type SeriesEntry struct {
+    Date              string  `json:"date"`
+    BalanceStrategy   float64 `json:"balance_strategy"`
+    BalanceBuyAndHold float64 `json:"balance_buy_and_hold"`
+}
+
 
 type BacktestingResponse map[string]struct {
-	FinalBalance float64 `json:"final_balance"`
-	Risks        Risk    `json:"risks"`
-	Series       []struct {
-		Date              string  `json:"date"`
-		BalanceStrategy   float64 `json:"balance_strategy"`
-		BalanceBuyAndHold float64 `json:"balance_buy_and_hold"`
-	} `json:"series"`
+    FinalBalance float64       `json:"final_balance"`
+    Risks        Risk          `json:"risks"`
+    Series       []SeriesEntry `json:"series"`
+    Trades       []Trade       `json:"trades"`
 }
 
 type IndicatorsResponse []struct {

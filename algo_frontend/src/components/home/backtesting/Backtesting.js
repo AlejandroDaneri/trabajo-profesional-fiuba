@@ -275,8 +275,6 @@ const Backtesting = () => {
   }, [])
 
   const onChange = (key, value) => {
-    console.log("🚀 ~ onChange ~ key, value:", key, value)
-
     stateFunc((prevState) => ({
       ...prevState,
       [key]: value,
@@ -583,7 +581,7 @@ const Backtesting = () => {
                   <div className="box">
                     <div className="label">Final Balance</div>
                     <div className="value">
-                      US$
+                      US${" "}
                       {backtesting.data[
                         state.coin.value
                       ]?.final_balance.toFixed(2)}
@@ -618,8 +616,61 @@ const Backtesting = () => {
                     </div>
                   </div>
                   <div className="box">
-                    <div className="label">TP / SL / TSL</div>
-                    <div className="value">2 / 4 / 3</div>
+                    <div className="label"># Trades</div>
+                    <div className="value">
+                      {backtesting.data[state.coin.value].trades.length}
+                    </div>
+                  </div>
+                  <div className="box">
+                    <div className="label">Avg Return</div>
+                    <div className="value">
+                      {(
+                        backtesting.data[state.coin.value].trades.reduce(
+                          (acc, trade) => acc + trade.return,
+                          0
+                        ) / backtesting.data[state.coin.value].trades.length
+                      ).toFixed(2)}
+                    </div>
+                  </div>
+                  <div className="box">
+                    <div className="label">Best Trade</div>
+                    <div className="value">
+                      {backtesting.data[state.coin.value].trades
+                        .reduce(
+                          (max, trade) =>
+                            trade.return > max.return ? trade : max,
+                          backtesting.data[state.coin.value].trades[0]
+                        )
+                        .return.toFixed(2)}{" "}
+                      on{" "}
+                      {new Date(
+                        backtesting.data[state.coin.value].trades.reduce(
+                          (max, trade) =>
+                            trade.return > max.return ? trade : max,
+                          backtesting.data[state.coin.value].trades[0]
+                        ).entry_date
+                      ).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="box">
+                    <div className="label">Worst Trade</div>
+                    <div className="value">
+                      {backtesting.data[state.coin.value].trades
+                        .reduce(
+                          (min, trade) =>
+                            trade.return < min.return ? trade : min,
+                          backtesting.data[state.coin.value].trades[0]
+                        )
+                        .return.toFixed(2)}{" "}
+                      on{" "}
+                      {new Date(
+                        backtesting.data[state.coin.value].trades.reduce(
+                          (min, trade) =>
+                            trade.return < min.return ? trade : min,
+                          backtesting.data[state.coin.value].trades[0]
+                        ).entry_date
+                      ).toLocaleDateString()}
+                    </div>
                   </div>
                 </div>
                 <div className="chart-container">
@@ -627,6 +678,7 @@ const Backtesting = () => {
                   <StrategyComparisonChart
                     data={backtesting.data[state.coin.value]?.series}
                     colors={["#87CEEB", "#00FF00"]}
+                    logScaleDefault={true}
                   />
                 </div>
                 <RiskComparisonChart
