@@ -58,7 +58,7 @@ services:
       - ./algo_trader/lib:/app/lib
     ports:
       - "5001:5000"
-    command: gunicorn --bind 0.0.0.0:5000 --timeout 300 --reload app:app
+    command: gunicorn --bind 0.0.0.0:5000 --timeout 300 --reload --workers 4 --threads 2 app:app
 
   algo_api:
     container_name: api
