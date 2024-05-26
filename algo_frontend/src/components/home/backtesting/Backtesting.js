@@ -11,6 +11,7 @@ import FieldInput from "../../reusables/FieldInput"
 import FieldSelect from "../../reusables/FieldSelect"
 import FieldSwitch from "../../reusables/FieldSwitch"
 import FieldDatePicker from "../../reusables/FieldDatePicker"
+import Box from "../../reusables/Box"
 import Button from "../../Button"
 import StrategyComparisonChart from "../../reusables/Chart"
 import RiskComparisonChart from "../../RiskComparisonChart"
@@ -578,60 +579,11 @@ const Backtesting = () => {
               <>
                 <h3>Benchmark: Buy & Hold </h3>
                 <div className="boxes">
-                  <div className="box">
-                    <div className="label">Final Balance</div>
-                    <div className="value">
-                      US${" "}
-                      {backtesting.data[
-                        state.coin.value
-                      ]?.final_balance.toFixed(2)}
-                    </div>
-                  </div>
-                  <div className="box">
-                    <div className="label">Profit vs. Initial Balance</div>
-                    <div className="value">
-                      {(
-                        ((backtesting.data[state.coin.value]?.final_balance -
-                          state.initial_balance) /
-                          state.initial_balance) *
-                        100
-                      ).toFixed(2)}
-                      %
-                    </div>
-                  </div>
-                  <div className="box">
-                    <div className="label"> Profit vs. Benchmark</div>
-                    <div className="value">
-                      {(
-                        ((backtesting.data[state.coin.value]?.final_balance -
-                          backtesting.data[state.coin.value].series[
-                            backtesting.data[state.coin.value].series.length - 1
-                          ]?.balance_buy_and_hold) /
-                          backtesting.data[state.coin.value].series[
-                            backtesting.data[state.coin.value].series.length - 1
-                          ]?.balance_buy_and_hold) *
-                        100
-                      ).toFixed(2)}
-                      %
-                    </div>
-                  </div>
-                  <div className="box">
-                    <div className="label"># Trades</div>
-                    <div className="value">
-                      {backtesting.data[state.coin.value].trades.length}
-                    </div>
-                  </div>
-                  <div className="box">
-                    <div className="label">Avg Return</div>
-                    <div className="value">
-                      {(
-                        backtesting.data[state.coin.value].trades.reduce(
-                          (acc, trade) => acc + trade.return,
-                          0
-                        ) / backtesting.data[state.coin.value].trades.length
-                      ).toFixed(2)}
-                    </div>
-                  </div>
+                  <Box label='Final Balance' value={`US ${backtesting.data[state.coin.value]?.final_balance.toFixed(2)}`} />
+                  <Box label='Profit vs. Initial Balance' value={`${(((backtesting.data[state.coin.value]?.final_balance - state.initial_balance) / state.initial_balance) * 100).toFixed(2)}%`} />
+                  <Box label='Profit vs. Benchmark' value={`${(((backtesting.data[state.coin.value]?.final_balance - backtesting.data[state.coin.value].series[backtesting.data[state.coin.value].series.length - 1]?.balance_buy_and_hold) / backtesting.data[state.coin.value].series[backtesting.data[state.coin.value].series.length - 1]?.balance_buy_and_hold) * 100).toFixed(2)}%`} />
+                  <Box label='# Trades' value={backtesting.data[state.coin.value].trades.length} />
+                  <Box label='Avg Return' value={(backtesting.data[state.coin.value].trades.reduce((acc, trade) => acc + trade.return, 0) / backtesting.data[state.coin.value].trades.length).toFixed(2)} />
                   <div className="box">
                     <div className="label">Best Trade</div>
                     <div className="value">
