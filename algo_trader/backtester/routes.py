@@ -85,7 +85,7 @@ def backtest():
 
 
         print("[Backtester] backtest: started")
-        trades, final_balance = backtester.backtest(data)
+        trades, final_balance = backtester.execute(data)
         print("[Backtester] backtest: finished")
 
         byh_backtester = BuyAndHoldBacktester(initial_balance, data)
@@ -118,12 +118,11 @@ def backtest():
         print("[Backtester] building buy and hold series: finished")
 
         df_series = pd.merge(strategy_balance_series, hold_balance_series, on='date', how='outer', suffixes=('_strategy', '_buy_and_hold'))
-
         results[coin] = { 
             'trades': trades.to_dict(orient='records'), 
             'risks':risks,
             'series': df_series.to_dict(orient='records'),
-            'final_balance': final_balance
+            'final_balance': df_series.tail(1)["balance_strategy"].values[0]
         }
 
     return jsonify(results)

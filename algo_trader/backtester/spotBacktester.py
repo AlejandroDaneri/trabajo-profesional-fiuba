@@ -10,11 +10,7 @@ class SpotBacktester:
         self.fixed_commission = fixed_commission
         self.variable_commission_rate = variable_commission_rate
 
-    def backtest(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
-        trades, final_balance = self.execute_backtest(historical_data)
-        return trades, final_balance
-
-    def execute_backtest(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
+    def execute(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, float]:
         buy_signals, sell_signals = self.strategy.get_buy_sell_signals(historical_data)
 
         actions = self._get_actions(buy_signals, sell_signals)
@@ -26,18 +22,6 @@ class SpotBacktester:
 
         return trades, final_balance
 
-    # def _get_buy_sell_signals(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    #     buy_signals = pd.DataFrame(index=historical_data.index)
-    #     sell_signals = pd.DataFrame(index=historical_data.index)
-    #     buy_signals["Close"] = historical_data["Close"]
-    #     sell_signals["Close"] = historical_data["Close"]
-
-    #     for indicator in self.strategy.indicators:
-    #         indicator.calculate(historical_data)
-    #         buy_signals[indicator.name] = np.where(indicator.calc_buy_signals(), 1, 0)
-    #         sell_signals[indicator.name] = np.where(indicator.calc_sell_signals(), 1, 0)
-
-    #     return buy_signals, sell_signals
 
     def _get_actions(self, buy_signals: pd.DataFrame, sell_signals: pd.DataFrame) -> pd.DataFrame:
         actions = pd.DataFrame(index=buy_signals.index)
@@ -86,6 +70,7 @@ class SpotBacktester:
 
         return trades
 
+    ## TODO: check if we need this
     def _calculate_final_balance(self, data, trades, starting_capital=10000):
         if len(trades) == 0:
             return starting_capital
