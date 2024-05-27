@@ -98,10 +98,11 @@ const buildRow = (trade) => {
     trade.result,
   ]
 }
-const TradeDiv = styled.div`
+const TradesTableDiv = styled.div`
   display: flex;
   width: 100%;
-  max-height: 600px;
+  max-height: 1000px;
+  min-height: 200px;
 `
 
 const BacktestingStyle = styled.div`
@@ -109,7 +110,6 @@ const BacktestingStyle = styled.div`
   flex-direction: row;
   width: 100%;
   overflow: hidden;
-  height: 100%;
   height: calc(100vh - 40px - 84px);
 
   & .divider {
@@ -720,7 +720,7 @@ const Backtesting = () => {
                 <div className="boxes">
                   <Box
                     label="Final Balance"
-                    value={`US ${
+                    value={`US$ ${
                       backtesting.data[state.coin.value]?.final_balance_label
                     }`}
                   />
@@ -770,19 +770,20 @@ const Backtesting = () => {
                     logScaleDefault={true}
                   />
                 </div>
-                <h3>Trade Details</h3>
-                <TradeDiv>
-                  <Table
-                    headers={headers}
-                    data={backtesting.data[state.coin.value]?.trades}
-                    buildRow={buildRow}
-                  />
-                </TradeDiv>
+
                 <h3>Risk Analysis</h3>
                 <RiskComparisonChart
                   risks={backtesting.data[state.coin.value]?.risks}
                   colors={["#87CEEB", "#00FF00"]}
                 />
+                <h3>Trade Details</h3>
+                <TradesTableDiv>
+                  <Table
+                    headers={headers}
+                    data={backtesting.data[state.coin.value]?.trades}
+                    buildRow={buildRow}
+                  />
+                </TradesTableDiv>
               </>
             )}
           </BacktestingOutputStyle>
