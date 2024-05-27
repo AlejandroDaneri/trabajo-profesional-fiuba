@@ -100,7 +100,7 @@ const Table = ({ headers, data, buildRow }) => {
 
   const [sort, sortFunc] = useState({
     field: headers.find((header) => header.default).value,
-    direction: "asc",
+    direction: headers.find((header) => header.default)?.direction || "asc",
   })
 
   const onSort = (field) => {

@@ -1,6 +1,6 @@
+/* Import Libs */
 import React, { useState } from "react"
 import {
-  CartesianGrid,
   Legend,
   Line,
   LineChart,
@@ -14,9 +14,18 @@ import {
 } from "recharts"
 import styled from "styled-components"
 
+/* Import Reusable Components */
 import FieldSwitch from "./FieldSwitch"
 
+import { theme } from "../../utils/theme"
+
 const ChartStyle = styled.div`
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  padding: 10px;
+  background: linear-gradient(132.03deg, rgba(21,24,37,.4) 0%, rgba(11,10,7,.4) 100%);
+
   & .field {
     margin-bottom: 10px;
   }
@@ -53,12 +62,11 @@ const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush, hei
           onChange={toggleLogScale}
         />
       </div>
-      <ResponsiveContainer width="100%" height={height || 400}>
+      <ResponsiveContainer height={height || 400}>
         <LineChart
           data={data}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
           {logScale ? (
             <YAxis
@@ -69,8 +77,7 @@ const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush, hei
           ) : (
             <YAxis label={{ value: "Balance", position: "insideLeft" }} />
           )}
-
-          <Tooltip />
+          <Tooltip contentStyle={{ backgroundColor: theme.black }} />
           <Legend />
           <Area
             type="monotone"
