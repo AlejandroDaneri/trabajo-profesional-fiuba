@@ -61,18 +61,35 @@ class TDstrategy(Strategy):
         # print("signal", result_signal)
         return result_signal
     
-    def get_buy_sell_signals(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
-        split_index = 20 # FIXME
+    def calculate_signals_batch(self, data: pd.DataFrame) -> pd.DataFrame:
+        confirmed_signals_df = self.tdb.get_confirmed_signals(data)
         
+        signals_df = pd.DataFrame(index=data.index)
+
+        for indicator in self.indicators:
+            indicator.calculate(data, False)
+            indicator_signals = indicator.generate_signals()
+            signals_df[indicator.name] = indicator_signals
+
+        signals_df['ConfirmedEntrySignal'] = confirmed_signals_df['ConfirmedEntrySignal']
+        signals_df['ConfirmedOutputSignal'] = confirmed_signals_df['ConfirmedOutputSignal']
+
+        signals_df['Entry'] = np.where((signals_df == 1).any(axis=1) & signals_df['ConfirmedEntrySignal'].notna(), 1, 0)
+        signals_df['Exit'] = np.where((signals_df == -1).any(axis=1) & signals_df['ConfirmedOutputSignal'].notna(), -1, 0)
+        signals_df['Signal'] = signals_df['Entry'] + signals_df['Exit']
+        
+        return signals_df['Signal']
+
+    def get_buy_sell_signals(self, historical_data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        split_index = 20  # FIXME
+
         first_data = historical_data.iloc[:split_index]
         last_data = historical_data.iloc[split_index:]
 
         self.prepare_data(first_data)
-        signals = []
-        for index, row in last_data.iterrows():
-            row_df = pd.DataFrame(row).transpose()
-            signal = self.predict(row_df)
-            signals.append(signal)
+
+        combined_data = pd.concat([first_data, last_data])
+        signals = self.calculate_signals_batch(combined_data).iloc[split_index:]
 
         actions = pd.DataFrame({'signal': signals, 'Close': last_data['Close']}, index=last_data.index)
 
