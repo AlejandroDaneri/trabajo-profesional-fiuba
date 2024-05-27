@@ -345,6 +345,12 @@ const Backtesting = () => {
         return percentage(start, end)
       }
 
+      const getAverageReturn = (data) => {
+        const sum = data.trades.reduce((acc, trade) => acc + trade.return, 0)
+        const n = data.trades.length
+        return (sum / n).toFixed(2)
+      }
+
       const data = data_[state.coin.value]
 
       return {
@@ -354,6 +360,7 @@ const Backtesting = () => {
           final_balance_label: data.final_balance.toFixed(2),
           profit_vs_initial_balance: getProfitStrategy(data),
           profit_vs_benchmark: percentage(getProfitBuyAndHold(data), getProfitStrategy(data)),
+          average_return: getAverageReturn(data),
           serie: data.series.map((row) => ({
             ...row,
             balance_strategy: parseFloat(row.balance_strategy.toFixed(2)),
@@ -603,7 +610,7 @@ const Backtesting = () => {
                   <Box label='Profit vs. Initial Balance' value={`${backtesting.data[state.coin.value]?.profit_vs_initial_balance}%`} />
                   <Box label='Profit vs. Benchmark' value={`${backtesting.data[state.coin.value]?.profit_vs_benchmark}%`} />
                   <Box label='# Trades' value={backtesting.data[state.coin.value].trades.length} />
-                  <Box label='Avg Return' value={(backtesting.data[state.coin.value].trades.reduce((acc, trade) => acc + trade.return, 0) / backtesting.data[state.coin.value].trades.length).toFixed(2)} />
+                  <Box label='Avg Return' value={backtesting.data[state.coin.value]?.average_return} />
                   <div className="box">
                     <div className="label">Best Trade</div>
                     <div className="value">
