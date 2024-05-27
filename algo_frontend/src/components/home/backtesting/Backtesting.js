@@ -16,6 +16,7 @@ import Button from "../../Button"
 import StrategyComparisonChart from "../../reusables/Chart"
 import RiskComparisonChart from "../../RiskComparisonChart"
 import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../../Popup"
+import Table from "../../Table"
 
 /* Impor WebApi */
 import {
@@ -37,13 +38,78 @@ import {
 
 const VIEW_FORM = 0
 const VIEW_BACKTESTING = 1
+const formatNumber = (num) => num.toFixed(2)
+
+const headers = [
+  {
+    value: "buy_timestamp",
+    label: "Date Buy",
+    sortable: true,
+    default: true,
+    direction: "desc",
+  },
+  {
+    value: "sell_timestamp",
+    label: "Date Sell",
+    sortable: true,
+  },
+  {
+    value: "duration",
+    label: "Duration (days)",
+    sortable: true,
+  },
+  {
+    value: "buy_price",
+    label: "Price Buy ($)",
+    sortable: true,
+  },
+  {
+    value: "sell_price",
+    label: "Price Sell ($)",
+    sortable: true,
+  },
+  {
+    value: "comission",
+    label: "Comission",
+    sortable: false,
+  },
+  {
+    value: "return",
+    label: "Return",
+    sortable: true,
+  },
+  {
+    value: "result",
+    label: "Result",
+    sortable: true,
+  },
+]
+
+const buildRow = (trade) => {
+  return [
+    trade.entry_date,
+    trade.output_date,
+    (new Date(trade.output_date) - new Date(trade.entry_date)) /
+      (1000 * 60 * 60 * 24),
+    formatNumber(trade.entry_price),
+    formatNumber(trade.output_price),
+    formatNumber(trade.fixed_commission + trade.variable_commission),
+    formatNumber(trade.return),
+    trade.result,
+  ]
+}
+const TradesTableDiv = styled.div`
+  display: flex;
+  width: 100%;
+  max-height: 1000px;
+  min-height: 200px;
+`
 
 const BacktestingStyle = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
   overflow: hidden;
-  height: 100%;
   height: calc(100vh - 40px - 84px);
 
   & .divider {
@@ -329,7 +395,6 @@ const Backtesting = () => {
 
   const onSubmit = () => {
     const transformToView = (data_) => {
-
       const percentage = (start, end) => {
         return (((end - start) / start) * 100).toFixed(2)
       }
@@ -353,18 +418,24 @@ const Backtesting = () => {
       }
 
       const getBestTrade = (data) => {
-        const trade = data.trades.reduce((max, trade) => trade.return > max.return ? trade : max, data.trades[0])
+        const trade = data.trades.reduce(
+          (max, trade) => (trade.return > max.return ? trade : max),
+          data.trades[0]
+        )
         return {
           return: (trade.return * 100).toFixed(2),
-          date: new Date(trade.entry_date).toLocaleDateString()
+          date: new Date(trade.entry_date).toLocaleDateString(),
         }
       }
 
       const getWorstTrade = (data) => {
-        const trade = data.trades.reduce((min, trade) => trade.return < min.return ? trade : min, data.trades[0])
+        const trade = data.trades.reduce(
+          (min, trade) => (trade.return < min.return ? trade : min),
+          data.trades[0]
+        )
         return {
           return: (trade.return * 100).toFixed(2),
-          date: new Date(trade.entry_date).toLocaleDateString()
+          date: new Date(trade.entry_date).toLocaleDateString(),
         }
       }
 
@@ -376,18 +447,24 @@ const Backtesting = () => {
           ...data,
           final_balance_label: data.final_balance.toFixed(2),
           profit_vs_initial_balance: getProfitStrategy(data),
-          profit_vs_benchmark: percentage(getProfitBuyAndHold(data), getProfitStrategy(data)),
+          profit_vs_benchmark: percentage(
+            getProfitBuyAndHold(data),
+            getProfitStrategy(data)
+          ),
           average_return: getAverageReturn(data),
           best_trade: getBestTrade(data),
           worst_trade: getWorstTrade(data),
           serie: data.series.map((row) => ({
             ...row,
             balance_strategy: parseFloat(row.balance_strategy.toFixed(2)),
-            balance_buy_and_hold: parseFloat(row.balance_buy_and_hold.toFixed(2)),
+            balance_buy_and_hold: parseFloat(
+              row.balance_buy_and_hold.toFixed(2)
+            ),
           })),
           risks: {
             buy_and_hold: {
-              kelly_criterion: data.risks.buy_and_hold.kelly_criterion.toFixed(2),
+              kelly_criterion:
+                data.risks.buy_and_hold.kelly_criterion.toFixed(2),
               max_drawdown: data.risks.buy_and_hold.max_drawdown.toFixed(2),
               payoff_ratio: data.risks.buy_and_hold.payoff_ratio.toFixed(2),
               profit_factor: data.risks.buy_and_hold.profit_factor.toFixed(2),
@@ -399,8 +476,8 @@ const Backtesting = () => {
               payoff_ratio: data.risks.strategy.payoff_ratio.toFixed(2),
               profit_factor: data.risks.strategy.profit_factor.toFixed(2),
               rachev_ratio: data.risks.strategy.rachev_ratio.toFixed(2),
-            }
-          }
+            },
+          },
         },
       }
     }
@@ -641,13 +718,49 @@ const Backtesting = () => {
               <>
                 <h3>Benchmark: Buy & Hold </h3>
                 <div className="boxes">
-                  <Box label='Final Balance' value={`US ${backtesting.data[state.coin.value]?.final_balance_label}`} />
-                  <Box label='Profit vs. Initial Balance' value={`${backtesting.data[state.coin.value]?.profit_vs_initial_balance}%`} />
-                  <Box label='Profit vs. Benchmark' value={`${backtesting.data[state.coin.value]?.profit_vs_benchmark}%`} />
-                  <Box label='# Trades' value={backtesting.data[state.coin.value].trades.length} />
-                  <Box label='Avg Return' value={backtesting.data[state.coin.value]?.average_return} />
-                  <Box label='Best Trade' value={`${backtesting.data[state.coin.value]?.best_trade.return}% on ${backtesting.data[state.coin.value]?.best_trade.date}`} />
-                  <Box label='Worst Trade' value={`${backtesting.data[state.coin.value]?.worst_trade.return}% on ${backtesting.data[state.coin.value]?.worst_trade.date}`} />
+                  <Box
+                    label="Final Balance"
+                    value={`US$ ${
+                      backtesting.data[state.coin.value]?.final_balance_label
+                    }`}
+                  />
+                  <Box
+                    label="Profit vs. Initial Balance"
+                    value={`${
+                      backtesting.data[state.coin.value]
+                        ?.profit_vs_initial_balance
+                    }%`}
+                  />
+                  <Box
+                    label="Profit vs. Benchmark"
+                    value={`${
+                      backtesting.data[state.coin.value]?.profit_vs_benchmark
+                    }%`}
+                  />
+                  <Box
+                    label="# Trades"
+                    value={backtesting.data[state.coin.value].trades.length}
+                  />
+                  <Box
+                    label="Avg Return"
+                    value={backtesting.data[state.coin.value]?.average_return}
+                  />
+                  <Box
+                    label="Best Trade"
+                    value={`${
+                      backtesting.data[state.coin.value]?.best_trade.return
+                    }% on ${
+                      backtesting.data[state.coin.value]?.best_trade.date
+                    }`}
+                  />
+                  <Box
+                    label="Worst Trade"
+                    value={`${
+                      backtesting.data[state.coin.value]?.worst_trade.return
+                    }% on ${
+                      backtesting.data[state.coin.value]?.worst_trade.date
+                    }`}
+                  />
                 </div>
                 <div className="chart-container">
                   <h3>Performance Comparison</h3>
@@ -657,13 +770,20 @@ const Backtesting = () => {
                     logScaleDefault={true}
                   />
                 </div>
-                <div className="chart-container">
-                  <h3>Risks</h3>
-                  <RiskComparisonChart
-                    risks={backtesting.data[state.coin.value]?.risks}
-                    colors={["#87CEEB", "#00FF00"]}
+
+                <h3>Risk Analysis</h3>
+                <RiskComparisonChart
+                  risks={backtesting.data[state.coin.value]?.risks}
+                  colors={["#87CEEB", "#00FF00"]}
+                />
+                <h3>Trade Details</h3>
+                <TradesTableDiv>
+                  <Table
+                    headers={headers}
+                    data={backtesting.data[state.coin.value]?.trades}
+                    buildRow={buildRow}
                   />
-                </div>
+                </TradesTableDiv>
               </>
             )}
           </BacktestingOutputStyle>

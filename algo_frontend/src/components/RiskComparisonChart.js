@@ -23,7 +23,11 @@ const ChartsStyle = styled.div`
 
     & .chart {
       padding: 10px;
-      background: linear-gradient(132.03deg, rgba(21,24,37,.4) 0%, rgba(11,10,7,.4) 100%);
+      background: linear-gradient(
+        132.03deg,
+        rgba(21, 24, 37, 0.4) 0%,
+        rgba(11, 10, 7, 0.4) 100%
+      );
     }
   }
 `
@@ -68,7 +72,7 @@ const RiskComparisonChart = ({ risks, colors }) => {
                 />
                 <XAxis type="number" />
                 <Tooltip contentStyle={{ backgroundColor: theme.black }} />
-                <Bar dataKey={risk.dataKey} fill="#8884d8"  />
+                <Bar dataKey={risk.dataKey} fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           </div>
