@@ -365,7 +365,8 @@ const Backtesting = () => {
           profit_vs_initial_balance: getProfitStrategy(data),
           profit_vs_benchmark: percentage(getProfitBuyAndHold(data), getProfitStrategy(data)),
           average_return: getAverageReturn(data),
-          best_trade: getBestTrade(data),
+          best_trade_return: getBestTrade(data).return.toFixed(2),
+          best_trade_date: new Date(getBestTrade(data).entry_date).toLocaleDateString(),
           serie: data.series.map((row) => ({
             ...row,
             balance_strategy: parseFloat(row.balance_strategy.toFixed(2)),
@@ -616,27 +617,8 @@ const Backtesting = () => {
                   <Box label='Profit vs. Benchmark' value={`${backtesting.data[state.coin.value]?.profit_vs_benchmark}%`} />
                   <Box label='# Trades' value={backtesting.data[state.coin.value].trades.length} />
                   <Box label='Avg Return' value={backtesting.data[state.coin.value]?.average_return} />
-                  <Box label='Best Trade' value={`${backtesting.data[state.coin.value]?.best_trade.return.toFixed(2)} on ${new Date(backtesting.data[state.coin.value]?.best_trade.entry_date).toLocaleDateString()}`} />
-                  <div className="box">
-                    <div className="label">Worst Trade</div>
-                    <div className="value">
-                      {backtesting.data[state.coin.value].trades
-                        .reduce(
-                          (min, trade) =>
-                            trade.return < min.return ? trade : min,
-                          backtesting.data[state.coin.value].trades[0]
-                        )
-                        .return.toFixed(2)}{" "}
-                      on{" "}
-                      {new Date(
-                        backtesting.data[state.coin.value].trades.reduce(
-                          (min, trade) =>
-                            trade.return < min.return ? trade : min,
-                          backtesting.data[state.coin.value].trades[0]
-                        ).entry_date
-                      ).toLocaleDateString()}
-                    </div>
-                  </div>
+                  <Box label='Best Trade' value={`${backtesting.data[state.coin.value]?.best_trade_return} on ${backtesting.data[state.coin.value]?.best_trade_date}`} />
+                  <Box label='Worst Trade' value={<></>} />
                 </div>
                 <div className="chart-container">
                   <h3>Performance Comparison </h3>
