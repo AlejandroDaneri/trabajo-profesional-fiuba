@@ -92,6 +92,7 @@ const BacktestingOutputStyle = styled.div`
   & .boxes {
     display: flex;
     flex-direction: row;
+    justify-content: space-between;
     margin-bottom: 20px;
 
     & .box {

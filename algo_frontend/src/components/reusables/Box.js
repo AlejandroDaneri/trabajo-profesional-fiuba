@@ -20,7 +20,7 @@ const BoxStyled = styled.div`
         display: flex;
         font-size: 14px;
         font-weight: 600;
-        min-width: 120px;
+        min-width: 100px;
     }
 `
 
