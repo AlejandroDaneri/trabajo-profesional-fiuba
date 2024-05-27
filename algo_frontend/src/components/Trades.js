@@ -13,7 +13,7 @@ import Table from "./Table"
 import { ResultStyle } from "../styles/CurrentStrategy"
 
 /* Import Utils */
-import { unixToDate } from "../utils/date"
+import { getDuration, unixToDate } from "../utils/date"
 
 const TradesStyle = styled.div`
   display: flex;
@@ -28,29 +28,18 @@ const Trades = ({ strategyID }) => {
   })
 
   const transformToView = (trades) => {
-    return trades.map((trade) => {
-      if (trade.id === "current") {
-        return {
-          pair: trade.pair,
-          amount: parseFloat(trade.amount).toFixed(4),
-          buy_timestamp: trade.orders.buy.timestamp,
-          buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
-        }
-      } else {
-        return {
-          ...trade,
-          amount: parseFloat(trade.amount).toFixed(4),
-          sell_timestamp: trade.orders.sell.timestamp,
-          buy_timestamp: trade.orders.buy.timestamp,
-          sell_timestamp_label: trade.orders.sell.timestamp ? unixToDate(trade.orders.sell.timestamp) : '',
-          buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
-          buy_price: trade.orders.buy.price,
-          sell_price: trade.orders.sell.price,
-          duration:  trade.orders.sell.timestamp ? ((trade.orders.sell.timestamp / 1000 - trade.orders.buy.timestamp / 1000) / 60).toFixed(4) : '',
-          pl: trade.orders.sell.timestamp ? ((trade.orders.sell.price / trade.orders.buy.price - 1) * 100).toFixed(3) : '',
-        }
-      }
-    })
+    return trades.map((trade) => ({
+      ...trade,
+      amount: parseFloat(trade.amount).toFixed(4),
+      sell_timestamp: trade.orders.sell.timestamp,
+      buy_timestamp: trade.orders.buy.timestamp,
+      sell_timestamp_label: trade.orders.sell.timestamp ? unixToDate(trade.orders.sell.timestamp) : '',
+      buy_timestamp_label: unixToDate(trade.orders.buy.timestamp),
+      buy_price: parseFloat(trade.orders.buy.price).toFixed(2),
+      sell_price: trade.orders.sell.price ? parseFloat(trade.orders.sell.price).toFixed(2) : '',
+      duration:  getDuration(trade.orders.buy.timestamp, trade.orders.sell.timestamp),
+      pl: trade.orders.sell.timestamp ? ((trade.orders.sell.price / trade.orders.buy.price - 1) * 100).toFixed(3) : '',
+    }))
   }
 
   useEffect(() => {
@@ -88,7 +77,7 @@ const Trades = ({ strategyID }) => {
     },
     {
       value: "duration",
-      label: "Duration (min)",
+      label: "Duration",
       sortable: true,
     },
     {
