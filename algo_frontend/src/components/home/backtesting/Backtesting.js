@@ -385,6 +385,22 @@ const Backtesting = () => {
             balance_strategy: parseFloat(row.balance_strategy.toFixed(2)),
             balance_buy_and_hold: parseFloat(row.balance_buy_and_hold.toFixed(2)),
           })),
+          risks: {
+            buy_and_hold: {
+              kelly_criterion: data.risks.buy_and_hold.kelly_criterion.toFixed(2),
+              max_drawdown: data.risks.buy_and_hold.max_drawdown.toFixed(2),
+              payoff_ratio: data.risks.buy_and_hold.payoff_ratio.toFixed(2),
+              profit_factor: data.risks.buy_and_hold.profit_factor.toFixed(2),
+              rachev_ratio: data.risks.buy_and_hold.rachev_ratio.toFixed(2),
+            },
+            strategy: {
+              kelly_criterion: data.risks.strategy.kelly_criterion.toFixed(2),
+              max_drawdown: data.risks.strategy.max_drawdown.toFixed(2),
+              payoff_ratio: data.risks.strategy.payoff_ratio.toFixed(2),
+              profit_factor: data.risks.strategy.profit_factor.toFixed(2),
+              rachev_ratio: data.risks.strategy.rachev_ratio.toFixed(2),
+            }
+          }
         },
       }
     }
@@ -634,17 +650,20 @@ const Backtesting = () => {
                   <Box label='Worst Trade' value={`${backtesting.data[state.coin.value]?.worst_trade.return}% on ${backtesting.data[state.coin.value]?.worst_trade.date}`} />
                 </div>
                 <div className="chart-container">
-                  <h3>Performance Comparison </h3>
+                  <h3>Performance Comparison</h3>
                   <StrategyComparisonChart
                     data={backtesting.data[state.coin.value]?.series}
                     colors={["#87CEEB", "#00FF00"]}
                     logScaleDefault={true}
                   />
                 </div>
-                <RiskComparisonChart
-                  risks={backtesting.data[state.coin.value]?.risks}
-                  colors={["#87CEEB", "#00FF00"]}
-                />
+                <div className="chart-container">
+                  <h3>Risks</h3>
+                  <RiskComparisonChart
+                    risks={backtesting.data[state.coin.value]?.risks}
+                    colors={["#87CEEB", "#00FF00"]}
+                  />
+                </div>
               </>
             )}
           </BacktestingOutputStyle>
