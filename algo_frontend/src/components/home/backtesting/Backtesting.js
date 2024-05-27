@@ -16,7 +16,8 @@ import Button from "../../Button"
 import StrategyComparisonChart from "../../reusables/Chart"
 import RiskComparisonChart from "../../RiskComparisonChart"
 import { POPUP_ACTION_OPEN, POPUP_TYPE_ERROR } from "../../Popup"
-import TradesTable from "../../BTTrades"
+import Table from "../../Table"
+
 /* Impor WebApi */
 import {
   getIndicators,
@@ -37,6 +38,71 @@ import {
 
 const VIEW_FORM = 0
 const VIEW_BACKTESTING = 1
+const formatNumber = (num) => num.toFixed(2)
+
+const headers = [
+  {
+    value: "buy_timestamp",
+    label: "Date Buy",
+    sortable: true,
+    default: true,
+    direction: "desc",
+  },
+  {
+    value: "sell_timestamp",
+    label: "Date Sell",
+    sortable: true,
+  },
+  {
+    value: "duration",
+    label: "Duration (days)",
+    sortable: true,
+  },
+  {
+    value: "buy_price",
+    label: "Price Buy ($)",
+    sortable: true,
+  },
+  {
+    value: "sell_price",
+    label: "Price Sell ($)",
+    sortable: true,
+  },
+  {
+    value: "comission",
+    label: "Comission",
+    sortable: false,
+  },
+  {
+    value: "return",
+    label: "Return",
+    sortable: true,
+  },
+  {
+    value: "result",
+    label: "Result",
+    sortable: true,
+  },
+]
+
+const buildRow = (trade) => {
+  return [
+    trade.entry_date,
+    trade.output_date,
+    (new Date(trade.output_date) - new Date(trade.entry_date)) /
+      (1000 * 60 * 60 * 24),
+    formatNumber(trade.entry_price),
+    formatNumber(trade.output_price),
+    formatNumber(trade.fixed_commission + trade.variable_commission),
+    formatNumber(trade.return),
+    trade.result,
+  ]
+}
+const TradeDiv = styled.div`
+  display: flex;
+  width: 100%;
+  max-height: 600px;
+`
 
 const BacktestingStyle = styled.div`
   display: flex;
@@ -704,13 +770,19 @@ const Backtesting = () => {
                     logScaleDefault={true}
                   />
                 </div>
-                <div className="chart-container">
-                  <h3>Risks</h3>
-                  <RiskComparisonChart
-                    risks={backtesting.data[state.coin.value]?.risks}
-                    colors={["#87CEEB", "#00FF00"]}
+                <h3>Trade Details</h3>
+                <TradeDiv>
+                  <Table
+                    headers={headers}
+                    data={backtesting.data[state.coin.value]?.trades}
+                    buildRow={buildRow}
                   />
-                </div>
+                </TradeDiv>
+                <h3>Risk Analysis</h3>
+                <RiskComparisonChart
+                  risks={backtesting.data[state.coin.value]?.risks}
+                  colors={["#87CEEB", "#00FF00"]}
+                />
               </>
             )}
           </BacktestingOutputStyle>
