@@ -329,8 +329,20 @@ const Backtesting = () => {
   const onSubmit = () => {
     const transformToView = (data_) => {
 
-      const getProfit = (data) => {
-        return (((data.final_balance - state.initial_balance) / state.initial_balance) * 100).toFixed(2)
+      const percentage = (start, end) => {
+        return (((end - start) / start) * 100).toFixed(2)
+      }
+
+      const getProfitStrategy = (data) => {
+        const start = state.initial_balance
+        const end = data.final_balance
+        return percentage(start, end)
+      }
+
+      const getProfitBuyAndHold = (data) => {
+        const start = data.series[0].balance_buy_and_hold
+        const end = data.series.at(-1).balance_buy_and_hold
+        return percentage(start, end)
       }
 
       const data = data_[state.coin.value]
@@ -340,7 +352,8 @@ const Backtesting = () => {
         [state.coin.value]: {
           ...data,
           final_balance_label: data.final_balance.toFixed(2),
-          profit_vs_initial_balance: getProfit(data),
+          profit_vs_initial_balance: getProfitStrategy(data),
+          profit_vs_benchmark: percentage(getProfitBuyAndHold(data), getProfitStrategy(data)),
           serie: data.series.map((row) => ({
             ...row,
             balance_strategy: parseFloat(row.balance_strategy.toFixed(2)),
@@ -588,7 +601,7 @@ const Backtesting = () => {
                 <div className="boxes">
                   <Box label='Final Balance' value={`US ${backtesting.data[state.coin.value]?.final_balance_label}`} />
                   <Box label='Profit vs. Initial Balance' value={`${backtesting.data[state.coin.value]?.profit_vs_initial_balance}%`} />
-                  <Box label='Profit vs. Benchmark' value={`${(((backtesting.data[state.coin.value]?.final_balance - backtesting.data[state.coin.value].series[backtesting.data[state.coin.value].series.length - 1]?.balance_buy_and_hold) / backtesting.data[state.coin.value].series[backtesting.data[state.coin.value].series.length - 1]?.balance_buy_and_hold) * 100).toFixed(2)}%`} />
+                  <Box label='Profit vs. Benchmark' value={`${backtesting.data[state.coin.value]?.profit_vs_benchmark}%`} />
                   <Box label='# Trades' value={backtesting.data[state.coin.value].trades.length} />
                   <Box label='Avg Return' value={(backtesting.data[state.coin.value].trades.reduce((acc, trade) => acc + trade.return, 0) / backtesting.data[state.coin.value].trades.length).toFixed(2)} />
                   <div className="box">
