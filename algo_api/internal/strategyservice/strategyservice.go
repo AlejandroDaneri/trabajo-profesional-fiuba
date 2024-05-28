@@ -269,6 +269,13 @@ func (s *StrategyService) Stop(id string) error {
 	strategy.State = database.StrategyStateFinished
 	strategy.EndTimestamp = time.Now().Unix()
 
+	balance, err := s.exchangeservice.GetBalance(strategy.ExchangeId)
+	if err != nil {
+		return err
+	}
+
+	strategy.CurrentBalance = balance
+
 	m, err := utils.StructToMap(*strategy)
 	if err != nil {
 		return err
