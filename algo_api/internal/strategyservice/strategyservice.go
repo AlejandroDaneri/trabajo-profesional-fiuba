@@ -169,7 +169,7 @@ func (s *StrategyService) List() ([]*database.StrategyResponseFields, error) {
 			strategy.CurrentBalance = ""
 		}
 		if strategy.State == database.StrategyStateRunning {
-			balance, err := s.binanceservice.GetBalance()
+			balance, err := s.exchangeservice.GetBalance(strategy.ExchangeId)
 			if err == nil {
 				strategy.CurrentBalance = balance
 			}
