@@ -41,11 +41,12 @@ func NewService() IService {
 }
 
 type IService interface {
-	AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
+	AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) (string, error)
 	GetExchanges() ([]*database.ExchangeResponseFields, error)
 	GetExchange(id string) (*database.Exchange, error)
 	EditExchange(id string, exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error
 	DeleteExchange(id string) error
+	DeleteAll() error
 	GetBalance(id string) (string, error)
 	GetAmount(id string, symbol string) (string, error)
 	GetPrice(id string, sybmol string) (string, error)
@@ -91,12 +92,12 @@ func (t *ExchangesService) EditExchange(id string, exchangeName string, apiKey s
 	return nil
 }
 
-func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) error {
+func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSecret string, alias string, testingNetwork bool) (string, error) {
 	exchange := make(map[string]interface{})
 	dbName := "exchanges"
 	db, err := t.databaseservice.GetDB(dbName)
 	if err != nil {
-		return err
+		return "", err
 	}
 	exchange["api_key"] = apiKey
 	exchange["api_secret"] = apiSecret
@@ -104,11 +105,11 @@ func (t *ExchangesService) AddExchange(exchangeName string, apiKey string, apiSe
 	exchange["testing_network"] = testingNetwork
 	exchange["exchange_name"] = exchangeName
 	exchange["pvt_type"] = "exchange"
-	_, _, err = db.Save(exchange, nil)
+	id, _, err := db.Save(exchange, nil)
 	if err != nil {
-		return err
+		return "", nil
 	}
-	return nil
+	return id, nil
 }
 
 func (t *ExchangesService) GetExchange(id string) (*database.Exchange, error) {
@@ -182,6 +183,19 @@ func (t *ExchangesService) GetExchanges() ([]*database.ExchangeResponseFields, e
 		})
 	}
 	return exchanges, nil
+}
+
+func (t *ExchangesService) DeleteAll() error {
+	exchanges, err := t.GetExchanges()
+	if err != nil {
+		return err
+	}
+
+	for _, exchange := range exchanges {
+		err = t.DeleteExchange(exchange.ID)
+	}
+
+	return nil
 }
 
 func (t *ExchangesService) DeleteExchange(id string) error {

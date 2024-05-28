@@ -475,7 +475,7 @@ func StartStrategy(w http.ResponseWriter, r *http.Request) {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
 			"id":  id,
-		}).Error("Could not stop the strategy")
+		}).Error("Could not start the strategy")
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
@@ -619,7 +619,7 @@ func AddExchange(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = exchangesservice.GetInstance().AddExchange(body.ExchangeName, body.APIKey, body.APISecret, body.Alias, body.TestingNetwork)
+	id, err := exchangesservice.GetInstance().AddExchange(body.ExchangeName, body.APIKey, body.APISecret, body.Alias, body.TestingNetwork)
 	if err != nil {
 		logrus.WithFields(logrus.Fields{
 			"err": err,
@@ -628,15 +628,17 @@ func AddExchange(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := map[string]string{"message": "Exchange added successfully"}
-	bytes, err := json.Marshal(response)
+	response, err := json.Marshal(id)
 	if err != nil {
 		http.Error(w, http.StatusText(500), 500)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write(bytes)
+	_, err = w.Write(response)
+	if err != nil {
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
 }
 
 func EditExchange(w http.ResponseWriter, r *http.Request) {
@@ -683,6 +685,17 @@ func EditExchange(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write(bytes)
+}
+
+func DeleteAllExchanges(w http.ResponseWriter, r *http.Request) {
+	err := exchangesservice.GetInstance().DeleteAll()
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not delete exchange")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
 }
 
 func DeleteExchange(w http.ResponseWriter, r *http.Request) {
@@ -1094,6 +1107,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/telegram/chats", GetTelegramChats).Methods("GET")
 
 	router.HandleFunc("/exchanges", AddExchange).Methods("POST")
+	router.HandleFunc("/exchanges/all", DeleteAllExchanges).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", DeleteExchange).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", GetExchange).Methods("GET")
 	router.HandleFunc("/exchanges/{id}/balance", GetExchangeBalance).Methods("GET")
