@@ -26,10 +26,6 @@ export const CRYPTOCURRENCIES = [
     label: "Binance Coin (BNB)",
   },
   {
-    value: "ADA",
-    label: "Cardano (ADA)",
-  },
-  {
     value: "XRP",
     label: "Ripple (XRP)",
   },
@@ -37,10 +33,7 @@ export const CRYPTOCURRENCIES = [
     value: "DOT",
     label: "Polkadot (DOT)",
   },
-  {
-    value: "DOGE",
-    label: "Dogecoin (DOGE)",
-  },
+
   {
     value: "MATIC",
     label: "Polygon (MATIC)",
@@ -53,14 +46,7 @@ export const CRYPTOCURRENCIES = [
     value: "BCH",
     label: "Bitcoin Cash (BCH)",
   },
-  {
-    value: "PEPE",
-    label: "Pepe (PEPE)",
-  },
-  {
-    value: "UNI",
-    label: "Uniswap (UNI)",
-  },
+
   {
     value: "AAVE",
     label: "Aave (AAVE)",
