@@ -301,7 +301,7 @@ func (s *StrategyService) Start(id string) error {
 	strategy.State = database.StrategyStateRunning
 	strategy.StartTimestamp = time.Now().Unix()
 
-	balance, err := s.binanceservice.GetBalance()
+	balance, err := s.exchangeservice.GetBalance(strategy.ExchangeId)
 	if err != nil {
 		return err
 	}
