@@ -1,21 +1,18 @@
-/* Import Libs */
-import styled from "styled-components"
-import { useHistory } from "react-router-dom"
-import { useRecoilState } from "recoil"
-import { useLocation } from "react-router-dom"
 import { useEffect, useState } from "react"
 
 /* Import Styles */
 import TopbarStyle from "../../styles/topbar"
-
-/* Import Images */
-import logo from "../../images/bitcoin.png"
-
 /* Import WebApi */
 import { getRunning } from "../../webapi/strategy"
-
-import { userState } from "../../atoms/atoms"
+/* Import Images */
+import logo from "../../images/bitcoin.png"
+/* Import Libs */
+import styled from "styled-components"
 import { theme } from "../../utils/theme"
+import { useHistory } from "react-router-dom"
+import { useLocation } from "react-router-dom"
+import { useRecoilState } from "recoil"
+import { userState } from "../../atoms/atoms"
 
 const ButtonMenuStyle = styled.button`
   display: flex;
@@ -71,6 +68,7 @@ const Topbar = () => {
       user: {},
       isLoggedIn: false,
     })
+    localStorage.removeItem("userCredentials")
     history.push("/")
   }
 

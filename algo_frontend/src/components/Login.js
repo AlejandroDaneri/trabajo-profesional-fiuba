@@ -1,16 +1,17 @@
-/* Import Libs */
-import React, { useEffect, useRef, useState } from "react"
-import styled from "styled-components"
-import { useHistory } from "react-router-dom"
-import { useRecoilState } from "recoil"
-
 /* Import Style */
 import "../styles/loginView.css"
 
 import { INVALID_EMAIL, WRONG_CREDENTIALS } from "../utils/interactiveMessages"
-import { theme } from "../utils/theme"
+/* Import Libs */
+import React, { useEffect, useRef, useState } from "react"
+
+import BounceLoader from "react-spinners/BounceLoader"
 import ErrorModal from "./errorModal"
 import { login } from "../config/firebaseConfig"
+import styled from "styled-components"
+import { theme } from "../utils/theme"
+import { useHistory } from "react-router-dom"
+import { useRecoilState } from "recoil"
 import { userState } from "../atoms/atoms"
 
 const images = require.context('../images/svg', true)
@@ -117,22 +118,26 @@ const LoginView = () => {
   const history = useHistory()
 
   const [user, setUser] = useRecoilState(userState)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
+  const [emailInput, setEmailInput] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [passwordInput, setPasswordInput] = useState("")
   const [errorModal, setErrorModal] = useState({
     isOpen: false,
     message: "",
   })
 
+  const TIMEOUT_SESSION_MINUTES = 60
+
   console.info('user', user)
 
-  const handleLogin = async () => {
+  const handleLogin = async (email, password) => {
     try {
       await login(email, password)
       setUser({
         user: {},
         isLoggedIn: true,
       })
+      localStorage.setItem('userCredentials', JSON.stringify({email: email, password: password, sessionInitTime: (new Date).toString()}));
       history.push("/home/trades")
     } catch (error) {
       if (error.message === WRONG_CREDENTIALS) {
@@ -161,6 +166,25 @@ const LoginView = () => {
     })
   }
 
+  useEffect(() => {
+    try {
+      const userCredentials = JSON.parse(localStorage.getItem('userCredentials'));
+      if(userCredentials){
+        setLoading(true)
+        if(Math.abs(new Date(userCredentials.sessionInitTime) - new Date()) < (TIMEOUT_SESSION_MINUTES * 60 * 1000)){
+          handleLogin(userCredentials.email, userCredentials.password)
+        }else{
+          setLoading(false)
+        }
+      }else{
+        setLoading(false)
+      }
+    } catch (error) {
+      setLoading(false)
+      console.log(error)
+    }
+  }, [])
+
   return (
     <LoginStyle>
 
@@ -169,6 +193,9 @@ const LoginView = () => {
       ))}
 
       <div className="login-container">
+      {loading ? (
+        <BounceLoader color="white" size={32} />
+      ) : (
         <div className="login-content">
           <h2 className="login-heading">¡Welcome to SatoshiBOT!</h2>
           <form className="login-form">
@@ -178,7 +205,7 @@ const LoginView = () => {
               type="email"
               name="email"
               placeholder="Enter your email"
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmailInput(e.target.value)}
             />
 
             <label className="login-label">Password</label>
@@ -187,15 +214,16 @@ const LoginView = () => {
               type="password"
               name="password"
               placeholder="Enter your password"
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => setPasswordInput(e.target.value)}
             />
 
-            <button onClick={handleLogin} type="button" className="login-btn">
+            <button onClick={()=> handleLogin(emailInput,passwordInput)} type="button" className="login-btn">
               Log in
             </button>
           </form>
           
         </div>
+      )}
         <ErrorModal
           isOpen={errorModal.isOpen}
           message={errorModal.message}
