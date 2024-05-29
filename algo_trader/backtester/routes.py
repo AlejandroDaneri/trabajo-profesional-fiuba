@@ -22,9 +22,9 @@ app = Flask(__name__)
 
 cache = Cache(config={
     'CACHE_TYPE': 'RedisCache',
-    'CACHE_REDIS_HOST': 'redis',  # Nombre del servicio del contenedor de Redis en Docker Compose
-    'CACHE_REDIS_PORT': 6379,  # Puerto en el que Redis está expuesto en el contenedor
-})# Aplica la caché a tu aplicación Flask
+    'CACHE_REDIS_HOST': 'redis',  
+    'CACHE_REDIS_PORT': 6379,  
+})
 cache.init_app(app)
 
 def getData(ticker, data_from, data_to,timeframe):
@@ -85,7 +85,7 @@ def backtest():
             provider = Binance()
 
         print("[Backtester] getting data: started")
-        # Comprueba si los datos para este símbolo y marco de tiempo ya están en caché
+
         cache_key = f"data_{coin}_{timeframe}"
         cached_data = cache.get(cache_key)
 
