@@ -5,3 +5,5 @@ pandas==1.5.3
 yfinance==0.2.31
 python-binance==1.0.19
 matplotlib==3.6.2
+flask-caching==2.3.0
+redis==5.0.4 

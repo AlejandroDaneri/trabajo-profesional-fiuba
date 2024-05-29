@@ -82,6 +82,14 @@ services:
       - couchdb_data:/opt/couchdb/data
     ports:
       - 5984:5984
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
 
 volumes:
   couchdb_data:
+  redis_data:
