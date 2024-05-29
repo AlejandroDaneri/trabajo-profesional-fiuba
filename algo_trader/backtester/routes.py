@@ -15,7 +15,17 @@ import yfinance as yf
 from risks import RiskMetrics
 import pandas as pd
 
+import hashlib
+import json
+from flask_caching import Cache
 app = Flask(__name__)
+
+cache = Cache(config={
+    'CACHE_TYPE': 'RedisCache',
+    'CACHE_REDIS_HOST': 'redis',  
+    'CACHE_REDIS_PORT': 6379,  
+})
+cache.init_app(app)
 
 def getData(ticker, data_from, data_to,timeframe):
     data = yf.download(ticker,interval=timeframe, auto_adjust=True, progress=False, start=data_from, end=data_to)
@@ -33,10 +43,15 @@ def internal_error(error):
 def ping():
     return "ok", 200
 
+def make_cache_key(*args, **kwargs):
+    request_data = request.get_json()
+    key = json.dumps(request_data, sort_keys=True)
+    return hashlib.md5(key.encode('utf-8')).hexdigest()
+
 @app.route('/backtest', methods=['POST'])
+@cache.memoize(timeout=3600, make_name=make_cache_key)
 def backtest():
     print("[Backtester] a new backtest was requested")
-
     req_data = request.get_json()
     if not req_data:
         abort(400, description="JSON data is missing in the request body.")
@@ -70,7 +85,31 @@ def backtest():
             provider = Binance()
 
         print("[Backtester] getting data: started")
-        data = provider.get(coin, timeframe, data_from, data_to)
+
+        cache_key = f"data_{coin}_{timeframe}"
+        cached_data = cache.get(cache_key)
+
+        if cached_data is None:
+            print(cache_key)
+            # If data is not in cache, save it
+            data = provider.get(coin, timeframe, data_from, data_to)
+            cache.set(cache_key, data)
+        else:
+            # If data is in cache, use it
+            cached_data_from = cached_data.index[0]
+            cached_data_to = cached_data.index[-1]
+
+            if cached_data_from <= data_from and cached_data_to >= data_to:
+                # If requested data is a subset of cache
+                data = cached_data.loc[data_from:data_to]
+            else:
+                # If requested data need more data than cached
+                new_data_from = min(data_from, cached_data_from)
+                new_data_to = max(data_to, cached_data_to)
+                new_data = provider.get(coin, timeframe, new_data_from, new_data_to)
+                cache.set(cache_key, new_data)
+                data = new_data.loc[data_from:data_to]
+
         if data.empty:
             abort(500, description=f"Failed request to YFinance for {coin}")
         print("[Backtester] getting data: finished")
