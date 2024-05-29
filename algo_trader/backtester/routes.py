@@ -15,8 +15,8 @@ import yfinance as yf
 from risks import RiskMetrics
 import pandas as pd
 
-# import hashlib
-# import json
+import hashlib
+import json
 from flask_caching import Cache
 app = Flask(__name__)
 
@@ -43,13 +43,13 @@ def internal_error(error):
 def ping():
     return "ok", 200
 
-# def make_cache_key(*args, **kwargs):
-#     request_data = request.get_json()
-#     key = json.dumps(request_data, sort_keys=True)
-#     return hashlib.md5(key.encode('utf-8')).hexdigest()
+def make_cache_key(*args, **kwargs):
+    request_data = request.get_json()
+    key = json.dumps(request_data, sort_keys=True)
+    return hashlib.md5(key.encode('utf-8')).hexdigest()
 
 @app.route('/backtest', methods=['POST'])
-# @cache.memoize(timeout=3600, make_name=make_cache_key)
+@cache.memoize(timeout=3600, make_name=make_cache_key)
 def backtest():
     print("[Backtester] a new backtest was requested")
     req_data = request.get_json()
@@ -91,19 +91,19 @@ def backtest():
 
         if cached_data is None:
             print(cache_key)
-            # Si los datos no están en caché, obténlos del proveedor y almacénalos en caché
+            # If data is not in cache, save it
             data = provider.get(coin, timeframe, data_from, data_to)
             cache.set(cache_key, data)
         else:
-            # Si los datos están en caché, compara con el rango de tiempo solicitado
+            # If data is in cache, use it
             cached_data_from = cached_data.index[0]
             cached_data_to = cached_data.index[-1]
 
             if cached_data_from <= data_from and cached_data_to >= data_to:
-                # Si los datos en caché cubren completamente el rango de tiempo solicitado, úsalos
+                # If requested data is a subset of cache
                 data = cached_data.loc[data_from:data_to]
             else:
-                # Si los datos en caché no cubren completamente el rango de tiempo solicitado, actualiza el caché
+                # If requested data need more data than cached
                 new_data_from = min(data_from, cached_data_from)
                 new_data_to = max(data_to, cached_data_to)
                 new_data = provider.get(coin, timeframe, new_data_from, new_data_to)
