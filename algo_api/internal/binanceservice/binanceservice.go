@@ -282,16 +282,26 @@ func (s *BinanceService) Buy(symbol string) error {
 	return nil
 }
 
+func (s *BinanceService) closeOpenOrders(symbol string) error {
+	openOrders, err := s.client.NewCancelOpenOrdersService().Symbol(symbol + "USDT").Do(context.Background())
+	if err != nil {
+		return err
+	}
+
+	for _, order := range openOrders {
+		_, err := s.client.NewCancelOrderService().Symbol(symbol + "USDT").OrderId(order.OrderId).Do(context.Background())
+		if err != nil {
+			continue
+		}
+	}
+
+	return nil
+}
+
 func (s *BinanceService) Sell(symbol string) error {
 	logrus.WithFields(logrus.Fields{
 		"symbol": symbol,
 	}).Info("Sell: started")
-
-	min, max, step, err := s.getOrderInfo(symbol)
-	if err != nil {
-		logrus.Error(err)
-		return err
-	}
 
 	minNotional, err := s.getMinNotional(symbol)
 	if err != nil {
@@ -299,6 +309,8 @@ func (s *BinanceService) Sell(symbol string) error {
 	}
 
 	for {
+		s.closeOpenOrders(symbol)
+
 		price, err := s.GetPrice(symbol)
 		if err != nil {
 			return err
@@ -330,8 +342,10 @@ func (s *BinanceService) Sell(symbol string) error {
 		_, err = s.client.NewCreateOrderService().
 			Symbol(symbol + "USDT").
 			Side("SELL").
-			Type("MARKET").
-			Quantity(s.processQuantity(amount, min, max, step)).
+			Type("LIMIT").
+			Price(utils.String2Float(price)).
+			TimeInForce("GTC").
+			Quantity(amount).
 			Do(context.Background())
 
 		if err != nil {
