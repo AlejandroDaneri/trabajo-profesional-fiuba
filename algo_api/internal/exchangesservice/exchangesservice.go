@@ -192,7 +192,7 @@ func (t *ExchangesService) DeleteAll() error {
 	}
 
 	for _, exchange := range exchanges {
-		err = t.DeleteExchange(exchange.ID)
+		_ = t.DeleteExchange(exchange.ID)
 	}
 
 	return nil

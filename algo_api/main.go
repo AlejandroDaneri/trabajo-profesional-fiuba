@@ -789,6 +789,50 @@ func GetExchangeBalance(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetExchangePrice(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	if id == "" {
+		logrus.Error("Could not get exchange id")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	symbol := vars["symbol"]
+	if id == "" {
+		logrus.Error("Could not get symbol")
+		http.Error(w, http.StatusText(400), 400)
+		return
+	}
+
+	price, err := exchangesservice.GetInstance().GetPrice(id, symbol)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err":   err,
+			"id":    id,
+			"price": price,
+		}).Error("Could not get price")
+		return
+	}
+
+	bytes, err := json.Marshal(price)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not marshall")
+		http.Error(w, http.StatusText(500), 500)
+		return
+	}
+
+	_, err = w.Write(bytes)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{
+			"err": err,
+		}).Error("Could not write response")
+		http.Error(w, http.StatusText(500), 500)
+	}
+}
+
 func ExchangeSell(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -805,14 +849,7 @@ func ExchangeSell(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := exchangesservice.GetInstance().Sell(id, symbol)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err": err,
-			"id":  id,
-		}).Error("Could not sell")
-		return
-	}
+	go exchangesservice.GetInstance().Sell(id, symbol)
 }
 
 func ExchangeBuy(w http.ResponseWriter, r *http.Request) {
@@ -831,14 +868,7 @@ func ExchangeBuy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := exchangesservice.GetInstance().Buy(id, symbol)
-	if err != nil {
-		logrus.WithFields(logrus.Fields{
-			"err": err,
-			"id":  id,
-		}).Error("Could not buy")
-		return
-	}
+	go exchangesservice.GetInstance().Buy(id, symbol)
 }
 
 func GetExchangeAmount(w http.ResponseWriter, r *http.Request) {
@@ -1110,6 +1140,7 @@ func MakeRoutes(router *mux.Router) {
 	router.HandleFunc("/exchanges/all", DeleteAllExchanges).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", DeleteExchange).Methods("DELETE")
 	router.HandleFunc("/exchanges/{id}", GetExchange).Methods("GET")
+	router.HandleFunc("/exchanges/{id}/price/{symbol}", GetExchangePrice).Methods("GET")
 	router.HandleFunc("/exchanges/{id}/balance", GetExchangeBalance).Methods("GET")
 	router.HandleFunc("/exchanges/{id}/sell/{symbol}", ExchangeSell).Methods("PUT")
 	router.HandleFunc("/exchanges/{id}/buy/{symbol}", ExchangeBuy).Methods("PUT")
