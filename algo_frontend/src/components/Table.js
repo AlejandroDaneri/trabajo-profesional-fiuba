@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { theme } from "../utils/theme"
 
 const TableWrapper = styled.div`
@@ -139,6 +139,11 @@ const Table = ({ headers, data, buildRow }) => {
   const columnsWidth = (headers || []).map((header) =>
     header.width ? header.width : totalRemanent / countRemanent
   )
+
+  const [fakeRender, fakeRenderFunc] = useState(0)
+  useEffect(() => {
+    setTimeout(() => fakeRenderFunc(1), 4000)
+  }, [])
 
   return (
     <TableWrapper
