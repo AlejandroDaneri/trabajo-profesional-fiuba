@@ -68,5 +68,5 @@ export const BACKTESTING_TYPES = [
 
 export const STRATEGIES_TYPES = [
   { value: "basic", label: "Basic" },
-  { value: "td", label: "TD" },
+  { value: "td", label: "Trend Detection" },
 ]

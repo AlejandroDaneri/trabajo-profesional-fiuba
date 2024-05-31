@@ -588,7 +588,7 @@ const Backtesting = () => {
                         name={"strategy"}
                         value={state.strategy}
                         onChange={onChange}
-                        width={140}
+                        width={180}
                         options={STRATEGIES_TYPES}
                       />
                     </div>

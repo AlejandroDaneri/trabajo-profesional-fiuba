@@ -12,7 +12,7 @@ import FieldSwitch from "../../reusables/FieldSwitch"
 import FieldInput from "../../reusables/FieldInput"
 
 /* Import Constants */
-import { TIMEFRAMES } from "../../../constants"
+import { STRATEGIES_TYPES, TIMEFRAMES } from "../../../constants"
 
 /* Import WebApi */
 import { add } from "../../../webapi/strategy"
@@ -344,10 +344,7 @@ const Strategy = ({ onCloseModal, onAdd }) => {
               value={strategy.type}
               onChange={onChange}
               options={[
-                {
-                  label: "Basic",
-                  value: "basic"
-                },
+                ...STRATEGIES_TYPES,
                 {
                   label: "RL",
                   value: "rl"
@@ -355,10 +352,6 @@ const Strategy = ({ onCloseModal, onAdd }) => {
                 {
                   label: "LSTM",
                   value: "lstm"
-                },
-                {
-                  label: "TD",
-                  value: "td"
                 }
               ]}
               width={200}
