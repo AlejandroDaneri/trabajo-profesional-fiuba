@@ -33,20 +33,8 @@ type IService interface {
 }
 
 type Risk struct {
-    BuyAndHold struct {
-        KellyCriterion float64 `json:"kelly_criterion"`
-        MaxDrawdown    float64 `json:"max_drawdown"`
-        PayoffRatio    float64 `json:"payoff_ratio"`
-        ProfitFactor   float64 `json:"profit_factor,omitempty"`
-        RachevRatio    float64 `json:"rachev_ratio"`
-    } `json:"buy_and_hold"`
-    Strategy struct {
-        KellyCriterion float64 `json:"kelly_criterion"`
-        MaxDrawdown    float64 `json:"max_drawdown"`
-        PayoffRatio    float64 `json:"payoff_ratio"`
-        ProfitFactor   float64 `json:"profit_factor,omitempty"`
-        RachevRatio    float64 `json:"rachev_ratio"`
-    } `json:"strategy"`
+    BuyAndHold map[string]interface{} `json:"buy_and_hold"`
+    Strategy   map[string]interface{} `json:"strategy"`
 }
 type Trade struct {
     CumulativeReturn   float64 `json:"cumulative_return"`

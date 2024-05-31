@@ -46,12 +46,12 @@ const RiskComparisonChart = ({ risks, colors }) => {
     return `Buy&Hold`
   }
 
-  const risks_ = [
-    { label: "Kelly Criterion", dataKey: "kelly_criterion" },
-    { label: "Max Drawdown", dataKey: "max_drawdown" },
-    { label: "Payoff Ratio", dataKey: "payoff_ratio" },
-    { label: "Rachev Ratio", dataKey: "rachev_ratio" },
-  ]
+  const risks_ = Object.keys(risks[Object.keys(risks)[0]]).map((risk) => ({
+    label: risk
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase()),
+    dataKey: risk,
+  }))
 
   return (
     <ChartsStyle>
