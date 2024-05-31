@@ -62,3 +62,5 @@ class RiskCalculator:
             "max_drawdown": self.max_drawdowns(),
             "profit_factor": self.profit_factor(),
         }
+
+
