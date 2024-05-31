@@ -395,6 +395,19 @@ const Backtesting = () => {
 
   const onSubmit = () => {
     const transformToView = (data_) => {
+      const formatRiskData = (riskData) => {
+        const formattedData = {}
+        for (const strategyType in riskData) {
+          const strategy = riskData[strategyType]
+          const formattedStrategy = {}
+          for (const key in strategy) {
+            formattedStrategy[key] = strategy[key].toFixed(2)
+          }
+          formattedData[strategyType] = formattedStrategy
+        }
+        return formattedData
+      }
+
       const percentage = (start, end) => {
         return (((end - start) / start) * 100).toFixed(2)
       }
@@ -461,23 +474,7 @@ const Backtesting = () => {
               row.balance_buy_and_hold.toFixed(2)
             ),
           })),
-          risks: {
-            buy_and_hold: {
-              kelly_criterion:
-                data.risks.buy_and_hold.kelly_criterion.toFixed(2),
-              max_drawdown: data.risks.buy_and_hold.max_drawdown.toFixed(2),
-              payoff_ratio: data.risks.buy_and_hold.payoff_ratio.toFixed(2),
-              profit_factor: data.risks.buy_and_hold.profit_factor.toFixed(2),
-              rachev_ratio: data.risks.buy_and_hold.rachev_ratio.toFixed(2),
-            },
-            strategy: {
-              kelly_criterion: data.risks.strategy.kelly_criterion.toFixed(2),
-              max_drawdown: data.risks.strategy.max_drawdown.toFixed(2),
-              payoff_ratio: data.risks.strategy.payoff_ratio.toFixed(2),
-              profit_factor: data.risks.strategy.profit_factor.toFixed(2),
-              rachev_ratio: data.risks.strategy.rachev_ratio.toFixed(2),
-            },
-          },
+          risks: formatRiskData(data.risks),
         },
       }
     }
