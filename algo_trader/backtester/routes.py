@@ -12,7 +12,7 @@ from lib.constants.timeframe import DATE_FORMAT, TIMEFRAME_1_DAY
 from flask import Flask, jsonify, request, abort
 from datetime import datetime,timezone  
 import yfinance as yf
-from risks import RiskMetrics
+from riskCalculator import RiskCalculator
 import pandas as pd
 
 import hashlib
@@ -130,23 +130,16 @@ def backtest():
         byh_backtester = BuyAndHoldBacktester(initial_balance, data)
         byh_backtester.backtest()
 
+        
         risks = {}
-        buy_and_hold = {}
-        buy_and_hold["payoff_ratio"] = RiskMetrics.payoff_ratio(byh_backtester.linear_returns)
-        buy_and_hold["rachev_ratio"] = RiskMetrics.rachev_ratio(byh_backtester.log_returns)
-        buy_and_hold["kelly_criterion"] = RiskMetrics.kelly_criterion(byh_backtester.log_returns)
-        buy_and_hold["max_drawdown"] = RiskMetrics.max_drawdowns(byh_backtester.linear_returns)
-        buy_and_hold["profit_factor"] = RiskMetrics.profit_factor(byh_backtester.returns)
+        buy_and_hold_metrics = RiskCalculator(byh_backtester.log_returns, byh_backtester.linear_returns)
+        buy_and_hold = buy_and_hold_metrics.calculate()
+
+        strategy_metrics = RiskCalculator(backtester.log_returns, backtester.linear_returns)
+        strategy_risks = strategy_metrics.calculate()
         
-        strategy_risks = {}
-        strategy_risks["payoff_ratio"] = RiskMetrics.payoff_ratio(backtester.linear_returns)
-        strategy_risks["profit_factor"] = RiskMetrics.profit_factor(backtester.log_returns)
-        strategy_risks["rachev_ratio"] = RiskMetrics.rachev_ratio(backtester.log_returns)
-        strategy_risks["kelly_criterion"] = RiskMetrics.kelly_criterion(backtester.linear_returns)
-        strategy_risks["max_drawdown"] = RiskMetrics.max_drawdowns(backtester.returns)
-        
-        risks["buy_and_hold"]=buy_and_hold
-        risks["strategy"]=strategy_risks
+        risks["buy_and_hold"] = buy_and_hold
+        risks["strategy"] = strategy_risks
         
         print("[Backtester] building strategy series: started")
         strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
