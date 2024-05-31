@@ -111,7 +111,7 @@ func (s *StrategyService) GetRunning() (*database.StrategyResponseFields, error)
 		return nil, err
 	}
 
-	balance, err := s.binanceservice.GetBalance()
+	balance, err := s.exchangeservice.GetBalance(strategy.ExchangeId)
 	if err != nil {
 		return nil, err
 	}
