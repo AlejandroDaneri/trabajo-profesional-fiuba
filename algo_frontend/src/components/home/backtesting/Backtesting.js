@@ -690,20 +690,6 @@ const Backtesting = () => {
             </div>
           </BacktestingFormStyle>
           <div className="divider"></div>
-          <div className="button-back">
-            <Button
-              width={30}
-              height={30}
-              text={
-                <i className="material-icons">
-                  {view === VIEW_FORM ? "arrow_back" : "arrow_forward"}
-                </i>
-              }
-              onClick={onToggleView}
-              background={theme.btc}
-              circle
-            />
-          </div>
           <BacktestingOutputStyle>
             {backtesting.loading && (
               <div className="loading">
