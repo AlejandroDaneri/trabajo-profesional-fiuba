@@ -8,7 +8,7 @@ from typing import List, Tuple
 
 
 class Basic(Strategy):
-    def __init__(self, indicators: List[Indicator], timeframe: str, id: str):
+    def __init__(self, indicators: List[Indicator], timeframe: str, id: str = ''):
         self.name = "BASIC"
         super().__init__(indicators, timeframe, id)
 

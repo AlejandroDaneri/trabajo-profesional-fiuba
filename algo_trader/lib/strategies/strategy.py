@@ -4,7 +4,7 @@ from lib.actions import Action
 from lib.indicators.indicator import Indicator
 
 class Strategy:
-    def __init__(self, indicators: List[Indicator], timeframe: str, id: str):
+    def __init__(self, indicators: List[Indicator], timeframe: str, id: str = ''):
         self.indicators = indicators
         self.timeframe = timeframe
         self.id = id
