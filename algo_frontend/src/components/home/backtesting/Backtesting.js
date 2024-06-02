@@ -476,7 +476,7 @@ const Backtesting = () => {
           average_return: getAverageReturn(data),
           best_trade: getBestTrade(data),
           worst_trade: getWorstTrade(data),
-          serie: data.series.map((row) => ({
+          series: data.series.map((row) => ({
             ...row,
             balance_strategy: parseFloat(row.balance_strategy.toFixed(2)),
             balance_buy_and_hold: parseFloat(
