@@ -401,7 +401,7 @@ const Backtesting = () => {
           const strategy = riskData[strategyType]
           const formattedStrategy = {}
           for (const key in strategy) {
-            formattedStrategy[key] = strategy[key].toFixed(2)
+            formattedStrategy[key] = strategy[key].toFixed(3)
           }
           formattedData[strategyType] = formattedStrategy
         }
