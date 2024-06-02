@@ -53,6 +53,19 @@ const RiskComparisonChart = ({ risks, colors }) => {
     dataKey: risk,
   }))
 
+  const calculateDomain = (dataKey) => {
+    let min = Infinity
+    let max = -Infinity
+    data.forEach((d) => {
+      if (Number(d[dataKey]) < min) min = Number(d[dataKey])
+      if (Number(d[dataKey]) > max) max = Number(d[dataKey])
+    })
+    if (min > 0) min = 0
+    if (max < 0) max = 0
+
+    return [min, max]
+  }
+
   return (
     <ChartsStyle>
       {risks_.map((risk, index) => (
@@ -69,8 +82,13 @@ const RiskComparisonChart = ({ risks, colors }) => {
                   dataKey="name"
                   type="category"
                   tickFormatter={yAxisTickFormatter}
+                  tick={{ fill: "#fff" }}
                 />
-                <XAxis type="number" />
+                <XAxis
+                  type="number"
+                  domain={calculateDomain(risk.dataKey)}
+                  tick={{ fill: "#fff" }}
+                />
                 <Tooltip contentStyle={{ backgroundColor: theme.black }} />
                 <Bar dataKey={risk.dataKey} fill="#8884d8" />
               </BarChart>
