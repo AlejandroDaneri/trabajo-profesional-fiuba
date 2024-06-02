@@ -69,14 +69,9 @@ class TDstrategy(Strategy):
         for indicator in self.indicators:
             indicator.calculate(data, False)
             indicator_signals = indicator.generate_signals()
-            signals_df[indicator.name] = indicator_signals
-
-        signals_df['ConfirmedEntrySignal'] = confirmed_signals_df['ConfirmedEntrySignal']
-        signals_df['ConfirmedOutputSignal'] = confirmed_signals_df['ConfirmedOutputSignal']
-
-        signals_df['Entry'] = np.where((signals_df == 1).any(axis=1) & signals_df['ConfirmedEntrySignal'].notna(), 1, 0)
-        signals_df['Exit'] = np.where((signals_df == -1).any(axis=1) & signals_df['ConfirmedOutputSignal'].notna(), -1, 0)
-        signals_df['Signal'] = signals_df['Entry'] + signals_df['Exit']
+            signals_df['Entry'] = np.where((indicator_signals == 1) & (confirmed_signals_df['ConfirmedEntrySignal'] != np.nan), 1, 0)
+            signals_df['Exit'] = np.where((indicator_signals == -1) & (confirmed_signals_df['ConfirmedOutputSignal'] != np.nan), -1, 0)
+            signals_df['Signal'] = signals_df['Entry'] + signals_df['Exit']
         
         return signals_df['Signal']
 
@@ -93,7 +88,7 @@ class TDstrategy(Strategy):
 
         actions = pd.DataFrame({'signal': signals, 'Close': last_data['Close']}, index=last_data.index)
 
-        buy_indices = actions.assign(buy_indices=lambda x: (x['signal'] == Action.BUY).astype(int))
-        sell_indices = actions.assign(buy_indices=lambda x: (x['signal'] == Action.SELL).astype(int))
+        buy_indices = actions.assign(buy_indices=lambda x: (x['signal'] == 1).astype(int))
+        sell_indices = actions.assign(sell_indices=lambda x: (x['signal'] == -1).astype(int))
 
         return buy_indices, sell_indices
