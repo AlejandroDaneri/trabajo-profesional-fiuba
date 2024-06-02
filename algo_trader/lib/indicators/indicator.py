@@ -72,7 +72,7 @@ class Indicator:
             print(f"Indicator {cls.__name__} is missing required parameters: {', '.join(missing_params)}")
             return None
 
-        return cls(**{param: parameters[param] for param in required_params})
+        return cls(**{param: parameters[param] for param in parameters})
     
     def to_dict(self):
         params = {attr: getattr(self, attr) for attr in self.__dict__ if not attr.startswith('__')}
