@@ -140,6 +140,15 @@ const BacktestingOutputStyle = styled.div`
   height: calc(100vh - 40px - 84px);
   overflow-y: auto;
 
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+  }
+
   & .chart-container {
     & h3 {
       border-bottom: 1px solid white;
