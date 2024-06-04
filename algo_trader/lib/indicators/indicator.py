@@ -9,6 +9,9 @@ class Indicator:
         self.name = name
         return
 
+    def get_name(self):
+        return self.name
+
     def calculate(self, data, normalize=False):
         if normalize:
             return self.normalize_output()
