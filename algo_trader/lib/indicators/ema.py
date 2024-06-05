@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 class EMA(Indicator):
     def __init__(self, rounds:int=20):
         self.rounds = rounds
-        super().__init__("EMA")
+        super().__init__(f"EMA_{rounds}")
 
     def calculate(self, data, normalize=False):
         # Create a DataFrame with the same index as the input data

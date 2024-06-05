@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 class SMA(Indicator):
     def __init__(self, rounds:int):
         self.rounds = rounds
-        super().__init__("SMA")
+        super().__init__(f"SMA_{rounds}")
 
     def calculate(self, data, normalize=False):
         # Create a DataFrame with the same index as the input data

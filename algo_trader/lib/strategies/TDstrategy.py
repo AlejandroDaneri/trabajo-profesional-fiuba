@@ -9,7 +9,7 @@ import pandas as pd
 import numpy as np
 
 class TDstrategy(Strategy):
-    def __init__(self, indicators: List[Indicator], timeframe: str, id: str):
+    def __init__(self, indicators: List[Indicator], timeframe: str, id: str = ''):
         self.name = "TD"
 
         # TODO: check to parameterize this data
@@ -23,10 +23,8 @@ class TDstrategy(Strategy):
         super().__init__(indicators, timeframe, id)
 
     def prepare_data(self, historical_data: pd.DataFrame):
-        print(self.name + " | begin prepare")
         self.data = historical_data[["Open", "High", "Low", "Close", "Volume"]].copy()
         self.data[["High", "Low", "Close", "Volume", "Open"]] = self.data[["High", "Low", "Close", "Volume", "Open"]].apply(pd.to_numeric)
-        print(self.name + " | end prepare")
 
     def predict(self, new_record):
         new_record[["High", "Low", "Close", "Volume", "Open"]] = new_record[["High", "Low", "Close", "Volume", "Open"]].apply(pd.to_numeric)
