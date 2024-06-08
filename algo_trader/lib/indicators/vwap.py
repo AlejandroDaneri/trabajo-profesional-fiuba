@@ -9,7 +9,7 @@ class VWAP(Indicator):
         self.periods = periods
         super().__init__("VWAP")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         self.data = data
         df = pd.DataFrame(index=data.index)
         df["Close"] = data["Close"]

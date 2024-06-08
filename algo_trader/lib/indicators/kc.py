@@ -12,7 +12,7 @@ class KC(Indicator):
         self.factor = factor
         super().__init__("KC")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         self.data = data
         df = pd.DataFrame(index=data.index)
         df["Close"] = data["Close"]

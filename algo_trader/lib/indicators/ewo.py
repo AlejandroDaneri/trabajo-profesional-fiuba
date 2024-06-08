@@ -10,7 +10,7 @@ class EWO(Indicator):
         self.long_period = long_period
         super().__init__("EWO")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         self.data = data
         df = pd.DataFrame(index=data.index)
         ema_short = data["Close"].ewm(span=self.short_period, adjust=False).mean()
