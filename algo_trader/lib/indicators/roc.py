@@ -9,7 +9,7 @@ class ROC(Indicator):
         self.periods = periods
         super().__init__("ROC")
 
-    def calculate(self, data):
+    def calculate(self, data, normalize=False):
         self.data = data
         df = pd.DataFrame(index=data.index)
         df["ROC"] = (data["Close"] - data["Close"].shift(self.periods)) / data["Close"].shift(self.periods)
