@@ -138,7 +138,6 @@ class FuturesBacktester:
                         break
                     if j == total:
                         i=j
-                        print("Compra abierta")
                         break
 
             else:
