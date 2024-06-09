@@ -39,24 +39,16 @@ def build_message(trade: Trade):
         trade_result = "👎 Negative"
 
     trade_details_message = (
-    "Trade Details:\n"
-    "Pair: {}\n"
-    "Amount: {}\n"
-    "Buy Order:\n"
-    "  Price: {}\n"
-    "  Timestamp: {}\n"
-    "Sell Order:\n"
-    "  Price: {}\n"
-    "  Timestamp: {}\n"
-    "Trade Result: {}"
-    ).format(
-        trade.symbol,
-        trade.amount,
-        trade.buy_order.price,
-        datetime.fromtimestamp(trade.buy_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-        trade.sell_order.price,
-        datetime.fromtimestamp(trade.sell_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S'),
-        trade_result
+        f"*📊 Trade Details:*\n\n"
+        f"*Pair:* {trade.symbol}\n\n"
+        f"*Amount:* {trade.amount:.8f} BTC\n\n"
+        f"*🟢 Buy Order:*\n\n"
+        f"          • *Price:* ${trade.buy_order.price:,.2f}\n\n"
+        f"          • *Timestamp:* {datetime.fromtimestamp(trade.buy_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        f"*🔴 Sell Order:*\n\n"
+        f"          • *Price:* ${trade.sell_order.price:,.2f}\n\n"
+        f"          • *Timestamp:* {datetime.fromtimestamp(trade.sell_order.timestamp / 1000).strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        f"*Trade Result:* {trade_result}\n"
     )
 
     return trade_details_message
@@ -73,6 +65,6 @@ def notify_telegram_users(trade):
 
 def send_telegram_message(bot_token, chat_id, message):
     url = 'https://api.telegram.org/bot{}/sendMessage'.format(bot_token)
-    data = {'chat_id': chat_id, 'text': message}
+    data = {'chat_id': chat_id, 'text': message, 'parse_mode': 'Markdown'}
     response = requests.post(url, data=data)
     print(response.json())
