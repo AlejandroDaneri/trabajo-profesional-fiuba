@@ -1,18 +1,30 @@
-/* Import Libs */
-import { BrowserRouter, Route, Switch } from "react-router-dom"
-import React from "react"
-import { RecoilRoot } from "recoil"
-import { Provider } from "react-redux"
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
+import { RecoilRoot, useRecoilValue } from "recoil";
 
-/* Import Components */
-import Login from "./components/Login"
-import Home from "./components/home/Home"
-import Popup from "./components/Popup"
+import AppStyle from "./styles/app";
+import Home from "./components/home/Home";
+import Login from "./components/Login";
+import Popup from "./components/Popup";
+import { Provider } from "react-redux";
+import React from "react";
+import store from "./store";
+import { userState } from "./atoms/atoms";
 
-/* Import Styles */
-import AppStyle from "./styles/app"
-
-import store from "./store"
+const PrivateRoute = ({ component: Component, ...rest }) => {
+  const user = useRecoilValue(userState);
+  return (
+    <Route
+      {...rest}
+      render={props =>
+        user.isLoggedIn ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/" />
+        )
+      }
+    />
+  );
+};
 
 const App = () => {
   return (
@@ -23,13 +35,13 @@ const App = () => {
             <Popup />
             <Switch>
               <Route exact path="/" component={Login} />
-              <Route path="/home" component={Home} />
+              <PrivateRoute path="/home" component={Home} />
             </Switch>
           </AppStyle>
         </BrowserRouter>
       </RecoilRoot>
     </Provider>
-  )
-}
+  );
+};
 
-export default App
+export default App;
