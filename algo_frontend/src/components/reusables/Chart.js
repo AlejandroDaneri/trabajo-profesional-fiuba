@@ -13,7 +13,7 @@ import {
   AreaChart,
 } from "recharts"
 import styled from "styled-components"
-
+import { format } from "date-fns"
 /* Import Reusable Components */
 import FieldSwitch from "./FieldSwitch"
 
@@ -48,7 +48,7 @@ const StrategyComparisonChart = ({
   const toggleLogScale = () => {
     setLogScale((prevLogScale) => !prevLogScale)
   }
-
+  const dateFormatter = (tick) => format(new Date(tick), "yyyy-MM-dd")
   const handleBrushChange = (domain) => {
     if (domain && domain.length === 2) {
       const [start, end] = domain
@@ -75,9 +75,15 @@ const StrategyComparisonChart = ({
       <ResponsiveContainer height={height || 400}>
         <LineChart
           data={data}
-          margin={{ top: 5, right: 30, left: 20, bottom: 0 }}
+          margin={{ top: 5, right: 30, left: 20, bottom: 20 }}
         >
-          <XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
+          <XAxis
+            dataKey="date"
+            angle={-20}
+            textAnchor="end"
+            height={70}
+            tickFormatter={dateFormatter}
+          />
           {logScale ? (
             <YAxis
               label={{
