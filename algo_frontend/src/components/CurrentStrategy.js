@@ -39,23 +39,22 @@ import logoBinance from "../images/logos/exchanges/binance.svg"
 import Box from "./reusables/Box"
 
 const CurrentStrategy = () => {
-
   const [strategy, strategyFunc] = useState({
     loading: false,
     data: {
       currencies: [],
-      indicators_label: []
+      indicators_label: [],
     },
   })
 
   const [trades, tradesFunc] = useState({
     loading: false,
-    data: []
+    data: [],
   })
 
   const [exchanges, exchangesFunc] = useState({
     loading: false,
-    data: []
+    data: [],
   })
 
   const [selectedDates, setSelectedDates] = useState({
@@ -67,7 +66,6 @@ const CurrentStrategy = () => {
     loading: false,
     data: [],
   })
-
 
   //Here we should fetch the actual information from the database.
   const generateStockPerformanceData = () => {
@@ -204,7 +202,7 @@ const CurrentStrategy = () => {
   }
 
   const getTrades = (strategyId) => {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       tradesFunc((prevState) => ({
         ...prevState,
         loading: true,
@@ -249,7 +247,7 @@ const CurrentStrategy = () => {
     return new Promise((resolve, reject) => {
       exchangesFunc((prevState) => ({
         ...prevState,
-        loading: true
+        loading: true,
       }))
       listExchanges()
         .then((response) => {
@@ -279,12 +277,12 @@ const CurrentStrategy = () => {
         ...data,
         [symbol]: {
           ...data[symbol],
-          series: data[symbol].series.map(row => ({
+          series: data[symbol].series.map((row) => ({
             ...row,
             balance_buy_and_hold: row.balance_buy_and_hold.toFixed(2),
-            balance_strategy: row.balance_strategy.toFixed(2)
-          }))
-        }
+            balance_strategy: row.balance_strategy.toFixed(2),
+          })),
+        },
       }
     }
 
@@ -295,7 +293,7 @@ const CurrentStrategy = () => {
       data_to: end,
       timeframe,
       indicators,
-      type: 'spot'
+      type: "spot",
     }
     run(body)
       .then((response) => {
@@ -361,92 +359,131 @@ const CurrentStrategy = () => {
           <div className="summary">
             <h2>Summary</h2>
             <div className="summary-content">
-              <Box label='Initial Balance' value={strategy.data.initial_balance} />
-              <Box label='Current Balance' value={trades.data.length === 0 ? strategy.data.initial_balance : strategy.data.current_balance} />
-              <Box label='Profit/Loss' value={trades.data.length === 0 ? '0 (0%)' : strategy.data.profit_and_loss_label} />
-              <Box label='Exchange' value={
-                <div className="exchange-wrapper">
-                  <p>{exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.alias}</p>
-                  {exchanges.data.find(exchange => exchange.id === strategy.data.exchange_id)?.exchange_name === 'binance' && <img alt="Binance" src={logoBinance} width="24px" />}
-                </div>
-              } />
-              <Box label='Currencies' value={strategy.data.currencies.map((currency) => (
-                <div className="currency-wrapper">
-                  <CurrencyLogo currency={currency} />
-                </div>
-              ))} />
-              <Box label='Indicators' value={strategy.data.indicators_label.map((indicator) => (
-                <div className="indicator-wrapper">
-                  {indicator.name}
-                </div>
-              ))} />
-              <Box label='Duration' value={strategy.data.duration} />
-              <Box label='Timeframe' value={strategy.data.timeframe_label} />
-              <Box label='# Trades' value={trades.data.length} />
+              <Box
+                label="Initial Balance"
+                value={strategy.data.initial_balance}
+              />
+              <Box
+                label="Current Balance"
+                value={
+                  trades.data.length === 0
+                    ? strategy.data.initial_balance
+                    : strategy.data.current_balance
+                }
+              />
+              <Box
+                label="Profit/Loss"
+                value={
+                  trades.data.length === 0
+                    ? "0 (0%)"
+                    : strategy.data.profit_and_loss_label
+                }
+              />
+              <Box
+                label="Exchange"
+                value={
+                  <div className="exchange-wrapper">
+                    <p>
+                      {
+                        exchanges.data.find(
+                          (exchange) =>
+                            exchange.id === strategy.data.exchange_id
+                        )?.alias
+                      }
+                    </p>
+                    {exchanges.data.find(
+                      (exchange) => exchange.id === strategy.data.exchange_id
+                    )?.exchange_name === "binance" && (
+                      <img alt="Binance" src={logoBinance} width="24px" />
+                    )}
+                  </div>
+                }
+              />
+              <Box
+                label="Currencies"
+                value={strategy.data.currencies.map((currency) => (
+                  <div className="currency-wrapper">
+                    <CurrencyLogo currency={currency} />
+                  </div>
+                ))}
+              />
+              <Box
+                label="Indicators"
+                value={strategy.data.indicators_label.map((indicator) => (
+                  <div className="indicator-wrapper">{indicator.name}</div>
+                ))}
+              />
+              <Box label="Duration" value={strategy.data.duration} />
+              <Box label="Timeframe" value={strategy.data.timeframe_label} />
+              <Box label="# Trades" value={trades.data.length} />
             </div>
           </div>
-          {trades.data.length > 0 && <div className="trades">
-            <h2>Trades</h2>
-            <Trades strategyID={strategy.data.id} />
-          </div>}
-          {trades.data.length > 0 && <div>
-            <h2>Graphs</h2>
-            <div>
-              <h3>Comparison of Strategies</h3>
-              <StrategyComparisonChart
-                data={candleticks.data[strategy.data.currencies[0]]?.series}
-                colors={["#87CEEB", "#00FF00"]}
-                logScaleDefault={true}
-                hideBrush={true}
-                height={200}
-              />
+          {trades.data.length > 0 && (
+            <div className="trades">
+              <h2>Trades</h2>
+              <Trades strategyID={strategy.data.id} />
             </div>
-            {false && (
-              <div className="graph-item">
-                <h3>Weekly Stock Performance</h3>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart
-                    width={500}
-                    height={300}
-                    data={filteredStockPerformanceData}
-                    stackOffset="sign"
-                    margin={{
-                      top: 5,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
-                    <CartesianGrid stroke="none" strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis
-                      label={{
-                        value: "Profit/Loss",
-                        angle: -90,
-                        position: "insideLeft",
-                        style: { textAnchor: "middle" },
-                      }}
-                    />
-                    <Tooltip />
-                    <Legend />
-                    <ReferenceLine y={0} stroke="#484a4d" />
-                    <Bar
-                      dataKey="pv"
-                      name="Current Strategy"
-                      fill="#8884d8"
-                      stackId="stack"
-                    />
-                    <Bar
-                      dataKey="uv"
-                      name="Buy and Hold"
-                      fill="#82ca9d"
-                      stackId="stack"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
+          )}
+          {trades.data.length > 0 && (
+            <div>
+              <h2>Graphs</h2>
+              <div>
+                <h3>Comparison of Strategies</h3>
+                <StrategyComparisonChart
+                  data={candleticks.data[strategy.data.currencies[0]]?.series}
+                  colors={["#87CEEB", "#00FF00"]}
+                  logScaleDefault={true}
+                  hideBrush={true}
+                  height={400}
+                />
               </div>
-            )}
-          </div>}
+              {false && (
+                <div className="graph-item">
+                  <h3>Weekly Stock Performance</h3>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart
+                      width={500}
+                      height={300}
+                      data={filteredStockPerformanceData}
+                      stackOffset="sign"
+                      margin={{
+                        top: 5,
+                        right: 30,
+                        left: 20,
+                        bottom: 5,
+                      }}
+                    >
+                      <CartesianGrid stroke="none" strokeDasharray="3 3" />
+                      <XAxis dataKey="name" />
+                      <YAxis
+                        label={{
+                          value: "Profit/Loss",
+                          angle: -90,
+                          position: "insideLeft",
+                          style: { textAnchor: "middle" },
+                        }}
+                      />
+                      <Tooltip />
+                      <Legend />
+                      <ReferenceLine y={0} stroke="#484a4d" />
+                      <Bar
+                        dataKey="pv"
+                        name="Current Strategy"
+                        fill="#8884d8"
+                        stackId="stack"
+                      />
+                      <Bar
+                        dataKey="uv"
+                        name="Buy and Hold"
+                        fill="#82ca9d"
+                        stackId="stack"
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          )}
         </CurrentStrategyStyle>
       }
     />
