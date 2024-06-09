@@ -24,14 +24,24 @@ const ChartStyle = styled.div`
   flex-direction: column;
   border-radius: 4px;
   padding: 10px;
-  background: linear-gradient(132.03deg, rgba(21,24,37,.4) 0%, rgba(11,10,7,.4) 100%);
+  background: linear-gradient(
+    132.03deg,
+    rgba(21, 24, 37, 0.4) 0%,
+    rgba(11, 10, 7, 0.4) 100%
+  );
 
   & .field {
     margin-bottom: 10px;
   }
 `
 
-const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush, height }) => {
+const StrategyComparisonChart = ({
+  data,
+  colors,
+  logScaleDefault,
+  hideBrush,
+  height,
+}) => {
   const [logScale, setLogScale] = useState(logScaleDefault)
   const [zoomedData, setZoomedData] = useState(data)
 
@@ -65,17 +75,29 @@ const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush, hei
       <ResponsiveContainer height={height || 400}>
         <LineChart
           data={data}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          margin={{ top: 5, right: 30, left: 20, bottom: 0 }}
         >
-          <XAxis dataKey="date" />
+          <XAxis dataKey="date" angle={-30} textAnchor="end" height={70} />
           {logScale ? (
             <YAxis
-              label={{ value: "Balance", position: "insideLeft" }}
+              label={{
+                value: "Balance",
+                angle: -90,
+                position: "insideLeft",
+                offset: -10,
+              }}
               scale={logScale && "log"}
               domain={logScale && ["auto", "auto"]}
             />
           ) : (
-            <YAxis label={{ value: "Balance", position: "insideLeft" }} />
+            <YAxis
+              label={{
+                value: "Balance",
+                angle: -90,
+                position: "insideLeft",
+                offset: -10,
+              }}
+            />
           )}
           <Tooltip contentStyle={{ backgroundColor: theme.black }} />
           <Legend />
@@ -109,24 +131,26 @@ const StrategyComparisonChart = ({ data, colors, logScaleDefault, hideBrush, hei
             dot={false}
             connectNulls
           />
-          {!hideBrush && <Brush dataKey="date" onChange={handleBrushChange}>
-            <AreaChart>
-              <Area
-                type="monotone"
-                dataKey="balance_buy_and_hold"
-                stroke={colors[0]}
-                fill={colors[0]}
-                connectNulls
-              />
-              <Area
-                type="monotone"
-                dataKey="balance_strategy"
-                stroke={colors[1]}
-                fill={colors[1]}
-                connectNulls
-              />
-            </AreaChart>
-          </Brush>}
+          {!hideBrush && (
+            <Brush dataKey="date" onChange={handleBrushChange}>
+              <AreaChart>
+                <Area
+                  type="monotone"
+                  dataKey="balance_buy_and_hold"
+                  stroke={colors[0]}
+                  fill={colors[0]}
+                  connectNulls
+                />
+                <Area
+                  type="monotone"
+                  dataKey="balance_strategy"
+                  stroke={colors[1]}
+                  fill={colors[1]}
+                  connectNulls
+                />
+              </AreaChart>
+            </Brush>
+          )}
         </LineChart>
       </ResponsiveContainer>
     </ChartStyle>
