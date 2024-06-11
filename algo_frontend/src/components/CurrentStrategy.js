@@ -434,6 +434,7 @@ const CurrentStrategy = () => {
                   colors={["#87CEEB", "#00FF00"]}
                   logScaleDefault={true}
                   hideBrush={true}
+                  hideLogSwitch={true}
                   height={400}
                 />
               </div>
