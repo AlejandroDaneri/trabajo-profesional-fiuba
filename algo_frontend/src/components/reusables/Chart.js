@@ -40,6 +40,7 @@ const StrategyComparisonChart = ({
   colors,
   logScaleDefault,
   hideBrush,
+  hideLogSwitch,
   height,
 }) => {
   const [logScale, setLogScale] = useState(logScaleDefault)
@@ -63,15 +64,18 @@ const StrategyComparisonChart = ({
 
   return (
     <ChartStyle>
-      <div className="field">
-        <FieldSwitch
-          id="log_scale"
-          name="log_scale"
-          label="Log Scale"
-          value={logScale}
-          onChange={toggleLogScale}
-        />
-      </div>
+      {!hideLogSwitch && (
+        <div className="field">
+          <FieldSwitch
+            id="log_scale"
+            name="log_scale"
+            label="Log Scale"
+            value={logScale}
+            onChange={toggleLogScale}
+          />
+        </div>
+      )}
+
       <ResponsiveContainer height={height || 400}>
         <LineChart
           data={data}
