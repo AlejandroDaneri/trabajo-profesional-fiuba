@@ -760,6 +760,7 @@ const Backtesting = () => {
                     data={backtesting.data[state.coin.value]?.series}
                     colors={["#87CEEB", "#00FF00"]}
                     logScaleDefault={true}
+                    hideLogSwitch={false}
                   />
                 </div>
 
