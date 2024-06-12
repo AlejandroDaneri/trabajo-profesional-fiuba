@@ -59,7 +59,7 @@ def backtest():
         if cached_data is None:
             print(cache_key)
             # If data is not in cache, save it
-            data = provider.get(coin, timeframe, data_from, data_to)
+            data = Binance().get(coin, timeframe, data_from, data_to)
             cache.set(cache_key, data)
         else:
             # If data is in cache, use it
@@ -107,11 +107,11 @@ def backtest():
         
         risks["buy_and_hold"] = buy_and_hold
         risks["strategy"] = strategy_risks
-        
+
         print("[Backtester] building strategy series: started")
         strategy_balance_series = trades_2_balance_series(data, trades, timeframe, initial_balance)
         print("[Backtester] building strategy series: finished")
-        
+
         print("[Backtester] building buy and hold series: started")
         hold_balance_series = buy_and_hold_balance_series(data, timeframe, initial_balance)
         print("[Backtester] building buy and hold series: finished")
