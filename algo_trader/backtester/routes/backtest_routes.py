@@ -46,10 +46,7 @@ def backtest():
     results = {}
     for coin in coins:
 
-        if timeframe == TIMEFRAME_1_DAY:
-            provider = YahooFinance()
-        else:
-            provider = Binance()
+        provider = Binance()
 
         print("[Backtester] getting data: started")
 
@@ -59,7 +56,7 @@ def backtest():
         if cached_data is None:
             print(cache_key)
             # If data is not in cache, save it
-            data = Binance().get(coin, timeframe, data_from, data_to)
+            data = provider.get(coin, timeframe, data_from, data_to)
             cache.set(cache_key, data)
         else:
             # If data is in cache, use it
