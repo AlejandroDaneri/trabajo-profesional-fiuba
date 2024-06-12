@@ -45,54 +45,60 @@ def loc(data: pd.DataFrame, date: datetime, timeframe: str) -> float:
             current_date_str = current_date.strftime(DATE_FORMAT[timeframe])
     return data.iloc[-1].Close
 
-def trades_2_balance_series(data, trades, timeframe, initial_balance):
-    balance = initial_balance
-    amount = 0
+def trades_2_balance_series(data: pd.DataFrame, trades: pd.DataFrame, timeframe: str, initial_balance: int):
     df = []
     start = data.index[0]
 
     if len(trades) == 0:
         end = data.index[-1]
-        df.extend(generate_range_sell(start, end, timeframe, balance))
-        df = pd.DataFrame(df, columns=['date', 'balance']).drop_duplicates('date')
+        df.extend(generate_range_sell(start, end, timeframe))
+        df = pd.DataFrame(df, columns=['date', 'return']).drop_duplicates('date')
         return df
     for _, trade in trades.iterrows():
         # INTERVAL: UNTIL ON BUY
-        df.extend(generate_range_sell(start, trade.entry_date, timeframe, balance))
+        df.extend(generate_range_sell(start, trade.entry_date, timeframe))
 
         # INTERVAL: ON BUY
-        price = data.loc[trade.entry_date].Close
-        amount = balance / price
-        balance = 0
-        df.extend(generate_range_buy(data, trade.entry_date, trade.output_date, timeframe, amount))
-
-        price = data.loc[trade.output_date].Close
-        balance = amount * price
-        amount = 0
-
+        df.extend(generate_range_buy(data, trade.entry_date, trade.output_date, timeframe, trade.get("position_type", default="long")))
         start = trade.output_date
 
     start = trades.iloc[-1].output_date
     end = data.index[-1]
-    df.extend(generate_range_sell(start, end, timeframe, balance))
-
-    df = pd.DataFrame(df, columns=['date', 'balance']).drop_duplicates('date')
+    df.extend(generate_range_sell(start, end, timeframe))
+    df = pd.DataFrame(df, columns=['date', 'return', 'balance']).drop_duplicates('date')
+    cumulative_return = (1 + df["return"]).cumprod() - 1
+    df["cumulative_return"] = cumulative_return
+    df["balance"] = (df['cumulative_return'] + 1) * initial_balance
     return df
 
-def generate_range_sell(start, end, timeframe, balance):
+def generate_range_sell(start, end, timeframe):
     dates = generate_date_range(start, end, timeframe)
-    return [{'date': date, 'balance': balance} for date in dates]
+    return [{'date': date, 'return': 0} for date in dates]
 
-def generate_range_buy(data, start, end, timeframe, amount):
-    dates = generate_date_range(start, end, timeframe)
-    return [{'date': date, 'balance': amount * loc(data, datetime.strptime(date, DATE_FORMAT[timeframe]), timeframe)} for date in dates]
+def generate_range_buy(data, start, end, timeframe, type = 'long'):
+  dates = generate_date_range(start, end, timeframe)
+
+  def get_return(date):
+    now_price = loc(data, datetime.strptime(date, DATE_FORMAT[timeframe]), timeframe)
+    prev_price = loc(data, datetime.strptime(date, DATE_FORMAT[timeframe]) - get_delta(timeframe), timeframe)
+
+    if type == 'long':
+      return now_price / prev_price - 1
+    else:
+      return prev_price / now_price - 1
+        
+  return_ = []
+  for date in dates:
+    return_.append({'date': date, 'return': get_return(date)})
+  return return_
 
 def buy_and_hold_balance_series(data, timeframe, initial_balance):
-    amount = initial_balance / data.iloc[0].Close
-    dates = generate_date_range(data.index[0], data.index[-1], timeframe)
-    df = [{'date': date, 'balance': amount * loc(data, datetime.strptime(date, DATE_FORMAT[timeframe]), timeframe)} for date in dates]
-
-    return pd.DataFrame(df, columns=['date', 'balance'])
+    list = generate_range_buy(data, data.index[0], data.index[-1], timeframe)
+    df = pd.DataFrame(list, columns=['date', 'return']).drop_duplicates('date')
+    cumulative_return = (1 + df["return"]).cumprod() - 1
+    df["cumulative_return"] = cumulative_return
+    df["balance"] = (df['cumulative_return'] + 1) * initial_balance
+    return df
 
 def generate_dates(start: str, end: str):
     start = datetime.strptime(start, '%Y-%m-%d')
@@ -123,14 +129,15 @@ def plot_strategy(data, trades, initial_balance=1000, log_scale=False, timeframe
 
 def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):
   fig = plt.figure()
-  fig.set_size_inches(30, 5)
+  fig.set_size_inches(30, 10)
   if log_scale:
     plt.yscale('log')
   
   dates = generate_dates(x[0], x[-1])
   for column in y:
     plt.plot(dates, y[column], label = column)
-  plt.legend()
+  plt.legend(fontsize=14)
+  plt.ylabel('Percentage', fontsize=14)
   plt.show()
 
 def plot(x: pd.Series, y: pd.Series, log_scale=False, color='#006CA7', buy_threshold=None, sell_threshold=None):
