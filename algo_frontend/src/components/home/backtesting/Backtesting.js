@@ -289,7 +289,7 @@ const Backtesting = () => {
 
   const [view, viewFunc] = useState(VIEW_FORM)
   const [state, stateFunc] = useState({
-    start: "2015-01-01",
+    start: "2019-01-01",
     end: "2024-01-01",
     coin: {
       value: "BTC",
