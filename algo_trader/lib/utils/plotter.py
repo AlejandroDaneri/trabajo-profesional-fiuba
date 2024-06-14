@@ -136,6 +136,8 @@ def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):
   dates = generate_dates(x[0], x[-1])
   for column in y:
     plt.plot(dates, y[column], label = column)
+  plt.xticks(fontsize=16)
+  plt.yticks(fontsize=16) 
   plt.legend(fontsize=14)
   plt.ylabel('Percentage', fontsize=14)
   plt.show()
