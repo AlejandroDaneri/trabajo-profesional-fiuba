@@ -9,6 +9,7 @@ class RiskCalculator:
     def payoff_ratio(self) -> float:
         losers = self.linear_returns[self.linear_returns < 0]
         winners = self.linear_returns[self.linear_returns > 0]
+
         if len(losers) == 0 or len(winners) == 0:
             return 0  
         return abs(winners.mean() / losers.mean())
@@ -48,7 +49,6 @@ class RiskCalculator:
 
         losers = self.returns[self.returns < 0]
         winners = self.returns[self.returns > 0]
-
         if len(losers) == 0: 
             return 999999
 
@@ -82,14 +82,45 @@ class RiskCalculator:
 
     def calculate(self) -> dict:
         return {
-            "payoff_ratio": self.payoff_ratio(),
-            "rachev_ratio": self.rachev_ratio(),
-            "kelly_criterion": self.kelly_criterion(),
-            "max_drawdown": self.max_drawdowns(),
-            "profit_factor": self.profit_factor(),
-            "sortino_ratio": self.sortino_ratio(),
-            "sharpe_ratio": self.sharpe_ratio(),
-            "volatility": self.volatility(),
-            "value_at_risk": self.value_at_risk(),
-            "conditional_value_at_risk": self.conditional_value_at_risk(),
+            "payoff_ratio": {
+                "value": self.payoff_ratio(),
+                "description": "Ratio of average win to average loss. Possible values: 0 (no winners or no losers), positive value."
+            },
+            "rachev_ratio": {
+                "value": self.rachev_ratio(),
+                "description": "Ratio of the expected tail gain to the expected tail loss. Possible values: 0 (no tail data), 99999999 (tail left mean is zero), positive value."
+            },
+            "kelly_criterion": {
+                "value": self.kelly_criterion(),
+                "description": "Optimal proportion of capital to invest. Possible values: 0 (no winners, no losers, or losers' mean is zero), positive value."
+            },
+            "max_drawdown": {
+                "value": self.max_drawdowns(),
+                "description": "Maximum observed loss from a peak to a trough. Possible values: 100 (infinite drawdown), -100 (infinite drawdown), other negative values."
+            },
+            "profit_factor": {
+                "value": self.profit_factor(),
+                "description": "Ratio of gross profit to gross loss. Possible values: 1 (no returns), 999999 (no losers), positive value."
+            },
+            "sortino_ratio": {
+                "value": self.sortino_ratio(),
+                "description": "Return-to-risk ratio considering only downside volatility. Possible values: inf (no downside risk), positive value."
+            },
+            "sharpe_ratio": {
+                "value": self.sharpe_ratio(),
+                "description": "Return-to-risk ratio considering total volatility. Possible values: inf (no standard deviation), positive value."
+            },
+            "volatility": {
+                "value": self.volatility(),
+                "description": "Statistical measure of the dispersion of returns. Possible values: positive value."
+            },
+            "value_at_risk": {
+                "value": self.value_at_risk(),
+                "description": "Potential loss in value over a defined period for a given confidence interval. Possible values: negative value."
+            },
+            "conditional_value_at_risk": {
+                "value": self.conditional_value_at_risk(),
+                "description": "Expected loss exceeding the value at risk. Possible values: negative value."
+            }
         }
+

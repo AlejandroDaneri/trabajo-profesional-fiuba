@@ -32,9 +32,14 @@ type IService interface {
 	GetIndicators() (IndicatorsResponse, error)
 }
 
+type RiskValue struct {
+    Value       float64 `json:"value"`
+    Description string  `json:"description"`
+}
+
 type Risk struct {
-    BuyAndHold map[string]interface{} `json:"buy_and_hold"`
-    Strategy   map[string]interface{} `json:"strategy"`
+    BuyAndHold map[string]RiskValue `json:"buy_and_hold"`
+    Strategy   map[string]RiskValue `json:"strategy"`
 }
 type Trade struct {
     CumulativeReturn   float64 `json:"cumulative_return"`

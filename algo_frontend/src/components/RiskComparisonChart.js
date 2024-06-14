@@ -1,4 +1,3 @@
-/* Import Libs */
 import React from "react"
 import {
   BarChart,
@@ -86,11 +85,11 @@ const RiskComparisonChart = ({ risks, colors }) => {
                 />
                 <XAxis
                   type="number"
-                  domain={calculateDomain(risk.dataKey)}
+                  domain={calculateDomain(risk.dataKey.value)}
                   tick={{ fill: "#fff" }}
                 />
-                <Tooltip contentStyle={{ backgroundColor: theme.black }} />
-                <Bar dataKey={risk.dataKey} fill="#8884d8" />
+                <Tooltip content={risk.dataKey.description} />
+                <Bar dataKey={risk.dataKey.value} fill="#8884d8" />
               </BarChart>
             </ResponsiveContainer>
           </div>

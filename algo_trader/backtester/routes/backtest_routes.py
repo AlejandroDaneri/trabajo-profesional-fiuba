@@ -98,10 +98,9 @@ def backtest():
         risks = {}
         buy_and_hold_metrics = RiskCalculator(byh_backtester.log_returns, byh_backtester.linear_returns)
         buy_and_hold = buy_and_hold_metrics.calculate()
-
         strategy_metrics = RiskCalculator(backtester.log_returns, backtester.linear_returns)
         strategy_risks = strategy_metrics.calculate()
-        
+
         risks["buy_and_hold"] = buy_and_hold
         risks["strategy"] = strategy_risks
 
