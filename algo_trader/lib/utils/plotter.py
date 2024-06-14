@@ -23,7 +23,7 @@ def get_delta(timeframe: str):
     }
     return DELTA[timeframe]
 
-def generate_date_range(start_date, end_date, timeframe):
+def generate_date_range(start_date: str, end_date: str, timeframe: str):
     start = datetime.strptime(start_date, DATE_FORMAT[timeframe])
     end = datetime.strptime(end_date, DATE_FORMAT[timeframe])
     delta = get_delta(timeframe)
@@ -31,6 +31,17 @@ def generate_date_range(start_date, end_date, timeframe):
     current_date = start
     while current_date <= end:
         dates.append(current_date.strftime(DATE_FORMAT[timeframe]))
+        current_date += delta
+    return dates
+
+def generate_dates(start: str, end: str, timeframe: str):
+    start = datetime.strptime(start, DATE_FORMAT[timeframe])
+    end = datetime.strptime(end, DATE_FORMAT[timeframe])
+    delta = get_delta(timeframe)
+    dates = []
+    current_date = start
+    while current_date <= end:
+        dates.append(current_date)
         current_date += delta
     return dates
 
@@ -100,12 +111,6 @@ def buy_and_hold_balance_series(data, timeframe, initial_balance):
     df["balance"] = (df['cumulative_return'] + 1) * initial_balance
     return df
 
-def generate_dates(start: str, end: str):
-    start = datetime.strptime(start, '%Y-%m-%d')
-    end = datetime.strptime(end, '%Y-%m-%d')
-    dates = [start + timedelta(days=n) for n in range(int((end - start).days + 1))]
-    return dates
-
 def plot_strategy_and_buy_and_hold(data, trades, timeframe, initial_balance=1000, log_scale=False):
   df_hold = buy_and_hold_balance_series(data, timeframe, initial_balance)
   df_strategy = trades_2_balance_series(data, trades, timeframe, initial_balance)
@@ -115,8 +120,8 @@ def plot_strategy_and_buy_and_hold(data, trades, timeframe, initial_balance=1000
   if log_scale:
     plt.yscale('log')
 
-  plt.plot(generate_dates(data.index[0], data.index[-1]), df_hold.balance, color='orange')
-  plt.plot(generate_dates(data.index[0], data.index[-1]), df_strategy.balance)
+  plt.plot(generate_dates(data.index[0], data.index[-1], timeframe), df_hold.balance, color='orange')
+  plt.plot(generate_dates(data.index[0], data.index[-1], timeframe), df_strategy.balance)
   plt.show()
 
 def plot_buy_and_hold(data, initial_balance=1000, timeframe='1d', log_scale=False):
@@ -127,13 +132,13 @@ def plot_strategy(data, trades, initial_balance=1000, log_scale=False, timeframe
   df = trades_2_balance_series(data, trades, timeframe, initial_balance)
   plot(df.date, df.balance, log_scale)
 
-def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):
+def plot_df(x: pd.Series, y: pd.DataFrame, timeframe: str, log_scale=False):
   fig = plt.figure()
   fig.set_size_inches(30, 10)
   if log_scale:
     plt.yscale('log')
   
-  dates = generate_dates(x[0], x[-1])
+  dates = generate_dates(x[0], x[-1], timeframe)
   for column in y:
     plt.plot(dates, y[column], label = column)
   plt.xticks(fontsize=16)
@@ -142,7 +147,7 @@ def plot_df(x: pd.Series, y: pd.DataFrame, log_scale=False):
   plt.ylabel('Percentage', fontsize=14)
   plt.show()
 
-def plot(x: pd.Series, y: pd.Series, log_scale=False, color='#006CA7', buy_threshold=None, sell_threshold=None):
+def plot(x: pd.Series, y: pd.Series, timeframe: str, log_scale=False, color='#006CA7', buy_threshold=None, sell_threshold=None):
     # matplotlib works better if we set dates instead strings
     # on the axis x, the plot looks much better 
     fig = plt.figure()
@@ -151,7 +156,7 @@ def plot(x: pd.Series, y: pd.Series, log_scale=False, color='#006CA7', buy_thres
     if log_scale:
       plt.yscale('log')
 
-    plt.plot(generate_dates(x.iloc[0], x.iloc[-1]), y, color=color)
+    plt.plot(generate_dates(x.iloc[0], x.iloc[-1], timeframe), y, color=color)
 
     if buy_threshold is not None:
       plt.axhline(y=buy_threshold, color='g', linestyle='--')
